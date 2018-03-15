@@ -38,10 +38,6 @@ public class LearningTracker extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/LearningTracker.fxml"));
         scene.setRoot(loader.load());
 
-        //ClassroomActivityTabController controller = loader.getController();
-        //controller.init();
-
-
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 
         //set Stage boundaries to visible bounds of the main screen
