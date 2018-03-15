@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -52,7 +51,7 @@ public class DBManager {
 		DbTableIndividualQuestionForStudentResult.createTableDirectEvaluationOfObjective(c,stmt);
 		DbTableRelationClassObjective.createTableSubject(c,stmt);
 		DbTableRelationClassTest.createTableSubject(c,stmt);
-		DbTableRelationQuestionMultipleChoiceTest.createTableRelationQuestionTest(c,stmt);
+		DbTableRelationQuestionTest.createTableRelationQuestionTest(c,stmt);
 		DbTableRelationQuestionSubject.createTableSubject(c,stmt);
 		DbTableRelationQuestionObjective.createTableRelationQuestionObjective(c,stmt);
 		DbTableRelationStudentObjective.createTableSubject(c,stmt);

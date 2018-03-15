@@ -5,7 +5,6 @@ import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -40,7 +39,7 @@ public class DbTableTests {
                 Test newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
                 newTest.setIdTest(Integer.parseInt(rs.getString("ID_TEST_GLOBAL")));
-                ArrayList<Integer> newQuestionIDsList = DbTableRelationQuestionMultipleChoiceTest.getQuestionIdsFromTestId(String.valueOf(newTest.getIdTest()));
+                ArrayList<Integer> newQuestionIDsList = DbTableRelationQuestionTest.getQuestionIdsFromTestName(String.valueOf(newTest.getIdTest()));
                 ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
                 for (int i = 0; i < newQuestionIDsList.size(); i++) {
                     QuestionGeneric newQuestionGeneric = new QuestionGeneric();

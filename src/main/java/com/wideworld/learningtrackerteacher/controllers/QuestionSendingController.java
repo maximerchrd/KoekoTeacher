@@ -16,8 +16,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -42,6 +43,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class QuestionSendingController extends Window implements Initializable {
     //all questions tree (left panel)
+    private QuestionGeneric draggedQuestion = null;
     private TreeItem<QuestionGeneric> root;
     private QuestionMultipleChoice questionMultChoiceSelectedNodeTreeFrom;
     private QuestionShortAnswer questionShortAnswerSelectedNodeTreeFrom;
@@ -103,14 +105,83 @@ public class QuestionSendingController extends Window implements Initializable {
                 treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
+                        if (treeCell.getTreeItem().getValue().getGlobalID() != -10) {
+                            draggedQuestion = treeCell.getTreeItem().getValue();
+                            Dragboard db = allQuestionsTree.startDragAndDrop(TransferMode.ANY);
 
+                            /* Put a string on a dragboard */
+                            ClipboardContent content = new ClipboardContent();
+                            content.putString(treeCell.getText());
+                            db.setContent(content);
+
+                            mouseEvent.consume();
+                        }
                     }
                 });
+
+                treeCell.setOnDragOver(new EventHandler<DragEvent>() {
+                    public void handle(DragEvent event) {
+                        /* data is dragged over the target */
+                        /* accept it only if it is not dragged from the same node
+                         * and if it has a string data */
+                        if (event.getGestureSource() != treeCell &&
+                                event.getDragboard().hasString()) {
+                            /* allow for both copying and moving, whatever user chooses */
+                            event.acceptTransferModes(TransferMode.COPY);
+                        }
+
+                        event.consume();
+                    }
+                });
+
+                treeCell.setOnDragEntered(new EventHandler<DragEvent>() {
+                    public void handle(DragEvent event) {
+                        /* the drag-and-drop gesture entered the target */
+                        /* show to the user that it is an actual gesture target */
+                        if (event.getGestureSource() != treeCell &&
+                                event.getDragboard().hasString()) {
+                            treeCell.setTextFill(Color.GREEN);
+                        }
+                        event.consume();
+                    }
+                });
+                treeCell.setOnDragExited(new EventHandler<DragEvent>() {
+                    public void handle(DragEvent event) {
+                        /* mouse moved away, remove the graphical cues */
+                        treeCell.setTextFill(Color.BLACK);
+                        event.consume();
+                    }
+                });
+
+
+                treeCell.setOnDragDropped(new EventHandler<DragEvent>() {
+                    public void handle(DragEvent event) {
+                        /* data dropped */
+                        /* if there is a string data on dragboard, read it and use it */
+                        if (treeCell.getTreeItem().getValue().getGlobalID() == -10) {
+                            /*Dragboard db = event.getDragboard();
+                            boolean success = false;
+                            if (db.hasString()) {
+                                treeCell.setText(db.getString());
+                                success = true;
+                            }
+                            /* let the source know whether the string was successfully
+                             * transferred and used */
+                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                            DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedQuestion.getGlobalID()),
+                                    treeCell.getTreeItem().getValue().getQuestion());
+                            event.setDropCompleted(true);
+                            treeCell.getTreeItem().setExpanded(true);
+                            event.consume();
+                        }
+                        draggedQuestion = null;
+                    }
+                });
+
 
                 return treeCell;
             }
         });
-
 
         allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>()
         {
@@ -146,7 +217,18 @@ public class QuestionSendingController extends Window implements Initializable {
     private void populateTree(TreeItem<QuestionGeneric> root) {
         //populate tree
         for (QuestionGeneric testGeneric : testsNodeList) {
-            root.getChildren().add(new TreeItem<>(testGeneric));
+            TreeItem newTest = new TreeItem<>(testGeneric);
+            root.getChildren().add(newTest);
+            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testGeneric.getQuestion());
+            for (Integer id : questionIDs) {
+                Boolean found = false;
+                for (int i = 0; i < genericQuestionsList.size() && !found; i++ ) {
+                    if (genericQuestionsList.get(i).getGlobalID() == id) {
+                        found = true;
+                        newTest.getChildren().add(new TreeItem<>(genericQuestionsList.get(i)));
+                    }
+                }
+            }
         }
         for (int i = 0; i < genericQuestionsList.size(); i++) {
             try {
