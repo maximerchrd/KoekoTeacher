@@ -23,7 +23,7 @@ public class DbTableClasses {
                     " NAME      TEXT     NOT NULL, " +
                     " LEVEL      TEXT, " +
                     " YEAR      TEXT," +
-                    " TYPE      INT," +            // TYPE 0: normal class TYPE 1: group
+                    " TYPE      INT NOT NULL," +            // TYPE 0: normal class TYPE 1: group
                     " UNIQUE (NAME) ) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
@@ -59,7 +59,7 @@ public class DbTableClasses {
             System.exit(0);
         }
     }
-    static public void addGroup(String name) {
+    static public void addGroupToClass(String groupName, String className) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -68,10 +68,10 @@ public class DbTableClasses {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,LEVEL,YEAR,TYPE) " +
+            String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,TYPE) " +
                     "VALUES ('" +
                     2000000 + "','" +
-                    name + "','" +
+                    groupName + "','" +
                     1 + "');";
             stmt.executeUpdate(sql);
             sql = "UPDATE classes SET ID_CLASS_GLOBAL = 2000000 + ID_CLASS WHERE ID_CLASS = (SELECT MAX(ID_CLASS) FROM classes)";
@@ -83,6 +83,7 @@ public class DbTableClasses {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+        DbTableRelationClassClass.addClassStudentRelation(className, groupName);
     }
     static public ArrayList<String> getGroupsFromClass(String className) {
         ArrayList<String> groups = new ArrayList<>();
