@@ -23,6 +23,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.util.Callback;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -41,11 +42,13 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class QuestionSendingController extends Window implements Initializable {
     //all questions tree (left panel)
+    private TreeItem<QuestionGeneric> root;
     private QuestionMultipleChoice questionMultChoiceSelectedNodeTreeFrom;
     private QuestionShortAnswer questionShortAnswerSelectedNodeTreeFrom;
     private Test testSelectedNodeTreeFrom;
     private List<Test> testsList = new ArrayList<Test>();
     private List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
+    private List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
 
     @FXML
     private TreeView<QuestionGeneric> allQuestionsTree;
@@ -63,12 +66,52 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        testsList = DbTableTests.getAllTests();
+        for (Test test : testsList) {
+            QuestionGeneric testGeneric = new QuestionGeneric();
+            testGeneric.setGlobalID(-10);
+            testGeneric.setQuestion(test.getTestName());
+            testsNodeList.add(testGeneric);
+        }
         //create root
-        TreeItem<QuestionGeneric> root = new TreeItem<>(new QuestionGeneric());
+        root = new TreeItem<>(new QuestionGeneric());
         root.setExpanded(true);
         allQuestionsTree.setShowRoot(false);
         populateTree(root);
         allQuestionsTree.setRoot(root);
+        allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
+            @Override
+            public TreeCell<QuestionGeneric> call(TreeView<QuestionGeneric> stringTreeView) {
+                TreeCell<QuestionGeneric> treeCell = new TreeCell<QuestionGeneric>() {
+                    @Override
+                    protected void updateItem(QuestionGeneric item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!empty && item != null) {
+                            setText(item.getQuestion());
+                            if (item.getGlobalID() != -10) {
+                                setGraphic(getTreeItem().getGraphic());
+                            } else {
+                                setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
+                            }
+                        }else{
+                            setText(null);
+                            setGraphic(null);
+                        }
+                    }
+                };
+
+                treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent mouseEvent) {
+
+                    }
+                });
+
+                return treeCell;
+            }
+        });
+
+
         allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>()
         {
             @Override
@@ -102,6 +145,9 @@ public class QuestionSendingController extends Window implements Initializable {
 
     private void populateTree(TreeItem<QuestionGeneric> root) {
         //populate tree
+        for (QuestionGeneric testGeneric : testsNodeList) {
+            root.getChildren().add(new TreeItem<>(testGeneric));
+        }
         for (int i = 0; i < genericQuestionsList.size(); i++) {
             try {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(genericQuestionsList.get(i).getGlobalID());
@@ -345,6 +391,28 @@ public class QuestionSendingController extends Window implements Initializable {
 
         }
         writer.close();
+    }
+
+    public void createTest() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateTest.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        CreateTestController controller = fxmlLoader.<CreateTestController>getController();
+        ArrayList<String> testNames = new ArrayList<>();
+        for (Test test : testsList) {
+            testNames.add(test.getTestName());
+        }
+        controller.initParameters(root, testNames);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Create a New Test");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     //OTHER METHODS

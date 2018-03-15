@@ -9,7 +9,7 @@
    <children>
       <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="227.0" text="Remove the question" AnchorPane.bottomAnchor="95.0" AnchorPane.leftAnchor="305.0" AnchorPane.rightAnchor="5.0" />
       <Button layoutX="305.0" layoutY="220.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" text="Activate question for students" AnchorPane.bottomAnchor="125.0" AnchorPane.leftAnchor="305.0" AnchorPane.rightAnchor="5.0" />
-      <Button disable="true" layoutX="86.0" layoutY="316.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="176.0" text="Create a test/quiz" AnchorPane.bottomAnchor="5.0" />
+      <Button layoutX="86.0" layoutY="316.0" mnemonicParsing="false" onAction="#createTest" prefHeight="27.0" prefWidth="176.0" text="Create a test/quiz" AnchorPane.bottomAnchor="5.0" />
       <Button disable="true" layoutX="86.0" layoutY="277.0" mnemonicParsing="false" text="Remove the question/test" AnchorPane.bottomAnchor="35.0" />
       <Button layoutX="86.0" layoutY="234.0" mnemonicParsing="false" onAction="#editQuestion" prefHeight="27.0" prefWidth="176.0" text="Edit the question" AnchorPane.bottomAnchor="65.0" />
       <Button layoutX="86.0" layoutY="193.0" mnemonicParsing="false" onAction="#createQuestion" prefHeight="27.0" prefWidth="176.0" text="Create a question" AnchorPane.bottomAnchor="95.0" />
