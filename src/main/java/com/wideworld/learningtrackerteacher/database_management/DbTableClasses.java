@@ -59,6 +59,54 @@ public class DbTableClasses {
             System.exit(0);
         }
     }
+    static public void addGroup(String name) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,LEVEL,YEAR,TYPE) " +
+                    "VALUES ('" +
+                    2000000 + "','" +
+                    name + "','" +
+                    1 + "');";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE classes SET ID_CLASS_GLOBAL = 2000000 + ID_CLASS WHERE ID_CLASS = (SELECT MAX(ID_CLASS) FROM classes)";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+    static public ArrayList<String> getGroupsFromClass(String className) {
+        ArrayList<String> groups = new ArrayList<>();
+        Connection c = null;
+        Statement stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT CLASS_NAME2 FROM class_class_relation WHERE CLASS_NAME1='" + className + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                groups.add(rs.getString("CLASS_NAME2"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return groups;
+    }
     static public List<String> getAllClasses() {
         List<String> classes = new ArrayList<>();
         Connection c = null;
