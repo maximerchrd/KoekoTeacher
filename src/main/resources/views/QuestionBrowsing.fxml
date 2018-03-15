@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.QuestionBrowsingController">
+   <children>
+      <HBox prefHeight="50.0" prefWidth="483.0">
+         <children>
+            <Label fx:id="labelIP" prefWidth="326.0" text="Label IP">
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </Label>
+            <Button mnemonicParsing="false" onAction="#refreshIP" text="Refresh IP address">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+      <TreeView layoutX="231.0" layoutY="54.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="231.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="54.0" />
+      <Button disable="true" layoutX="24.0" layoutY="155.0" mnemonicParsing="false" text="Filter questions with subject" AnchorPane.topAnchor="155.0" />
+      <Button disable="true" layoutX="24.0" layoutY="122.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Delete the subject" AnchorPane.topAnchor="122.0" />
+      <Button disable="true" layoutX="24.0" layoutY="87.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Edit the subject" AnchorPane.topAnchor="87.0" />
+      <Button disable="true" layoutX="24.0" layoutY="54.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" AnchorPane.topAnchor="54.0" />
+   </children>
+</AnchorPane>

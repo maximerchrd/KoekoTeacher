@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.ResultsTableController">
+   <children>
+      <ScrollPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="136.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <content>
+            <TableView id="resultsTable" fx:id="resultsTable" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columns>
+                <TableColumn fx:id="Name" prefWidth="120.0" text="Name" />
+                <TableColumn fx:id="Date" text="Date" />
+                  <TableColumn fx:id="Question" prefWidth="180.0" text="Question" />
+                  <TableColumn fx:id="Evaluation" prefWidth="75.0" text="Evaluation" />
+                  <TableColumn fx:id="StudentsAnswer" prefWidth="180.0" text="Student's answer" />
+                  <TableColumn fx:id="CorrectAnswer" prefWidth="120.0" text="Correct answer" />
+                  <TableColumn fx:id="IncorrectAnswer" prefWidth="120.0" text="Incorrect answer" />
+                  <TableColumn fx:id="Subject" prefWidth="120.0" text="Subjects" />
+                  <TableColumn fx:id="Objectives" prefWidth="150.0" text="Objectives" />
+              </columns>
+            </TableView>
+         </content>
+      </ScrollPane>
+      <Button layoutX="14.0" layoutY="14.0" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#exportResults" text="Export results" AnchorPane.leftAnchor="14.0" />
+   </children>
+</AnchorPane>
