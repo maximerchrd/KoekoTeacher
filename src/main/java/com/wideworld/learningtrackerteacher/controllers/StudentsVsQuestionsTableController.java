@@ -4,6 +4,7 @@ import com.wideworld.learningtrackerteacher.controllers.controllers_tools.Single
 import com.wideworld.learningtrackerteacher.students_management.Student;
 import com.wideworld.learningtrackerteacher.database_management.DbTableClasses;
 import com.wideworld.learningtrackerteacher.database_management.DbTableRelationClassStudent;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -136,7 +137,12 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId) {
         if (!questions.contains(question)) {
-            popUpIfQuestionNotCorresponding();
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                    popUpIfQuestionNotCorresponding();
+                }
+            });
         }
 
         //set answer
@@ -186,7 +192,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         dialog.initOwner(this);
         VBox dialogVbox = new VBox(20);
         dialogVbox.getChildren().add(new Text("Question stored in the database doesn't correspond to the question answered by a student"));
-        Scene dialogScene = new Scene(dialogVbox, 400, 40);
+        Scene dialogScene = new Scene(dialogVbox, 600, 40);
         dialog.setScene(dialogScene);
         dialog.show();
     }
