@@ -7,10 +7,10 @@
 
 <AnchorPane fx:id="QuestionSending" prefHeight="333.0" prefWidth="787.0" style="-fx-background-color: #E8E8E8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.QuestionSendingController">
    <children>
-      <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="206.0" text="Remove the question" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
+      <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="206.0" text="Deactivate question" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
       <Button layoutX="305.0" layoutY="220.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="27.0" prefWidth="206.0" text="Activate question for students" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
       <Button layoutX="210.0" layoutY="170.0" mnemonicParsing="false" onAction="#createTest" prefHeight="27.0" prefWidth="189.0" text="Create a test/quiz" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="210.0" />
-      <Button layoutX="210.0" layoutY="200.0" mnemonicParsing="false" onAction="#removeTest" prefHeight="27.0" prefWidth="189.0" text="Remove the question/test" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="210.0" />
+      <Button layoutX="210.0" layoutY="200.0" mnemonicParsing="false" onAction="#removeTest" prefHeight="27.0" prefWidth="189.0" text="Delete question/test" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="210.0" />
       <Button layoutX="86.0" layoutY="234.0" mnemonicParsing="false" onAction="#editQuestion" prefHeight="27.0" prefWidth="176.0" text="Edit the question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="20.0" />
       <Button layoutX="86.0" layoutY="193.0" mnemonicParsing="false" onAction="#createQuestion" prefHeight="27.0" prefWidth="176.0" text="Create a question" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="20.0" />
       <SplitPane dividerPositions="0.4774774774774775" layoutX="83.0" layoutY="25.0" prefHeight="219.0" prefWidth="777.0" AnchorPane.bottomAnchor="105.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">

@@ -260,6 +260,26 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.getItems().remove(studentsQuestionsTable.getSelectionModel().getSelectedItem());
     }
 
+    public void createGroup() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
+        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+            controller.initParameters(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Create a New Question");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        }
+    }
+
     public void loadClass() {
         Vector<Student> students = DbTableClasses.getStudentsInClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
         for (int i = 0; i < students.size(); i++) {

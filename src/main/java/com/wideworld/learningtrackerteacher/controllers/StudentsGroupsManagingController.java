@@ -31,7 +31,7 @@ public class StudentsGroupsManagingController implements Initializable {
             e.printStackTrace();
         }
         CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
-        controller.initParameters(groupsTable, chooseClass.getSelectionModel().getSelectedItem().toString());
+        controller.initParameters(chooseClass.getSelectionModel().getSelectedItem().toString());
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
