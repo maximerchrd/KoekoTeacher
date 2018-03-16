@@ -506,7 +506,14 @@ public class QuestionSendingController extends Window implements Initializable {
         }
         testsNodeList.remove(selectedItem.getValue());
         selectedItem.getParent().getChildren().remove(selectedItem);
-
+    }
+    public void removeQuestionFromTest() {
+        TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
+        QuestionGeneric parentTest = (QuestionGeneric)selectedItem.getParent().getValue();
+        QuestionGeneric questionGeneric = (QuestionGeneric)selectedItem.getValue();
+        DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(),questionGeneric.getGlobalID());
+        testsNodeList.remove(selectedItem.getValue());
+        selectedItem.getParent().getChildren().remove(selectedItem);
     }
 
     //OTHER METHODS

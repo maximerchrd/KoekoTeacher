@@ -12,8 +12,6 @@
             <fx:include source="QuestionBrowsing.fxml" />
             <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
             <fx:include source="QuestionSending.fxml" />
-            <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-            <fx:include source="StudentsGroupsManaging.fxml" />
          </children></HBox>
    </children>
 </AnchorPane>

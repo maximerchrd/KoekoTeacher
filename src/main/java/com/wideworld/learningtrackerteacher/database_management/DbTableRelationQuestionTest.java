@@ -72,4 +72,24 @@ public class DbTableRelationQuestionTest {
         }
         return questionIds;
     }
+
+    static public void removeQuestionFromTest(String testName, Integer idGlobal) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "DELETE FROM question_test_relation WHERE TEST_NAME='" + testName + "' AND ID_GLOBAL='" + idGlobal + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
 }
