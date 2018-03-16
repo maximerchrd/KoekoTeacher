@@ -22,6 +22,7 @@ public class DbTableQuestionGeneric {
             String sql = "CREATE TABLE IF NOT EXISTS generic_questions " +
                     "(ID_QUESTION       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL           INT    NOT NULL, " +
+                    " REMOVED_STATE           INT    NOT NULL, " +
                     " QUESTION_TYPE      INT     NOT NULL) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
@@ -40,9 +41,10 @@ public class DbTableQuestionGeneric {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"INSERT INTO generic_questions (ID_GLOBAL,QUESTION_TYPE) " +
+            String sql = 	"INSERT INTO generic_questions (ID_GLOBAL,REMOVED_STATE,QUESTION_TYPE) " +
                     "VALUES ('" +
                     2000000 + "','" +
+                    0 + "','" +
                     questionType +"');";
             stmt.executeUpdate(sql);
             sql = "UPDATE generic_questions SET ID_GLOBAL = ID_GLOBAL + ID_QUESTION WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions)";
@@ -72,7 +74,7 @@ public class DbTableQuestionGeneric {
             c.setAutoCommit(false);
 
             stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM generic_questions;" );
+            ResultSet rs = stmt.executeQuery( "SELECT * FROM generic_questions WHERE REMOVED_STATE=0;" );
             while ( rs.next() ) {
                 QuestionGeneric quest = new QuestionGeneric();
                 //quest.setSUBJECT(rs.getString(2));
@@ -113,5 +115,25 @@ public class DbTableQuestionGeneric {
             System.exit(0);
         }
         return questionType;
+    }
+
+    static public void removeQuestion (Integer idGlobal) {
+        Connection c = null;
+        Statement stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+
+            stmt = c.createStatement();
+            String sql = "UPDATE generic_questions SET REMOVED_STATE = '1' WHERE ID_GLOBAL = '" + idGlobal + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
     }
 }

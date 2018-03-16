@@ -131,6 +131,27 @@ public class DbTableTests {
             System.exit(0);
         }
     }
+    static public void removeTestWithName(String testName) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "DELETE FROM tests WHERE NAME = '" + testName + "';";
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM question_test_relation WHERE TEST_NAME='" + testName + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
     static public void renameTest(int global_id, String name) {
         Connection c = null;
         Statement stmt = null;

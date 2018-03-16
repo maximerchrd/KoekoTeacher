@@ -497,6 +497,18 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.show();
     }
 
+    public void removeTest() {
+        TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
+        if (((QuestionGeneric)selectedItem.getValue()).getGlobalID() == -10) {
+            DbTableTests.removeTestWithName(((QuestionGeneric)selectedItem.getValue()).getQuestion());
+        } else {
+            DbTableQuestionGeneric.removeQuestion(((QuestionGeneric)selectedItem.getValue()).getGlobalID());
+        }
+        testsNodeList.remove(selectedItem.getValue());
+        selectedItem.getParent().getChildren().remove(selectedItem);
+
+    }
+
     //OTHER METHODS
     private void insertQuestionMultipleChoice(String[] question) {
         Vector<String> options_vector = new Vector<String>();
