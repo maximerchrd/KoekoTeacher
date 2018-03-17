@@ -5,6 +5,7 @@ import com.wideworld.learningtrackerteacher.controllers.LearningTrackerControlle
 import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.controllers.StudentsVsQuestionsTableController;
 import com.wideworld.learningtrackerteacher.database_management.*;
+import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
@@ -95,8 +96,8 @@ public class NetworkCommunication {
                                         SendNewConnectionResponse(student.getOutputStream(), false);
                                         for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
                                             try {
-                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)),student.getOutputStream());
-                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)),student.getOutputStream());
+                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
+                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -109,8 +110,8 @@ public class NetworkCommunication {
                                         listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                                         for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
                                             try {
-                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)),student.getOutputStream());
-                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)),student.getOutputStream());
+                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
+                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -153,8 +154,20 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendMultipleChoiceWithID (int questionID, OutputStream singleStudentOutputStream) throws IOException {
-        QuestionMultipleChoice questionMultipleChoice= null;
+    public void SendQuestionID(int QuestID, OutputStream singleStudentOutputStream) throws IOException {
+        String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+        byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
+        System.out.println(questIDString);
+        try {
+            singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
+            singleStudentOutputStream.flush();
+        } catch (IOException ex2) {
+            ex2.printStackTrace();
+        }
+    }
+
+    public void sendMultipleChoiceWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
+        QuestionMultipleChoice questionMultipleChoice = null;
         try {
             questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
         } catch (Exception e) {
@@ -176,13 +189,13 @@ public class NetworkCommunication {
             question_text += questionMultipleChoice.getNB_CORRECT_ANS() + "///";
             Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
             int l = 0;
-            for(l = 0; l < subjectsVector.size(); l++) {
+            for (l = 0; l < subjectsVector.size(); l++) {
                 question_text += subjectsVector.get(l) + "|||";
             }
             if (l == 0) question_text += " ";
             question_text += "///";
             Vector<String> objectivesVector = DbTableLearningObjectives.getObjectiveForQuestionID(questionMultipleChoice.getID());
-            for(l = 0; l < objectivesVector.size(); l++) {
+            for (l = 0; l < objectivesVector.size(); l++) {
                 question_text += objectivesVector.get(l) + "|||";
             }
             if (l == 0) question_text += " ";
@@ -250,7 +263,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendShortAnswerQuestionWithID (int questionID, OutputStream singleStudentOutputStream) throws IOException {
+    public void sendShortAnswerQuestionWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
         QuestionShortAnswer questionShortAnswer = null;
         try {
             questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
@@ -272,7 +285,7 @@ public class NetworkCommunication {
             //add subjects
             Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
             int l = 0;
-            for(l = 0; l < subjectsVector.size(); l++) {
+            for (l = 0; l < subjectsVector.size(); l++) {
                 question_text += subjectsVector.get(l) + "|||";
             }
             if (l == 0) question_text += " ";
@@ -280,7 +293,7 @@ public class NetworkCommunication {
 
             //add objectives
             Vector<String> objectivesVector = DbTableLearningObjectives.getObjectiveForQuestionID(questionShortAnswer.getID());
-            for(l = 0; l < objectivesVector.size(); l++) {
+            for (l = 0; l < objectivesVector.size(); l++) {
                 question_text += objectivesVector.get(l) + "|||";
             }
             if (l == 0) question_text += " ";
@@ -370,10 +383,15 @@ public class NetworkCommunication {
                             System.out.println(answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
                                 arg_student.setName(answerString.split("///")[2]);
-                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),answerString.split("///")[2],answerString.split("///")[3],answerString.split("///")[0]);
-                                SendEvaluation(eval,Integer.valueOf(answerString.split("///")[5]), arg_student);
+                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]), answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
+                                SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
                                 //mTableQuestionVsUser.addAnswerForUser(arg_student, answerString.split("///")[3],answerString.split("///")[4], eval);
-                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3],answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]));
+                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]));
+                                Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
+                                System.out.println("student: " + arg_student.getName() + "; outstream: " + arg_student.getOutputStream().toString() + "nextQuestion:" + nextQuestion);
+                                if (nextQuestion != -1) {
+                                    SendQuestionID(nextQuestion, arg_student.getOutputStream());
+                                }
                             } else if (answerString.split("///")[0].contains("CONN")) {
                                 Student student = arg_student;
                                 student.setAddress(answerString.split("///")[1]);
@@ -386,7 +404,7 @@ public class NetworkCommunication {
                                 }
                                 student.setStudentID(studentID);
                                 //mTableQuestionVsUser.addUser(student, true);
-                                learningTrackerController.addUser(student,true);
+                                learningTrackerController.addUser(student, true);
                                 aClass.updateStudent(student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
@@ -486,7 +504,21 @@ public class NetworkCommunication {
     public void removeQuestion(int index) {
         learningTrackerController.removeQuestion(index);
     }
+
     public void addQuestion(String question, Integer ID) {
         learningTrackerController.addQuestion(question, ID);
+    }
+
+    public void activateTest(ArrayList<Integer> questionIds) {
+        if (questionIds.size() > 0) {
+            try {
+                SendQuestionID(questionIds.get(0));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        for (Student student : aClass.getStudents_array()) {
+            student.setTestQuestions(questionIds);
+        }
     }
 }

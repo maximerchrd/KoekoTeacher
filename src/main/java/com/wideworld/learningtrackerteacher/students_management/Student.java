@@ -1,10 +1,13 @@
 package com.wideworld.learningtrackerteacher.students_management;
 
 
+import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 /**
  * Created by maximerichard on 14/02/17.
@@ -19,6 +22,7 @@ public class Student {
     private Boolean mConnectedByBT = false;
     private Integer numberOfAnswers;
     private Integer studentID = -1;
+    private ArrayList<Integer> testQuestionsIDs;
 
 
     //constructors
@@ -62,7 +66,13 @@ public class Student {
     public void setStudentID(Integer studentID) {
         this.studentID = studentID;
     }
+    public void setTestQuestions(ArrayList<Integer> testQuestions) {
+        this.testQuestionsIDs = testQuestions;
+    }
     //getters
+    public ArrayList<Integer> getTestQuestions() {
+        return testQuestionsIDs;
+    }
     public Integer getNumberOfAnswers() {
         return numberOfAnswers;
     }
@@ -86,5 +96,16 @@ public class Student {
     }
     public Integer getStudentID() {
         return studentID;
+    }
+
+    public Integer getNextQuestionID(Integer formerID) {
+        Integer nextQuestion = -1;
+        for (int i = 0; i < testQuestionsIDs.size() - 1; i++) {
+            Integer id = testQuestionsIDs.get(i);
+            if (id.compareTo(formerID) == 0) {
+                nextQuestion = testQuestionsIDs.get(i + 1);
+            }
+        }
+        return  nextQuestion;
     }
 }

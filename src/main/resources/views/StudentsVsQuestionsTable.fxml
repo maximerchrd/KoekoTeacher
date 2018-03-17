@@ -6,22 +6,20 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.StudentsVsQuestionsTableController">
    <children>
-      <ScrollPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <content>
-            <TableView id="studentsQuestionsTable" fx:id="studentsQuestionsTable" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <columns>
-                  <TableColumn fx:id="Student" prefWidth="180.0" text="Students" />
-                  <TableColumn fx:id="Status" prefWidth="95.0" text="Status" />
-                  <TableColumn fx:id="Evaluation" prefWidth="70.0" text="Evaluation" />
-              </columns>
-            </TableView>
-         </content>
-      </ScrollPane>
+      <VBox fx:id="tableVBox" layoutX="203.0" prefHeight="242.0" prefWidth="406.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="203.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <ComboBox fx:id="chooseClassComboBox" layoutX="14.0" layoutY="14.0" onAction="#loadClass" prefHeight="27.0" prefWidth="193.0" promptText="Choose Class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
       <Button layoutX="21.0" layoutY="46.0" mnemonicParsing="false" onAction="#createClass" prefHeight="27.0" prefWidth="193.0" text="Create a new class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="35.0" />
       <Button layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="Save students to class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="65.0" />
       <Button layoutX="21.0" layoutY="121.0" mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="Remove student from class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="95.0" />
       <Button layoutX="36.0" layoutY="157.0" mnemonicParsing="false" onAction="#editEvaluation" prefHeight="27.0" prefWidth="193.0" text="Edit evaluation" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="125.0" />
-      <Button layoutX="5.0" layoutY="170.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="193.0" text="Create group" />
+      <Button layoutX="5.0" layoutY="189.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="193.0" text="Create group" />
+      <TableView id="studentsQuestionsTable" fx:id="studentsQuestionsTable" layoutX="203.0" minHeight="0.0" minWidth="0.0" prefHeight="242.0" prefWidth="406.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="205.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columns>
+            <TableColumn fx:id="Student" prefWidth="180.0" text="Students" />
+            <TableColumn fx:id="Status" prefWidth="95.0" text="Status" />
+            <TableColumn fx:id="Evaluation" prefWidth="70.0" text="Evaluation" />
+        </columns>
+      </TableView>
+      <ToggleButton layoutX="42.0" layoutY="156.0" mnemonicParsing="false" text="ToggleButton" />
    </children>
 </AnchorPane>

@@ -95,7 +95,7 @@ public class QuestionSendingController extends Window implements Initializable {
                             } else {
                                 setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
                             }
-                        }else{
+                        } else {
                             setText(null);
                             setGraphic(null);
                         }
@@ -183,13 +183,10 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         });
 
-        allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>()
-        {
+        allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                if(mouseEvent.getClickCount() == 2)
-                {
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getClickCount() == 2) {
                     broadcastQuestionForStudents();
                 }
             }
@@ -222,7 +219,7 @@ public class QuestionSendingController extends Window implements Initializable {
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testGeneric.getQuestion());
             for (Integer id : questionIDs) {
                 Boolean found = false;
-                for (int i = 0; i < genericQuestionsList.size() && !found; i++ ) {
+                for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
                     if (genericQuestionsList.get(i).getGlobalID() == id) {
                         found = true;
                         newTest.getChildren().add(new TreeItem<>(genericQuestionsList.get(i)));
@@ -266,27 +263,32 @@ public class QuestionSendingController extends Window implements Initializable {
     //BUTTONS
     public void broadcastQuestionForStudents() {
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        int globalID = questionGeneric.getGlobalID();
-        if (!IDsFromBroadcastedQuestions.contains(String.valueOf(globalID))) {
-            readyQuestionsList.getItems().add(questionGeneric);
-            IDsFromBroadcastedQuestions.add(String.valueOf(globalID));
-            if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
-                try {
-                    broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
-                } catch (Exception e) {
-                    e.printStackTrace();
+        sendQuestionToStudents(questionGeneric);
+        if (questionGeneric.getGlobalID() == -10) {
+            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
+            for (Integer questionID : questionIDs) {
+                QuestionGeneric questionGeneric2 = new QuestionGeneric();
+                Boolean found = false;
+                for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
+                    if (genericQuestionsList.get(i).getGlobalID() == questionID) {
+                        found = true;
+                        questionGeneric2 = genericQuestionsList.get(i);
+                        sendQuestionToStudents(questionGeneric2);
+                    }
                 }
-            } else {
-                broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
             }
-        } else {
-            popUpIfQuestionCollision();
         }
     }
 
     public void activateQuestionForStudents() {
         try {
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+            QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
+            if (questionGeneric.getGlobalID() != -10) {
+                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
+            } else {
+                ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
+                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -347,7 +349,7 @@ public class QuestionSendingController extends Window implements Initializable {
             String[] subjects = question[5].split("///");
             for (int j = 0; j < subjects.length; j++) {
                 try {
-                    DbTableSubject.addSubject(subjects[j].replace("'","''"));
+                    DbTableSubject.addSubject(subjects[j].replace("'", "''"));
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -357,7 +359,7 @@ public class QuestionSendingController extends Window implements Initializable {
             String[] objectives = question[6].split("///");
             for (int j = 0; j < objectives.length; j++) {
                 try {
-                    DbTableLearningObjectives.addObjective(objectives[j].replace("'","''"),1);
+                    DbTableLearningObjectives.addObjective(objectives[j].replace("'", "''"), 1);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -499,24 +501,44 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void removeTest() {
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        if (((QuestionGeneric)selectedItem.getValue()).getGlobalID() == -10) {
-            DbTableTests.removeTestWithName(((QuestionGeneric)selectedItem.getValue()).getQuestion());
+        if (((QuestionGeneric) selectedItem.getValue()).getGlobalID() == -10) {
+            DbTableTests.removeTestWithName(((QuestionGeneric) selectedItem.getValue()).getQuestion());
         } else {
-            DbTableQuestionGeneric.removeQuestion(((QuestionGeneric)selectedItem.getValue()).getGlobalID());
+            DbTableQuestionGeneric.removeQuestion(((QuestionGeneric) selectedItem.getValue()).getGlobalID());
         }
         testsNodeList.remove(selectedItem.getValue());
         selectedItem.getParent().getChildren().remove(selectedItem);
     }
+
     public void removeQuestionFromTest() {
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        QuestionGeneric parentTest = (QuestionGeneric)selectedItem.getParent().getValue();
-        QuestionGeneric questionGeneric = (QuestionGeneric)selectedItem.getValue();
-        DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(),questionGeneric.getGlobalID());
+        QuestionGeneric parentTest = (QuestionGeneric) selectedItem.getParent().getValue();
+        QuestionGeneric questionGeneric = (QuestionGeneric) selectedItem.getValue();
+        DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(), questionGeneric.getGlobalID());
         testsNodeList.remove(selectedItem.getValue());
         selectedItem.getParent().getChildren().remove(selectedItem);
     }
 
     //OTHER METHODS
+    private void sendQuestionToStudents(QuestionGeneric questionGeneric) {
+        int globalID = questionGeneric.getGlobalID();
+        if (!IDsFromBroadcastedQuestions.contains(String.valueOf(globalID))) {
+            readyQuestionsList.getItems().add(questionGeneric);
+            IDsFromBroadcastedQuestions.add(String.valueOf(globalID));
+            if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
+                try {
+                    broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
+            }
+        } else {
+            popUpIfQuestionCollision();
+        }
+    }
+
     private void insertQuestionMultipleChoice(String[] question) {
         Vector<String> options_vector = new Vector<String>();
         for (int i = 0; i < 10; i++) options_vector.add(" ");

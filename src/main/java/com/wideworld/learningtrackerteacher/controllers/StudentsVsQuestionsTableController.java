@@ -44,6 +44,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML private TableColumn<SingleStudentAnswersLine, String> Status;
     @FXML private TableColumn<SingleStudentAnswersLine, String> Evaluation;
     @FXML private ComboBox chooseClassComboBox;
+    @FXML private VBox tableVBox;
+
 
     public void addQuestion(String question, Integer ID) {
         // Add extra columns if necessary:
@@ -111,17 +113,19 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         ArrayList<String> studentNames = new ArrayList<>();
         for (Student student: students) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
-            SingleStudentAnswersLine singleStudentAnswersLine;
-            if (connection) {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected", "0");
-            } else {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
-            }
-            for (int i = 0; i < questions.size(); i++) {
-                singleStudentAnswersLine.addAnswer();
-            }
-            studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
-            students.add(UserStudent);
+            //for (int k = 0; k < 10; k++) {
+                SingleStudentAnswersLine singleStudentAnswersLine;
+                if (connection) {
+                    singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected", "0");
+                } else {
+                    singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
+                }
+                for (int i = 0; i < questions.size(); i++) {
+                    singleStudentAnswersLine.addAnswer();
+                }
+                studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
+                students.add(UserStudent);
+            //}
         } else {
             int indexStudent = -1;
             for (int i = 0; i < studentsQuestionsTable.getItems().size(); i++) {
@@ -278,6 +282,12 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             stage.setScene(new Scene(root1));
             stage.show();
         }
+        ScrollPane scrollPane = new ScrollPane();
+        TableView groupTable = new TableView();
+        TableColumn column = new TableColumn("blabla");
+        groupTable.getColumns().add(column);
+        scrollPane.setContent(groupTable);
+        tableVBox.getChildren().add(scrollPane);
     }
 
     public void loadClass() {
