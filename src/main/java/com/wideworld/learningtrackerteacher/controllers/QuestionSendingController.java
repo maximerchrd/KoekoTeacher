@@ -339,6 +339,10 @@ public class QuestionSendingController extends Window implements Initializable {
         readyQuestionsList.getItems().remove(index);
     }
 
+    public void sendCorrection() {
+        NetworkCommunication.networkCommunicationSingleton.SendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+    }
+
     public void importQuestions() {
         List<String> input = readFile("questions/questions.csv");
         input.remove(0);

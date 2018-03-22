@@ -479,6 +479,33 @@ public class NetworkCommunication {
         }
     }
 
+    public void SendCorrection(Integer questionID) {
+        String messageToSend = "CORR///";
+        messageToSend += String.valueOf(questionID) + "///";
+        byte[] bytes = new byte[40];
+        int bytes_length = 0;
+        try {
+            bytes_length = messageToSend.getBytes("UTF-8").length;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < bytes_length; i++) {
+            try {
+                bytes[i] = messageToSend.getBytes("UTF-8")[i];
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            for (Student student : aClass.getStudents_array()) {
+                student.getOutputStream().write(bytes, 0, bytes.length);
+                student.getOutputStream().flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void SendNewConnectionResponse(OutputStream arg_outputStream, Boolean maximum) throws IOException {
         String response;
         if (maximum) {
