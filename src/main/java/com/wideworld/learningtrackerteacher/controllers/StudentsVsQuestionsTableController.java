@@ -158,7 +158,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             answer += "#/#";
         }
         Integer indexColumn = questionsIDs.indexOf(questionId);
-        Integer indexRow = students.indexOf(student);
+        Integer indexRow = indexOfStudent(students, student);
         SingleStudentAnswersLine singleStudentAnswersLine = studentsQuestionsTable.getItems().get(indexRow);
         if (indexColumn >= 0 && indexRow >= 0) {
             singleStudentAnswersLine.setAnswer(answer,indexColumn);
@@ -308,5 +308,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         List<String> classes = DbTableClasses.getAllClasses();
         ObservableList<String> observableList = FXCollections.observableList(classes);
         chooseClassComboBox.setItems(observableList);
+    }
+
+    private Integer indexOfStudent(ArrayList<Student> studentsArray, Student singleStudent) {
+        for (int i = 0; i < studentsArray.size(); i++) {
+            if (singleStudent.getName().contentEquals(studentsArray.get(i).getName())) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
