@@ -88,33 +88,27 @@ public class NetworkCommunication {
                             if (number_of_clients < MAX_NUMBER_OF_CLIENTS) {
                                 try {
                                     number_of_clients++;
+                                    student.setInputStream(skt.getInputStream());
+                                    student.setOutputStream(skt.getOutputStream());
                                     if (!aClass.studentAlreadyInClass(student)) {
-                                        student.setInputStream(skt.getInputStream());
-                                        student.setOutputStream(skt.getOutputStream());
                                         aClass.addStudentIfNotInClass(student);
                                         System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
                                         SendNewConnectionResponse(student.getOutputStream(), false);
-                                        for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
-                                            try {
-                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
-                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                        listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                                     } else {
                                         student.setInputStream(skt.getInputStream());
                                         student.setOutputStream(skt.getOutputStream());
                                         aClass.updateStudent(student);
-                                        listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
-                                        for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
-                                            try {
-                                                sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
-                                                sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(i)), student.getOutputStream());
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                    }
+                                    listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
+                                    //for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
+                                    if (QuestionSendingController.IDsFromBroadcastedQuestions.size() > 0) {
+                                        try {
+                                            sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(0)), student.getOutputStream());
+                                            sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(0)), student.getOutputStream());
+                                            System.out.println("address: " + student.getInetAddress());
+                                            Thread.sleep(500);          //added some latency to prevent ios devices messing up reading
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
                                     }
                                 } catch (IOException e1) {
@@ -410,6 +404,16 @@ public class NetworkCommunication {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 //mTableQuestionVsUser.userDisconnected(student);
                                 learningTrackerController.userDisconnected(student);
+                            } else if (answerString.split("///")[0].contains("GOTIT")) {
+                                String questionID = answerString.split("///")[1];
+                                System.out.println("client received question: " + questionID);
+                                if (QuestionSendingController.IDsFromBroadcastedQuestions.contains(questionID)) {
+                                    int IDindex = QuestionSendingController.IDsFromBroadcastedQuestions.indexOf(questionID);
+                                    if (QuestionSendingController.IDsFromBroadcastedQuestions.size() > IDindex + 1) {
+                                        sendMultipleChoiceWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(IDindex + 1)), arg_student.getOutputStream());
+                                        sendShortAnswerQuestionWithID(Integer.parseInt(QuestionSendingController.IDsFromBroadcastedQuestions.get(IDindex + 1)), arg_student.getOutputStream());
+                                    }
+                                }
                             }
                         } else {
 
@@ -503,6 +507,10 @@ public class NetworkCommunication {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Informations for error; students stored in class object:");
+            for (Student student : aClass.getStudents_array()) {
+                System.out.println("name: " + student.getName() + "; ip: " + student.getAddress());
+            }
         }
     }
 
