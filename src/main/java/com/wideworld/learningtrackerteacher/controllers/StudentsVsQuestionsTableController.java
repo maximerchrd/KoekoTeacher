@@ -1,5 +1,6 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.controllers.controllers_tools.SingleStudentAnswersLine;
 import com.wideworld.learningtrackerteacher.students_management.Student;
 import com.wideworld.learningtrackerteacher.database_management.DbTableClasses;
@@ -38,7 +39,7 @@ import java.util.Vector;
 public class StudentsVsQuestionsTableController extends Window implements Initializable {
     private ArrayList<String> questions;
     private ArrayList<Integer> questionsIDs;
-    private ArrayList<Student> students;
+    static public ArrayList<Student> students;
     @FXML private TableView<SingleStudentAnswersLine> studentsQuestionsTable;
     @FXML private TableColumn<SingleStudentAnswersLine, String> Student;
     @FXML private TableColumn<SingleStudentAnswersLine, String> Status;
@@ -264,7 +265,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.getItems().remove(studentsQuestionsTable.getSelectionModel().getSelectedItem());
     }
 
-    public void createGroup() {
+    /*public void createGroup() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
         Parent root1 = null;
         try {
@@ -288,13 +289,15 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         groupTable.getColumns().add(column);
         scrollPane.setContent(groupTable);
         tableVBox.getChildren().add(scrollPane);
-    }
+    }*/
 
     public void loadClass() {
         Vector<Student> students = DbTableClasses.getStudentsInClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
         for (int i = 0; i < students.size(); i++) {
             addUser(students.get(i),false);
         }
+        String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+        LearningTracker.questionSendingControllerSingleton.activeClassChanged(activeClass);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.wideworld.learningtrackerteacher;
 import java.io.IOException;
 
 import com.wideworld.learningtrackerteacher.controllers.LearningTrackerController;
+import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.database_management.DBManager;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class LearningTracker extends Application {
+    static public QuestionSendingController questionSendingControllerSingleton = null;
 
     public static void main(String[] args) throws Exception {
 

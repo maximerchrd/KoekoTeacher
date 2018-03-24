@@ -22,7 +22,7 @@ public class StudentsGroupsManagingController implements Initializable {
     @FXML private TableView groupsTable;
     @FXML private ComboBox chooseClass;
 
-    public void createGroup() {
+    /*public void createGroup() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
         Parent root1 = null;
         try {
@@ -38,7 +38,7 @@ public class StudentsGroupsManagingController implements Initializable {
         stage.setTitle("Create a New Question");
         stage.setScene(new Scene(root1));
         stage.show();
-    }
+    }*/
 
     public void removeGroup() {
         TablePosition tablePosition = groupsTable.getFocusModel().getFocusedCell();

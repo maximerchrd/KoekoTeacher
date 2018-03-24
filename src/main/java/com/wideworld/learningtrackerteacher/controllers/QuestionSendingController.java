@@ -1,11 +1,13 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.NetworkCommunication;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
+import com.wideworld.learningtrackerteacher.students_management.Student;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -51,6 +53,7 @@ public class QuestionSendingController extends Window implements Initializable {
     private List<Test> testsList = new ArrayList<Test>();
     private List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
     private List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
+    private String activeClass = "";
 
     @FXML
     private TreeView<QuestionGeneric> allQuestionsTree;
@@ -60,7 +63,10 @@ public class QuestionSendingController extends Window implements Initializable {
     @FXML
     private ListView<QuestionGeneric> readyQuestionsList;
 
+    @FXML private ComboBox groupsCombobox;
+
     public void initialize(URL location, ResourceBundle resources) {
+        LearningTracker.questionSendingControllerSingleton = this;
         //all questions tree (left panel)
         //retrieve data from db
         try {
@@ -521,6 +527,52 @@ public class QuestionSendingController extends Window implements Initializable {
         DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(), questionGeneric.getGlobalID());
         testsNodeList.remove(selectedItem.getValue());
         selectedItem.getParent().getChildren().remove(selectedItem);
+    }
+
+    public void createGroup() {
+        if (activeClass.length() > 0) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
+            ArrayList<String> studentsList = new ArrayList<>();
+            for (Student singleStudent : StudentsVsQuestionsTableController.students) {
+                studentsList.add(singleStudent.getName());
+            }
+            controller.initParameters(activeClass, groupsCombobox, studentsList);
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Create a New Test");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        }
+    }
+
+    public void activeClassChanged(String argActiveClass) {
+        //change combobox content
+        this.activeClass = argActiveClass;
+        groupsCombobox.getItems().remove(0,groupsCombobox.getItems().size());
+        ArrayList<String> groups = DbTableClasses.getGroupsFromClass(activeClass);
+        groups.add(0,activeClass);
+        groupsCombobox.getItems().addAll(groups);
+
+        //clean ready questions list or assign them to the new class
+        if (IDsFromBroadcastedQuestions.size() > 0) {
+            
+        }
+    }
+
+    public void editGroup() {
+
+    }
+
+    public void deleteGroup() {
+
     }
 
     //OTHER METHODS
