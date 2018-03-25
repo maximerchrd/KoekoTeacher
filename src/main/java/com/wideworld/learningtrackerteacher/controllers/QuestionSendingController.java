@@ -289,6 +289,7 @@ public class QuestionSendingController extends Window implements Initializable {
     public void activateQuestionForStudents() {
         try {
             QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
+            DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
             if (questionGeneric.getGlobalID() != -10) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
@@ -341,6 +342,8 @@ public class QuestionSendingController extends Window implements Initializable {
     public void removeQuestion() {
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+        DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+                IDsFromBroadcastedQuestions.get(index));
         IDsFromBroadcastedQuestions.remove(index);
         readyQuestionsList.getItems().remove(index);
     }
@@ -597,10 +600,45 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     //OTHER METHODS
+    public void loadQuestions() {
+        readyQuestionsList.getItems().remove(0, readyQuestionsList.getItems().size());
+        IDsFromBroadcastedQuestions.removeAllElements();
+
+        ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
+        for (int i = 0; i < questionIds.size(); i++) {
+            IDsFromBroadcastedQuestions.add(String.valueOf(questionIds.get(i)));
+            Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(questionIds.get(i)));
+            if (typeOfQuestion == 0) {
+                try {
+                    QuestionMultipleChoice questionMultipleChoice =
+                            DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(String.valueOf(questionIds.get(i))));
+                    QuestionGeneric questionGeneric = new QuestionGeneric();
+                    questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
+                    questionGeneric.setGlobalID(questionMultipleChoice.getID());
+                    questionGeneric.setIntTypeOfQuestion(0);
+                    questionGeneric.setTypeOfQuestion("0");
+                    questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
+                    sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (typeOfQuestion == 1) {
+                QuestionShortAnswer questionShortAnswer =
+                        DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(String.valueOf(questionIds.get(i))));
+                QuestionGeneric questionGeneric = new QuestionGeneric();
+                questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
+                questionGeneric.setGlobalID(questionShortAnswer.getID());
+                questionGeneric.setIntTypeOfQuestion(1);
+                questionGeneric.setTypeOfQuestion("1");
+                questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
+                sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+            }
+        }
+    }
+
     public void refreshReadyQuestionsList() {
         //save former broadcasted questions to compare later with new ones
         List<QuestionGeneric> formerQuestions = readyQuestionsList.getItems();
-        ArrayList<QuestionGeneric> newQuestions = new ArrayList<>();
         Vector<String> oldIDs = new Vector<>();
         for (QuestionGeneric questionGeneric : formerQuestions) {
             oldIDs.add(String.valueOf(questionGeneric.getGlobalID()));
@@ -624,7 +662,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (typeOfQuestion == 0) {
                     try {
                         QuestionMultipleChoice questionMultipleChoice =
-                                DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(String.valueOf(IDsFromBroadcastedQuestions.get(i))));
+                                DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(IDsFromBroadcastedQuestions.get(i)));
                         QuestionGeneric questionGeneric = new QuestionGeneric();
                         questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
                         questionGeneric.setGlobalID(questionMultipleChoice.getID());
@@ -637,7 +675,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 } else if (typeOfQuestion == 1) {
                     QuestionShortAnswer questionShortAnswer =
-                            DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(String.valueOf(IDsFromBroadcastedQuestions.get(i))));
+                            DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(IDsFromBroadcastedQuestions.get(i)));
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
                     questionGeneric.setGlobalID(questionShortAnswer.getID());
