@@ -547,7 +547,7 @@ public class QuestionSendingController extends Window implements Initializable {
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Create a New Test");
+            stage.setTitle("Create a New Group");
             stage.setScene(new Scene(root1));
             stage.show();
         }
@@ -563,7 +563,28 @@ public class QuestionSendingController extends Window implements Initializable {
 
         //clean ready questions list or assign them to the new class
         if (IDsFromBroadcastedQuestions.size() > 0) {
-            
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/AssignQuestionsToNewClassPopUp.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            AssignQuestionsToNewClassPopUpController controller = fxmlLoader.<AssignQuestionsToNewClassPopUpController>getController();
+            controller.initParameters(activeClass);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Assign questions?");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } else {
+            //load questions from class
+            ArrayList<Integer> questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(activeClass);
+            for (Integer id : questionIds) {
+                IDsFromBroadcastedQuestions.add(String.valueOf(id));
+            }
+            refreshReadyQuestionsList();
         }
     }
 
@@ -576,6 +597,59 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     //OTHER METHODS
+    public void refreshReadyQuestionsList() {
+        //save former broadcasted questions to compare later with new ones
+        List<QuestionGeneric> formerQuestions = readyQuestionsList.getItems();
+        ArrayList<QuestionGeneric> newQuestions = new ArrayList<>();
+        Vector<String> oldIDs = new Vector<>();
+        for (QuestionGeneric questionGeneric : formerQuestions) {
+            oldIDs.add(String.valueOf(questionGeneric.getGlobalID()));
+        }
+
+        //remove all questions from broadcasted list
+        //readyQuestionsList.getItems().remove(0,readyQuestionsList.getItems().size());
+
+        //compare old and new questions and delete or add them to the table
+        for (int i = 0; i < oldIDs.size(); i++) {
+            if (!IDsFromBroadcastedQuestions.contains(oldIDs.get(i))) {
+                NetworkCommunication.networkCommunicationSingleton.removeQuestion(i);
+                readyQuestionsList.getItems().remove(i);
+            }
+        }
+
+        //fill readyQuestionsList with new ids from IDsFromBroadcastedQuestions
+        for (int i = 0; i < IDsFromBroadcastedQuestions.size(); i++) {
+            if (!oldIDs.contains(IDsFromBroadcastedQuestions.get(i))) {
+                Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(IDsFromBroadcastedQuestions.get(i)));
+                if (typeOfQuestion == 0) {
+                    try {
+                        QuestionMultipleChoice questionMultipleChoice =
+                                DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(String.valueOf(IDsFromBroadcastedQuestions.get(i))));
+                        QuestionGeneric questionGeneric = new QuestionGeneric();
+                        questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
+                        questionGeneric.setGlobalID(questionMultipleChoice.getID());
+                        questionGeneric.setIntTypeOfQuestion(0);
+                        questionGeneric.setTypeOfQuestion("0");
+                        questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
+                        sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (typeOfQuestion == 1) {
+                    QuestionShortAnswer questionShortAnswer =
+                            DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(String.valueOf(IDsFromBroadcastedQuestions.get(i))));
+                    QuestionGeneric questionGeneric = new QuestionGeneric();
+                    questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
+                    questionGeneric.setGlobalID(questionShortAnswer.getID());
+                    questionGeneric.setIntTypeOfQuestion(1);
+                    questionGeneric.setTypeOfQuestion("1");
+                    questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
+                    sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                }
+            }
+        }
+    }
+
     private void sendQuestionToStudents(QuestionGeneric questionGeneric) {
         int globalID = questionGeneric.getGlobalID();
         if (!IDsFromBroadcastedQuestions.contains(String.valueOf(globalID))) {
@@ -592,6 +666,20 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         } else {
             popUpIfQuestionCollision();
+        }
+    }
+
+    private void sendQuestionToStudentsNoDuplicateCheck(QuestionGeneric questionGeneric) {
+        int globalID = questionGeneric.getGlobalID();
+        readyQuestionsList.getItems().add(questionGeneric);
+        if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
+            try {
+                broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
         }
     }
 

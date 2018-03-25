@@ -44,7 +44,7 @@ public class DbTableClasses {
             String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,LEVEL,YEAR,TYPE) " +
                     "VALUES ('" +
                     2000000 + "','" +
-                    name + "','" +
+                    name.replace("'","''") + "','" +
                     level + "','" +
                     year + "','" +
                     0 + "');";
@@ -71,7 +71,7 @@ public class DbTableClasses {
             String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,TYPE) " +
                     "VALUES ('" +
                     2000000 + "','" +
-                    groupName + "','" +
+                    groupName.replace("'","''") + "','" +
                     1 + "');";
             stmt.executeUpdate(sql);
             sql = "UPDATE classes SET ID_CLASS_GLOBAL = 2000000 + ID_CLASS WHERE ID_CLASS = (SELECT MAX(ID_CLASS) FROM classes)";

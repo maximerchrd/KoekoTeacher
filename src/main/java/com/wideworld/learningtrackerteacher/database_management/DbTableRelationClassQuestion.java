@@ -2,7 +2,9 @@ package com.wideworld.learningtrackerteacher.database_management;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class DbTableRelationClassQuestion {
     static public void createTableRelationClassQuestion(Connection connection, Statement statement) {
@@ -41,5 +43,30 @@ public class DbTableRelationClassQuestion {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+    }
+
+    static public ArrayList<Integer> getQuestionsIDsForClass(String className) {
+        ArrayList<Integer> questionIDs = new ArrayList<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = 	"SELECT ID_GLOBAL FROM class_question_relation WHERE CLASS_NAME='" + className + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                questionIDs.add(rs.getInt("ID_GLOBAL"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return questionIDs;
     }
 }
