@@ -121,4 +121,15 @@ public class Classroom {
         }
         return student;
     }
+
+    public Student getStudentWithName(String studentName) {
+        Student student = new Student();
+        for (int i = 0; i < students_array.size(); i++) {
+            if (studentName.contentEquals(String.valueOf(students_array.get(i).getName()))) {
+                System.out.println("equal");
+                student = students_array.get(i);
+            }
+        }
+        return student;
+    }
 }

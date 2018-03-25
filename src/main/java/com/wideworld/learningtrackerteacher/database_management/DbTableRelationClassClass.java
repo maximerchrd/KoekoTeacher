@@ -21,7 +21,7 @@ public class DbTableRelationClassClass {
         }
     }
 
-    static public void addClassStudentRelation(String className, String groupName) {
+    static public void addClassGroupRelation(String className, String groupName) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

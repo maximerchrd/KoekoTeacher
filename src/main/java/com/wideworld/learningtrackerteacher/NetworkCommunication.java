@@ -556,4 +556,20 @@ public class NetworkCommunication {
             student.setTestQuestions(questionIds);
         }
     }
+
+    public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students) {
+        for (String studentName : students) {
+            Student student = aClass.getStudentWithName(studentName);
+            if (questionIds.size() > 0) {
+                try {
+                    SendQuestionID(questionIds.get(0),student.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            student.setTestQuestions(questionIds);
+
+        }
+    }
 }

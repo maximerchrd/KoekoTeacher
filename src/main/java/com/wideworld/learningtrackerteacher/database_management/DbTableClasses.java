@@ -83,7 +83,7 @@ public class DbTableClasses {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
-        DbTableRelationClassClass.addClassStudentRelation(className, groupName);
+        DbTableRelationClassClass.addClassGroupRelation(className, groupName);
     }
     static public ArrayList<String> getGroupsFromClass(String className) {
         ArrayList<String> groups = new ArrayList<>();

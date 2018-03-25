@@ -269,6 +269,7 @@ public class QuestionSendingController extends Window implements Initializable {
     //BUTTONS
     public void broadcastQuestionForStudents() {
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
+        DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         sendQuestionToStudents(questionGeneric);
         if (questionGeneric.getGlobalID() == -10) {
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
@@ -289,7 +290,6 @@ public class QuestionSendingController extends Window implements Initializable {
     public void activateQuestionForStudents() {
         try {
             QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
-            DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
             if (questionGeneric.getGlobalID() != -10) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
@@ -341,6 +341,13 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void removeQuestion() {
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
+        NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+        DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+                IDsFromBroadcastedQuestions.get(index));
+        IDsFromBroadcastedQuestions.remove(index);
+        readyQuestionsList.getItems().remove(index);
+    }
+    public void removeQuestion(int index) {
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
         DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
                 IDsFromBroadcastedQuestions.get(index));
@@ -599,9 +606,32 @@ public class QuestionSendingController extends Window implements Initializable {
 
     }
 
+    public void activateQuestionsForGroups() {
+        //get a list of the groups
+        List<String> groups = groupsCombobox.getItems();
+        if (groups.size() > 0) {
+            groups.remove(0);
+        }
+
+        //activate questions for each group
+        for (String group : groups) {
+            ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
+            Vector<Student> students = DbTableClasses.getStudentsInClass(group);
+            ArrayList<String> studentNames = new ArrayList<>();
+            for (Student student : students) {
+                studentNames.add(student.getName());
+            }
+
+            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs,studentNames);
+        }
+    }
+
     //OTHER METHODS
     public void loadQuestions() {
-        readyQuestionsList.getItems().remove(0, readyQuestionsList.getItems().size());
+        int IDsFromBroadcastedQuestionsSize = IDsFromBroadcastedQuestions.size();
+        for (int i = 0; i < IDsFromBroadcastedQuestionsSize; i++) {
+            removeQuestion(0);
+        }
         IDsFromBroadcastedQuestions.removeAllElements();
 
         ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
