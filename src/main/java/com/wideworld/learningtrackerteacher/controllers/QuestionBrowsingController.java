@@ -24,7 +24,7 @@ public class QuestionBrowsingController implements Initializable {
             @Override
             protected Void call() throws Exception {
                 ip_address[0] = InetAddress.getLocalHost().getHostAddress();
-                Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address[0]));
+                Platform.runLater(() -> labelIP.setText("studentsConnected should connect \nto the following address: " + ip_address[0]));
                 return null;
             }
         };
@@ -37,7 +37,7 @@ public class QuestionBrowsingController implements Initializable {
             @Override
             protected Void call() throws Exception {
                 ip_address[0] = InetAddress.getLocalHost().getHostAddress();
-                Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address[0]));
+                Platform.runLater(() -> labelIP.setText("studentsConnected should connect \nto the following address: " + ip_address[0]));
                 return null;
             }
         };

@@ -14,12 +14,27 @@ public class Classroom {
     private ArrayList<String> students_addresses = null;
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
+    private ArrayList<Integer> activeIDs;
+    private Integer tableIndex = -1;
 
     public Classroom() {
-        students_array = new ArrayList<Student>();
-        students_addresses = new ArrayList<String>();
-        current_set_quest_mult_choice = new ArrayList<QuestionMultipleChoice>();
-        current_set_quest_short_answer = new ArrayList<QuestionShortAnswer>();
+        students_array = new ArrayList<>();
+        students_addresses = new ArrayList<>();
+        current_set_quest_mult_choice = new ArrayList<>();
+        current_set_quest_short_answer = new ArrayList<>();
+        activeIDs = new ArrayList<>();
+    }
+    public ArrayList<Integer> getActiveIDs() {
+        return activeIDs;
+    }
+    public void setActiveIDs(ArrayList<Integer> activeIDs) {
+        this.activeIDs = activeIDs;
+    }
+    public Integer getTableIndex() {
+        return tableIndex;
+    }
+    public void setTableIndex(Integer tableIndex) {
+        this.tableIndex = tableIndex;
     }
     public void addQuestMultChoice(QuestionMultipleChoice questionMultipleChoice) {
         current_set_quest_mult_choice.add(questionMultipleChoice);
@@ -38,10 +53,10 @@ public class Classroom {
     }
     public void addStudentIfNotInClass(Student student) {
         int students_addresses_size = readStudents_addresses();
-        System.out.println("students addresses size: "+ students_addresses_size);
+        System.out.println("studentsConnected addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
             if (!students_addresses.contains(student.getAddress())) {
-                System.out.println("students addresses content: " + students_addresses.get(0) + " student address: " + student.getAddress());
+                System.out.println("studentsConnected addresses content: " + students_addresses.get(0) + " student address: " + student.getAddress());
                 students_array.add(student);
             } else {
                 int index = students_addresses.indexOf(student.getAddress());

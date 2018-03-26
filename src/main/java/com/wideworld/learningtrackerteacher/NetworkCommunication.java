@@ -33,9 +33,6 @@ public class NetworkCommunication {
     private static final int MAX_NUMBER_OF_CLIENTS = 1000000;
     private int number_of_clients = 0;
     private Classroom aClass = null;
-    //temporary ArrayList of strings containing Client's mac addresse
-    private ArrayList<String> mClientsAddresses;
-    private static Object lock = new Object();    //object used for waiting
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
 
@@ -73,8 +70,6 @@ public class NetworkCommunication {
             System.out.println("\nServer Started. Waiting for clients to connect...");
             outstream_list = new ArrayList<OutputStream>();
             instream_list = new ArrayList<InputStream>();
-            mClientsAddresses = new ArrayList<String>();
-            //students_array = new ArrayList<Student>();
             aClass = new Classroom();
             Thread connectionthread = new Thread() {
                 public void run() {
@@ -507,7 +502,7 @@ public class NetworkCommunication {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Informations for error; students stored in class object:");
+            System.out.println("Informations for error; studentsConnected stored in class object:");
             for (Student student : aClass.getStudents_array()) {
                 System.out.println("name: " + student.getName() + "; ip: " + student.getAddress());
             }

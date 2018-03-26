@@ -2,6 +2,8 @@ package com.wideworld.learningtrackerteacher.controllers;
 
 import com.wideworld.learningtrackerteacher.database_management.DbTableClasses;
 import com.wideworld.learningtrackerteacher.database_management.DbTableRelationClassStudent;
+import com.wideworld.learningtrackerteacher.students_management.Classroom;
+import com.wideworld.learningtrackerteacher.students_management.Student;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -52,10 +54,17 @@ public class CreateGroupController extends Window implements Initializable {
         DbTableClasses.addGroupToClass(groupName.getText(), className);
         groupsCombobox.getItems().add(groupName.getText());
 
-        //add students to group
+        //add studentsConnected to group
+        //initialize students array and add it to the static singleton
+        Classroom newGroup = new Classroom();
+        StudentsVsQuestionsTableController.studentsConnected.add(newGroup);
+
         for (HBox hBox : hBoxArrayList) {
             String student = ((ComboBox)hBox.getChildren().get(0)).getSelectionModel().getSelectedItem().toString();
             DbTableRelationClassStudent.addClassStudentRelation(groupName.getText(),student);
+
+            Student studentObject = StudentsVsQuestionsTableController.studentsConnected.get(StudentsVsQuestionsTableController.studentsConnected.size() - 1).getStudentWithName(student);
+            StudentsVsQuestionsTableController.studentsConnected.get(StudentsVsQuestionsTableController.studentsConnected.size() - 1).addStudent(studentObject);
         }
 
         Stage stage = (Stage) groupName.getScene().getWindow();

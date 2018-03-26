@@ -269,7 +269,9 @@ public class QuestionSendingController extends Window implements Initializable {
     //BUTTONS
     public void broadcastQuestionForStudents() {
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
+        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+            DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
+        }
         sendQuestionToStudents(questionGeneric);
         if (questionGeneric.getGlobalID() == -10) {
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
@@ -342,8 +344,10 @@ public class QuestionSendingController extends Window implements Initializable {
     public void removeQuestion() {
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
-        DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
-                IDsFromBroadcastedQuestions.get(index));
+        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+            DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+                    IDsFromBroadcastedQuestions.get(index));
+        }
         IDsFromBroadcastedQuestions.remove(index);
         readyQuestionsList.getItems().remove(index);
     }
@@ -550,7 +554,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : StudentsVsQuestionsTableController.students) {
+            for (Student singleStudent : StudentsVsQuestionsTableController.studentsConnected.get(0).getStudents_array()) {
                 studentsList.add(singleStudent.getName());
             }
             controller.initParameters(activeClass, groupsCombobox, studentsList);
