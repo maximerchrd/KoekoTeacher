@@ -379,8 +379,15 @@ public class NetworkCommunication {
                                 arg_student.setName(answerString.split("///")[2]);
                                 double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]), answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
                                 SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
-                                //mTableQuestionVsUser.addAnswerForUser(arg_student, answerString.split("///")[3],answerString.split("///")[4], eval);
-                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]));
+
+                                //find out to which group the student and answer belong
+                                Integer groupIndex = 0;
+                                for (int i = 0; i < studentNamesForGroups.size(); i++) {
+                                    if (studentNamesForGroups.get(i).contains(arg_student.getName())) {
+                                        groupIndex = i + 1;
+                                    }
+                                }
+                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]), groupIndex);
                                 Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
                                 System.out.println("student: " + arg_student.getName() + "; outstream: " + arg_student.getOutputStream().toString() + "nextQuestion:" + nextQuestion);
                                 if (nextQuestion != -1) {

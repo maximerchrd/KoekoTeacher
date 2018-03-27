@@ -38,8 +38,8 @@ public class ClassroomActivityTabController implements Initializable {
     public void addUser(Student UserStudent, Boolean connection) {
         studentsQuestionsTableController.addUser(UserStudent,connection);
     }
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId) {
-        studentsQuestionsTableController.addAnswerForUser(student,answer,question,evaluation,questionId);
+    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer groupIndex) {
+        studentsQuestionsTableController.addAnswerForUser(student,answer,question,evaluation,questionId, groupIndex);
     }
     public void removeQuestion(int index) {
         studentsQuestionsTableController.removeQuestion(index);
