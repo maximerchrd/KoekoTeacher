@@ -80,7 +80,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                                 this.setTextFill(Color.GREEN);
                             }
                             setText(item.replace("#/#",""));
-
                         }
                     }
 
@@ -151,9 +150,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId) {
-        addAnswerForUser(student,answer,question,evaluation,questionId,0);
-    }
     public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer group) {
         if (!LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
             Platform.runLater(new Runnable(){
@@ -174,22 +170,23 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
         Integer indexColumn = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().indexOf(questionId);
         Integer indexRow = indexOfStudent(LearningTracker.studentGroupsAndClass.get(group).getStudents_array(), student);
-        SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
         if (indexColumn >= 0 && indexRow >= 0) {
-            singleStudentAnswersLine.setAnswer(answer,indexColumn);
-        }
+            SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
+            singleStudentAnswersLine.setAnswer(answer, indexColumn);
 
-        //update evaluation
-        int numberAnswers = 0;
-        for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
-            String answerInCell = singleStudentAnswersLine.getAnswers().get(i).getValue();
-            if (answerInCell.length() > 0) numberAnswers++;
+            //update evaluation
+            int numberAnswers = 0;
+            for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
+                String answerInCell = singleStudentAnswersLine.getAnswers().get(i).getValue();
+                if (answerInCell.length() > 0) numberAnswers++;
+            }
+            Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
+            meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
+            DecimalFormat df = new DecimalFormat("#.#");
+            singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
+            tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
+            System.out.println("group nb lines: " + tableViewArrayList.get(group).getItems().size());
         }
-        Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
-        meanEvaluation = ((meanEvaluation * (numberAnswers -1)) + evaluation) / numberAnswers;
-        DecimalFormat df = new DecimalFormat("#.#");
-        singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
-        tableViewArrayList.get(group).getItems().set(indexRow,singleStudentAnswersLine);
     }
 
     public void userDisconnected(Student student) {
@@ -325,17 +322,17 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>("Student");
         columnStudent.setPrefWidth(180);
         columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
-        groupName.getColumns().add(columnStudent);
+        studentsQuestionsTable.getColumns().add(columnStudent);
 
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
         columnStatus.setPrefWidth(180);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
-        groupName.getColumns().add(columnStatus);
+        studentsQuestionsTable.getColumns().add(columnStatus);
 
         TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("Evaluation");
         columnEvaluation.setPrefWidth(180);
         columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("Evaluation"));
-        groupName.getColumns().add(columnEvaluation);
+        studentsQuestionsTable.getColumns().add(columnEvaluation);
 
         studentsQuestionsTable.setFixedCellSize(cellHeight);
         studentsQuestionsTable.setPrefHeight(cellHeight * 4);
@@ -345,7 +342,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
         Classroom newGroup = new Classroom();
         newGroup.setTableIndex(LearningTracker.studentGroupsAndClass.size() - 1);
-        LearningTracker.studentGroupsAndClass.add(newGroup);
+        //LearningTracker.studentGroupsAndClass.add(newGroup);
 
 
         //add questions

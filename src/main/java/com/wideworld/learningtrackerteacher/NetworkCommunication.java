@@ -149,14 +149,16 @@ public class NetworkCommunication {
     }
 
     public void SendQuestionID(int QuestID, OutputStream singleStudentOutputStream) throws IOException {
-        String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
-        byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
-        System.out.println(questIDString);
-        try {
-            singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
-            singleStudentOutputStream.flush();
-        } catch (IOException ex2) {
-            ex2.printStackTrace();
+        if (singleStudentOutputStream != null) {
+            String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+            byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
+            System.out.println(questIDString);
+            try {
+                singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
+                singleStudentOutputStream.flush();
+            } catch (IOException ex2) {
+                ex2.printStackTrace();
+            }
         }
     }
 
@@ -382,9 +384,11 @@ public class NetworkCommunication {
 
                                 //find out to which group the student and answer belong
                                 Integer groupIndex = 0;
+                                Integer questID = Integer.valueOf(answerString.split("///")[5]);
                                 for (int i = 0; i < studentNamesForGroups.size(); i++) {
-                                    if (studentNamesForGroups.get(i).contains(arg_student.getName())) {
+                                    if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
                                         groupIndex = i + 1;
+                                        questionIdsForGroups.get(i).remove(questID);
                                     }
                                 }
                                 learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]), groupIndex);
@@ -572,8 +576,11 @@ public class NetworkCommunication {
             questionIdsForGroups.clear();
             studentNamesForGroups.clear();
         }
-        //add ids and students to group arrays
-        questionIdsForGroups.add(questionIds);
+        //add ids(clone it because we want to remove its content later without affection the source array) and students to group arrays
+        questionIdsForGroups.add(new ArrayList<>());
+        for (Integer id : questionIds) {
+            questionIdsForGroups.get(questionIdsForGroups.size() - 1).add(id);
+        }
         studentNamesForGroups.add(students);
 
         for (String studentName : students) {

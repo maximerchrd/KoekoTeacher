@@ -112,6 +112,7 @@ public class Student {
                 Integer id = testQuestionsIDs.get(i);
                 if (id.compareTo(formerID) == 0) {
                     nextQuestion = testQuestionsIDs.get(i + 1);
+                    testQuestionsIDs.set(i, -1);
                 }
             }
         }
