@@ -57,6 +57,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         //questionsIDs.add(ID);
         for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
             tableViewArrayList.get(group).getItems().get(i).addAnswer();
+            if (LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations() != null
+                    && LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
+                LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+            }
         }
         final int questionIndex = LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
         column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
@@ -128,21 +132,34 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_array()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
             //for (int k = 0; k < 10; k++) {
-                SingleStudentAnswersLine singleStudentAnswersLine;
-                if (connection) {
-                    singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected", "0");
-                } else {
-                    singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
-                }
-                for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
-                    singleStudentAnswersLine.addAnswer();
-                }
+            SingleStudentAnswersLine singleStudentAnswersLine;
+            if (connection) {
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected", "0");
+            } else {
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
+            }
+            for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
+                singleStudentAnswersLine.addAnswer();
+            }
+            if (tableViewArrayList.get(group).getItems().size() == 0) {
                 tableViewArrayList.get(group).getItems().add(singleStudentAnswersLine);
-                LearningTracker.studentGroupsAndClass.get(group).addStudent(UserStudent);
+            } else {
+                tableViewArrayList.get(group).getItems().add(tableViewArrayList.get(group).getItems().size() - 1,singleStudentAnswersLine);
+            }
+            LearningTracker.studentGroupsAndClass.get(group).addStudent(UserStudent);
+
+            //add evaluation line
+            if (LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations() != null) {
+                LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().add(new ArrayList<>());
+                LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
+                for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
+                    LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().get(LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().size() - 1).add(-1.0);
+                }
+            }
             //}
         } else {
             int indexStudent = -1;
-            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
                 if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) indexStudent = i;
             }
             if (indexStudent >= 0) {
@@ -185,10 +202,21 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
             Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
             meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
+            if (LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexRow) != null) {
+                LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexRow, meanEvaluation);
+            }
             DecimalFormat df = new DecimalFormat("#.#");
             singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
             tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
             System.out.println("group nb lines: " + tableViewArrayList.get(group).getItems().size());
+
+            //update mean values
+            Double questionAverage = LearningTracker.studentGroupsAndClass.get(group).updateAverageEvaluationForQuestion(indexColumn, indexRow, evaluation);
+            Double classAverage = LearningTracker.studentGroupsAndClass.get(group).updateAverageEvaluationForClass();
+            SingleStudentAnswersLine averageEvaluationsLine = tableViewArrayList.get(group).getItems().get(tableViewArrayList.get(group).getItems().size() - 1);
+            averageEvaluationsLine.setEvaluation(String.valueOf(classAverage));
+            averageEvaluationsLine.setAnswer(String.valueOf(questionAverage), indexColumn);
+            tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
         }
     }
 
@@ -197,7 +225,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
     public void userDisconnected(Student student, Integer group) {
         int indexStudent = -1;
-        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+        for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
             if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student.getName())) indexStudent = i;
         }
         System.out.println("user disconnected: " + student.getName() + "; index in table: " + indexStudent);
@@ -266,7 +294,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void saveStudentsToClass() {
         if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
-            for (int i = 0; i < tableViewArrayList.get(0).getItems().size(); i++) {
+            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
                 String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
                 String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
                 DbTableRelationClassStudent.addClassStudentRelation(className, studentName);
@@ -392,6 +420,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.setPrefHeight(cellHeight * 2.5);
         tableVBox.getChildren().add(studentsQuestionsTable);
         tableViewArrayList.add(studentsQuestionsTable);
+
+        //add summary line
+        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");
+        tableViewArrayList.get(0).getItems().add(singleStudentAnswersLine);
 
         //initialize other members
         //questions = new ArrayList<>();

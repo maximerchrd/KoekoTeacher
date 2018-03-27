@@ -17,6 +17,8 @@ public class Classroom {
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
     private ArrayList<Integer> activeIDs;
     private ArrayList<String> activeQuestions;
+    private ArrayList<ArrayList<Double>> activeEvaluations;
+    private ArrayList<Double> averageEvaluations;
     private Integer tableIndex = -1;
     private String className = "";
 
@@ -27,6 +29,21 @@ public class Classroom {
         current_set_quest_short_answer = new ArrayList<>();
         activeIDs = new ArrayList<>();
         activeQuestions = new ArrayList<>();
+        activeEvaluations = new ArrayList<>();
+        averageEvaluations = new ArrayList<>();
+    }
+
+    public ArrayList<ArrayList<Double>> getActiveEvaluations() {
+        return activeEvaluations;
+    }
+    public void setActiveEvaluations(ArrayList<ArrayList<Double>> activeEvaluations) {
+        this.activeEvaluations = activeEvaluations;
+    }
+    public ArrayList<Double> getAverageEvaluations() {
+        return averageEvaluations;
+    }
+    public void setAverageEvaluations(ArrayList<Double> averageEvaluations) {
+        this.averageEvaluations = averageEvaluations;
     }
     public ArrayList<String> getActiveQuestions() {
         return activeQuestions;
@@ -170,5 +187,37 @@ public class Classroom {
             question = activeQuestions.get(activeIDs.indexOf(questionID));
         }
         return question;
+    }
+
+    public Double updateAverageEvaluationForQuestion(Integer question, Integer student, Double evaluation) {
+        Double averageEval= 0.0;
+        Double numberEval = 0.0;
+        if (activeEvaluations.get(student) != null && activeEvaluations.get(student).size() > 0) {
+            if (activeEvaluations.get(student).get(question) != null) {
+                activeEvaluations.get(student).set(question, evaluation);
+            }
+        }
+        for (int i = 0; i < activeEvaluations.size(); i++) {
+            if (activeEvaluations.get(i).size() > question && activeEvaluations.get(i).get(question) != null
+                    && activeEvaluations.get(i).get(question) != -1) {
+                averageEval += activeEvaluations.get(i).get(question);
+                numberEval += 1.0;
+            }
+        }
+        averageEval = averageEval / numberEval;
+        return averageEval;
+    }
+
+    public Double updateAverageEvaluationForClass() {
+        Double averageEval= 0.0;
+        Double numberEval = 0.0;
+        for (int i = 0; i < averageEvaluations.size(); i++) {
+            if (averageEvaluations.get(i) != null) {
+                averageEval += averageEvaluations.get(i);
+                numberEval += 1.0;
+            }
+        }
+        averageEval = averageEval / numberEval;
+        return averageEval;
     }
 }
