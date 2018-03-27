@@ -55,6 +55,7 @@ public class QuestionSendingController extends Window implements Initializable {
     private List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
     private List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
     private String activeClass = "";
+    private ContextMenu studentsContextMenu;
 
     @FXML
     private TreeView<QuestionGeneric> allQuestionsTree;
@@ -215,6 +216,28 @@ public class QuestionSendingController extends Window implements Initializable {
                 }
             }
         });
+
+        studentsContextMenu = new ContextMenu();
+        readyQuestionsList.setContextMenu(studentsContextMenu);
+    }
+
+    public void addSudentToContextMenu(Student student) {
+        Boolean alreadyAdded = false;
+        for (MenuItem menuItem : studentsContextMenu.getItems()) {
+            if (menuItem.getText().contentEquals(student.getName())) {
+                alreadyAdded = true;
+            }
+        }
+        if (LearningTracker.studentGroupsAndClass.get(0) != null && !alreadyAdded) {
+            MenuItem studentItem = new MenuItem(student.getName());
+            studentItem.setOnAction(event -> {
+                if (readyQuestionsList.getSelectionModel().getSelectedItem() != null) {
+                    Integer questionID = readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID();
+                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionID,student);
+                }
+            });
+            studentsContextMenu.getItems().add(studentItem);
+        }
     }
 
 

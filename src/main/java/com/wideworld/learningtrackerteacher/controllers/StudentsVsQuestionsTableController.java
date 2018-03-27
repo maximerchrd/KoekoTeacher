@@ -116,6 +116,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void addUser(Student UserStudent, Boolean connection) {
         addUser(UserStudent,connection,0);
+        if (connection) {
+            LearningTracker.questionSendingControllerSingleton.addSudentToContextMenu(UserStudent);
+        }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
         //adapt table height

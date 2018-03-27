@@ -148,6 +148,15 @@ public class NetworkCommunication {
         }
     }
 
+    public void SendQuestionID(int QuestID, Student student) {
+        student = aClass.getStudentWithName(student.getName());
+        try {
+            SendQuestionID(QuestID, student.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void SendQuestionID(int QuestID, OutputStream singleStudentOutputStream) throws IOException {
         if (singleStudentOutputStream != null) {
             String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
