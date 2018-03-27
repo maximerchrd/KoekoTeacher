@@ -36,10 +36,15 @@ public class NetworkCommunication {
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
 
+    private ArrayList<ArrayList<Integer>> questionIdsForGroups;
+    private ArrayList<ArrayList<String>> studentNamesForGroups;
+
 
     public NetworkCommunication(LearningTrackerController learningTrackerController) {
         this.learningTrackerController = learningTrackerController;
         networkCommunicationSingleton = this;
+        questionIdsForGroups = new ArrayList<>();
+        studentNamesForGroups = new ArrayList<>();
     }
 
     public NetworkCommunication() {
@@ -553,6 +558,17 @@ public class NetworkCommunication {
     }
 
     public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students) {
+        //store questionIds and students in the group arrays (for redirecting the answer correctly)
+
+        //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
+        if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
+            questionIdsForGroups.clear();
+            studentNamesForGroups.clear();
+        }
+        //add ids and students to group arrays
+        questionIdsForGroups.add(questionIds);
+        studentNamesForGroups.add(students);
+
         for (String studentName : students) {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {

@@ -363,6 +363,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else if (questionType == 1) {
                 question = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id).getQUESTION();
             }
+            if (LearningTracker.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().size() !=
+                    LearningTracker.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().size()) {
+                LearningTracker.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().add(question);
+            }
             addQuestion(question, id, groupIndex + 1);
         }
     }

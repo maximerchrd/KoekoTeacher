@@ -649,10 +649,11 @@ public class QuestionSendingController extends Window implements Initializable {
 
     //OTHER METHODS
     public void loadQuestions() {
+        readyQuestionsList.getItems().clear();
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         if (group < 1) group = 0;
 
-        //int IDsFromBroadcastedQuestionsSize = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size();
+        ArrayList<Integer> questionIds = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs();
         //for (int i = 0; i < IDsFromBroadcastedQuestionsSize; i++) {
         //    removeQuestion(0);
         //}
@@ -660,9 +661,9 @@ public class QuestionSendingController extends Window implements Initializable {
         if (LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size() == 0) {
             LearningTracker.studentGroupsAndClass.get(group).setActiveIDs(DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString()));
         }
-        refreshReadyQuestionsList(group);
-        /*for (int i = 0; i < questionIds.size(); i++) {
-            LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(questionIds.get(i));
+        //refreshReadyQuestionsList(group);
+        for (int i = 0; i < questionIds.size(); i++) {
+            //LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(questionIds.get(i));
             Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(questionIds.get(i)));
             if (typeOfQuestion == 0) {
                 try {
@@ -674,7 +675,8 @@ public class QuestionSendingController extends Window implements Initializable {
                     questionGeneric.setIntTypeOfQuestion(0);
                     questionGeneric.setTypeOfQuestion("0");
                     questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
-                    sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                    //sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                    readyQuestionsList.getItems().add(questionGeneric);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -687,9 +689,10 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionGeneric.setIntTypeOfQuestion(1);
                 questionGeneric.setTypeOfQuestion("1");
                 questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
-                sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                //sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                readyQuestionsList.getItems().add(questionGeneric);
             }
-        }*/
+        }
     }
 
     public void refreshReadyQuestionsList() {
