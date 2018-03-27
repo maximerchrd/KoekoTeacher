@@ -31,12 +31,12 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
     public void assignQuestions() {
         ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
         for (Integer id : questionIds) {
-            if (!QuestionSendingController.IDsFromBroadcastedQuestions.contains(String.valueOf(id))) {
-                QuestionSendingController.IDsFromBroadcastedQuestions.add(String.valueOf(id));
+            if (!LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(id)) {
+                LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
             }
         }
-        for (String id : QuestionSendingController.IDsFromBroadcastedQuestions) {
-            DbTableRelationClassQuestion.addClassQuestionRelation(className, id);
+        for (Integer id : LearningTracker.studentGroupsAndClass.get(0).getActiveIDs()) {
+            DbTableRelationClassQuestion.addClassQuestionRelation(className, String.valueOf(id));
         }
         LearningTracker.questionSendingControllerSingleton.refreshReadyQuestionsList();
         Stage stage = (Stage) label.getScene().getWindow();
@@ -44,10 +44,10 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
     }
 
     public void doNotAssign() {
-        QuestionSendingController.IDsFromBroadcastedQuestions.removeAllElements();
+        LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().clear();
         ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
         for (Integer id : questionIds) {
-            QuestionSendingController.IDsFromBroadcastedQuestions.add(String.valueOf(id));
+            LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
         }
         LearningTracker.questionSendingControllerSingleton.refreshReadyQuestionsList();
         Stage stage = (Stage) label.getScene().getWindow();

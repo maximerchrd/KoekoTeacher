@@ -7,6 +7,7 @@ import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
+import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import com.wideworld.learningtrackerteacher.students_management.Student;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -272,7 +273,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         }
-        sendQuestionToStudents(questionGeneric);
+        sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
         if (questionGeneric.getGlobalID() == -10) {
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
             for (Integer questionID : questionIDs) {
@@ -282,7 +283,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     if (genericQuestionsList.get(i).getGlobalID() == questionID) {
                         found = true;
                         questionGeneric2 = genericQuestionsList.get(i);
-                        sendQuestionToStudents(questionGeneric2);
+                        sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex());
                     }
                 }
             }
@@ -342,20 +343,22 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void removeQuestion() {
+        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
-                    IDsFromBroadcastedQuestions.get(index));
+                    String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
         }
-        IDsFromBroadcastedQuestions.remove(index);
+        LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().remove(index);
         readyQuestionsList.getItems().remove(index);
     }
     public void removeQuestion(int index) {
+        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
         DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
-                IDsFromBroadcastedQuestions.get(index));
-        IDsFromBroadcastedQuestions.remove(index);
+                String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
+        LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().remove(index);
         readyQuestionsList.getItems().remove(index);
     }
 
@@ -554,7 +557,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : StudentsVsQuestionsTableController.studentsConnected.get(0).getStudents_array()) {
+            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_array()) {
                 studentsList.add(singleStudent.getName());
             }
             controller.initParameters(activeClass, groupsCombobox, studentsList);
@@ -575,8 +578,22 @@ public class QuestionSendingController extends Window implements Initializable {
         groups.add(0,activeClass);
         groupsCombobox.getItems().addAll(groups);
 
+        //remove the groups of the former active class
+        while (LearningTracker.studentGroupsAndClass.size() > 1) {
+            LearningTracker.studentGroupsAndClass.remove(LearningTracker.studentGroupsAndClass.size() - 1);
+        }
+        for (int i = 0; i < groups.size(); i++) {
+            if (i == 0) {
+                LearningTracker.studentGroupsAndClass.get(0).setClassName(groups.get(i));
+            } else {
+                Classroom newGroup = new Classroom();
+                newGroup.setClassName(groups.get(i));
+                LearningTracker.studentGroupsAndClass.add(newGroup);
+            }
+        }
+
         //clean ready questions list or assign them to the new class
-        if (IDsFromBroadcastedQuestions.size() > 0) {
+        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/AssignQuestionsToNewClassPopUp.fxml"));
             Parent root1 = null;
             try {
@@ -596,7 +613,7 @@ public class QuestionSendingController extends Window implements Initializable {
             //load questions from class
             ArrayList<Integer> questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(activeClass);
             for (Integer id : questionIds) {
-                IDsFromBroadcastedQuestions.add(String.valueOf(id));
+                LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
             }
             refreshReadyQuestionsList();
         }
@@ -632,15 +649,20 @@ public class QuestionSendingController extends Window implements Initializable {
 
     //OTHER METHODS
     public void loadQuestions() {
-        int IDsFromBroadcastedQuestionsSize = IDsFromBroadcastedQuestions.size();
-        for (int i = 0; i < IDsFromBroadcastedQuestionsSize; i++) {
-            removeQuestion(0);
-        }
-        IDsFromBroadcastedQuestions.removeAllElements();
+        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
+        if (group < 1) group = 0;
 
-        ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
-        for (int i = 0; i < questionIds.size(); i++) {
-            IDsFromBroadcastedQuestions.add(String.valueOf(questionIds.get(i)));
+        //int IDsFromBroadcastedQuestionsSize = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size();
+        //for (int i = 0; i < IDsFromBroadcastedQuestionsSize; i++) {
+        //    removeQuestion(0);
+        //}
+        //LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().clear();
+        if (LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size() == 0) {
+            LearningTracker.studentGroupsAndClass.get(group).setActiveIDs(DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString()));
+        }
+        refreshReadyQuestionsList(group);
+        /*for (int i = 0; i < questionIds.size(); i++) {
+            LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(questionIds.get(i));
             Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(questionIds.get(i)));
             if (typeOfQuestion == 0) {
                 try {
@@ -667,15 +689,18 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
                 sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
             }
-        }
+        }*/
     }
 
     public void refreshReadyQuestionsList() {
+        refreshReadyQuestionsList(0);
+    }
+    public void refreshReadyQuestionsList(Integer group) {
         //save former broadcasted questions to compare later with new ones
         List<QuestionGeneric> formerQuestions = readyQuestionsList.getItems();
-        Vector<String> oldIDs = new Vector<>();
+        Vector<Integer> oldIDs = new Vector<>();
         for (QuestionGeneric questionGeneric : formerQuestions) {
-            oldIDs.add(String.valueOf(questionGeneric.getGlobalID()));
+            oldIDs.add(questionGeneric.getGlobalID());
         }
 
         //remove all questions from broadcasted list
@@ -683,20 +708,20 @@ public class QuestionSendingController extends Window implements Initializable {
 
         //compare old and new questions and delete or add them to the table
         for (int i = 0; i < oldIDs.size(); i++) {
-            if (!IDsFromBroadcastedQuestions.contains(oldIDs.get(i))) {
+            if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(oldIDs.get(i))) {
                 NetworkCommunication.networkCommunicationSingleton.removeQuestion(i);
                 readyQuestionsList.getItems().remove(i);
             }
         }
 
         //fill readyQuestionsList with new ids from IDsFromBroadcastedQuestions
-        for (int i = 0; i < IDsFromBroadcastedQuestions.size(); i++) {
-            if (!oldIDs.contains(IDsFromBroadcastedQuestions.get(i))) {
-                Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(IDsFromBroadcastedQuestions.get(i)));
+        for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size(); i++) {
+            if (!oldIDs.contains(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(i))) {
+                Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(i)));
                 if (typeOfQuestion == 0) {
                     try {
                         QuestionMultipleChoice questionMultipleChoice =
-                                DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(IDsFromBroadcastedQuestions.get(i)));
+                                DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(i)));
                         QuestionGeneric questionGeneric = new QuestionGeneric();
                         questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
                         questionGeneric.setGlobalID(questionMultipleChoice.getID());
@@ -709,7 +734,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 } else if (typeOfQuestion == 1) {
                     QuestionShortAnswer questionShortAnswer =
-                            DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(IDsFromBroadcastedQuestions.get(i)));
+                            DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(i)));
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
                     questionGeneric.setGlobalID(questionShortAnswer.getID());
@@ -722,11 +747,12 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    private void sendQuestionToStudents(QuestionGeneric questionGeneric) {
+    private void sendQuestionToStudents(QuestionGeneric questionGeneric, Integer group) {
         int globalID = questionGeneric.getGlobalID();
-        if (!IDsFromBroadcastedQuestions.contains(String.valueOf(globalID))) {
+        if (group < 1) group = 0;
+        if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
-            IDsFromBroadcastedQuestions.add(String.valueOf(globalID));
+            LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
             if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
                 try {
                     broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
@@ -937,7 +963,7 @@ public class QuestionSendingController extends Window implements Initializable {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
         try {
             NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
-            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID());
+            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -948,7 +974,7 @@ public class QuestionSendingController extends Window implements Initializable {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
         try {
             NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
-            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID());
+            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -2,10 +2,9 @@ package com.wideworld.learningtrackerteacher.controllers;
 
 import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.controllers.controllers_tools.SingleStudentAnswersLine;
+import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import com.wideworld.learningtrackerteacher.students_management.Student;
-import com.wideworld.learningtrackerteacher.database_management.DbTableClasses;
-import com.wideworld.learningtrackerteacher.database_management.DbTableRelationClassStudent;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -39,29 +38,27 @@ import java.util.Vector;
  */
 public class StudentsVsQuestionsTableController extends Window implements Initializable {
     private final Double cellHeight = 25.0;
-    private ArrayList<String> questions;
-    private ArrayList<Integer> questionsIDs;
-    static public ArrayList<Classroom> studentsConnected;
+    //private ArrayList<String> questions;
+    //private ArrayList<Integer> questionsIDs;
     private ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
 
-
-    public void addQuestion(String question, Integer ID) {
-        addQuestion(question,ID,0);
-    }
     public void addQuestion(String question, Integer ID, Integer group) {
+        if (group < 1) group = 0;
         // Add extra columns if necessary:
         System.out.println("adding column");
         TableColumn column = new TableColumn(question);
         column.setPrefWidth(180);
         tableViewArrayList.get(group).getColumns().add(column);
-        questions.add(question);
-        questionsIDs.add(ID);
+
+        LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
+        //questions.add(question);
+        //questionsIDs.add(ID);
         for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
             tableViewArrayList.get(group).getItems().get(i).addAnswer();
         }
-        final int questionIndex = questions.size() - 1;
+        final int questionIndex = LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
         column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
             public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
                 // p.getValue() returns the Person instance for a particular TableView row
@@ -96,22 +93,25 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         removeQuestion(index, 0);
     }
     public void removeQuestion(int index, Integer group) {
-        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-            tableViewArrayList.get(group).getItems().get(i).getAnswers().remove(index);
-        }
-        tableViewArrayList.get(group).getColumns().remove(index + 3);
-        questions.remove(index);
-        questionsIDs.remove(index);
+        if (tableViewArrayList.get(group).getItems().size() > 0 && tableViewArrayList.get(group).getItems().get(0).getAnswers().size() > index) {
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+                tableViewArrayList.get(group).getItems().get(i).getAnswers().remove(index);
+            }
+            tableViewArrayList.get(group).getColumns().remove(index + 3);
+            //questions.remove(index);
+            LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().remove(index);
+            //questionsIDs.remove(index);
 
-        for (int i = 3 + index; i < tableViewArrayList.get(group).getColumns().size(); i++) {
-            TableColumn column = tableViewArrayList.get(group).getColumns().get(i);
-            final int questionIndex = i - 3;
-            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                    // p.getValue() returns the Person instance for a particular TableView row
-                    return p.getValue().getAnswers().get(questionIndex);
-                }
-            });
+            for (int i = 3 + index; i < tableViewArrayList.get(group).getColumns().size(); i++) {
+                TableColumn column = tableViewArrayList.get(group).getColumns().get(i);
+                final int questionIndex = i - 3;
+                column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
+                    public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
+                        // p.getValue() returns the Person instance for a particular TableView row
+                        return p.getValue().getAnswers().get(questionIndex);
+                    }
+                });
+            }
         }
     }
 
@@ -123,7 +123,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
 
         ArrayList<String> studentNames = new ArrayList<>();
-        for (Student student: studentsConnected.get(group).getStudents_array()) studentNames.add(student.getName());
+        for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_array()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
             //for (int k = 0; k < 10; k++) {
                 SingleStudentAnswersLine singleStudentAnswersLine;
@@ -132,11 +132,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 } else {
                     singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
                 }
-                for (int i = 0; i < questions.size(); i++) {
+                for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
                     singleStudentAnswersLine.addAnswer();
                 }
                 tableViewArrayList.get(group).getItems().add(singleStudentAnswersLine);
-                studentsConnected.get(group).addStudent(UserStudent);
+                LearningTracker.studentGroupsAndClass.get(group).addStudent(UserStudent);
             //}
         } else {
             int indexStudent = -1;
@@ -155,7 +155,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         addAnswerForUser(student,answer,question,evaluation,questionId,0);
     }
     public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer group) {
-        if (!questions.contains(question)) {
+        if (!LearningTracker.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
             Platform.runLater(new Runnable(){
                 @Override
                 public void run() {
@@ -172,8 +172,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         if (evaluation == 100) {
             answer += "#/#";
         }
-        Integer indexColumn = questionsIDs.indexOf(questionId);
-        Integer indexRow = indexOfStudent(studentsConnected.get(group).getStudents_array(), student);
+        Integer indexColumn = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().indexOf(questionId);
+        Integer indexRow = indexOfStudent(LearningTracker.studentGroupsAndClass.get(group).getStudents_array(), student);
         SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
         if (indexColumn >= 0 && indexRow >= 0) {
             singleStudentAnswersLine.setAnswer(answer,indexColumn);
@@ -225,8 +225,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
     public void editEvaluation(Integer group) {
         TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
-        Integer globalID = questionsIDs.get(tablePosition.getColumn() - 3);
-        Integer studentID = studentsConnected.get(group).getStudents_array().get(tablePosition.getRow()).getStudentID();
+        Integer globalID = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
+        Integer studentID = LearningTracker.studentGroupsAndClass.get(group).getStudents_array().get(tablePosition.getRow()).getStudentID();
         if (globalID >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
             Parent root1 = null;
@@ -293,17 +293,17 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void loadGroups() {
         ArrayList<String> groups = DbTableClasses.getGroupsFromClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-        Integer groupsAlreadyAdded = studentsConnected.size() - 1;
-        Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
+        Integer nbGroups = LearningTracker.studentGroupsAndClass.size() - 1;
+        //Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
 
-        for (int i = 0; i < nbGroupsToAdd; i++) {
-            addGroup(groups.get(i + groupsAlreadyAdded));
+        for (int i = 0; i < nbGroups; i++) {
+            addGroup(groups.get(i), i);
 
-            //add studentsConnected for group
-            Vector<Student> students = DbTableClasses.getStudentsInClass(groups.get(i + groupsAlreadyAdded));
+            //add studentGroupsAndClass for group
+            Vector<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
             for (Student student : students) {
-                addUser(student, false, i + 1 + groupsAlreadyAdded);
-                studentsConnected.get(i + 1 + groupsAlreadyAdded).addStudent(student);
+                addUser(student, false, i + 1);
+                LearningTracker.studentGroupsAndClass.get(i + 1).addStudent(student);
             }
         }
     }
@@ -315,9 +315,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
         String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
         LearningTracker.questionSendingControllerSingleton.activeClassChanged(activeClass);
+        loadGroups();
     }
 
-    private void addGroup(String group) {
+    private void addGroup(String group, Integer groupIndex) {
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
         TableColumn groupName = new TableColumn<SingleStudentAnswersLine,String>(group);
         studentsQuestionsTable.getColumns().add(groupName);
@@ -343,7 +344,27 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.add(studentsQuestionsTable);
 
         Classroom newGroup = new Classroom();
-        studentsConnected.add(newGroup);
+        newGroup.setTableIndex(LearningTracker.studentGroupsAndClass.size() - 1);
+        LearningTracker.studentGroupsAndClass.add(newGroup);
+
+
+        //add questions
+        ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
+        for (Integer id : questionIDs) {
+            LearningTracker.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().add(id);
+            Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(id));
+            String question = "";
+            if (questionType == 0) {
+                try {
+                    question = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(id).getQUESTION();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (questionType == 1) {
+                question = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id).getQUESTION();
+            }
+            addQuestion(question, id, groupIndex + 1);
+        }
     }
 
     @Override
@@ -369,11 +390,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.add(studentsQuestionsTable);
 
         //initialize other members
-        questions = new ArrayList<>();
-        questionsIDs = new ArrayList<>();
-        studentsConnected = new ArrayList<>();
+        //questions = new ArrayList<>();
+        //questionsIDs = new ArrayList<>();
+        LearningTracker.studentGroupsAndClass = new ArrayList<>();
         Classroom mainClassroom = new Classroom();
-        studentsConnected.add(mainClassroom);
+        LearningTracker.studentGroupsAndClass.add(mainClassroom);
         List<String> classes = DbTableClasses.getAllClasses();
         ObservableList<String> observableList = FXCollections.observableList(classes);
         chooseClassComboBox.setItems(observableList);

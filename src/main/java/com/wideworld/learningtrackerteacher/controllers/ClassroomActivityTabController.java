@@ -32,8 +32,8 @@ public class ClassroomActivityTabController implements Initializable {
 
 
 
-    public void addQuestion(String question, Integer id) {
-        studentsQuestionsTableController.addQuestion(question,id);
+    public void addQuestion(String question, Integer id, Integer group) {
+        studentsQuestionsTableController.addQuestion(question,id, group);
     }
     public void addUser(Student UserStudent, Boolean connection) {
         studentsQuestionsTableController.addUser(UserStudent,connection);

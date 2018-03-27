@@ -1,10 +1,12 @@
 package com.wideworld.learningtrackerteacher;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import com.wideworld.learningtrackerteacher.controllers.LearningTrackerController;
 import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.database_management.DBManager;
+import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -18,6 +20,7 @@ import javafx.stage.WindowEvent;
 
 public class LearningTracker extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
+    static public ArrayList<Classroom> studentGroupsAndClass;
 
     public static void main(String[] args) throws Exception {
 

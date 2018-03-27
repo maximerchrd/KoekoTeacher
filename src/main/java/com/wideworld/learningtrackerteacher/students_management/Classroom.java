@@ -1,5 +1,6 @@
 package com.wideworld.learningtrackerteacher.students_management;
 
+import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 
@@ -15,7 +16,9 @@ public class Classroom {
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
     private ArrayList<Integer> activeIDs;
+    private ArrayList<String> activeQuestions;
     private Integer tableIndex = -1;
+    private String className = "";
 
     public Classroom() {
         students_array = new ArrayList<>();
@@ -23,6 +26,19 @@ public class Classroom {
         current_set_quest_mult_choice = new ArrayList<>();
         current_set_quest_short_answer = new ArrayList<>();
         activeIDs = new ArrayList<>();
+        activeQuestions = new ArrayList<>();
+    }
+    public ArrayList<String> getActiveQuestions() {
+        return activeQuestions;
+    }
+    public void setActiveQuestions(ArrayList<String> activeQuestions) {
+        this.activeQuestions = activeQuestions;
+    }
+    public String getClassName() {
+        return className;
+    }
+    public void setClassName(String className) {
+        this.className = className;
     }
     public ArrayList<Integer> getActiveIDs() {
         return activeIDs;
@@ -53,10 +69,10 @@ public class Classroom {
     }
     public void addStudentIfNotInClass(Student student) {
         int students_addresses_size = readStudents_addresses();
-        System.out.println("studentsConnected addresses size: "+ students_addresses_size);
+        System.out.println("studentGroupsAndClass addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
             if (!students_addresses.contains(student.getAddress())) {
-                System.out.println("studentsConnected addresses content: " + students_addresses.get(0) + " student address: " + student.getAddress());
+                System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getAddress());
                 students_array.add(student);
             } else {
                 int index = students_addresses.indexOf(student.getAddress());
@@ -146,5 +162,13 @@ public class Classroom {
             }
         }
         return student;
+    }
+
+    public String getQuestionWithID(Integer questionID) {
+        String question = "";
+        if (activeQuestions.size() == activeIDs.size() && activeIDs.size() > 0) {
+            question = activeQuestions.get(activeIDs.indexOf(questionID));
+        }
+        return question;
     }
 }

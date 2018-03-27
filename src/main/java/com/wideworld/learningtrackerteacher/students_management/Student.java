@@ -23,6 +23,7 @@ public class Student {
     private Integer numberOfAnswers;
     private Integer studentID = -1;
     private ArrayList<Integer> testQuestionsIDs;
+    private Boolean connected;
 
 
     //constructors
@@ -44,7 +45,9 @@ public class Student {
         numberOfAnswers++;
     }
     //setters
-
+    public void setConnected(Boolean connected) {
+        this.connected = connected;
+    }
     public void setInetAddress(InetAddress arg_inetaddress) {
         mInetAddress = arg_inetaddress;
     }
@@ -69,7 +72,11 @@ public class Student {
     public void setTestQuestions(ArrayList<Integer> testQuestions) {
         this.testQuestionsIDs = testQuestions;
     }
+
     //getters
+    public Boolean getConnected() {
+        return connected;
+    }
     public ArrayList<Integer> getTestQuestions() {
         return testQuestionsIDs;
     }

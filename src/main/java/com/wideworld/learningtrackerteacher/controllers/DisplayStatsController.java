@@ -40,7 +40,7 @@ public class DisplayStatsController implements Initializable {
         chart_type.getItems().addAll("Evaluation vs objective", "Evaluation vs subject");
         chart_type.getSelectionModel().select("Evaluation vs objective");
 
-        //tree with studentsConnected
+        //tree with studentGroupsAndClass
         studentsVector = DbTableStudents.getStudentNames();
         TreeItem<String> rootItem = new TreeItem<String> ("Inbox");
         rootItem.setExpanded(true);
