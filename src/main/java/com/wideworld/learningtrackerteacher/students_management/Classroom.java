@@ -205,6 +205,9 @@ public class Classroom {
             }
         }
         averageEval = averageEval / numberEval;
+        if (averageEvaluations.size() > question) {
+            averageEvaluations.set(question, averageEval);
+        }
         return averageEval;
     }
 
@@ -213,6 +216,7 @@ public class Classroom {
         Double numberEval = 0.0;
         for (int i = 0; i < averageEvaluations.size(); i++) {
             if (averageEvaluations.get(i) != null) {
+                System.out.println("");
                 averageEval += averageEvaluations.get(i);
                 numberEval += 1.0;
             }

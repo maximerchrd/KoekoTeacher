@@ -148,7 +148,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().remove(index);
             Integer nbSutdents = LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().size();
             for (int i = 0; i < nbSutdents && LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().size() > index; i++) {
-                LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().remove(index);
+                LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).remove(index);
             }
         }
     }
@@ -236,8 +236,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
             Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
             meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
-            if (LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexRow) != null) {
-                LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexRow, meanEvaluation);
+            if (LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexColumn) != null) {
+                LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexColumn, meanEvaluation);
             }
             DecimalFormat df = new DecimalFormat("#.#");
             singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
@@ -249,7 +249,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             Double classAverage = LearningTracker.studentGroupsAndClass.get(group).updateAverageEvaluationForClass();
             SingleStudentAnswersLine averageEvaluationsLine = tableViewArrayList.get(group).getItems().get(tableViewArrayList.get(group).getItems().size() - 1);
             averageEvaluationsLine.setEvaluation(String.valueOf(df.format(classAverage)));
-            averageEvaluationsLine.setAnswer(String.valueOf(questionAverage), indexColumn);
+            if (questionAverage > 60.0) {
+                averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)) + "#/#", indexColumn);
+            } else {
+                averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)), indexColumn);
+            }
             tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
         }
     }
