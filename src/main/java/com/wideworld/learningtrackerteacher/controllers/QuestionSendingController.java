@@ -367,6 +367,9 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void removeQuestion() {
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
+        if (group < 1) {
+            group = 0;
+        }
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
