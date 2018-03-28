@@ -394,26 +394,30 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     private void addGroup(String group, Integer groupIndex) {
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
-        TableColumn groupName = new TableColumn<SingleStudentAnswersLine,String>(group);
-        studentsQuestionsTable.getColumns().add(groupName);
+        //TableColumn groupName = new TableColumn<SingleStudentAnswersLine,String>(group);
+        //studentsQuestionsTable.getColumns().add(groupName);
         TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>("Student");
         columnStudent.setPrefWidth(180);
         columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
         studentsQuestionsTable.getColumns().add(columnStudent);
 
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
-        columnStatus.setPrefWidth(180);
+        columnStatus.setPrefWidth(100);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
         studentsQuestionsTable.getColumns().add(columnStatus);
 
         TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("Evaluation");
-        columnEvaluation.setPrefWidth(180);
+        columnEvaluation.setPrefWidth(100);
         columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("Evaluation"));
         studentsQuestionsTable.getColumns().add(columnEvaluation);
 
-        studentsQuestionsTable.setFixedCellSize(cellHeight);
-        studentsQuestionsTable.setPrefHeight(cellHeight * 4);
+        //add summary linestudentsQuestionsTable.setFixedCellSize(cellHeight);
+        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");studentsQuestionsTable.setPrefHeight(cellHeight * 4);
+        studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
 
+        Label groupNameLabel = new Label("Group: " + group);
+        groupNameLabel.setStyle("-fx-padding: 20 0 0 0;");
+        tableVBox.getChildren().add(groupNameLabel);
         tableVBox.getChildren().add(studentsQuestionsTable);
         tableViewArrayList.add(studentsQuestionsTable);
 
@@ -455,11 +459,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
         studentsQuestionsTable.getColumns().add(columnStudent);
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
-        columnStatus.setPrefWidth(180);
+        columnStatus.setPrefWidth(100);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
         studentsQuestionsTable.getColumns().add(columnStatus);
         TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("Evaluation");
-        columnEvaluation.setPrefWidth(180);
+        columnEvaluation.setPrefWidth(100);
         columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("Evaluation"));
         studentsQuestionsTable.getColumns().add(columnEvaluation);
         studentsQuestionsTable.setFixedCellSize(cellHeight);
