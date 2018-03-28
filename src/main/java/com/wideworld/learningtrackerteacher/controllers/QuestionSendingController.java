@@ -596,6 +596,16 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
+    public void deleteGroup() {
+        if (groupsCombobox.getSelectionModel().getSelectedItem() != null && groupsCombobox.getSelectionModel().getSelectedIndex() != 0) {
+            DbTableClasses.deleteGroup(groupsCombobox.getSelectionModel().getSelectedItem().toString());
+            int groupIndex = groupsCombobox.getSelectionModel().getSelectedIndex();
+            groupsCombobox.getItems().remove(groupIndex);
+            LearningTracker.studentGroupsAndClass.remove(groupIndex);
+            LearningTracker.studentsVsQuestionsTableControllerSingleton.removeGroup(groupIndex);
+        }
+    }
+
     public void activeClassChanged(String argActiveClass) {
         //change combobox content
         this.activeClass = argActiveClass;
@@ -646,10 +656,6 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void editGroup() {
-
-    }
-
-    public void deleteGroup() {
 
     }
 
@@ -829,11 +835,15 @@ public class QuestionSendingController extends Window implements Initializable {
         //copy image file to correct directory
         if (new_questmultchoice.getIMAGE().length() > 0 && !new_questmultchoice.getIMAGE().contains("none")) {
             File source = new File("questions/" + new_questmultchoice.getIMAGE());
-            File dest = new File(new_questmultchoice.getIMAGE());
-            try {
-                Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (source.exists() && !source.isDirectory()) {
+                File dest = new File(new_questmultchoice.getIMAGE());
+                try {
+                    Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("problem importing question: " + new_questmultchoice.getQUESTION() + ". Image file not found.");
             }
         } else {
             new_questmultchoice.setIMAGE("");
@@ -903,11 +913,15 @@ public class QuestionSendingController extends Window implements Initializable {
         //copy image file to correct directory
         if (new_questshortanswer.getIMAGE().length() > 0 && !new_questshortanswer.getIMAGE().contains("none")) {
             File source = new File("questions/" + new_questshortanswer.getIMAGE());
-            File dest = new File(new_questshortanswer.getIMAGE());
-            try {
-                Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (source.exists() && !source.isDirectory()) {
+                File dest = new File(new_questshortanswer.getIMAGE());
+                try {
+                    Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Problem inserting question: " + new_questshortanswer.getQUESTION() + ". Image file not found.");
             }
         } else {
             new_questshortanswer.setIMAGE("");

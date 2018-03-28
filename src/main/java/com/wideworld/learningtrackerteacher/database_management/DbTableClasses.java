@@ -162,4 +162,26 @@ public class DbTableClasses {
         }
         return classes;
     }
+
+    static public void deleteGroup(String groupName) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"DELETE FROM classes WHERE NAME='" + groupName + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        DbTableRelationClassClass.deleteClassGroupRelation(groupName);
+
+    }
 }

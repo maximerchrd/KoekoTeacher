@@ -43,4 +43,25 @@ public class DbTableRelationClassClass {
             System.exit(0);
         }
     }
+
+    static public void deleteClassGroupRelation(String groupName) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"DELETE FROM class_class_relation WHERE CLASS_NAME2='" +
+                    groupName +  "');";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
 }

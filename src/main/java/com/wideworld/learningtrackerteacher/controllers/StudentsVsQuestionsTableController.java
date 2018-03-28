@@ -163,7 +163,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         ArrayList<String> studentNames = new ArrayList<>();
         for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_array()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
-            System.out.println("student not contained:" + tableViewArrayList.get(group).getItems().size());
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
@@ -192,7 +191,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //adapt table height
             tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
         } else {
-            System.out.println("student contained:" + tableViewArrayList.get(group).getItems().size());
             int indexStudent = -1;
             for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
                 if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) indexStudent = i;
@@ -449,8 +447,15 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
+    public void removeGroup(int groupIndex) {
+        tableViewArrayList.remove(groupIndex);
+        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
+        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        LearningTracker.studentsVsQuestionsTableControllerSingleton = this;
         //initialize table
         tableViewArrayList = new ArrayList<>();
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();

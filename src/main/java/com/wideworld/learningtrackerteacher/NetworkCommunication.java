@@ -237,7 +237,7 @@ public class NetworkCommunication {
             }
 
             //write the file into the bytearray   !!! tested up to 630000 bytes, does not work with file of 4,7MB
-            if (!questionMultipleChoice.getIMAGE().equals("none")) {
+            if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 fis = new FileInputStream(myFile);
                 bis = new BufferedInputStream(fis);
                 bis.read(bytearray, 40 + textbyteslength, intfileLength);
@@ -308,7 +308,7 @@ public class NetworkCommunication {
             // send file : the sizes of the file and of the text are given in the first 40 bytes (separated by ":")
             int intfileLength = 0;
             File myFile = null;
-            if (!questionShortAnswer.getIMAGE().equals("none")) {
+            if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 question_text += questionShortAnswer.getIMAGE().split("/")[questionShortAnswer.getIMAGE().split("/").length - 1];
                 myFile = new File(questionShortAnswer.getIMAGE());
                 intfileLength = (int) myFile.length();
