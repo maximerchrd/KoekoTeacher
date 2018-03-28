@@ -160,12 +160,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
-        //adapt table height
-        tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
-
         ArrayList<String> studentNames = new ArrayList<>();
         for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_array()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
+            System.out.println("student not contained:" + tableViewArrayList.get(group).getItems().size());
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
@@ -190,8 +188,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                     LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().get(LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().size() - 1).add(-1.0);
                 }
             }
-            //}
+
+            //adapt table height
+            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
         } else {
+            System.out.println("student contained:" + tableViewArrayList.get(group).getItems().size());
             int indexStudent = -1;
             for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
                 if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) indexStudent = i;
@@ -348,15 +349,20 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight);
 
         String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
-        String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
-        try {
-            DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+            String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+            try {
+                DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        Integer studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
+        int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
         tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
         LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
+        if (LearningTracker.studentGroupsAndClass.get(group).getStudents_array().size() > studentIndex) {
+            LearningTracker.studentGroupsAndClass.get(group).getStudents_array().remove(studentIndex);
+        }
     }
 
     public void loadGroups() {
