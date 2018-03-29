@@ -59,7 +59,7 @@ public class DbTableRelationClassStudent {
             System.exit(0);
         }
     }
-    static public void removeStudentFromClass(String studentName, String className) throws Exception {
+    static public void removeStudentFromClass(String studentName, String className) {
         String classID = " ";
         String studentID = " ";
         Connection c = null;
@@ -83,6 +83,33 @@ public class DbTableRelationClassStudent {
                 studentID = rs.getString("ID_STUDENT_GLOBAL");
             }
             String sql = 	"DELETE FROM class_students_relation WHERE CLASS_STUDENT_CODE = '" + classID + studentID + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+
+    static public void removeAllStudentsFromClass(String className) {
+        String classID = " ";
+        Connection c = null;
+        Statement stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+
+            String query = "SELECT ID_CLASS_GLOBAL FROM classes WHERE NAME='" + className.replace("'","''") + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                classID = rs.getString("ID_CLASS_GLOBAL");
+            }
+            String sql = 	"DELETE FROM class_students_relation WHERE ID_CLASS_GLOBAL = '" + classID + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

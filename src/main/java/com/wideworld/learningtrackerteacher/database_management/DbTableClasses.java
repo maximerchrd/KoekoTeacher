@@ -85,6 +85,28 @@ public class DbTableClasses {
         }
         DbTableRelationClassClass.addClassGroupRelation(className, groupName);
     }
+    static public void updateGroup(String newGroupName, String oldGroupName) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE classes SET NAME = '" + newGroupName + "' WHERE NAME = '" + oldGroupName + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        DbTableRelationClassClass.updateClassGroupRelation(newGroupName, oldGroupName);
+        DbTableRelationClassQuestion.updateGroupQuestionRelation(newGroupName, oldGroupName);
+    }
     static public ArrayList<String> getGroupsFromClass(String className) {
         ArrayList<String> groups = new ArrayList<>();
         Connection c = null;
@@ -182,6 +204,7 @@ public class DbTableClasses {
             System.exit(0);
         }
         DbTableRelationClassClass.deleteClassGroupRelation(groupName);
-
+        DbTableRelationClassQuestion.deleteAllClassQuestionRelationsForClass(groupName);
+        DbTableRelationClassStudent.removeAllStudentsFromClass(groupName);
     }
 }

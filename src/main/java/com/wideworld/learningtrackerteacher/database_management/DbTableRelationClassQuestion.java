@@ -45,6 +45,26 @@ public class DbTableRelationClassQuestion {
         }
     }
 
+    static public void updateGroupQuestionRelation(String newGroupName, String oldGroupName) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE class_question_relation SET CLASS_NAME = '" + newGroupName + "' WHERE CLASS_NAME = '" + oldGroupName + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static public void removeClassQuestionRelation(String className, String questionID) {
         Connection c = null;
         Statement stmt = null;
@@ -56,6 +76,26 @@ public class DbTableRelationClassQuestion {
             stmt = c.createStatement();
             String sql = 	"DELETE FROM class_question_relation WHERE CLASS_NAME='" + className.replace("'","''")
                     + "' AND ID_GLOBAL='" + questionID + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+    static public void deleteAllClassQuestionRelationsForClass(String className) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"DELETE FROM class_question_relation WHERE CLASS_NAME='" + className.replace("'","''") +"';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

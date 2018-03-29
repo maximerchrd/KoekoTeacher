@@ -656,7 +656,34 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void editGroup() {
-
+        if (activeClass.length() > 0) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditGroup.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            EditGroupController controller = fxmlLoader.<EditGroupController>getController();
+            ArrayList<String> studentsList = new ArrayList<>();
+            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_array()) {
+                studentsList.add(singleStudent.getName());
+            }
+            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+                Vector<Student> studentsInGroup = DbTableClasses.getStudentsInClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
+                ArrayList<String> studentNames = new ArrayList<>();
+                for (Student student : studentsInGroup) {
+                    studentNames.add(student.getName());
+                }
+                controller.initParameters(activeClass, groupsCombobox, studentsList, studentNames);
+                Stage stage = new Stage();
+                stage.initModality(Modality.WINDOW_MODAL);
+                stage.initStyle(StageStyle.DECORATED);
+                stage.setTitle("Create a New Group");
+                stage.setScene(new Scene(root1));
+                stage.show();
+            }
+        }
     }
 
     public void activateQuestionsForGroups() {
