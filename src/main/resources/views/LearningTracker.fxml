@@ -13,7 +13,7 @@
     <Tab id="classroom_activity_tab" fx:id="classroom_activity_tab" closable="false" text="Classroom Activity">
       <content>
           <AnchorPane prefHeight="200.0" prefWidth="200.0" />
-          <fx:include source="ClassroomActivityTab.fxml" fx:id="ClassroomActivityTab" />
+          <fx:include fx:id="ClassroomActivityTab" source="ClassroomActivityTab.fxml" />
       </content>
     </Tab>
     <Tab closable="false" text="Results Overview">
@@ -22,5 +22,11 @@
              <fx:include source="ResultsOverviewTab.fxml" />
          </content>
     </Tab>
+      <Tab closable="false" text="Settings">
+         <content>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+            <fx:include source="SettingsTab.fxml" />
+         </content>
+      </Tab>
   </tabs>
 </TabPane>
