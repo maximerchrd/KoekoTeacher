@@ -398,30 +398,38 @@ public class QuestionSendingController extends Window implements Initializable {
         for (int i = 0; i < input.size(); i++) {
             String[] question = input.get(i).split(";");
 
-            //insert subjects
-            String[] subjects = question[5].split("///");
-            for (int j = 0; j < subjects.length; j++) {
-                try {
-                    DbTableSubject.addSubject(subjects[j].replace("'", "''"));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+            if (question.length >= 6) {
+                //insert subjects
+                String[] subjects = question[5].split("///");
+                for (int j = 0; j < subjects.length; j++) {
+                    try {
+                        DbTableSubject.addSubject(subjects[j].replace("'", "''"));
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
-            }
 
-            //insert objectives
-            String[] objectives = question[6].split("///");
-            for (int j = 0; j < objectives.length; j++) {
-                try {
-                    DbTableLearningObjectives.addObjective(objectives[j].replace("'", "''"), 1);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+                //insert objectives
+                String[] objectives = question[6].split("///");
+                for (int j = 0; j < objectives.length; j++) {
+                    try {
+                        DbTableLearningObjectives.addObjective(objectives[j].replace("'", "''"), 1);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
                 }
-            }
 
-            if (question[0].contentEquals("0")) {
-                insertQuestionMultipleChoice(question);
+                if (question[0].contentEquals("0")) {
+                    insertQuestionMultipleChoice(question);
+                } else {
+                    insertQuestionShortAnswer(question);
+                }
+
             } else {
-                insertQuestionShortAnswer(question);
+                System.out.println("problem importing following question (missing fields)");
+                for (String questionPart : question) {
+                    System.out.println(questionPart);
+                }
             }
         }
     }
