@@ -92,7 +92,6 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"');";
-            System.out.println(globalID);
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -132,7 +131,6 @@ public class DbTableQuestionMultipleChoice {
                     "NB_CORRECT_ANS='" + quest.getNB_CORRECT_ANS() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
-            System.out.println(quest.getID());
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

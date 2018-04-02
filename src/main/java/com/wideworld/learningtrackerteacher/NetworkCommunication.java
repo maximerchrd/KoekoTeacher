@@ -30,7 +30,6 @@ public class NetworkCommunication {
     private ArrayList<OutputStream> outstream_list;
     private InputStream inStream = null;
     private ArrayList<InputStream> instream_list;
-    private static final int MAX_NUMBER_OF_CLIENTS = 1000000;
     private int number_of_clients = 0;
     private Classroom aClass = null;
     private int network_solution = 0; //0: all devices connected to same wifi router
@@ -85,40 +84,35 @@ public class NetworkCommunication {
                             Student student = new Student();
                             student.setInetAddress(skt.getInetAddress());
 
-                            if (number_of_clients < MAX_NUMBER_OF_CLIENTS) {
-                                try {
-                                    number_of_clients++;
+
+                            try {
+                                number_of_clients++;
+                                student.setInputStream(skt.getInputStream());
+                                student.setOutputStream(skt.getOutputStream());
+                                if (!aClass.studentAlreadyInClass(student)) {
+                                    aClass.addStudentIfNotInClass(student);
+                                    System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
+                                    SendNewConnectionResponse(student.getOutputStream(), false);
+                                } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
-                                    if (!aClass.studentAlreadyInClass(student)) {
-                                        aClass.addStudentIfNotInClass(student);
-                                        System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
-                                        SendNewConnectionResponse(student.getOutputStream(), false);
-                                    } else {
-                                        student.setInputStream(skt.getInputStream());
-                                        student.setOutputStream(skt.getOutputStream());
-                                        aClass.updateStudent(student);
-                                    }
-                                    listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
-                                    //for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
-                                    if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > 0) {
-                                        try {
-                                            sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
-                                            sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
-                                            System.out.println("address: " + student.getInetAddress());
-                                            //Thread.sleep(500);          //added some latency to prevent ios devices messing up reading
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                } catch (IOException e1) {
-                                    e1.printStackTrace();
+                                    aClass.updateStudent(student);
                                 }
-                            } else {
-                                System.out.println("max clients reached");
+                                listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
+                                //for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
+                                if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > 0) {
+                                    try {
+                                        sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
+                                        sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
+                                        System.out.println("address: " + student.getInetAddress());
+                                        //Thread.sleep(500);          //added some latency to prevent ios devices messing up reading
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
                             }
-
-
                         } catch (IOException e2) {
                             // TODO Auto-generated catch block
                             e2.printStackTrace();
@@ -135,8 +129,8 @@ public class NetworkCommunication {
         String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
         byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
         ArrayList<Student> StudentsArray = aClass.getStudents_array();
-        System.out.println(questIDString);
-        System.out.println(StudentsArray.size());
+        System.out.println("sending id: " + questIDString);
+        System.out.println("to " + StudentsArray.size() + " students");
         for (int i = 0; i < StudentsArray.size(); i++) {
             OutputStream tempOutputStream = StudentsArray.get(i).getOutputStream();
             try {
@@ -161,7 +155,7 @@ public class NetworkCommunication {
         if (singleStudentOutputStream != null) {
             String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
             byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
-            System.out.println(questIDString);
+            System.out.println("sending question: " + questIDString + " to single student");
             try {
                 singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
                 singleStudentOutputStream.flush();
@@ -205,7 +199,6 @@ public class NetworkCommunication {
             }
             if (l == 0) question_text += " ";
             question_text += "///";
-            System.out.println(question_text);
 
             // send file : the sizes of the file and of the text are given in the first 40 bytes (separated by ":")
             int intfileLength = 0;
@@ -302,11 +295,11 @@ public class NetworkCommunication {
             }
             if (l == 0) question_text += " ";
             question_text += "///";
-            System.out.println(question_text);
 
             // send file : the sizes of the file and of the text are given in the first 40 bytes (separated by ":")
             int intfileLength = 0;
-            File myFile = new File(questionShortAnswer.getIMAGE());;
+            File myFile = new File(questionShortAnswer.getIMAGE());
+            ;
             if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 question_text += questionShortAnswer.getIMAGE().split("/")[questionShortAnswer.getIMAGE().split("/").length - 1];
                 intfileLength = (int) myFile.length();
@@ -383,9 +376,9 @@ public class NetworkCommunication {
                         if (bytesread >= 1000) System.out.println("Answer too large for bytearray");
                         if (bytesread >= 0) {
                             String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
-                            System.out.println(answerString);
+                            System.out.println("received answer: " + answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
-                                arg_student.setName(answerString.split("///")[2]);
+                                //arg_student.setName(answerString.split("///")[2]);
                                 double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]), answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
                                 SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
@@ -400,7 +393,10 @@ public class NetworkCommunication {
                                 }
                                 learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]), groupIndex);
                                 Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
-                                System.out.println("student: " + arg_student.getName() + "; outstream: " + arg_student.getOutputStream().toString() + "nextQuestion:" + nextQuestion);
+                                System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
+                                for (Integer testid : arg_student.getTestQuestions()) {
+                                    System.out.println(testid);
+                                }
                                 if (nextQuestion != -1) {
                                     SendQuestionID(nextQuestion, arg_student.getOutputStream());
                                 }
@@ -571,7 +567,7 @@ public class NetworkCommunication {
             }
         }
         for (Student student : aClass.getStudents_array()) {
-            student.setTestQuestions(questionIds);
+            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
         }
     }
 
@@ -594,14 +590,12 @@ public class NetworkCommunication {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
                 try {
-                    SendQuestionID(questionIds.get(0),student.getOutputStream());
+                    SendQuestionID(questionIds.get(0), student.getOutputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-
-            student.setTestQuestions(questionIds);
-
+            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
         }
     }
 }

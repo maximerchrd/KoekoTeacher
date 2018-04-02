@@ -241,7 +241,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             DecimalFormat df = new DecimalFormat("#.#");
             singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
             tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
-            System.out.println("group nb lines: " + tableViewArrayList.get(group).getItems().size());
 
             //update mean values
             Double questionAverage = LearningTracker.studentGroupsAndClass.get(group).updateAverageEvaluationForQuestion(indexColumn, indexRow, evaluation);
