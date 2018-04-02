@@ -10,6 +10,12 @@ import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipl
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import com.wideworld.learningtrackerteacher.students_management.Student;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.*;
@@ -406,17 +412,13 @@ public class NetworkCommunication {
                                 student.setName(answerString.split("///")[2]);
                                 Integer studentID = DbTableStudents.addStudent(answerString.split("///")[1], answerString.split("///")[2]);
                                 if (studentID == -2) {
-                                    /*JOptionPane.showMessageDialog(mTableQuestionVsUser,
-                                            student.getName() + " is trying to connect but has a different " +
-                                                    "device identifier than the student with the same name already registered.");*/
+                                    popUpIfStudentIdentifierCollision(student.getName());
                                 }
                                 student.setStudentID(studentID);
-                                //mTableQuestionVsUser.addUser(student, true);
                                 learningTrackerController.addUser(student, true);
                                 aClass.updateStudent(student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
-                                //mTableQuestionVsUser.userDisconnected(student);
                                 learningTrackerController.userDisconnected(student);
                             } else if (answerString.split("///")[0].contains("GOTIT")) {
                                 String questionID = answerString.split("///")[1];
@@ -597,5 +599,21 @@ public class NetworkCommunication {
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
         }
+    }
+
+    private void popUpIfStudentIdentifierCollision( String studentName) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                final Stage dialog = new Stage();
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.initOwner(LearningTracker.studentsVsQuestionsTableControllerSingleton);
+                VBox dialogVbox = new VBox(20);
+                dialogVbox.getChildren().add(new Text(studentName + " is trying to connect but has a different " +
+                        "device identifier \n than the student with the same name already registered."));
+                Scene dialogScene = new Scene(dialogVbox, 400, 40);
+                dialog.setScene(dialogScene);
+                dialog.show();
+                }
+        });
     }
 }
