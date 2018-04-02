@@ -29,17 +29,20 @@ public class Student {
     //constructors
     public Student() {
         numberOfAnswers = 0;
+        testQuestionsIDs = new ArrayList<>();
     }
     public Student(String arg_MacAddress, String arg_name) {
         mMacAddress = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
+        testQuestionsIDs = new ArrayList<>();
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         mMacAddress = arg_address;
         mName = arg_name;
         mConnectedByBT = connectedByBT;
         numberOfAnswers = 0;
+        testQuestionsIDs = new ArrayList<>();
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;

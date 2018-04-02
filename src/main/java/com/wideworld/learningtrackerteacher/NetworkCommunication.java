@@ -21,6 +21,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -85,13 +86,14 @@ public class NetworkCommunication {
                 public void run() {
                     while (true) {
                         try {
+                            //listening to client connection and accept it
                             Socket skt = myServerSocket.accept();
-                            System.out.println("waiting for next client to connect");
                             Student student = new Student();
                             student.setInetAddress(skt.getInetAddress());
-
+                            System.out.println("Student wit address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
 
                             try {
+                                //register student
                                 number_of_clients++;
                                 student.setInputStream(skt.getInputStream());
                                 student.setOutputStream(skt.getOutputStream());
@@ -104,14 +106,22 @@ public class NetworkCommunication {
                                     student.setOutputStream(skt.getOutputStream());
                                     aClass.updateStudent(student);
                                 }
+
+                                //start a new thread for listening to each student
                                 listenForClient(aClass.getStudents_array().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
-                                //for (int i = 0; i < QuestionSendingController.IDsFromBroadcastedQuestions.size(); i++) {
-                                if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > 0) {
+
+                                //send the active questions
+                                ArrayList<Integer> activeIDs = (ArrayList<Integer>) LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().clone();
+                                for (Iterator<Integer> iterator = activeIDs.iterator(); iterator.hasNext();) {
+                                    if (iterator.next() == -10) {
+                                        iterator.remove();
+                                    }
+                                }
+                                if (activeIDs.size() > 0) {
                                     try {
-                                        sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
-                                        sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(0), student.getOutputStream());
+                                        sendMultipleChoiceWithID(activeIDs.get(0), student.getOutputStream());
+                                        sendShortAnswerQuestionWithID(activeIDs.get(0), student.getOutputStream());
                                         System.out.println("address: " + student.getInetAddress());
-                                        //Thread.sleep(500);          //added some latency to prevent ios devices messing up reading
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -385,7 +395,8 @@ public class NetworkCommunication {
                             System.out.println("received answer: " + answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
                                 //arg_student.setName(answerString.split("///")[2]);
-                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]), answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
+                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),
+                                        answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
                                 SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
                                 //find out to which group the student and answer belong
@@ -397,7 +408,8 @@ public class NetworkCommunication {
                                         questionIdsForGroups.get(i).remove(questID);
                                     }
                                 }
-                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval, Integer.valueOf(answerString.split("///")[5]), groupIndex);
+                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval,
+                                        Integer.valueOf(answerString.split("///")[5]), groupIndex);
                                 Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
                                 System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
                                 for (Integer testid : arg_student.getTestQuestions()) {
