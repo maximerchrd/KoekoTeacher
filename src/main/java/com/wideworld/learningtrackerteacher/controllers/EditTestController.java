@@ -4,16 +4,12 @@ import com.wideworld.learningtrackerteacher.database_management.DbTableLearningO
 import com.wideworld.learningtrackerteacher.database_management.DbTableRelationObjectiveTest;
 import com.wideworld.learningtrackerteacher.database_management.DbTableTests;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
-import com.wideworld.learningtrackerteacher.questions_management.Test;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -27,29 +23,43 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-public class CreateTestController  extends Window implements Initializable {
-    private TreeItem<QuestionGeneric> root;
+public class EditTestController extends Window implements Initializable {
+    private TreeView treeView;
     private ArrayList<String> testNames;
     private ArrayList<HBox> hBoxArrayList;
     private ArrayList<ComboBox> objectivesComboBoxArrayList;
+    private String presentName;
+    private ArrayList<String> objectives;
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
 
-    public void initParameters(TreeItem<QuestionGeneric> root, ArrayList<String> testNames) {
-        this.root = root;
+    public void initParameters(TreeView treeView, ArrayList<String> testNames, String presentName, ArrayList<String> objectives) {
+        this.treeView = treeView;
         this.testNames = testNames;
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
+        this.presentName = presentName;
+        this.objectives = objectives;
+        testName.setText(presentName);
+        for (String obj : objectives) {
+            addObjective(obj);
+        }
     }
 
     public void addObjective() {
+        addObjective("");
+    }
+    public void addObjective(String objective) {
         Vector<String> objectivessVector = DbTableLearningObjectives.getAllObjectives();
-        String[] objectives = objectivessVector.toArray(new String[objectivessVector.size()]);;
+        String[] objectivesVector = objectivessVector.toArray(new String[objectivessVector.size()]);
         ObservableList<String> options =
-                FXCollections.observableArrayList(objectives);
+                FXCollections.observableArrayList(objectivesVector);
         ComboBox comboBox = new ComboBox(options);
         comboBox.setEditable(true);
+        if (objective.length() > 0) {
+            comboBox.getEditor().setText(objective);
+        }
         objectivesComboBoxArrayList.add(comboBox);
 
         HBox hBox = new HBox();
@@ -66,22 +76,26 @@ public class CreateTestController  extends Window implements Initializable {
     }
 
     public void saveTest() {
-        if (!testNames.contains(testName.getText())) {
-            Integer testID = DbTableTests.addTest(testName.getText());
-            TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
-            QuestionGeneric test = new QuestionGeneric();
-            test.setGlobalID(testID);
-            test.setQuestion(testName.getText());
-            testTreeItem.setValue(test);
-            root.getChildren().add(testTreeItem);
+        if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
+            TreeItem<QuestionGeneric> testTreeItem = (TreeItem<QuestionGeneric>) treeView.getSelectionModel().getSelectedItem();
+            testTreeItem.getValue().setQuestion(testName.getText());
+            treeView.refresh();
+            DbTableTests.renameTest(-testTreeItem.getValue().getGlobalID(),testName.getText());
 
             //add objectives to test
+            ArrayList<String> newObjectives = new ArrayList<>();
             for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
                 try {
+                    newObjectives.add(objectiveCombo.getEditor().getText());
                     DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);
                     DbTableRelationObjectiveTest.addRelationObjectiveTest(objectiveCombo.getEditor().getText(), testName.getText());
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+            }
+            for (String obj : objectives) {
+                if (!newObjectives.contains(obj)) {
+                    DbTableRelationObjectiveTest.removeRelationObjectiveTest(obj, testName.getText());
                 }
             }
             Stage stage = (Stage) testName.getScene().getWindow();

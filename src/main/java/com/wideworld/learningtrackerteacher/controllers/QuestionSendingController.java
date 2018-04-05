@@ -561,7 +561,31 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void editTest() {
-
+        QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
+        if (questionGeneric.getGlobalID() < 0) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditTest.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            EditTestController controller = fxmlLoader.<EditTestController>getController();
+            ArrayList<String> testNames = new ArrayList<>();
+            for (Test test : testsList) {
+                testNames.add(test.getTestName());
+            }
+            ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(questionGeneric.getQuestion());
+            controller.initParameters(allQuestionsTree, testNames, questionGeneric.getQuestion(), objectives);
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Create a New Test");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } else {
+            System.out.println("Cannot edit test: no test selected");
+        }
     }
 
     public void removeTest() {

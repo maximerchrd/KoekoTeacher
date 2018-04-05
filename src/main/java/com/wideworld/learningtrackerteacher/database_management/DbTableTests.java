@@ -88,7 +88,8 @@ public class DbTableTests {
 
         return newTest;
     }
-    static public void addTest(String name) {
+    static public Integer addTest(String name) {
+        Integer testID = 0;
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -104,6 +105,11 @@ public class DbTableTests {
             stmt.executeUpdate(sql);
             sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);
+            sql = "SELECT ID_TEST_GLOBAL FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                testID = rs.getInt("ID_TEST_GLOBAL");
+            }
             stmt.close();
             c.commit();
             c.close();
@@ -111,6 +117,7 @@ public class DbTableTests {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+        return testID;
     }
     static public void removeTestWithID(String ID) {
         Connection c = null;
@@ -152,7 +159,7 @@ public class DbTableTests {
             System.exit(0);
         }
     }
-    static public void renameTest(int global_id, String name) {
+    static public void renameTest(int global_id, String newName) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -161,7 +168,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET NAME = '" + name + "' " +
+            String sql = "UPDATE tests SET NAME = '" + newName + "' " +
                     "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
