@@ -474,6 +474,9 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
+                                if (answerString.contains("Android")) {
+                                    aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() - 1);
+                                }
                             } else if (answerString.split("///")[0].contains("GOTIT")) {
                                 String questionID = answerString.split("///")[1];
                                 System.out.println("client received question: " + questionID);
