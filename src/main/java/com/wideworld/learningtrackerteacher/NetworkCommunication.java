@@ -5,6 +5,7 @@ import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
+import com.wideworld.learningtrackerteacher.questions_management.Test;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import com.wideworld.learningtrackerteacher.students_management.Student;
 import javafx.application.Platform;
@@ -87,7 +88,7 @@ public class NetworkCommunication {
                             Socket skt = myServerSocket.accept();
                             Student student = new Student();
                             student.setInetAddress(skt.getInetAddress());
-                            System.out.println("Student wit address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
+                            System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
 
                             try {
                                 //register student
@@ -133,7 +134,7 @@ public class NetworkCommunication {
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().clone();
                                 for (Iterator<Integer> iterator = activeIDs.iterator(); iterator.hasNext();) {
-                                    if (iterator.next() == -10) {
+                                    if (iterator.next() < 0) {
                                         iterator.remove();
                                     }
                                 }
@@ -456,6 +457,30 @@ public class NetworkCommunication {
                                 if (nextQuestion != -1) {
                                     SendQuestionID(nextQuestion, arg_student.getOutputStream());
                                 }
+
+                                //set evaluation if question belongs to a test
+                                if (arg_student.getActiveTest().getIdsQuestions().contains(questID)) {
+                                    System.out.println("inserting question evaluation for test");
+                                    int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
+                                    if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
+                                        arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex,eval);
+                                    }
+                                    Boolean testCompleted = true;
+                                    for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                                        if (questEval < 0) {
+                                            testCompleted = false;
+                                        }
+                                    }
+                                    if (testCompleted) {
+                                        Double testEval = 0.0;
+                                        for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                                            testEval += questEval;
+                                        }
+                                        testEval = testEval /  arg_student.getActiveTest().getQuestionsEvaluations().size();
+                                        arg_student.getActiveTest().setTestEvaluation(testEval);
+                                        DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(),arg_student.getName(),testEval);
+                                    }
+                                }
                             } else if (answerString.split("///")[0].contains("CONN")) {
                                 Student student = arg_student;
                                 student.setAddress(answerString.split("///")[1]);
@@ -619,7 +644,7 @@ public class NetworkCommunication {
         learningTrackerController.addQuestion(question, ID, group);
     }
 
-    public void activateTest(ArrayList<Integer> questionIds) {
+    public void activateTest(ArrayList<Integer> questionIds, Integer testID) {
         if (questionIds.size() > 0) {
             try {
                 SendQuestionID(questionIds.get(0));
@@ -629,11 +654,17 @@ public class NetworkCommunication {
         }
         for (Student student : aClass.getStudents_array()) {
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+            Test studentTest = new Test();
+            studentTest.setIdTest(testID);
+            studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
+            for (Integer ignored : questionIds) {
+                studentTest.getQuestionsEvaluations().add(-1.0);
+            }
+            student.setActiveTest(studentTest);
         }
     }
 
-    public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students) {
-        //store questionIds and students in the group arrays (for redirecting the answer correctly)
+    public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
 
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
         if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
@@ -657,10 +688,19 @@ public class NetworkCommunication {
                 }
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+            if (testID != 0) {
+                Test studentTest = new Test();
+                studentTest.setIdTest(testID);
+                studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
+                for (Integer ignored : questionIds) {
+                    studentTest.getQuestionsEvaluations().add(-1.0);
+                }
+                student.setActiveTest(studentTest);
+            }
         }
     }
 
-    public void activateTestSynchroneousQuestions(ArrayList<Integer> questionIds, ArrayList<String> students) {
+    public void activateTestSynchroneousQuestions(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
         if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
             questionIdsForGroups.clear();
@@ -683,6 +723,13 @@ public class NetworkCommunication {
                 }
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+            Test studentTest = new Test();
+            studentTest.setIdTest(testID);
+            studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
+            for (Integer ignored : questionIds) {
+                studentTest.getQuestionsEvaluations().add(-1.0);
+            }
+            student.setActiveTest(studentTest);
         }
     }
 

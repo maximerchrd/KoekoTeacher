@@ -12,12 +12,15 @@ public class Test {
     private int idTest;
     private ArrayList<Integer> idsQuestions;
     private ArrayList<QuestionGeneric> genericQuestions;
+    private ArrayList<Double> questionsEvaluations;
+    private Double testEvaluation;
 
     public Test() {
         this.testName = "";
         this.idTest = -1;
         this.idsQuestions = new ArrayList<Integer>();
         this.genericQuestions = new ArrayList<QuestionGeneric>();
+        this.questionsEvaluations = new ArrayList<>();
     }
 
     public void addGenericQuestion (QuestionGeneric questionGeneric) {
@@ -36,7 +39,19 @@ public class Test {
     public ArrayList<QuestionGeneric> getGenericQuestions() {
         return genericQuestions;
     }
+    public ArrayList<Double> getQuestionsEvaluations() {
+        return questionsEvaluations;
+    }
+    public Double getTestEvaluation() {
+        return testEvaluation;
+    }
 
+    public void setTestEvaluation(Double testEvaluation) {
+        this.testEvaluation = testEvaluation;
+    }
+    public void setQuestionsEvaluations(ArrayList<Double> questionsEvaluations) {
+        this.questionsEvaluations = questionsEvaluations;
+    }
     public void setTestName(String testName) {
         this.testName = testName;
     }

@@ -120,6 +120,33 @@ public class DbTableIndividualQuestionForStudentResult {
         return quantitative_evaluation;
     }
 
+    static public double addIndividualTestEval(int id_global, String student_name, Double testEvaluation) {
+        double quantitative_evaluation = -1;
+        student_name = student_name.replace("'", "''");
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                    "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
+                    "VALUES ('" + id_global + "','-1',date('now'),'none','none','none','none','" + testEvaluation + "','none','none','none');";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE individual_question_for_student_result SET ID_STUDENT_GLOBAL = (SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = " + "'" + student_name + "') WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return quantitative_evaluation;
+    }
+
     static public String exportResults(String file_name) {
         Connection c = null;
         Statement stmt = null;

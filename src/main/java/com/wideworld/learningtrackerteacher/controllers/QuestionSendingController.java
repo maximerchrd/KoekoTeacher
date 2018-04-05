@@ -79,7 +79,7 @@ public class QuestionSendingController extends Window implements Initializable {
         testsList = DbTableTests.getAllTests();
         for (Test test : testsList) {
             QuestionGeneric testGeneric = new QuestionGeneric();
-            testGeneric.setGlobalID(-10);
+            testGeneric.setGlobalID(-test.getIdTest());
             testGeneric.setQuestion(test.getTestName());
             testsNodeList.add(testGeneric);
         }
@@ -98,7 +98,7 @@ public class QuestionSendingController extends Window implements Initializable {
                         super.updateItem(item, empty);
                         if (!empty && item != null) {
                             setText(item.getQuestion());
-                            if (item.getGlobalID() != -10) {
+                            if (item.getGlobalID() > 0) {
                                 setGraphic(getTreeItem().getGraphic());
                             } else {
                                 setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
@@ -113,7 +113,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        if (treeCell.getTreeItem().getValue().getGlobalID() != -10) {
+                        if (treeCell.getTreeItem().getValue().getGlobalID() > 0) {
                             draggedQuestion = treeCell.getTreeItem().getValue();
                             Dragboard db = allQuestionsTree.startDragAndDrop(TransferMode.ANY);
 
@@ -166,7 +166,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     public void handle(DragEvent event) {
                         /* data dropped */
                         /* if there is a string data on dragboard, read it and use it */
-                        if (treeCell.getTreeItem().getValue().getGlobalID() == -10) {
+                        if (treeCell.getTreeItem().getValue().getGlobalID() < 0) {
                             /*Dragboard db = event.getDragboard();
                             boolean success = false;
                             if (db.hasString()) {
@@ -297,7 +297,7 @@ public class QuestionSendingController extends Window implements Initializable {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         }
         sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
-        if (questionGeneric.getGlobalID() == -10) {
+        if (questionGeneric.getGlobalID() < 0) {
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
             for (Integer questionID : questionIDs) {
                 QuestionGeneric questionGeneric2 = new QuestionGeneric();
@@ -316,11 +316,11 @@ public class QuestionSendingController extends Window implements Initializable {
     public void activateQuestionForStudents() {
         try {
             QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
-            if (questionGeneric.getGlobalID() != -10) {
+            if (questionGeneric.getGlobalID() > 0) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
                 ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds);
+                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -562,7 +562,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void removeTest() {
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        if (((QuestionGeneric) selectedItem.getValue()).getGlobalID() == -10) {
+        if (((QuestionGeneric) selectedItem.getValue()).getGlobalID() < 0) {
             DbTableTests.removeTestWithName(((QuestionGeneric) selectedItem.getValue()).getQuestion());
         } else {
             DbTableQuestionGeneric.removeQuestion(((QuestionGeneric) selectedItem.getValue()).getGlobalID());
@@ -710,12 +710,12 @@ public class QuestionSendingController extends Window implements Initializable {
                 studentNames.add(student.getName());
             }
 
-            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs,studentNames);
+            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs,studentNames,0);
         }
     }
 
     public void activateTestSynchroneousQuestions() {
-        if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() == -10) {
+        if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() < 0) {
             String group = "";
             if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
                 group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
@@ -733,7 +733,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 studentNames.add(student.getName());
             }
 
-            NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames);
+            NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames,readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
         } else {
             System.out.println("No test is selected");
         }

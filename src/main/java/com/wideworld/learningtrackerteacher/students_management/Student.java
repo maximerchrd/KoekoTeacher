@@ -2,6 +2,7 @@ package com.wideworld.learningtrackerteacher.students_management;
 
 
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
+import com.wideworld.learningtrackerteacher.questions_management.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,8 @@ public class Student {
     private Integer numberOfAnswers;
     private Integer studentID = -1;
     private ArrayList<Integer> testQuestionsIDs;
+    private Integer activeTestID;
+    private Test activeTest;
     private Boolean connected;
 
 
@@ -30,12 +33,14 @@ public class Student {
     public Student() {
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
+        activeTest = new Test();
     }
     public Student(String arg_MacAddress, String arg_name) {
         mMacAddress = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
+        activeTest = new Test();
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         mMacAddress = arg_address;
@@ -43,6 +48,7 @@ public class Student {
         mConnectedByBT = connectedByBT;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
+        activeTest = new Test();
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
@@ -75,8 +81,20 @@ public class Student {
     public void setTestQuestions(ArrayList<Integer> testQuestions) {
         this.testQuestionsIDs = testQuestions;
     }
+    public void setActiveTestID(Integer activeTestID) {
+        this.activeTestID = activeTestID;
+    }
+    public void setActiveTest(Test activeTest) {
+        this.activeTest = activeTest;
+    }
 
     //getters
+    public Test getActiveTest() {
+        return activeTest;
+    }
+    public Integer getActiveTestID() {
+        return activeTestID;
+    }
     public Boolean getConnected() {
         return connected;
     }
