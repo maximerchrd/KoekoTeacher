@@ -37,5 +37,6 @@
       <Button layoutX="700.0" layoutY="82.0" mnemonicParsing="false" onAction="#editGroup" prefHeight="27.0" prefWidth="201.0" text="Edit group" />
       <Button layoutX="700.0" layoutY="117.0" mnemonicParsing="false" onAction="#deleteGroup" prefHeight="27.0" prefWidth="201.0" text="Delete group" />
       <Button layoutX="700.0" layoutY="153.0" mnemonicParsing="false" onAction="#activateQuestionsForGroups" prefHeight="27.0" prefWidth="201.0" text="Activate questions for groups" />
+      <Button layoutX="700.0" layoutY="186.0" mnemonicParsing="false" onAction="#activateTestSynchroneousQuestions" prefHeight="27.0" prefWidth="201.0" text="Activate whole test for group" />
    </children>
 </AnchorPane>

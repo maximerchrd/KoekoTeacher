@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
@@ -12,7 +13,21 @@
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label text="Teacher's Name:" />
-                  <TextField />
+                  <TextField fx:id="teacherName">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="456.0" text="Use one android phone to transfer data to and from ohter android phones:" />
+                  <ToggleButton fx:id="nearbyModeButton" mnemonicParsing="false" onAction="#nearbyModeChanged" text="ToggleButton">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ToggleButton>
                </children>
             </HBox>
             <Label text="Log console of program" />

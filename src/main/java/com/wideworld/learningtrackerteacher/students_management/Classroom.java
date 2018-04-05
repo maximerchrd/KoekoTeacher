@@ -21,6 +21,7 @@ public class Classroom {
     private ArrayList<Double> averageEvaluations;
     private Integer tableIndex = -1;
     private String className = "";
+    private Integer nbAndroidDevices = 0;
 
     public Classroom() {
         students_array = new ArrayList<>();
@@ -62,6 +63,12 @@ public class Classroom {
     }
     public void setActiveIDs(ArrayList<Integer> activeIDs) {
         this.activeIDs = activeIDs;
+    }
+    public Integer getNbAndroidDevices() {
+        return nbAndroidDevices;
+    }
+    public void setNbAndroidDevices(Integer nbAndroidDevices) {
+        this.nbAndroidDevices = nbAndroidDevices;
     }
     public Integer getTableIndex() {
         return tableIndex;

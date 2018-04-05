@@ -714,6 +714,31 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
+    public void activateTestSynchroneousQuestions() {
+        if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() == -10) {
+            String group = "";
+            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+                group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
+            }
+            String testName = readyQuestionsList.getSelectionModel().getSelectedItem().getQuestion();
+            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testName);
+            Vector<Student> students = new Vector<>();
+            if (group.length() > 0) {
+                students = DbTableClasses.getStudentsInClass(group);
+            } else {
+                students = DbTableClasses.getStudentsInClass(activeClass);
+            }
+            ArrayList<String> studentNames = new ArrayList<>();
+            for (Student student : students) {
+                studentNames.add(student.getName());
+            }
+
+            NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames);
+        } else {
+            System.out.println("No test is selected");
+        }
+    }
+
     //OTHER METHODS
     public void loadQuestions() {
         readyQuestionsList.getItems().clear();

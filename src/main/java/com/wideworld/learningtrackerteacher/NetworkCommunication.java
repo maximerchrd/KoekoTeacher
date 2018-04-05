@@ -1,9 +1,6 @@
 package com.wideworld.learningtrackerteacher;
 
-import com.wideworld.learningtrackerteacher.controllers.ClassroomActivityTabController;
-import com.wideworld.learningtrackerteacher.controllers.LearningTrackerController;
-import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
-import com.wideworld.learningtrackerteacher.controllers.StudentsVsQuestionsTableController;
+import com.wideworld.learningtrackerteacher.controllers.*;
 import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
@@ -100,11 +97,34 @@ public class NetworkCommunication {
                                 if (!aClass.studentAlreadyInClass(student)) {
                                     aClass.addStudentIfNotInClass(student);
                                     System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
-                                    SendNewConnectionResponse(student.getOutputStream(), false);
+                                    if (SettingsController.nearbyMode == 0) {
+                                        SendNewConnectionResponse(student.getOutputStream(), 0);
+                                    } else if (SettingsController.nearbyMode == 1) {
+                                        // WARNING: smaller than 1 because the connection string is not yet received.
+                                        // If the protocol is changed, this MUST BE modified as well
+                                        if (aClass.getNbAndroidDevices() < 1) {
+                                            SendNewConnectionResponse(student.getOutputStream(), 1);
+                                        } else {
+                                            SendNewConnectionResponse(student.getOutputStream(), 2);
+                                        }
+                                    }
+
                                 } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
                                     aClass.updateStudent(student);
+
+                                    if (SettingsController.nearbyMode == 0) {
+                                        SendNewConnectionResponse(student.getOutputStream(), 0);
+                                    } else if (SettingsController.nearbyMode == 1) {
+                                        // WARNING: smaller than 1 because the connection string is not yet received.
+                                        // If the protocol is changed, this MUST BE modified as well
+                                        if (aClass.getNbAndroidDevices() < 1) {
+                                            SendNewConnectionResponse(student.getOutputStream(), 1);
+                                        } else {
+                                            SendNewConnectionResponse(student.getOutputStream(), 2);
+                                        }
+                                    }
                                 }
 
                                 //start a new thread for listening to each student
@@ -170,6 +190,24 @@ public class NetworkCommunication {
     public void SendQuestionID(int QuestID, OutputStream singleStudentOutputStream) throws IOException {
         if (singleStudentOutputStream != null) {
             String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+            byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
+            System.out.println("sending question: " + questIDString + " to single student");
+            try {
+                singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
+                singleStudentOutputStream.flush();
+            } catch (IOException ex2) {
+                ex2.printStackTrace();
+            }
+        }
+    }
+
+    public void SendQuestionIDs(ArrayList<Integer> QuestID, OutputStream singleStudentOutputStream) throws IOException {
+        if (singleStudentOutputStream != null) {
+            String questIDString = "QID:MLT///";
+            for (Integer id : QuestID) {
+                questIDString += String.valueOf(id);
+                questIDString += "|||";
+            }
             byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
             System.out.println("sending question: " + questIDString + " to single student");
             try {
@@ -429,6 +467,10 @@ public class NetworkCommunication {
                                 student.setStudentID(studentID);
                                 learningTrackerController.addUser(student, true);
                                 aClass.updateStudent(student);
+                                if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
+                                    aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
+                                    System.out.println("Increasing the number of connected android devices");
+                                }
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
@@ -542,12 +584,14 @@ public class NetworkCommunication {
         }
     }
 
-    private void SendNewConnectionResponse(OutputStream arg_outputStream, Boolean maximum) throws IOException {
+    private void SendNewConnectionResponse(OutputStream arg_outputStream, Integer nearbyMode) throws IOException {
         String response;
-        if (maximum) {
-            response = "SERVR///MAX///";
+        if (nearbyMode == 1) {
+            response = "SERVR///ADVER///";
+        } else if (nearbyMode == 2) {
+            response = "SERVR///DISCV///";
         } else {
-            response = "SERVR///OK///";
+            response = "SERVR///NONEA///";
         }
         byte[] bytes = new byte[40];
         int bytes_length = response.getBytes("UTF-8").length;
@@ -593,6 +637,32 @@ public class NetworkCommunication {
             questionIdsForGroups.clear();
             studentNamesForGroups.clear();
         }
+        //add ids(clone it because we want to remove its content later without affecting the source array) and students to group arrays
+        questionIdsForGroups.add(new ArrayList<>());
+        for (Integer id : questionIds) {
+            questionIdsForGroups.get(questionIdsForGroups.size() - 1).add(id);
+        }
+        studentNamesForGroups.add(students);
+
+        for (String studentName : students) {
+            Student student = aClass.getStudentWithName(studentName);
+            if (questionIds.size() > 0) {
+                try {
+                    SendQuestionID(questionIds.get(0), student.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+        }
+    }
+
+    public void activateTestSynchroneousQuestions(ArrayList<Integer> questionIds, ArrayList<String> students) {
+        //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
+        if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
+            questionIdsForGroups.clear();
+            studentNamesForGroups.clear();
+        }
         //add ids(clone it because we want to remove its content later without affection the source array) and students to group arrays
         questionIdsForGroups.add(new ArrayList<>());
         for (Integer id : questionIds) {
@@ -612,6 +682,7 @@ public class NetworkCommunication {
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
         }
     }
+
 
     private void popUpIfStudentIdentifierCollision( String studentName) {
         Platform.runLater(new Runnable() {

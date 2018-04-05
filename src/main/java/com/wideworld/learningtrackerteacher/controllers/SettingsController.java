@@ -1,10 +1,13 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
+import com.wideworld.learningtrackerteacher.database_management.DbTableSettings;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -13,10 +16,32 @@ import java.util.ResourceBundle;
 
 public class SettingsController implements Initializable {
 
+    static public Integer nearbyMode = -1;
     @FXML private TextArea logTextArea;
+    @FXML private TextField teacherName;
+    @FXML private ToggleButton nearbyModeButton;
 
+    public void nearbyModeChanged() {
+        if (nearbyModeButton.isSelected()) {
+            nearbyMode = 1;
+            DbTableSettings.insertNearbyMode(nearbyMode);
+            nearbyModeButton.setText("ON");
+        } else {
+            nearbyMode = 0;
+            DbTableSettings.insertNearbyMode(nearbyMode);
+            nearbyModeButton.setText("OFF");
+        }
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        nearbyMode = DbTableSettings.getNearbyMode();
+        teacherName.setText(DbTableSettings.getTeacherName());
+        if (nearbyMode == 0) {
+            nearbyModeButton.setText("OFF");
+        } else if (nearbyMode == 1) {
+            nearbyModeButton.setText("ON");
+            nearbyModeButton.setSelected(true);
+        }
         /*PipedOutputStream pOut = new PipedOutputStream();
         PipedOutputStream pErr = new PipedOutputStream();
         System.setOut(new PrintStream(pOut));
