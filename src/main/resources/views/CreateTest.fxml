@@ -6,10 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="108.0" prefWidth="449.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.CreateTestController">
+<AnchorPane prefHeight="210.0" prefWidth="449.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.CreateTestController">
    <children>
       <Label layoutX="26.0" layoutY="50.0" text="Name of the Test:" />
       <TextField fx:id="testName" layoutX="153.0" layoutY="45.0" />
       <Button layoutX="348.0" layoutY="45.0" mnemonicParsing="false" onAction="#saveTest" text="Save Test" />
+      <Button layoutX="153.0" layoutY="105.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
+      <VBox fx:id="vBoxObjectives" layoutX="153.0" layoutY="140.0" prefHeight="200.0" prefWidth="210.0" />
    </children>
 </AnchorPane>

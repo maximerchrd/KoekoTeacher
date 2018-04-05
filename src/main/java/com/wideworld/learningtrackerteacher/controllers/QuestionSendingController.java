@@ -560,6 +560,10 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.show();
     }
 
+    public void editTest() {
+
+    }
+
     public void removeTest() {
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
         if (((QuestionGeneric) selectedItem.getValue()).getGlobalID() < 0) {

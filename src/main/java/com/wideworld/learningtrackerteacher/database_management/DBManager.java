@@ -62,6 +62,7 @@ public class DBManager {
 		DbTableRelationClassClass.createTableRelationClassClass(c,stmt);
 		DbTableRelationClassQuestion.createTableRelationClassQuestion(c,stmt);
 		DbTableSettings.createTableSettings(c,stmt);
+		DbTableRelationObjectiveTest.createTableRelationObjectiveTest(c,stmt);
 		try {
 			String sql = "DROP TABLE IF EXISTS 'question'; CREATE TABLE IF NOT EXISTS question " +
 					"(ID_QUESTION       INTEGER PRIMARY KEY AUTOINCREMENT," +

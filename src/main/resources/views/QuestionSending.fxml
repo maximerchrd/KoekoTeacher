@@ -7,8 +7,8 @@
 
 <AnchorPane fx:id="QuestionSending" prefHeight="333.0" prefWidth="916.0" style="-fx-background-color: #E8E8E8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.QuestionSendingController">
    <children>
-      <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="206.0" text="Deactivate question" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
-      <Button layoutX="305.0" layoutY="220.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="27.0" prefWidth="206.0" text="Activate question/test" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
+      <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="206.0" text="Deactivate question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
+      <Button layoutX="305.0" layoutY="220.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="27.0" prefWidth="206.0" text="Activate question/test" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
       <Button layoutX="210.0" layoutY="170.0" mnemonicParsing="false" onAction="#createTest" prefHeight="27.0" prefWidth="189.0" text="Create a test/quiz" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="210.0" />
       <Button layoutX="210.0" layoutY="200.0" mnemonicParsing="false" onAction="#removeTest" prefHeight="27.0" prefWidth="189.0" text="Delete question/test" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="210.0" />
       <Button layoutX="86.0" layoutY="234.0" mnemonicParsing="false" onAction="#editQuestion" prefHeight="27.0" prefWidth="176.0" text="Edit the question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="20.0" />
@@ -31,12 +31,13 @@
       <Button layoutX="621.0" layoutY="200.0" mnemonicParsing="false" onAction="#exportQuestions" prefHeight="27.0" prefWidth="143.0" text="Export questions" AnchorPane.bottomAnchor="35.0" AnchorPane.rightAnchor="23.0" />
       <Button layoutX="621.0" layoutY="170.0" mnemonicParsing="false" onAction="#importQuestions" prefHeight="27.0" prefWidth="143.0" text="Import questions" AnchorPane.bottomAnchor="65.0" AnchorPane.rightAnchor="23.0" />
       <Button layoutX="210.0" layoutY="230.0" mnemonicParsing="false" onAction="#removeQuestionFromTest" prefHeight="27.0" prefWidth="189.0" text="Remove question from test" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="210.0" />
-      <Button layoutX="405.0" layoutY="301.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="206.0" text="Send Correction" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
+      <Button layoutX="405.0" layoutY="301.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="143.0" text="Send Correction" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="23.0" />
       <ComboBox fx:id="groupsCombobox" layoutX="700.0" layoutY="14.0" onAction="#loadQuestions" prefHeight="27.0" prefWidth="201.0" promptText="Choose a group" />
       <Button layoutX="700.0" layoutY="49.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="201.0" text="Create group" />
       <Button layoutX="700.0" layoutY="82.0" mnemonicParsing="false" onAction="#editGroup" prefHeight="27.0" prefWidth="201.0" text="Edit group" />
       <Button layoutX="700.0" layoutY="117.0" mnemonicParsing="false" onAction="#deleteGroup" prefHeight="27.0" prefWidth="201.0" text="Delete group" />
       <Button layoutX="700.0" layoutY="153.0" mnemonicParsing="false" onAction="#activateQuestionsForGroups" prefHeight="27.0" prefWidth="201.0" text="Activate questions for groups" />
       <Button layoutX="700.0" layoutY="186.0" mnemonicParsing="false" onAction="#activateTestSynchroneousQuestions" prefHeight="27.0" prefWidth="201.0" text="Activate whole test for group" />
+      <Button layoutX="405.0" layoutY="241.0" mnemonicParsing="false" onAction="#editTest" prefHeight="27.0" prefWidth="335.0" text="Edit test/quiz" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
    </children>
 </AnchorPane>
