@@ -1,8 +1,8 @@
-package com.wideworld.learningtrackerteacher;
+package com.wideworld.learningtrackerteacher.Networking;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.controllers.*;
 import com.wideworld.learningtrackerteacher.database_management.*;
-import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
@@ -409,6 +409,35 @@ public class NetworkCommunication {
             }
 
             System.out.println("Done.");
+        }
+    }
+
+    public void sendTestWithID(int testID, OutputStream singleStudentOutputStream) throws IOException {
+        Test testToSend = new Test();
+        try {
+            testToSend = DbTableTests.getTestWithID(testID);
+            DataConversion dataConversion = new DataConversion();
+            byte [] bytesArray = dataConversion.testToBytesArray(testToSend);
+            if (singleStudentOutputStream == null) {
+                for (int i = 0; i < aClass.getClassSize(); i++) {
+                    OutputStream tempOutputStream = aClass.getStudents_array().get(i).getOutputStream();
+                    try {
+                        tempOutputStream.write(bytesArray, 0, bytesArray.length);
+                        tempOutputStream.flush();
+                    } catch (IOException ex2) {
+                        ex2.printStackTrace();
+                    }
+                }
+            } else {
+                try {
+                    singleStudentOutputStream.write(bytesArray, 0, bytesArray.length);
+                    singleStudentOutputStream.flush();
+                } catch (IOException ex2) {
+                    ex2.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

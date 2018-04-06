@@ -88,6 +88,37 @@ public class DbTableTests {
 
         return newTest;
     }
+    static public Test getTestWithID(Integer testID) {
+        Test newTest = new Test();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT NAME FROM tests WHERE ID_TEST_GLOBAL = '" + testID + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                newTest = new Test();
+                newTest.setTestName(rs.getString("NAME"));
+                newTest.setIdTest(testID);
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+
+            //get the objectives and insert them inside the test object
+            newTest.setObjectives(DbTableRelationObjectiveTest.getObjectivesFromTestName(newTest.getTestName()));
+            newTest.setObjectivesIDs(DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(newTest.getTestName()));
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return newTest;
+    }
     static public Integer addTest(String name) {
         Integer testID = 0;
         Connection c = null;

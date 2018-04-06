@@ -1,6 +1,6 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
-import com.wideworld.learningtrackerteacher.NetworkCommunication;
+import com.wideworld.learningtrackerteacher.Networking.NetworkCommunication;
 import com.wideworld.learningtrackerteacher.database_management.DbTableIndividualQuestionForStudentResult;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

@@ -1,7 +1,7 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
 import com.wideworld.learningtrackerteacher.LearningTracker;
-import com.wideworld.learningtrackerteacher.NetworkCommunication;
+import com.wideworld.learningtrackerteacher.Networking.NetworkCommunication;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 import com.wideworld.learningtrackerteacher.database_management.*;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
@@ -296,8 +296,13 @@ public class QuestionSendingController extends Window implements Initializable {
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         }
-        sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
-        if (questionGeneric.getGlobalID() < 0) {
+        if (questionGeneric.getGlobalID() > 0) {
+            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+        } else if (questionGeneric.getGlobalID() < 0) {
+            // send test infos and linked objectives
+            sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+
+            //send questions linked to the test
             ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
             for (Integer questionID : questionIDs) {
                 QuestionGeneric questionGeneric2 = new QuestionGeneric();
@@ -310,6 +315,8 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 }
             }
+        } else {
+            System.out.println("Trying to broadcast question or test but ID == 0.");
         }
     }
 
@@ -884,6 +891,22 @@ public class QuestionSendingController extends Window implements Initializable {
                 }
             } else {
                 broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
+            }
+        } else {
+            popUpIfQuestionCollision();
+        }
+    }
+
+    private void sendTestToStudents(QuestionGeneric questionGeneric, Integer group) {
+        int globalID = questionGeneric.getGlobalID();
+        if (group < 1) group = 0;
+        if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
+            readyQuestionsList.getItems().add(questionGeneric);
+            LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
+            try {
+                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         } else {
             popUpIfQuestionCollision();

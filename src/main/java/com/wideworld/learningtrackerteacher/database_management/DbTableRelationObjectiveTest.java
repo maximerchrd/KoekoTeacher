@@ -121,6 +121,34 @@ public class DbTableRelationObjectiveTest {
         return objectives;
     }
 
+    static public ArrayList<Integer> getObjectivesIDsFromTestName(String testName) {
+        ArrayList<Integer> objectivesIDs = new ArrayList<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT ID_OBJECTIVE_GLOBAL FROM 'learning_objectives' " +
+                    "INNER JOIN objective_test_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = objective_test_relation.ID_GLOBAL_OBJECTIVE " +
+                    "INNER JOIN tests ON objective_test_relation.ID_GLOBAL_TEST = tests.ID_TEST_GLOBAL " +
+                    "WHERE 'tests'.'NAME'='" + testName + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                objectivesIDs.add(rs.getInt("ID_OBJECTIVE_GLOBAL"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return objectivesIDs;
+    }
+
     static public void removeQuestionFromTest(String testName, Integer idGlobal) {
         Connection c = null;
         Statement stmt = null;

@@ -13,6 +13,8 @@ public class Test {
     private ArrayList<Integer> idsQuestions;
     private ArrayList<QuestionGeneric> genericQuestions;
     private ArrayList<Double> questionsEvaluations;
+    private ArrayList<String> objectives;
+    private ArrayList<Integer> objectivesIDs;
     private Double testEvaluation;
 
     public Test() {
@@ -23,45 +25,72 @@ public class Test {
         this.questionsEvaluations = new ArrayList<>();
     }
 
-    public void addGenericQuestion (QuestionGeneric questionGeneric) {
+    public void addGenericQuestion(QuestionGeneric questionGeneric) {
         genericQuestions.add(questionGeneric);
         idsQuestions.add(questionGeneric.getGlobalID());
     }
+
     public String getTestName() {
         return testName;
     }
+
     public int getIdTest() {
         return idTest;
     }
+
     public ArrayList<Integer> getIdsQuestions() {
         return idsQuestions;
     }
+
     public ArrayList<QuestionGeneric> getGenericQuestions() {
         return genericQuestions;
     }
+
     public ArrayList<Double> getQuestionsEvaluations() {
         return questionsEvaluations;
     }
+
     public Double getTestEvaluation() {
         return testEvaluation;
+    }
+
+    public ArrayList<String> getObjectives() {
+        return objectives;
+    }
+
+    public ArrayList<Integer> getObjectivesIDs() {
+        return objectivesIDs;
     }
 
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
     }
+
     public void setQuestionsEvaluations(ArrayList<Double> questionsEvaluations) {
         this.questionsEvaluations = questionsEvaluations;
     }
+
     public void setTestName(String testName) {
         this.testName = testName;
     }
+
     public void setIdTest(int idTest) {
         this.idTest = idTest;
     }
+
     public void setIdsQuestions(ArrayList<Integer> idsQuestions) {
         this.idsQuestions = idsQuestions;
     }
+
     public void setGenericQuestions(ArrayList<QuestionGeneric> genericQuestions) {
         this.genericQuestions = genericQuestions;
+    }
+
+    public void setObjectives(ArrayList<String> objectives) {
+        this.objectives = objectives;
+    }
+
+    public void setObjectivesIDs(ArrayList<Integer> objectivesIDs) {
+        this.objectivesIDs = objectivesIDs;
     }
 }
