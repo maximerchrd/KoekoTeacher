@@ -16,6 +16,7 @@ public class Test {
     private ArrayList<String> objectives;
     private ArrayList<Integer> objectivesIDs;
     private Double testEvaluation;
+    private Boolean isSynchroneousQuestionsTest;
 
     public Test() {
         this.testName = "";
@@ -23,6 +24,7 @@ public class Test {
         this.idsQuestions = new ArrayList<Integer>();
         this.genericQuestions = new ArrayList<QuestionGeneric>();
         this.questionsEvaluations = new ArrayList<>();
+        this.isSynchroneousQuestionsTest = false;
     }
 
     public void addGenericQuestion(QuestionGeneric questionGeneric) {
@@ -62,6 +64,10 @@ public class Test {
         return objectivesIDs;
     }
 
+    public Boolean getSynchroneousQuestionsTest() {
+        return isSynchroneousQuestionsTest;
+    }
+
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
     }
@@ -92,5 +98,9 @@ public class Test {
 
     public void setObjectivesIDs(ArrayList<Integer> objectivesIDs) {
         this.objectivesIDs = objectivesIDs;
+    }
+
+    public void setSynchroneousQuestionsTest(Boolean synchroneousQuestionsTest) {
+        isSynchroneousQuestionsTest = synchroneousQuestionsTest;
     }
 }

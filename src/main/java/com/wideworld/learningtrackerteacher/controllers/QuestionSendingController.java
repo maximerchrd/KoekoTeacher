@@ -1101,7 +1101,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public <T> T[] concatenate(T[] a, T[] b) {
+    static public <T> T[] concatenate(T[] a, T[] b) {
         int aLen = a.length;
         int bLen = b.length;
 

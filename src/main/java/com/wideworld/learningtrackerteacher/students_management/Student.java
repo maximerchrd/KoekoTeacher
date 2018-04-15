@@ -128,12 +128,14 @@ public class Student {
 
     public Integer getNextQuestionID(Integer formerID) {
         Integer nextQuestion = -1;
-        if (testQuestionsIDs != null) {
-            for (int i = 0; i < testQuestionsIDs.size() - 1; i++) {
-                Integer id = testQuestionsIDs.get(i);
-                if (id.compareTo(formerID) == 0) {
-                    nextQuestion = testQuestionsIDs.get(i + 1);
-                    testQuestionsIDs.set(i, -1);
+        if (!activeTest.getSynchroneousQuestionsTest()) {
+            if (testQuestionsIDs != null) {
+                for (int i = 0; i < testQuestionsIDs.size() - 1; i++) {
+                    Integer id = testQuestionsIDs.get(i);
+                    if (id.compareTo(formerID) == 0) {
+                        nextQuestion = testQuestionsIDs.get(i + 1);
+                        testQuestionsIDs.set(i, -1);
+                    }
                 }
             }
         }

@@ -221,7 +221,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         if (evaluation == 100) {
             answer += "#/#";
         }
-        Integer indexColumn = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().indexOf(questionId);
+        Integer indexColumn = LearningTracker.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
         Integer indexRow = indexOfStudent(LearningTracker.studentGroupsAndClass.get(group).getStudents_array(), student);
         if (indexColumn >= 0 && indexRow >= 0) {
             SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
@@ -235,8 +235,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
             Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
             meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
-            if (LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexColumn) != null) {
+            if (LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().size() > indexColumn &&
+                    LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexColumn) != null) {
                 LearningTracker.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexColumn, meanEvaluation);
+            } else {
+                System.out.println("Problem setting the average evaluation for column: " + indexColumn);
             }
             DecimalFormat df = new DecimalFormat("#.#");
             singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));

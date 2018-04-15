@@ -204,15 +204,9 @@ public class NetworkCommunication {
 
     public void SendQuestionIDs(ArrayList<Integer> QuestID, OutputStream singleStudentOutputStream) throws IOException {
         if (singleStudentOutputStream != null) {
-            String questIDString = "QID:MLT///";
-            for (Integer id : QuestID) {
-                questIDString += String.valueOf(id);
-                questIDString += "|||";
-            }
-            byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
-            System.out.println("sending question: " + questIDString + " to single student");
+            byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID);
             try {
-                singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
+                singleStudentOutputStream.write(bytearray, 0, bytearray.length);
                 singleStudentOutputStream.flush();
             } catch (IOException ex2) {
                 ex2.printStackTrace();
@@ -416,8 +410,7 @@ public class NetworkCommunication {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
-            DataConversion dataConversion = new DataConversion();
-            byte [] bytesArray = dataConversion.testToBytesArray(testToSend);
+            byte [] bytesArray = DataConversion.testToBytesArray(testToSend);
             if (singleStudentOutputStream == null) {
                 for (int i = 0; i < aClass.getClassSize(); i++) {
                     OutputStream tempOutputStream = aClass.getStudents_array().get(i).getOutputStream();
@@ -730,29 +723,38 @@ public class NetworkCommunication {
     }
 
     public void activateTestSynchroneousQuestions(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
+
+        if (students.size() == 0) {
+            ArrayList<Student> studentsArray = aClass.getStudents_array();
+            for (Student std : studentsArray) {
+                students.add(std.getName());
+            }
+        }
+
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
-        if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
+        /*if (questionIdsForGroups.size() == LearningTracker.studentGroupsAndClass.size() - 1) {
             questionIdsForGroups.clear();
             studentNamesForGroups.clear();
         }
-        //add ids(clone it because we want to remove its content later without affection the source array) and students to group arrays
+        //add question IDs(clone it because we want to remove its content later without affecting the source array) and students to group arrays
         questionIdsForGroups.add(new ArrayList<>());
         for (Integer id : questionIds) {
             questionIdsForGroups.get(questionIdsForGroups.size() - 1).add(id);
         }
-        studentNamesForGroups.add(students);
+        studentNamesForGroups.add(students);*/
 
         for (String studentName : students) {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
                 try {
-                    SendQuestionID(questionIds.get(0), student.getOutputStream());
+                    SendQuestionIDs(questionIds, student.getOutputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
             Test studentTest = new Test();
+            studentTest.setSynchroneousQuestionsTest(true);
             studentTest.setIdTest(testID);
             studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
             for (Integer ignored : questionIds) {

@@ -61,6 +61,18 @@ public class Classroom {
     public ArrayList<Integer> getActiveIDs() {
         return activeIDs;
     }
+
+    //returns only the question IDs, without the test IDs
+    public ArrayList<Integer> getActiveQuestionIDs() {
+        ArrayList<Integer> questionIDs = new ArrayList<>();
+        for (Integer id : activeIDs) {
+            if (id > 0) {
+                questionIDs.add(id);
+            }
+        }
+        return questionIDs;
+    }
+
     public void setActiveIDs(ArrayList<Integer> activeIDs) {
         this.activeIDs = activeIDs;
     }
