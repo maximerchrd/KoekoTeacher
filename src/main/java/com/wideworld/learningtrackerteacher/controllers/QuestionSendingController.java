@@ -1116,6 +1116,7 @@ public class QuestionSendingController extends Window implements Initializable {
     private void broadcastQuestionMultipleChoice(QuestionMultipleChoice questionMultipleChoice) {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
         try {
+            System.out.println("broadcasting questions");
             NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
             NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
         } catch (IOException e) {

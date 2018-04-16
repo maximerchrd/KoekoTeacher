@@ -1,6 +1,8 @@
 package com.wideworld.learningtrackerteacher.students_management;
 
 
+import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionStudent;
+import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionTest;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 
@@ -9,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 14/02/17.
@@ -27,6 +31,7 @@ public class Student {
     private Integer activeTestID;
     private Test activeTest;
     private Boolean connected;
+    private ArrayList<String> deviceQuestions;
 
 
     //constructors
@@ -34,6 +39,7 @@ public class Student {
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
+        deviceQuestions = new ArrayList<>();
     }
     public Student(String arg_MacAddress, String arg_name) {
         mMacAddress = arg_MacAddress;
@@ -41,6 +47,7 @@ public class Student {
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
+        deviceQuestions = new ArrayList<>();
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         mMacAddress = arg_address;
@@ -49,6 +56,7 @@ public class Student {
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
+        deviceQuestions = new ArrayList<>();
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
@@ -86,6 +94,9 @@ public class Student {
     }
     public void setActiveTest(Test activeTest) {
         this.activeTest = activeTest;
+    }
+    public void setDeviceQuestions(ArrayList<String> deviceQuestions) {
+        this.deviceQuestions = deviceQuestions;
     }
 
     //getters
@@ -126,6 +137,16 @@ public class Student {
         return studentID;
     }
 
+    public ArrayList<String> getDeviceQuestions() {
+        if (deviceQuestions.size() == 0) {
+            Vector<String> IDs = DbTableRelationQuestionStudent.getQuestionsIdsForStudent(this.mName);
+            for (String id : IDs) {
+                deviceQuestions.add(id);
+            }
+        }
+        return deviceQuestions;
+    }
+
     public Integer getNextQuestionID(Integer formerID) {
         Integer nextQuestion = -1;
         if (!activeTest.getSynchroneousQuestionsTest()) {
@@ -140,5 +161,17 @@ public class Student {
             }
         }
         return  nextQuestion;
+    }
+
+    public void updateQuestionsTracking(String answerString) {
+        String IdsArray[] = answerString.split("///")[3].split("|");
+        ArrayList<String> IdsList = new ArrayList<>(Arrays.asList(IdsArray));
+        for (String id : IdsList) {
+            if (id.length() < 2) {
+                IdsList.remove(id);
+            }
+        }
+        ArrayList<String> studentsIdsDates = getDeviceQuestions();
+        //implement tracking...
     }
 }

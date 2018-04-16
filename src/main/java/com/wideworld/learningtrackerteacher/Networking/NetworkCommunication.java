@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -266,7 +267,8 @@ public class NetworkCommunication {
             String fileLength;
             fileLength = "MULTQ";
             fileLength += ":" + String.valueOf(intfileLength);
-            fileLength += ":" + String.valueOf(textbyteslength);
+            fileLength += ":" + String.valueOf(textbyteslength) + ":";
+            System.out.println("fileLength: " + fileLength);
             byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
             for (int k = 0; k < bytearraystring.length; k++) {
                 bytearray[k] = bytearraystring[k];
@@ -363,7 +365,7 @@ public class NetworkCommunication {
             String fileLength;
             fileLength = "SHRTA";
             fileLength += ":" + String.valueOf(intfileLength);
-            fileLength += ":" + String.valueOf(textbyteslength);
+            fileLength += ":" + String.valueOf(textbyteslength) + ":";
             byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
             for (int k = 0; k < bytearraystring.length; k++) {
                 bytearray[k] = bytearraystring[k];
@@ -512,12 +514,18 @@ public class NetworkCommunication {
                                     popUpIfStudentIdentifierCollision(student.getName());
                                 }
                                 student.setStudentID(studentID);
+
+                                //update the tracking of questions on device
+
+
+
                                 learningTrackerController.addUser(student, true);
                                 aClass.updateStudent(student);
                                 if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
                                     aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
                                     System.out.println("Increasing the number of connected android devices");
                                 }
+
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
