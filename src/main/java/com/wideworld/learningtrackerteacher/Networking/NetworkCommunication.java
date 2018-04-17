@@ -34,7 +34,6 @@ public class NetworkCommunication {
     private BufferedInputStream bis = null;
     private OutputStream serverOutStream = null;
     private ArrayList<OutputStream> outstream_list;
-    private InputStream inStream = null;
     private ArrayList<InputStream> instream_list;
     private int number_of_clients = 0;
     private Classroom aClass = null;

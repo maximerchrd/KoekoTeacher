@@ -297,24 +297,10 @@ public class QuestionSendingController extends Window implements Initializable {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         }
         if (questionGeneric.getGlobalID() > 0) {
-            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true);
         } else if (questionGeneric.getGlobalID() < 0) {
             // send test infos and linked objectives
             sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
-
-            //send questions linked to the test
-            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-            for (Integer questionID : questionIDs) {
-                QuestionGeneric questionGeneric2 = new QuestionGeneric();
-                Boolean found = false;
-                for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
-                    if (genericQuestionsList.get(i).getGlobalID() == questionID) {
-                        found = true;
-                        questionGeneric2 = genericQuestionsList.get(i);
-                        sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex());
-                    }
-                }
-            }
         } else {
             System.out.println("Trying to broadcast question or test but ID == 0.");
         }
@@ -844,7 +830,8 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         }
 
-        //fill readyQuestionsList with new ids from IDsFromBroadcastedQuestions
+        //fill readyQuestionsList with new ids from activeIDs
+        Boolean oneQuestionSent = false;
         for (int i = 0; i < LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().size(); i++) {
             if (!oldIDs.contains(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(i))) {
                 Integer typeOfQuestion = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(i)));
@@ -858,7 +845,12 @@ public class QuestionSendingController extends Window implements Initializable {
                         questionGeneric.setIntTypeOfQuestion(0);
                         questionGeneric.setTypeOfQuestion("0");
                         questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
-                        sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                        if (oneQuestionSent) {
+                            sendQuestionToStudentsNoDuplicateCheck(questionGeneric, false);
+                        } else {
+                            sendQuestionToStudentsNoDuplicateCheck(questionGeneric, true);
+                            oneQuestionSent = true;
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -871,26 +863,32 @@ public class QuestionSendingController extends Window implements Initializable {
                     questionGeneric.setIntTypeOfQuestion(1);
                     questionGeneric.setTypeOfQuestion("1");
                     questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
-                    sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
+                    if (oneQuestionSent) {
+                        sendQuestionToStudentsNoDuplicateCheck(questionGeneric, false);
+                    } else {
+                        sendQuestionToStudentsNoDuplicateCheck(questionGeneric, true);
+                        oneQuestionSent = true;
+                    }
                 }
             }
         }
     }
 
-    private void sendQuestionToStudents(QuestionGeneric questionGeneric, Integer group) {
+    private void sendQuestionToStudents(QuestionGeneric questionGeneric, Integer group, Boolean actualSending) {
         int globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
+        //check for presence of question
         if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
             LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
             if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
                 try {
-                    broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
+                    broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID), actualSending);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
+                broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID), actualSending);
             }
         } else {
             popUpIfQuestionCollision();
@@ -911,19 +909,34 @@ public class QuestionSendingController extends Window implements Initializable {
         } else {
             popUpIfQuestionCollision();
         }
+
+        //send questions linked to the test
+        ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
+        for (Integer questionID : questionIDs) {
+            QuestionGeneric questionGeneric2 = new QuestionGeneric();
+            Boolean found = false;
+            for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
+                if (genericQuestionsList.get(i).getGlobalID() == questionID) {
+                    found = true;
+                    questionGeneric2 = genericQuestionsList.get(i);
+                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), false);
+                }
+            }
+        }
     }
 
-    private void sendQuestionToStudentsNoDuplicateCheck(QuestionGeneric questionGeneric) {
+    /* TODO: fix need to use the no duplicate */
+    private void sendQuestionToStudentsNoDuplicateCheck(QuestionGeneric questionGeneric, Boolean actualSending) {
         int globalID = questionGeneric.getGlobalID();
         readyQuestionsList.getItems().add(questionGeneric);
         if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
             try {
-                broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID));
+                broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID), actualSending);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID));
+            broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID), actualSending);
         }
     }
 
@@ -1113,11 +1126,13 @@ public class QuestionSendingController extends Window implements Initializable {
         return c;
     }
 
-    private void broadcastQuestionMultipleChoice(QuestionMultipleChoice questionMultipleChoice) {
+    private void broadcastQuestionMultipleChoice(QuestionMultipleChoice questionMultipleChoice, Boolean actualSending) {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
         try {
             System.out.println("broadcasting questions");
-            NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
+            if (actualSending) {
+                NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
+            }
             NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
         } catch (IOException e) {
             e.printStackTrace();
@@ -1125,10 +1140,12 @@ public class QuestionSendingController extends Window implements Initializable {
 
     }
 
-    private void broadcastQuestionShortAnswer(QuestionShortAnswer questionShortAnswer) {
+    private void broadcastQuestionShortAnswer(QuestionShortAnswer questionShortAnswer, Boolean actualSending) {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
         try {
-            NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
+            if (actualSending) {
+                NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
+            }
             NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
         } catch (IOException e) {
             e.printStackTrace();
