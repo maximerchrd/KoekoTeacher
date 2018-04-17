@@ -364,10 +364,12 @@ public class QuestionSendingController extends Window implements Initializable {
             group = 0;
         }
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
-        if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() > 0) {
-            NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
-        }
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+            //remove question from table
+            if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() > 0) {
+                NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+            }
+            //remove question - class/group relation
             DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
                     String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
         }
@@ -645,6 +647,7 @@ public class QuestionSendingController extends Window implements Initializable {
         groups.add(0,activeClass);
         groupsCombobox.getItems().addAll(groups);
 
+
         //remove the groups of the former active class
         while (LearningTracker.studentGroupsAndClass.size() > 1) {
             LearningTracker.studentGroupsAndClass.remove(LearningTracker.studentGroupsAndClass.size() - 1);
@@ -684,6 +687,9 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             refreshReadyQuestionsList();
         }
+
+        //select class now, otherwise the application will think that we already have some questions to assign
+        groupsCombobox.getSelectionModel().select(0);
     }
 
     public void editGroup() {
