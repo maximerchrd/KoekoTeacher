@@ -19,10 +19,12 @@ public class DbTableSettings {
             String sql = "CREATE TABLE IF NOT EXISTS settings " +
                     "(ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " NEARBY_MODE      INT    NOT NULL, " +
+                    " CORRECTION_MODE      INT    NOT NULL, " +
                     " TEACHER_NAME      TEXT     NOT NULL) ";
             statement.executeUpdate(sql);
-            sql = "INSERT INTO settings (NEARBY_MODE, TEACHER_NAME)" +
+            sql = "INSERT INTO settings (NEARBY_MODE, CORRECTION_MODE, TEACHER_NAME)" +
                     "VALUES ('" +
+                    0 + "','" +
                     0 + "','" +
                     "No Name" + "');";
             statement.executeUpdate(sql);
@@ -56,6 +58,32 @@ public class DbTableSettings {
         }
 
         return nearbyMode;
+    }
+
+    static public Integer getCorrectionMode() {
+        Integer correctionMode = -1;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT CORRECTION_MODE FROM settings WHERE ID = 1;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                correctionMode = Integer.parseInt(rs.getString("CORRECTION_MODE"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return correctionMode;
     }
 
     static public String getTeacherName() {
@@ -103,6 +131,27 @@ public class DbTableSettings {
             System.exit(0);
         }
     }
+
+    static public void insertCorrectionMode(Integer correctionMode) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE settings SET CORRECTION_MODE = " + correctionMode +" WHERE ID = 1";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static public void insertTeacherName(String name) {
         Connection c = null;
         Statement stmt = null;

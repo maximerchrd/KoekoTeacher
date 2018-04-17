@@ -17,9 +17,11 @@ import java.util.ResourceBundle;
 public class SettingsController implements Initializable {
 
     static public Integer nearbyMode = -1;
+    static public Integer correctionMode = -1;
     @FXML private TextArea logTextArea;
     @FXML private TextField teacherName;
     @FXML private ToggleButton nearbyModeButton;
+    @FXML private ToggleButton correctionModeButton;
 
     public void nearbyModeChanged() {
         if (nearbyModeButton.isSelected()) {
@@ -32,16 +34,37 @@ public class SettingsController implements Initializable {
             nearbyModeButton.setText("OFF");
         }
     }
+    public void correctionModeChanged() {
+        if (correctionModeButton.isSelected()) {
+            correctionMode = 1;
+            DbTableSettings.insertCorrectionMode(correctionMode);
+            correctionModeButton.setText("ON");
+        } else {
+            correctionMode = 0;
+            DbTableSettings.insertCorrectionMode(correctionMode);
+            correctionModeButton.setText("OFF");
+        }
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         nearbyMode = DbTableSettings.getNearbyMode();
+        correctionMode = DbTableSettings.getCorrectionMode();
         teacherName.setText(DbTableSettings.getTeacherName());
+
         if (nearbyMode == 0) {
             nearbyModeButton.setText("OFF");
         } else if (nearbyMode == 1) {
             nearbyModeButton.setText("ON");
             nearbyModeButton.setSelected(true);
         }
+
+        if (correctionMode == 0) {
+            correctionModeButton.setText("OFF");
+        } else if (correctionMode == 1) {
+            correctionModeButton.setText("ON");
+            correctionModeButton.setSelected(true);
+        }
+
         /*PipedOutputStream pOut = new PipedOutputStream();
         PipedOutputStream pErr = new PipedOutputStream();
         System.setOut(new PrintStream(pOut));

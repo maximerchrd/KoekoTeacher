@@ -163,7 +163,7 @@ public class NetworkCommunication {
     }
 
     public void SendQuestionID(int QuestID) throws IOException {
-        String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+        String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode);
         byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
         ArrayList<Student> StudentsArray = aClass.getStudents_array();
         System.out.println("sending id: " + questIDString);

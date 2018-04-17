@@ -2,6 +2,7 @@ package com.wideworld.learningtrackerteacher.Networking;
 
 import com.sun.tools.javac.util.ArrayUtils;
 import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
+import com.wideworld.learningtrackerteacher.controllers.SettingsController;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -52,7 +53,7 @@ public class DataConversion {
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
-        String prefix = "TESYN:" + textDataSize + "///";
+        String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
         byte[] wholeByteArray = new byte[40];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
