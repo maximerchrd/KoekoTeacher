@@ -715,15 +715,9 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void activateQuestionsForGroups() {
-        //get a list of the groups
-        List<String> groups = groupsCombobox.getItems();
-        if (groups.size() > 0) {
-            groups.remove(0);
-        }
-
-        //activate questions for each group
-        for (String group : groups) {
+    public void activateQuestionsForGroup() {
+        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+            String group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
             ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
             Vector<Student> students = DbTableClasses.getStudentsInClass(group);
             ArrayList<String> studentNames = new ArrayList<>();
@@ -731,7 +725,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 studentNames.add(student.getName());
             }
 
-            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs,studentNames,0);
+            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs, studentNames, 0);
         }
     }
 

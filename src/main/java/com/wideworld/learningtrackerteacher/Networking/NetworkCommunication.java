@@ -466,7 +466,7 @@ public class NetworkCommunication {
                                 Integer questID = Integer.valueOf(answerString.split("///")[5]);
                                 for (int i = 0; i < studentNamesForGroups.size(); i++) {
                                     if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
-                                        groupIndex = i + 1;
+                                        groupIndex = i;
                                         questionIdsForGroups.get(i).remove(questID);
                                     }
                                 }
@@ -711,12 +711,17 @@ public class NetworkCommunication {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
                 try {
-                    SendQuestionID(questionIds.get(0), student.getOutputStream());
+                    //get the first question ID which doesn't correspond to a test
+                    int i = 0;
+                    for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {}
+                    SendQuestionID(questionIds.get(i), student.getOutputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+
+            //following code not used for now
             if (testID != 0) {
                 Test studentTest = new Test();
                 studentTest.setIdTest(testID);
