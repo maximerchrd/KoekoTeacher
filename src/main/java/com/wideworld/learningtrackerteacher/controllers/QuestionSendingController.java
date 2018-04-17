@@ -364,7 +364,9 @@ public class QuestionSendingController extends Window implements Initializable {
             group = 0;
         }
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
-        NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+        if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() > 0) {
+            NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+        }
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
                     String.valueOf(LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
