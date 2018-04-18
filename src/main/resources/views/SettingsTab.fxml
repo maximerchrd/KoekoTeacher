@@ -40,6 +40,11 @@
                   </ToggleButton>
                </children>
             </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#sendToWebsite" text="Try to send questions to websit (do not use for now)" />
+               </children>
+            </HBox>
             <Label text="Log console of program" />
             <TextArea fx:id="logTextArea" prefHeight="357.0" prefWidth="855.0" />
          </children></VBox>
