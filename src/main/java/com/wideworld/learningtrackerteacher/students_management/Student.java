@@ -138,12 +138,12 @@ public class Student {
     }
 
     public ArrayList<String> getDeviceQuestions() {
-        if (deviceQuestions.size() == 0) {
+        /*if (deviceQuestions.size() == 0) {
             Vector<String> IDs = DbTableRelationQuestionStudent.getQuestionsIdsForStudent(this.mName);
             for (String id : IDs) {
                 deviceQuestions.add(id);
             }
-        }
+        }*/
         return deviceQuestions;
     }
 

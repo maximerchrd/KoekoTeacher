@@ -56,6 +56,7 @@ public class QuestionSendingController extends Window implements Initializable {
     private List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
     private String activeClass = "";
     private ContextMenu studentsContextMenu;
+    static public Boolean readyToActivate = true;
 
     @FXML
     private TreeView<QuestionGeneric> allQuestionsTree;
@@ -307,16 +308,36 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void activateQuestionForStudents() {
-        try {
-            QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
-            if (questionGeneric.getGlobalID() > 0) {
-                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
-            } else {
-                ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
+        QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
+
+        System.out.println("ready? " + QuestionSendingController.readyToActivate);
+        if (!QuestionSendingController.readyToActivate) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/QuestionsNotReadyPopUp.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            QuestionsNotReadyPopUpController controller = fxmlLoader.<QuestionsNotReadyPopUpController>getController();
+            controller.initParameters(questionGeneric);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Send anyway?");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } else {
+            try {
+                if (questionGeneric.getGlobalID() > 0) {
+                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
+                } else {
+                    ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
+                    NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -686,6 +707,7 @@ public class QuestionSendingController extends Window implements Initializable {
             ArrayList<Integer> questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(activeClass);
             for (Integer id : questionIds) {
                 LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
+                LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
             }
             refreshReadyQuestionsList();
         }
@@ -899,6 +921,9 @@ public class QuestionSendingController extends Window implements Initializable {
         if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
             LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
+            if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(globalID)) {
+                LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(globalID);
+            }
             if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
                 try {
                     broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID), actualSending);
@@ -923,6 +948,9 @@ public class QuestionSendingController extends Window implements Initializable {
         if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
             LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
+            if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(globalID)) {
+                LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(globalID);
+            }
             try {
                 NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null);
             } catch (IOException e) {

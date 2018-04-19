@@ -430,6 +430,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
         for (Integer id : questionIDs) {
             LearningTracker.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().add(id);
+            if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
+                LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
+            }
             Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(String.valueOf(id));
             String question = "";
             if (questionType == 0) {

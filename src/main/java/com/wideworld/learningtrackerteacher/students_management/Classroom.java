@@ -22,6 +22,7 @@ public class Classroom {
     private Integer tableIndex = -1;
     private String className = "";
     private Integer nbAndroidDevices = 0;
+    private ArrayList<Integer> IDsToStoreOnDevices;
 
     public Classroom() {
         students_array = new ArrayList<>();
@@ -32,6 +33,7 @@ public class Classroom {
         activeQuestions = new ArrayList<>();
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
+        IDsToStoreOnDevices = new ArrayList<>();
     }
 
     //getters
@@ -68,7 +70,9 @@ public class Classroom {
     public ArrayList<Integer> getActiveIDs() {
         return activeIDs;
     }
-
+    public ArrayList<Integer> getIDsToStoreOnDevices() {
+        return IDsToStoreOnDevices;
+    }
 
 
     //setters
@@ -92,6 +96,9 @@ public class Classroom {
     }
     public void setTableIndex(Integer tableIndex) {
         this.tableIndex = tableIndex;
+    }
+    public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
+        this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
 
 
@@ -252,5 +259,20 @@ public class Classroom {
         } else {
             return false;
         }
+    }
+
+    public Boolean allQuestionsOnDevices() {
+        Boolean questionsReached = true;
+        for (Student student : students_array) {
+            ArrayList<Integer> deviceQuestions = new ArrayList<>();
+            for (String id : student.getDeviceQuestions()) {
+                deviceQuestions.add(Integer.valueOf(id));
+            }
+            if (!deviceQuestions.containsAll(activeIDs)) {
+                questionsReached = false;
+                break;
+            }
+        }
+        return  questionsReached;
     }
 }

@@ -215,6 +215,7 @@ public class NetworkCommunication {
     }
 
     public void sendMultipleChoiceWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
+        QuestionSendingController.readyToActivate = false;
         QuestionMultipleChoice questionMultipleChoice = null;
         try {
             questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
@@ -311,6 +312,7 @@ public class NetworkCommunication {
     }
 
     public void sendShortAnswerQuestionWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
+        QuestionSendingController.readyToActivate = false;
         QuestionShortAnswer questionShortAnswer = null;
         try {
             questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
@@ -539,6 +541,12 @@ public class NetworkCommunication {
                                     if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
                                         sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
                                         sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
+                                    }
+                                    //add the ID to the ID list for the student inside the class
+                                    LearningTracker.studentGroupsAndClass.get(0).getStudentWithName(arg_student.getName()).getDeviceQuestions().add(questionID);
+                                    System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
+                                    if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
+                                        QuestionSendingController.readyToActivate = true;
                                     }
                                 }
                             }

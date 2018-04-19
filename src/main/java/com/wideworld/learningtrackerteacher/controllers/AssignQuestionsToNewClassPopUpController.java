@@ -33,6 +33,9 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
         for (Integer id : questionIds) {
             if (!LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(id)) {
                 LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
+                if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
+                    LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
+                }
             }
         }
         for (Integer id : LearningTracker.studentGroupsAndClass.get(0).getActiveIDs()) {
@@ -48,6 +51,9 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
         ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
         for (Integer id : questionIds) {
             LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().add(id);
+            if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
+                LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
+            }
         }
         LearningTracker.questionSendingControllerSingleton.refreshReadyQuestionsList();
         Stage stage = (Stage) label.getScene().getWindow();
