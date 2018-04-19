@@ -90,6 +90,10 @@ public class DbTableTests {
     }
     static public Test getTestWithID(Integer testID) {
         Test newTest = new Test();
+        if (testID < 0) {
+            testID = -testID;
+        }
+        newTest.setIdTest(testID);
         Connection c = null;
         Statement stmt = null;
         stmt = null;

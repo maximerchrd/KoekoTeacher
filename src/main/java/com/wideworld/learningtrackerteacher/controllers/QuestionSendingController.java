@@ -297,7 +297,7 @@ public class QuestionSendingController extends Window implements Initializable {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
         }
         if (questionGeneric.getGlobalID() > 0) {
-            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true);
+            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true, false);
         } else if (questionGeneric.getGlobalID() < 0) {
             // send test infos and linked objectives
             sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
@@ -808,6 +808,13 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
                 //sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
                 readyQuestionsList.getItems().add(questionGeneric);
+            } else {
+                //it is a test
+                Test test = DbTableTests.getTestWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(i));
+                QuestionGeneric questionGeneric = new QuestionGeneric();
+                questionGeneric.setQuestion(test.getTestName());
+                questionGeneric.setGlobalID(-test.getIdTest());
+                readyQuestionsList.getItems().add(questionGeneric);
             }
         }
     }
@@ -873,12 +880,19 @@ public class QuestionSendingController extends Window implements Initializable {
                         sendQuestionToStudentsNoDuplicateCheck(questionGeneric, true);
                         oneQuestionSent = true;
                     }
+                } else {
+                    //it is a test
+                    Test test = DbTableTests.getTestWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(i));
+                    QuestionGeneric questionGeneric = new QuestionGeneric();
+                    questionGeneric.setQuestion(test.getTestName());
+                    questionGeneric.setGlobalID(-test.getIdTest());
+                    sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
                 }
             }
         }
     }
 
-    private void sendQuestionToStudents(QuestionGeneric questionGeneric, Integer group, Boolean actualSending) {
+    private void sendQuestionToStudents(QuestionGeneric questionGeneric, Integer group, Boolean actualSending, Boolean silenceQuestionCollision) {
         int globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
         //check for presence of question
@@ -895,13 +909,17 @@ public class QuestionSendingController extends Window implements Initializable {
                 broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID), actualSending);
             }
         } else {
-            popUpIfQuestionCollision();
+            if (!silenceQuestionCollision) {
+                popUpIfQuestionCollision();
+            }
         }
     }
 
     private void sendTestToStudents(QuestionGeneric questionGeneric, Integer group) {
         int globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
+
+        //first send the test
         if (!LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
             LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);
@@ -911,7 +929,23 @@ public class QuestionSendingController extends Window implements Initializable {
                 e.printStackTrace();
             }
         } else {
-            popUpIfQuestionCollision();
+            //if the test isn't in the ready questions list (like when loading new class) add it. Otherwise, show the popup for questions collision
+            Boolean testInList = false;
+            for (QuestionGeneric singleQuestionGeneric : readyQuestionsList.getItems()) {
+                if (singleQuestionGeneric.getGlobalID() == questionGeneric.getGlobalID()) {
+                    testInList = true;
+                }
+            }
+            if (testInList) {
+                popUpIfQuestionCollision();
+            } else {
+                readyQuestionsList.getItems().add(questionGeneric);
+                try {
+                    NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null); //do I need that?
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         //send questions linked to the test
@@ -923,8 +957,14 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (genericQuestionsList.get(i).getGlobalID() == questionID) {
                     found = true;
                     questionGeneric2 = genericQuestionsList.get(i);
-                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), false);
+                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), false, true);
                 }
+            }
+
+            //add a relation in the database between the class/group and the question in case it's not yet here
+            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+                DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+                        String.valueOf(questionID));
             }
         }
     }
