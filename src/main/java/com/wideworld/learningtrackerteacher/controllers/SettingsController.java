@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -152,46 +153,15 @@ public class SettingsController implements Initializable {
             correctionModeButton.setSelected(true);
         }
 
-        /*PipedOutputStream pOut = new PipedOutputStream();
-        PipedOutputStream pErr = new PipedOutputStream();
-        System.setOut(new PrintStream(pOut));
-        System.setErr(new PrintStream(pErr));
-        PipedInputStream pIn = null;
-        PipedInputStream pIn2 = null;
-        try {
-            pIn = new PipedInputStream(pOut);
-            pIn2 = new PipedInputStream(pErr);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(pIn));
-            BufferedReader reader2 = new BufferedReader(new InputStreamReader(pIn2));
-            Task<Void> writeLog = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    while (true) {
-                        String line = reader.readLine();
-                        if(line != null) {
-                            logTextArea.appendText(line + "\n");
-                        }
-                        Thread.sleep(50);
-                    }
-                }
-            };
-            Task<Void> writeLog2 = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    while (true) {
-                        String line = reader2.readLine();
-                        if(line != null) {
-                            logTextArea.appendText(line + "\n");
-                        }
-                        Thread.sleep(50);
-                    }
-                }
-            };
-            new Thread(writeLog).start();
-            new Thread(writeLog2).start();
-        } catch (IOException e) {
+        /*try {
+            String outFile = "LT_" + LocalDateTime.now().toString() + ".out";
+            outFile = outFile.replace(":", "-");
+            String errFile = "LT_" + LocalDateTime.now().toString() + ".err";
+            errFile = errFile.replace(":", "-");
+            System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(outFile)), true));
+            System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream(errFile)), true));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        */
+        }*/
     }
 }
