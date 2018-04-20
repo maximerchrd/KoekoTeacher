@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,9 @@ public class DbTableQuestionShortAnswer {
                     " LEVEL      INT     NOT NULL, " +
                     " QUESTION           TEXT    NOT NULL, " +
                     " AUTOMATIC_CORRECTION      INT     NOT NULL, " +
-                    " IMAGE_PATH           TEXT    NOT NULL) ";
+                    " IMAGE_PATH           TEXT    NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -41,13 +44,14 @@ public class DbTableQuestionShortAnswer {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = 	"INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
-                    "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH) " +
+                    "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,MODIF_DATE) " +
                     "VALUES ('" +
                     idGlobal + "','" +
                     quest.getLEVEL() + "','" +
                     quest.getQUESTION() + "','" +
                     0 + "','" +
-                    quest.getIMAGE() +"');";
+                    quest.getIMAGE() + "','" +
+                    ZonedDateTime.now() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -75,6 +79,7 @@ public class DbTableQuestionShortAnswer {
             String sql = 	"UPDATE short_answer_questions " +
                     "SET QUESTION='" + quest.getQUESTION() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
+                    "MODIF_DATE='" + ZonedDateTime.now() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
             stmt.close();

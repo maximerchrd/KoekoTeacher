@@ -11,7 +11,11 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label fx:id="text" prefHeight="100.0" prefWidth="357.0" text="Some questions might not be saved on all devices. \nDo you really want to try to activate the question now?" />
+                  <Label fx:id="text" lineSpacing="10.0" prefHeight="100.0" prefWidth="334.0" text="Some questions might not be saved on all devices. Do you really want to try to activate the question now?">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
                </children>
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">

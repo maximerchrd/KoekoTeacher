@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.ZonedDateTime;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -28,19 +29,11 @@ public class DbTableQuestionMultipleChoice {
                     " OPTION7           TEXT    NOT NULL, " +
                     " OPTION8           TEXT    NOT NULL, " +
                     " OPTION9           TEXT    NOT NULL, " +
-                    " TRIAL0           TEXT    NOT NULL, " +
-                    " TRIAL1           TEXT    NOT NULL, " +
-                    " TRIAL2           TEXT    NOT NULL, " +
-                    " TRIAL3           TEXT    NOT NULL, " +
-                    " TRIAL4           TEXT    NOT NULL, " +
-                    " TRIAL5           TEXT    NOT NULL, " +
-                    " TRIAL6           TEXT    NOT NULL, " +
-                    " TRIAL7           TEXT    NOT NULL, " +
-                    " TRIAL8           TEXT    NOT NULL, " +
-                    " TRIAL9           TEXT    NOT NULL, " +
-                    " NB_CORRECT_ANS        INT     NOT NULL, " +
-                    " IMAGE_PATH           TEXT    NOT NULL, " +
-                    " ID_GLOBAL      INT     NOT NULL) ";
+                    " NB_CORRECT_ANS   INT     NOT NULL, " +
+                    " IMAGE_PATH       TEXT    NOT NULL, " +
+                    " ID_GLOBAL        INT     NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -64,8 +57,8 @@ public class DbTableQuestionMultipleChoice {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = 	"INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
-                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,TRIAL0,TRIAL1,TRIAL2,TRIAL3,TRIAL4,TRIAL5,TRIAL6,TRIAL7," +
-                    "TRIAL8,TRIAL9,NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL) " +
+                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
                     "VALUES ('" +
                     quest.getLEVEL() + "','" +
                     quest.getQUESTION() + "','" +
@@ -79,19 +72,10 @@ public class DbTableQuestionMultipleChoice {
                     quest.getOPT7() + "','" +
                     quest.getOPT8() + "','" +
                     quest.getOPT9() + "','" +
-                    quest.getTRIAL0() + "','" +
-                    quest.getTRIAL1() + "','" +
-                    quest.getTRIAL2() + "','" +
-                    quest.getTRIAL3() + "','" +
-                    quest.getTRIAL4() + "','" +
-                    quest.getTRIAL5() + "','" +
-                    quest.getTRIAL6() + "','" +
-                    quest.getTRIAL7() + "','" +
-                    quest.getTRIAL8() + "','" +
-                    quest.getTRIAL9() + "','" +
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
-                    globalID +"');";
+                    globalID +"','" +
+                    ZonedDateTime.now() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -130,7 +114,8 @@ public class DbTableQuestionMultipleChoice {
                     "OPTION9='" + quest.getOPT9() + "', " +
                     "NB_CORRECT_ANS='" + quest.getNB_CORRECT_ANS() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
-                    "WHERE ID_GLOBAL='" + quest.getID() + "';";
+                    "MODIF_DATE='" + quest.getIMAGE() + "' " +
+                    "WHERE ID_GLOBAL='" + ZonedDateTime.now() + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -157,8 +142,8 @@ public class DbTableQuestionMultipleChoice {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String query = 	"SELECT LEVEL,QUESTION,OPTION0," +
-                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,TRIAL0,TRIAL1,TRIAL2,TRIAL3,TRIAL4,TRIAL5,TRIAL6,TRIAL7," +
-                    "TRIAL8,TRIAL9,NB_CORRECT_ANS,IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
+                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                    "NB_CORRECT_ANS,IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
 
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -174,16 +159,6 @@ public class DbTableQuestionMultipleChoice {
                 questionMultipleChoice.setOPT7(rs.getString("OPTION7"));
                 questionMultipleChoice.setOPT8(rs.getString("OPTION8"));
                 questionMultipleChoice.setOPT9(rs.getString("OPTION9"));
-                questionMultipleChoice.setTRIAL0(rs.getString("TRIAL0"));
-                questionMultipleChoice.setTRIAL1(rs.getString("TRIAL1"));
-                questionMultipleChoice.setTRIAL2(rs.getString("TRIAL2"));
-                questionMultipleChoice.setTRIAL3(rs.getString("TRIAL3"));
-                questionMultipleChoice.setTRIAL4(rs.getString("TRIAL4"));
-                questionMultipleChoice.setTRIAL5(rs.getString("TRIAL5"));
-                questionMultipleChoice.setTRIAL6(rs.getString("TRIAL6"));
-                questionMultipleChoice.setTRIAL7(rs.getString("TRIAL7"));
-                questionMultipleChoice.setTRIAL8(rs.getString("TRIAL8"));
-                questionMultipleChoice.setTRIAL9(rs.getString("TRIAL9"));
                 questionMultipleChoice.setNB_CORRECT_ANS(rs.getInt("NB_CORRECT_ANS"));
                 questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
             }

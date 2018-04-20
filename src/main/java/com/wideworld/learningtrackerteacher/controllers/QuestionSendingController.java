@@ -613,6 +613,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (((QuestionGeneric) selectedItem.getValue()).getGlobalID() < 0) {
             DbTableTests.removeTestWithName(((QuestionGeneric) selectedItem.getValue()).getQuestion());
         } else {
+            //only sets a flag for the question generic, leave the whole question inside database and doesn't delete image
             DbTableQuestionGeneric.removeQuestion(((QuestionGeneric) selectedItem.getValue()).getGlobalID());
         }
         testsNodeList.remove(selectedItem.getValue());

@@ -18,6 +18,8 @@ public class DbTableLearningObjectives {
                     " ID_OBJECTIVE_GLOBAL      INT     NOT NULL, " +
                     " OBJECTIVE      TEXT     NOT NULL, " +
                     " LEVEL_COGNITIVE_ABILITY      INT     NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
                     " UNIQUE (OBJECTIVE) ); ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {

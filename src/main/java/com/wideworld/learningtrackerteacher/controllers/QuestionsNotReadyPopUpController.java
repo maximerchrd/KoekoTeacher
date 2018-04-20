@@ -20,6 +20,7 @@ public class QuestionsNotReadyPopUpController extends Window {
 
     public void initParameters(QuestionGeneric questionGeneric) {
         this.questionGeneric = questionGeneric;
+        text.setText("Some questions might not be saved on all devices. \nDo you really want to try to activate the question now?");
     }
     public void waitQuestions() {
         Stage stage = (Stage) text.getScene().getWindow();

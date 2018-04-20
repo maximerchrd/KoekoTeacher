@@ -17,7 +17,9 @@ public class DbTableAnswerOptions {
                     "(ID_ANSWEROPTION       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_ANSWEROPTION_GLOBAL      INT     NOT NULL, " +
                     " OPTION           TEXT    NOT NULL, " +
-                    "UNIQUE ( OPTION ));";
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
+                    " UNIQUE ( OPTION ));";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );

@@ -77,7 +77,6 @@ public class DbTableQuestionGeneric {
             ResultSet rs = stmt.executeQuery( "SELECT * FROM generic_questions WHERE REMOVED_STATE=0;" );
             while ( rs.next() ) {
                 QuestionGeneric quest = new QuestionGeneric();
-                //quest.setSUBJECT(rs.getString(2));
                 quest.setGlobalID(rs.getInt("ID_GLOBAL"));
                 quest.setIntTypeOfQuestion(rs.getInt("QUESTION_TYPE"));
                 questionGenericArrayList.add(quest);

@@ -17,7 +17,9 @@ public class DbTableTests {
                     "(ID_TEST       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_TEST_GLOBAL      INT     NOT NULL, " +
                     " NAME      TEXT     NOT NULL, " +
-                    " QUANTITATIVE_EVAL           TEXT    NOT NULL) ";
+                    " QUANTITATIVE_EVAL           TEXT    NOT NULL," +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );

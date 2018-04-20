@@ -16,7 +16,10 @@ public class DbTableSubject {
             String sql = "CREATE TABLE IF NOT EXISTS subjects " +
                     "(ID_SUBJECT       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_SUBJECT_GLOBAL      INT     NOT NULL, " +
-                    " SUBJECT           TEXT    NOT NULL, UNIQUE (SUBJECT)); ";
+                    " SUBJECT           TEXT    NOT NULL, " +
+                    " MODIF_DATE       TEXT, " +
+                    " IDENTIFIER        VARCHAR(15)," +
+                    " UNIQUE (SUBJECT)); ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
