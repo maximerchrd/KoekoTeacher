@@ -36,7 +36,7 @@ public class DbTableRelationObjectiveTest {
 
             String objectiveID = "";
             String testID = "";
-            String query = "SELECT ID_OBJECTIVE_GLOBAL FROM learning_objectives WHERE OBJECTIVE = '" + objectiveName + "';";
+            String query = "SELECT ID_OBJECTIVE_GLOBAL FROM learning_objectives WHERE OBJECTIVE = '" + objectiveName.replace("'","''") + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 objectiveID = rs.getString("ID_OBJECTIVE_GLOBAL");
@@ -71,7 +71,7 @@ public class DbTableRelationObjectiveTest {
 
             String objectiveID = "";
             String testID = "";
-            String query = "SELECT ID_OBJECTIVE_GLOBAL FROM learning_objectives WHERE OBJECTIVE = '" + objectiveName + "';";
+            String query = "SELECT ID_OBJECTIVE_GLOBAL FROM learning_objectives WHERE OBJECTIVE = '" + objectiveName.replace("'","''") + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 objectiveID = rs.getString("ID_OBJECTIVE_GLOBAL");
