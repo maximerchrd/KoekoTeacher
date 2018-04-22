@@ -70,7 +70,7 @@ public class CreateTestController  extends Window implements Initializable {
             Integer testID = DbTableTests.addTest(testName.getText());
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
-            test.setGlobalID(testID);
+            test.setGlobalID(-testID);
             test.setQuestion(testName.getText());
             testTreeItem.setValue(test);
             root.getChildren().add(testTreeItem);
