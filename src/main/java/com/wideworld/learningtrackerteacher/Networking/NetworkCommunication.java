@@ -552,9 +552,15 @@ public class NetworkCommunication {
                                 }
                             } else if (answerString.split("///")[0].contains("FORWARD")) {
                                 if (answerString.split("///").length > 3) {
-                                    answerString = answerString.substring(answerString.lastIndexOf(answerString.split("///")[1]) + 3);
-                                    if (answerString.split("///")[1].contains("CONN")) {
-                                        ReceptionProtocol.receivedCONN(arg_student,answerString,aClass);
+                                    answerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
+                                            answerString.split("///")[1].length() +3);
+                                    if (answerString.split("///")[0].contains("CONN")) {
+                                        //clone student otherwise we modify the first layer student
+                                        Student student = new Student();
+                                        student.setInetAddress(arg_student.getInetAddress());
+                                        student.setOutputStream(arg_student.getOutputStream());
+                                        student.setInputStream(arg_student.getInputStream());
+                                        ReceptionProtocol.receivedCONN(student,answerString,aClass);
                                     }
                                 } else {
                                     System.out.println("Problem reading forwarded string: truncated");
