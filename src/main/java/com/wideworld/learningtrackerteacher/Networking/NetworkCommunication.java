@@ -18,10 +18,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by maximerichard on 03/02/17.
@@ -53,6 +50,10 @@ public class NetworkCommunication {
 
     public NetworkCommunication() {
         networkCommunicationSingleton = this;
+    }
+
+    public LearningTrackerController getLearningTrackerController() {
+        return learningTrackerController;
     }
 
     /**
@@ -526,7 +527,7 @@ public class NetworkCommunication {
                                     aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
                                     System.out.println("Increasing the number of connected android devices");
                                 }
-
+                                aClass.getStudentsPath().put(student.getInetAddress().toString(),student.getOutputStream());
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
@@ -548,6 +549,15 @@ public class NetworkCommunication {
                                     if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
                                         QuestionSendingController.readyToActivate = true;
                                     }
+                                }
+                            } else if (answerString.split("///")[0].contains("FORWARD")) {
+                                if (answerString.split("///").length > 3) {
+                                    answerString = answerString.substring(answerString.lastIndexOf(answerString.split("///")[1]) + 3);
+                                    if (answerString.split("///")[1].contains("CONN")) {
+                                        ReceptionProtocol.receivedCONN(arg_student,answerString,aClass);
+                                    }
+                                } else {
+                                    System.out.println("Problem reading forwarded string: truncated");
                                 }
                             }
                         } else {
@@ -785,7 +795,7 @@ public class NetworkCommunication {
     }
 
 
-    private void popUpIfStudentIdentifierCollision( String studentName) {
+    public void popUpIfStudentIdentifierCollision( String studentName) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
                 final Stage dialog = new Stage();

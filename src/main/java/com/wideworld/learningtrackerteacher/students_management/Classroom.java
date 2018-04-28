@@ -5,7 +5,10 @@ import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipl
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by maximerichard on 28/03/17.
@@ -23,6 +26,7 @@ public class Classroom {
     private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<Integer> IDsToStoreOnDevices;
+    private Map<String, OutputStream> studentsPath;
 
     public Classroom() {
         students_array = new ArrayList<>();
@@ -34,6 +38,7 @@ public class Classroom {
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
         IDsToStoreOnDevices = new ArrayList<>();
+        studentsPath =  new HashMap<String, OutputStream>();
     }
 
     //getters
@@ -73,6 +78,9 @@ public class Classroom {
     public ArrayList<Integer> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
+    public Map<String, OutputStream> getStudentsPath() {
+        return studentsPath;
+    }
 
 
     //setters
@@ -99,6 +107,9 @@ public class Classroom {
     }
     public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
+    }
+    public void setStudentsPath(Map<String, OutputStream> studentsPath) {
+        this.studentsPath = studentsPath;
     }
 
 
