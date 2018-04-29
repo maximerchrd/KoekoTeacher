@@ -1,10 +1,8 @@
 package com.wideworld.learningtrackerteacher.students_management;
 
-import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionShortAnswer;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +123,17 @@ public class Classroom {
         return student;
     }
 
+    public Student getStudentWithUniqueID(String deviceID) {
+        Student student = new Student();
+        for (int i = 0; i < students_array.size(); i++) {
+            if (String.valueOf(deviceID).contentEquals(String.valueOf(students_array.get(i).getUniqueID()))) {
+                System.out.println("equal");
+                student = students_array.get(i);
+            }
+        }
+        return student;
+    }
+
     public Student getStudentWithName(String studentName) {
         Student student = new Student();
         for (int i = 0; i < students_array.size(); i++) {
@@ -188,11 +197,11 @@ public class Classroom {
         int students_addresses_size = readStudents_addresses();
         System.out.println("studentGroupsAndClass addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
-            if (!students_addresses.contains(student.getAddress())) {
-                System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getAddress());
+            if (!students_addresses.contains(student.getUniqueID())) {
+                System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueID());
                 students_array.add(student);
             } else {
-                int index = students_addresses.indexOf(student.getAddress());
+                int index = students_addresses.indexOf(student.getUniqueID());
                 students_array.remove(index);
                 students_array.add(student);
             }
@@ -263,6 +272,22 @@ public class Classroom {
         int students_addresses_size = readStudents_addresses();
         if (students_addresses_size > 0) {
             if (!students_addresses.contains(student.getInetAddress().toString())) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public Boolean studentDeviceIDAlreadyInClass (Student student) {
+        ArrayList<String> deviceIDs = new ArrayList<>();
+        for (Student stud : students_array) {
+            deviceIDs.add(stud.getUniqueID());
+        }
+        if (deviceIDs.size() > 0) {
+            if (!deviceIDs.contains(student.getUniqueID())) {
                 return false;
             } else {
                 return true;

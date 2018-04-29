@@ -163,40 +163,26 @@ public class NetworkCommunication {
         }
     }
 
-    public void SendQuestionID(int QuestID) throws IOException {
-        String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode);
-        byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
+    public void SendQuestionID(int QuestID) {
         ArrayList<Student> StudentsArray = aClass.getStudents_array();
-        System.out.println("sending id: " + questIDString);
         System.out.println("to " + StudentsArray.size() + " students");
-        for (int i = 0; i < StudentsArray.size(); i++) {
-            OutputStream tempOutputStream = StudentsArray.get(i).getOutputStream();
-            try {
-                tempOutputStream.write(bytearraystring, 0, bytearraystring.length);
-                tempOutputStream.flush();
-            } catch (IOException ex2) {
-                ex2.printStackTrace();
-            }
+        for (Student student : StudentsArray) {
+            SendQuestionID(QuestID,student);
         }
     }
 
     public void SendQuestionID(int QuestID, Student student) {
         student = aClass.getStudentWithName(student.getName());
-        try {
-            SendQuestionID(QuestID, student.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void SendQuestionID(int QuestID, OutputStream singleStudentOutputStream) throws IOException {
-        if (singleStudentOutputStream != null) {
+        if (student.getOutputStream() != null) {
             String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+            if (!student.getFirstLayer()) {
+                questIDString = "FRWTOPEER///" + student.getUniqueID() + questIDString;
+            }
             byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
             System.out.println("sending question: " + questIDString + " to single student");
             try {
-                singleStudentOutputStream.write(bytearraystring, 0, bytearraystring.length);
-                singleStudentOutputStream.flush();
+                student.getOutputStream().write(bytearraystring, 0, bytearraystring.length);
+                student.getOutputStream().flush();
             } catch (IOException ex2) {
                 ex2.printStackTrace();
             }
@@ -481,7 +467,7 @@ public class NetworkCommunication {
                                     System.out.println(testid);
                                 }
                                 if (nextQuestion != -1) {
-                                    SendQuestionID(nextQuestion, arg_student.getOutputStream());
+                                    SendQuestionID(nextQuestion, arg_student);
                                 }
 
                                 //set evaluation if question belongs to a test
@@ -509,7 +495,8 @@ public class NetworkCommunication {
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
                                 Student student = arg_student;
-                                student.setAddress(answerString.split("///")[1]);
+                                student.setUniqueID(answerString.split("///")[1]);
+                                student.setMasterUniqueID(answerString.split("///")[1]);
                                 student.setName(answerString.split("///")[2]);
                                 Integer studentID = DbTableStudents.addStudent(answerString.split("///")[1], answerString.split("///")[2]);
                                 if (studentID == -2) {
@@ -552,15 +539,21 @@ public class NetworkCommunication {
                                 }
                             } else if (answerString.split("///")[0].contains("FORWARD")) {
                                 if (answerString.split("///").length > 3) {
-                                    answerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
+                                    String truncatedAnswerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
                                             answerString.split("///")[1].length() +3);
-                                    if (answerString.split("///")[0].contains("CONN")) {
+                                    if (truncatedAnswerString.split("///")[0].contains("CONN")) {
                                         //clone student otherwise we modify the first layer student
                                         Student student = new Student();
                                         student.setInetAddress(arg_student.getInetAddress());
                                         student.setOutputStream(arg_student.getOutputStream());
                                         student.setInputStream(arg_student.getInputStream());
-                                        ReceptionProtocol.receivedCONN(student,answerString,aClass);
+
+                                        student.setMasterUniqueID(answerString.split("///")[1]);
+                                        student.setFirstLayer(false);
+                                        ReceptionProtocol.receivedCONN(student,truncatedAnswerString,aClass);
+                                    } else if (truncatedAnswerString.split("///")[0].contains("ANSW")) {
+                                        ReceptionProtocol.receivedANSW(aClass.getStudentWithUniqueID(truncatedAnswerString.split("///")[1]),
+                                                truncatedAnswerString,questionIdsForGroups,studentNamesForGroups);
                                     }
                                 } else {
                                     System.out.println("Problem reading forwarded string: truncated");
@@ -583,8 +576,12 @@ public class NetworkCommunication {
         //}
     }
 
-    private void SendEvaluation(double evaluation, int questionID, Student student) {
-        String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
+    public void SendEvaluation(double evaluation, int questionID, Student student) {
+        String evalToSend = "";
+        if (!student.getFirstLayer()) {
+            evalToSend += "FRWTOPEER///" + student.getUniqueID();
+        }
+        evalToSend += "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
         byte[] bytes = new byte[40];
         int bytes_length = 0;
@@ -660,7 +657,7 @@ public class NetworkCommunication {
             e.printStackTrace();
             System.out.println("Informations for error; studentGroupsAndClass stored in class object:");
             for (Student student : aClass.getStudents_array()) {
-                System.out.println("name: " + student.getName() + "; ip: " + student.getAddress());
+                System.out.println("name: " + student.getName() + "; ip: " + student.getUniqueID());
             }
         }
     }
@@ -699,11 +696,7 @@ public class NetworkCommunication {
 
     public void activateTest(ArrayList<Integer> questionIds, Integer testID) {
         if (questionIds.size() > 0) {
-            try {
-                SendQuestionID(questionIds.get(0));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            SendQuestionID(questionIds.get(0));
         }
         for (Student student : aClass.getStudents_array()) {
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
@@ -734,14 +727,10 @@ public class NetworkCommunication {
         for (String studentName : students) {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
-                try {
-                    //get the first question ID which doesn't correspond to a test
-                    int i = 0;
-                    for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {}
-                    SendQuestionID(questionIds.get(i), student.getOutputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //get the first question ID which doesn't correspond to a test
+                int i = 0;
+                for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {}
+                SendQuestionID(questionIds.get(i), student);
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
 

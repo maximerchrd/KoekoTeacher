@@ -32,16 +32,20 @@ public class Student {
     private Test activeTest;
     private Boolean connected;
     private ArrayList<String> deviceQuestions;
+    private String masterUniqueID;
+    private Boolean isFirstLayer;
 
 
     //constructors
     public Student() {
+        isFirstLayer = true;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
     }
     public Student(String arg_MacAddress, String arg_name) {
+        isFirstLayer = true;
         mMacAddress = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
@@ -50,6 +54,7 @@ public class Student {
         deviceQuestions = new ArrayList<>();
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
+        isFirstLayer = true;
         mMacAddress = arg_address;
         mName = arg_name;
         mConnectedByBT = connectedByBT;
@@ -68,7 +73,7 @@ public class Student {
     public void setInetAddress(InetAddress arg_inetaddress) {
         mInetAddress = arg_inetaddress;
     }
-    public void setAddress(String arg_MacAddress) {
+    public void setUniqueID(String arg_MacAddress) {
         mMacAddress = arg_MacAddress;
     }
     public void setName(String arg_name) {
@@ -98,6 +103,12 @@ public class Student {
     public void setDeviceQuestions(ArrayList<String> deviceQuestions) {
         this.deviceQuestions = deviceQuestions;
     }
+    public void setMasterUniqueID(String masterUniqueID) {
+        this.masterUniqueID = masterUniqueID;
+    }
+    public void setFirstLayer(Boolean firstLayer) {
+        isFirstLayer = firstLayer;
+    }
 
     //getters
     public Test getActiveTest() {
@@ -118,7 +129,7 @@ public class Student {
     public InetAddress getInetAddress() {
         return mInetAddress;
     }
-    public String getAddress() {
+    public String getUniqueID() {
         return mMacAddress;
     }
     public  String getName() {
@@ -135,6 +146,12 @@ public class Student {
     }
     public Integer getStudentID() {
         return studentID;
+    }
+    public String getMasterUniqueID() {
+        return masterUniqueID;
+    }
+    public Boolean getFirstLayer() {
+        return isFirstLayer;
     }
 
     public ArrayList<String> getDeviceQuestions() {
