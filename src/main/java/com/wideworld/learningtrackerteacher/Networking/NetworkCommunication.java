@@ -141,8 +141,8 @@ public class NetworkCommunication {
                                 }
                                 if (activeIDs.size() > 0) {
                                     try {
-                                        sendMultipleChoiceWithID(activeIDs.get(0), student.getOutputStream());
-                                        sendShortAnswerQuestionWithID(activeIDs.get(0), student.getOutputStream());
+                                        sendMultipleChoiceWithID(activeIDs.get(0), student);
+                                        sendShortAnswerQuestionWithID(activeIDs.get(0), student);
                                         System.out.println("address: " + student.getInetAddress());
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -208,7 +208,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendMultipleChoiceWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
+    public void sendMultipleChoiceWithID(int questionID, Student student) throws IOException {
         QuestionSendingController.readyToActivate = false;
         QuestionMultipleChoice questionMultipleChoice = null;
         try {
@@ -282,20 +282,26 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            if (singleStudentOutputStream == null) {
+            if (student == null) {
                 for (int i = 0; i < aClass.getClassSize(); i++) {
-                    OutputStream tempOutputStream = aClass.getStudents_array().get(i).getOutputStream();
-                    try {
-                        tempOutputStream.write(bytearray, 0, arraylength);
-                        tempOutputStream.flush();
-                    } catch (IOException ex2) {
-                        ex2.printStackTrace();
+                    student = aClass.getStudents_array().get(i);
+                    if (student.getFirstLayer()) {
+                        OutputStream tempOutputStream = student.getOutputStream();
+                        try {
+                            tempOutputStream.write(bytearray, 0, arraylength);
+                            tempOutputStream.flush();
+                        } catch (IOException ex2) {
+                            ex2.printStackTrace();
+                        }
                     }
                 }
             } else {
                 try {
-                    singleStudentOutputStream.write(bytearray, 0, arraylength);
-                    singleStudentOutputStream.flush();
+                    if (student.getFirstLayer()) {
+                        OutputStream singleStudentOutputStream = student.getOutputStream();
+                        singleStudentOutputStream.write(bytearray, 0, arraylength);
+                        singleStudentOutputStream.flush();
+                    }
                 } catch (IOException ex2) {
                     ex2.printStackTrace();
                 }
@@ -305,7 +311,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendShortAnswerQuestionWithID(int questionID, OutputStream singleStudentOutputStream) throws IOException {
+    public void sendShortAnswerQuestionWithID(int questionID, Student student) throws IOException {
         QuestionSendingController.readyToActivate = false;
         QuestionShortAnswer questionShortAnswer = null;
         try {
@@ -380,20 +386,26 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            if (singleStudentOutputStream == null) {
+            if (student == null) {
                 for (int i = 0; i < aClass.getClassSize(); i++) {
-                    OutputStream tempOutputStream = aClass.getStudents_array().get(i).getOutputStream();
-                    try {
-                        tempOutputStream.write(bytearray, 0, arraylength);
-                        tempOutputStream.flush();
-                    } catch (IOException ex2) {
-                        ex2.printStackTrace();
+                    student = aClass.getStudents_array().get(i);
+                    if (student.getFirstLayer()) {
+                        OutputStream tempOutputStream = student.getOutputStream();
+                        try {
+                            tempOutputStream.write(bytearray, 0, arraylength);
+                            tempOutputStream.flush();
+                        } catch (IOException ex2) {
+                            ex2.printStackTrace();
+                        }
                     }
                 }
             } else {
                 try {
-                    singleStudentOutputStream.write(bytearray, 0, arraylength);
-                    singleStudentOutputStream.flush();
+                    if (student.getFirstLayer()) {
+                        OutputStream singleStudentOutputStream = student.getOutputStream();
+                        singleStudentOutputStream.write(bytearray, 0, arraylength);
+                        singleStudentOutputStream.flush();
+                    }
                 } catch (IOException ex2) {
                     ex2.printStackTrace();
                 }
@@ -537,8 +549,8 @@ public class NetworkCommunication {
                                     if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
                                         int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
                                         if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
-                                            sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
-                                            sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
+                                            sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
+                                            sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
                                         }
                                         //add the ID to the ID list for the student inside the class
                                         LearningTracker.studentGroupsAndClass.get(0).getStudentWithName(arg_student.getName()).getDeviceQuestions().add(questionID);
