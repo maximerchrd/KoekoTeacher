@@ -28,16 +28,13 @@ public class QuestionsNotReadyPopUpController extends Window {
     }
 
     public void sendAnyway() {
-        try {
             if (questionGeneric.getGlobalID() > 0) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
                 ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
                 NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         Stage stage = (Stage) text.getScene().getWindow();
         stage.close();
     }

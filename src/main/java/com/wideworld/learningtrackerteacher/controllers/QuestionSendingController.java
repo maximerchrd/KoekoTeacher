@@ -328,17 +328,13 @@ public class QuestionSendingController extends Window implements Initializable {
             stage.setScene(new Scene(root1));
             stage.show();
         } else {
-            try {
-                if (questionGeneric.getGlobalID() > 0) {
-                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
-                } else {
-                    ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-                    NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (questionGeneric.getGlobalID() > 0) {
+                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
+            } else {
+                ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
+                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
             }
-        }
+         }
     }
 
     public void createQuestion() {
