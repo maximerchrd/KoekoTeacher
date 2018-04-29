@@ -173,11 +173,16 @@ public class NetworkCommunication {
 
     public void SendQuestionID(int QuestID, Student student) {
         student = aClass.getStudentWithName(student.getName());
+        Student masterStudent = aClass.getStudentWithUniqueID(student.getMasterUniqueID());
+        Long initialTime = System.nanoTime();
+        while (masterStudent.getPendingPacketUUID().length() > 0 && (System.nanoTime() - initialTime) < 1500000000) { }
         if (student.getOutputStream() != null) {
-            String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+            String questIDString = "";
             if (!student.getFirstLayer()) {
-                questIDString = "FRWTOPEER///" + student.getUniqueID() + questIDString;
+                questIDString = "FRWTOPEER///" + student.getUniqueID() + "///";
             }
+            masterStudent.setPendingPacketUUID(UUID.randomUUID().toString().substring(0,4));
+            questIDString += "QID:MLT///" + String.valueOf(QuestID) + "///" + masterStudent.getPendingPacketUUID() + "///";
             byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
             System.out.println("sending question: " + questIDString + " to single student");
             try {
@@ -186,6 +191,8 @@ public class NetworkCommunication {
             } catch (IOException ex2) {
                 ex2.printStackTrace();
             }
+        } else {
+            //System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
         }
     }
 
@@ -237,7 +244,7 @@ public class NetworkCommunication {
             if (l == 0) question_text += " ";
             question_text += "///";
 
-            // send file : the sizes of the file and of the text are given in the first 40 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
             int intfileLength = 0;
             File myFile = new File(questionMultipleChoice.getIMAGE());
             if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
@@ -247,10 +254,10 @@ public class NetworkCommunication {
                 question_text += questionMultipleChoice.getIMAGE() + "///";
             }
 
-            //writing of the first 40 bytes
+            //writing of the first 80 bytes
             byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[40 + textbyteslength + intfileLength];
+            byte[] bytearray = new byte[80 + textbyteslength + intfileLength];
             String fileLength;
             fileLength = "MULTQ";
             fileLength += ":" + String.valueOf(intfileLength);
@@ -263,14 +270,14 @@ public class NetworkCommunication {
 
             //copy the textbytes into the array which will be sent
             for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + 40] = bytearraytext[k];
+                bytearray[k + 80] = bytearraytext[k];
             }
 
             //write the file into the bytearray   !!! tested up to 630000 bytes, does not work with file of 4,7MB
             if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 fis = new FileInputStream(myFile);
                 bis = new BufferedInputStream(fis);
-                bis.read(bytearray, 40 + textbyteslength, intfileLength);
+                bis.read(bytearray, 80 + textbyteslength, intfileLength);
             }
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
@@ -335,7 +342,7 @@ public class NetworkCommunication {
             if (l == 0) question_text += " ";
             question_text += "///";
 
-            // send file : the sizes of the file and of the text are given in the first 40 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
             int intfileLength = 0;
             File myFile = new File(questionShortAnswer.getIMAGE());
             ;
@@ -346,10 +353,10 @@ public class NetworkCommunication {
                 question_text += questionShortAnswer.getIMAGE() + "///";
             }
 
-            //writing of the first 40 bytes
+            //writing of the first 80 bytes
             byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[40 + textbyteslength + intfileLength];
+            byte[] bytearray = new byte[80 + textbyteslength + intfileLength];
             String fileLength;
             fileLength = "SHRTA";
             fileLength += ":" + String.valueOf(intfileLength);
@@ -361,14 +368,14 @@ public class NetworkCommunication {
 
             //copy the textbytes into the array which will be sent
             for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + 40] = bytearraytext[k];
+                bytearray[k + 80] = bytearraytext[k];
             }
 
             //write the file into the bytearray   !!! tested up to 630000 bytes, does not work with file of 4,7MB
             if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 fis = new FileInputStream(myFile);
                 bis = new BufferedInputStream(fis);
-                bis.read(bytearray, 40 + textbyteslength, intfileLength);
+                bis.read(bytearray, 80 + textbyteslength, intfileLength);
             }
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
@@ -522,19 +529,23 @@ public class NetworkCommunication {
                                     aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() - 1);
                                 }
                             } else if (answerString.split("///")[0].contains("GOTIT")) {
-                                String questionID = answerString.split("///")[1];
-                                System.out.println("client received question: " + questionID);
-                                if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
-                                    int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
-                                    if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
-                                        sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
-                                        sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
-                                    }
-                                    //add the ID to the ID list for the student inside the class
-                                    LearningTracker.studentGroupsAndClass.get(0).getStudentWithName(arg_student.getName()).getDeviceQuestions().add(questionID);
-                                    System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
-                                    if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
-                                        QuestionSendingController.readyToActivate = true;
+                                if (answerString.split("///")[1].contains(arg_student.getPendingPacketUUID())) {
+                                    arg_student.setPendingPacketUUID("");
+                                } else {
+                                    String questionID = answerString.split("///")[1];
+                                    System.out.println("client received question: " + questionID);
+                                    if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
+                                        int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
+                                        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
+                                            sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
+                                            sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student.getOutputStream());
+                                        }
+                                        //add the ID to the ID list for the student inside the class
+                                        LearningTracker.studentGroupsAndClass.get(0).getStudentWithName(arg_student.getName()).getDeviceQuestions().add(questionID);
+                                        System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
+                                        if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
+                                            QuestionSendingController.readyToActivate = true;
+                                        }
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("FORWARD")) {
@@ -579,11 +590,11 @@ public class NetworkCommunication {
     public void SendEvaluation(double evaluation, int questionID, Student student) {
         String evalToSend = "";
         if (!student.getFirstLayer()) {
-            evalToSend += "FRWTOPEER///" + student.getUniqueID();
+            evalToSend += "FRWTOPEER///" + student.getUniqueID() + "///";
         }
         evalToSend += "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[40];
+        byte[] bytes = new byte[80];
         int bytes_length = 0;
         try {
             bytes_length = evalToSend.getBytes("UTF-8").length;
@@ -609,7 +620,7 @@ public class NetworkCommunication {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "UPDEV///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[40];
+        byte[] bytes = new byte[80];
         int bytes_length = 0;
         try {
             bytes_length = evalToSend.getBytes("UTF-8").length;
@@ -634,7 +645,7 @@ public class NetworkCommunication {
     public void SendCorrection(Integer questionID) {
         String messageToSend = "CORR///";
         messageToSend += String.valueOf(questionID) + "///";
-        byte[] bytes = new byte[40];
+        byte[] bytes = new byte[80];
         int bytes_length = 0;
         try {
             bytes_length = messageToSend.getBytes("UTF-8").length;
@@ -671,7 +682,7 @@ public class NetworkCommunication {
         } else {
             response = "SERVR///NONEA///";
         }
-        byte[] bytes = new byte[40];
+        byte[] bytes = new byte[80];
         int bytes_length = response.getBytes("UTF-8").length;
         for (int i = 0; i < bytes_length; i++) {
             bytes[i] = response.getBytes("UTF-8")[i];

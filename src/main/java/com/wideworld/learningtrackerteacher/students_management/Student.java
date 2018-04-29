@@ -34,6 +34,7 @@ public class Student {
     private ArrayList<String> deviceQuestions;
     private String masterUniqueID;
     private Boolean isFirstLayer;
+    private String pendingPacketUUID;
 
 
     //constructors
@@ -43,6 +44,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        pendingPacketUUID = "";
     }
     public Student(String arg_MacAddress, String arg_name) {
         isFirstLayer = true;
@@ -52,6 +54,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        pendingPacketUUID = "";
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         isFirstLayer = true;
@@ -62,6 +65,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        pendingPacketUUID = "";
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
@@ -109,6 +113,9 @@ public class Student {
     public void setFirstLayer(Boolean firstLayer) {
         isFirstLayer = firstLayer;
     }
+    public void setPendingPacketUUID(String pendingPacketUUID) {
+        this.pendingPacketUUID = pendingPacketUUID;
+    }
 
     //getters
     public Test getActiveTest() {
@@ -152,6 +159,9 @@ public class Student {
     }
     public Boolean getFirstLayer() {
         return isFirstLayer;
+    }
+    public String getPendingPacketUUID() {
+        return pendingPacketUUID;
     }
 
     public ArrayList<String> getDeviceQuestions() {

@@ -25,7 +25,7 @@ public class DataConversion {
         String textDataSize = String.valueOf(bytearraytest.length);
         String prefix = "TEST:" + textDataSize + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
-        byte[] wholeByteArray = new byte[40];
+        byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
             wholeByteArray[i] = byteArrayPrefix[i];
         }
@@ -54,7 +54,7 @@ public class DataConversion {
         String textDataSize = String.valueOf(bytearraytest.length);
         String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
-        byte[] wholeByteArray = new byte[40];
+        byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
             wholeByteArray[i] = byteArrayPrefix[i];
         }

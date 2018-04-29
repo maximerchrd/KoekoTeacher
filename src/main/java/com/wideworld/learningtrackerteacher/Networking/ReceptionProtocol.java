@@ -41,7 +41,7 @@ public class ReceptionProtocol {
                                     ArrayList<ArrayList<String>> studentNamesForGroups) {
         double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),
                 answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-        //NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
+        NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
         //find out to which group the student and answer belong
         Integer groupIndex = 0;
