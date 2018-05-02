@@ -521,6 +521,9 @@ public class NetworkCommunication {
                                 student.setMasterUniqueID(answerString.split("///")[1]);
                                 student.setFirstLayer(true);
                                 ReceptionProtocol.receivedCONN(student,answerString,aClass);
+
+                                //copy some basic informations because arg_student is used to write the answer into the table
+                                Student.essentialCopyStudent(student,arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);

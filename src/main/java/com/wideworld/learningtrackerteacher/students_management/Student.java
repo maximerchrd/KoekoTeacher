@@ -39,7 +39,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "";
+        pendingPacketUUID = "some UUID";
     }
     public Student(String arg_MacAddress, String arg_name) {
         isFirstLayer = true;
@@ -49,7 +49,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "";
+        pendingPacketUUID = "some UUID";
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         isFirstLayer = true;
@@ -60,7 +60,7 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "";
+        pendingPacketUUID = "some UUID";
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
@@ -195,5 +195,11 @@ public class Student {
         }
         ArrayList<String> studentsIdsDates = getDeviceQuestions();
         //implement tracking...
+    }
+
+    static public void essentialCopyStudent(Student copyFromStudent, Student copyToStudent) {
+        copyToStudent.setName(copyFromStudent.getName());
+        copyToStudent.setUniqueID(copyFromStudent.getUniqueID());
+        copyToStudent.setMasterUniqueID(copyFromStudent.getMasterUniqueID());
     }
 }
