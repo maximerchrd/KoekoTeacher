@@ -345,23 +345,25 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         removeStudentFromClass(0);
     }
     public void removeStudentFromClass(Integer group) {
-        //adapt table height
-        tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight);
+        if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
+            //adapt table height
+            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight);
 
-        String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
-        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
-            String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
-            try {
-                DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
-            } catch (Exception e) {
-                e.printStackTrace();
+            String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
+            if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+                try {
+                    DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
-        tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
-        LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
-        if (LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex) {
-            LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().remove(studentIndex);
+            int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
+            tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
+            LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
+            if (LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex) {
+                LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().remove(studentIndex);
+            }
         }
     }
 

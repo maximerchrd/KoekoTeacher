@@ -30,8 +30,16 @@ public class ReceptionProtocol {
         if (aClass.studentDeviceIDAlreadyInClass(student)) {
             aClass.updateStudent(student);
         } else {
-            aClass.addStudent(student);
-            System.out.println("adding student: " + student.getName() + " to class for Network Communication.");
+            if (student.getUniqueID().contentEquals(student.getMasterUniqueID())) {
+                aClass.updateStudent(student);
+            } else {
+                aClass.addStudent(student);
+                System.out.println("adding student: " + student.getName() + " to class for Network Communication.");
+                System.out.println("Students in class: ");
+                for (Student printStudent : aClass.getStudents_vector()) {
+                    System.out.println(printStudent.getName());
+                }
+            }
         }
         if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
             aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);

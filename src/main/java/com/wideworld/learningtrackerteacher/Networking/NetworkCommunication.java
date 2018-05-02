@@ -530,27 +530,32 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("GOTIT")) {
                                 ReceptionProtocol.receivedGOTIT(answerString, arg_student);
                             } else if (answerString.split("///")[0].contains("FORWARD")) {
-                                if (answerString.split("///").length > 3) {
-                                    String truncatedAnswerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
-                                            answerString.split("///")[1].length() +3);
-                                    if (truncatedAnswerString.split("///")[0].contains("CONN")) {
-                                        //clone student otherwise we modify the first layer student
-                                        Student student = new Student();
-                                        student.setInetAddress(arg_student.getInetAddress());
-                                        student.setOutputStream(arg_student.getOutputStream());
-                                        student.setInputStream(arg_student.getInputStream());
+                                //if some datas were merged, we try to split it here
+                                String[] substrings = answerString.split("FORWARD");
 
-                                        student.setMasterUniqueID(answerString.split("///")[1]);
-                                        student.setFirstLayer(false);
-                                        ReceptionProtocol.receivedCONN(student,truncatedAnswerString,aClass);
-                                    } else if (truncatedAnswerString.split("///")[0].contains("ANSW")) {
-                                        ReceptionProtocol.receivedANSW(aClass.getStudentWithUniqueID(truncatedAnswerString.split("///")[1]),
-                                                truncatedAnswerString,questionIdsForGroups,studentNamesForGroups);
-                                    } else if (truncatedAnswerString.split("///")[0].contains("GOTIT")) {
-                                        ReceptionProtocol.receivedGOTIT(truncatedAnswerString, arg_student);
+                                for (String substring : substrings) {
+                                    if (answerString.split("///").length > 3) {
+                                        String truncatedAnswerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
+                                                answerString.split("///")[1].length() + 3);
+                                        if (truncatedAnswerString.split("///")[0].contains("CONN")) {
+                                            //clone student otherwise we modify the first layer student
+                                            Student student = new Student();
+                                            student.setInetAddress(arg_student.getInetAddress());
+                                            student.setOutputStream(arg_student.getOutputStream());
+                                            student.setInputStream(arg_student.getInputStream());
+
+                                            student.setMasterUniqueID(answerString.split("///")[1]);
+                                            student.setFirstLayer(false);
+                                            ReceptionProtocol.receivedCONN(student, truncatedAnswerString, aClass);
+                                        } else if (truncatedAnswerString.split("///")[0].contains("ANSW")) {
+                                            ReceptionProtocol.receivedANSW(aClass.getStudentWithUniqueID(truncatedAnswerString.split("///")[1]),
+                                                    truncatedAnswerString, questionIdsForGroups, studentNamesForGroups);
+                                        } else if (truncatedAnswerString.split("///")[0].contains("GOTIT")) {
+                                            ReceptionProtocol.receivedGOTIT(truncatedAnswerString, arg_student);
+                                        }
+                                    } else {
+                                        System.out.println("Problem reading forwarded string: truncated");
                                     }
-                                } else {
-                                    System.out.println("Problem reading forwarded string: truncated");
                                 }
                             }
                         } else {
