@@ -1,5 +1,7 @@
 package com.wideworld.learningtrackerteacher.Networking;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
+import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.database_management.DbTableIndividualQuestionForStudentResult;
 import com.wideworld.learningtrackerteacher.database_management.DbTableStudents;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
@@ -29,6 +31,7 @@ public class ReceptionProtocol {
             aClass.updateStudent(student);
         } else {
             aClass.addStudent(student);
+            System.out.println("adding student: " + student.getName() + " to class for Network Communication.");
         }
         if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
             aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
@@ -86,6 +89,39 @@ public class ReceptionProtocol {
                 arg_student.getActiveTest().setTestEvaluation(testEval);
                 DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(),arg_student.getName(),testEval);
             }
+        }
+    }
+
+    static public void receivedGOTIT(String answerString, Student arg_student) {
+        if (answerString.split("///").length > 1) {
+            if (answerString.split("///")[1].contains(arg_student.getPendingPacketUUID())) {
+                arg_student.setPendingPacketUUID("");
+            } else {
+                if (answerString.split("///").length > 2) {
+                    String questionID = answerString.split("///")[1];
+                    String studentID = answerString.split("///")[2];
+                    System.out.println("client received question: " + questionID);
+                    if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
+                        int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
+                        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
+                            try {
+                                NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
+                                NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        //add the ID to the ID list for the student inside the class
+                        LearningTracker.studentGroupsAndClass.get(0).getStudentWithUniqueID(studentID).getDeviceQuestions().add(questionID);
+                        System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
+                        if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
+                            QuestionSendingController.readyToActivate = true;
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println("received GOTIT but array from parsed string too short");
         }
     }
 }

@@ -636,7 +636,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_array()) {
+            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_vector()) {
                 studentsList.add(singleStudent.getName());
             }
             controller.initParameters(activeClass, groupsCombobox, studentsList);
@@ -724,7 +724,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             EditGroupController controller = fxmlLoader.<EditGroupController>getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_array()) {
+            for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_vector()) {
                 studentsList.add(singleStudent.getName());
             }
             if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {

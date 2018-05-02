@@ -161,7 +161,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
         ArrayList<String> studentNames = new ArrayList<>();
-        for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_array()) studentNames.add(student.getName());
+        for (Student student: LearningTracker.studentGroupsAndClass.get(group).getStudents_vector()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
@@ -222,7 +222,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             answer += "#/#";
         }
         Integer indexColumn = LearningTracker.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
-        Integer indexRow = indexOfStudent(LearningTracker.studentGroupsAndClass.get(group).getStudents_array(), student);
+        Integer indexRow = indexOfStudent(LearningTracker.studentGroupsAndClass.get(group).getStudents_vector(), student);
         if (indexColumn >= 0 && indexRow >= 0) {
             SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
             singleStudentAnswersLine.setAnswer(answer, indexColumn);
@@ -293,7 +293,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void editEvaluation(Integer group) {
         TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
         Integer globalID = LearningTracker.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
-        Integer studentID = LearningTracker.studentGroupsAndClass.get(group).getStudents_array().get(tablePosition.getRow()).getStudentID();
+        Integer studentID = LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
         if (globalID >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
             Parent root1 = null;
@@ -360,8 +360,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
         tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
         LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
-        if (LearningTracker.studentGroupsAndClass.get(group).getStudents_array().size() > studentIndex) {
-            LearningTracker.studentGroupsAndClass.get(group).getStudents_array().remove(studentIndex);
+        if (LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex) {
+            LearningTracker.studentGroupsAndClass.get(group).getStudents_vector().remove(studentIndex);
         }
     }
 
@@ -496,9 +496,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         chooseClassComboBox.setItems(observableList);
     }
 
-    private Integer indexOfStudent(ArrayList<Student> studentsArray, Student singleStudent) {
-        for (int i = 0; i < studentsArray.size(); i++) {
-            if (singleStudent.getName().contentEquals(studentsArray.get(i).getName())) {
+    private Integer indexOfStudent(Vector<Student> studentsVector, Student singleStudent) {
+        for (int i = 0; i < studentsVector.size(); i++) {
+            if (singleStudent.getName().contentEquals(studentsVector.get(i).getName())) {
                 return i;
             }
         }

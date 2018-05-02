@@ -1,24 +1,19 @@
 package com.wideworld.learningtrackerteacher.students_management;
 
 
-import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionStudent;
-import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionTest;
-import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Created by maximerichard on 14/02/17.
  */
 public class Student {
-    private String mMacAddress = "no address";
+    private String uniqueID = "no identifier";
     private InetAddress mInetAddress = null;
     private String mName = "no name";
     private OutputStream mOutputStream = null;
@@ -32,7 +27,7 @@ public class Student {
     private Test activeTest;
     private Boolean connected;
     private ArrayList<String> deviceQuestions;
-    private String masterUniqueID;
+    private String masterUniqueID = "no identifier";
     private Boolean isFirstLayer;
     private String pendingPacketUUID;
 
@@ -48,7 +43,7 @@ public class Student {
     }
     public Student(String arg_MacAddress, String arg_name) {
         isFirstLayer = true;
-        mMacAddress = arg_MacAddress;
+        uniqueID = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
@@ -58,7 +53,7 @@ public class Student {
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         isFirstLayer = true;
-        mMacAddress = arg_address;
+        uniqueID = arg_address;
         mName = arg_name;
         mConnectedByBT = connectedByBT;
         numberOfAnswers = 0;
@@ -78,7 +73,7 @@ public class Student {
         mInetAddress = arg_inetaddress;
     }
     public void setUniqueID(String arg_MacAddress) {
-        mMacAddress = arg_MacAddress;
+        uniqueID = arg_MacAddress;
     }
     public void setName(String arg_name) {
         mName = arg_name;
@@ -137,7 +132,7 @@ public class Student {
         return mInetAddress;
     }
     public String getUniqueID() {
-        return mMacAddress;
+        return uniqueID;
     }
     public  String getName() {
         return  mName;

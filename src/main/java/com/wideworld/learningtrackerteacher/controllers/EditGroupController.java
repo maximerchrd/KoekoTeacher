@@ -3,7 +3,6 @@ package com.wideworld.learningtrackerteacher.controllers;
 import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.database_management.DbTableClasses;
 import com.wideworld.learningtrackerteacher.database_management.DbTableRelationClassStudent;
-import com.wideworld.learningtrackerteacher.students_management.Classroom;
 import com.wideworld.learningtrackerteacher.students_management.Student;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -74,7 +73,7 @@ public class EditGroupController extends Window implements Initializable {
             //initialize students array and add it to the static singleton
 
             LearningTracker.studentGroupsAndClass.get(groupIndex).setClassName(groupName.getText());
-            LearningTracker.studentGroupsAndClass.get(groupIndex).getStudents_array().clear();
+            LearningTracker.studentGroupsAndClass.get(groupIndex).getStudents_vector().clear();
             for (HBox hBox : hBoxArrayList) {
                 String student = ((ComboBox) hBox.getChildren().get(0)).getSelectionModel().getSelectedItem().toString();
                 DbTableRelationClassStudent.addClassStudentRelation(groupName.getText(), student);
