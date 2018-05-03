@@ -9,6 +9,7 @@ import com.wideworld.learningtrackerteacher.students_management.Student;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class ReceptionProtocol {
 
@@ -28,10 +29,10 @@ public class ReceptionProtocol {
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
         if (aClass.studentDeviceIDAlreadyInClass(student)) {
-            aClass.updateStudent(student);
+            aClass.updateStudentButNotStreams(student);
         } else {
             if (student.getUniqueID().contentEquals(student.getMasterUniqueID())) {
-                aClass.updateStudent(student);
+                aClass.updateStudentButNotStreams(student);
             } else {
                 aClass.addStudent(student);
                 System.out.println("adding student: " + student.getName() + " to class for Network Communication.");
@@ -72,7 +73,9 @@ public class ReceptionProtocol {
             System.out.println(testid);
         }
         if (nextQuestion != -1) {
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, arg_student);
+            Vector<Student> singleStudent = new Vector<>();
+            singleStudent.add(arg_student);
+            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, singleStudent);
         }
 
         //set evaluation if question belongs to a test
@@ -111,7 +114,8 @@ public class ReceptionProtocol {
                     System.out.println("client received question: " + questionID);
                     if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
                         int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
-                        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1) {
+                        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1
+                                && !studentID.contentEquals(arg_student.getUniqueID())) {    //we also need to check if the student who got the question is from the first layer
                             try {
                                 NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
                                 NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);

@@ -234,7 +234,9 @@ public class QuestionSendingController extends Window implements Initializable {
             studentItem.setOnAction(event -> {
                 if (readyQuestionsList.getSelectionModel().getSelectedItem() != null) {
                     Integer questionID = readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID();
-                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionID,student);
+                    Vector<Student> singleStudent = new Vector<>();
+                    singleStudent.add(student);
+                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionID,singleStudent);
                 }
             });
             studentsContextMenu.getItems().add(studentItem);

@@ -215,11 +215,23 @@ public class Classroom {
 
 
     //update methods
-    public void updateStudent (Student student) {
+    public void updateStudentStreams(Student student) {
         int index = indexOfStudentWithAddress(student.getInetAddress().toString());
         if (index >= 0) {
-            students_vector.remove(index);
-            students_vector.add(student);
+            students_vector.get(index).setInputStream(student.getInputStream());
+            students_vector.get(index).setOutputStream(student.getOutputStream());
+        } else {
+            System.out.println("A problem occured: student not in class when trying to update infos");
+        }
+    }
+
+    public void updateStudentButNotStreams(Student student) {
+        int index = indexOfStudentWithAddress(student.getInetAddress().toString());
+        if (index >= 0) {
+            students_vector.get(index).setName(student.getName());
+            students_vector.get(index).setUniqueID(student.getUniqueID());
+            students_vector.get(index).setMasterUniqueID(student.getMasterUniqueID());
+            students_vector.get(index).setFirstLayer(student.getFirstLayer());
         } else {
             System.out.println("A problem occured: student not in class when trying to update infos");
         }
@@ -313,5 +325,35 @@ public class Classroom {
             }
         }
         return  questionsReached;
+    }
+
+    public Vector<Student> getFirstLayerStudents() {
+        Vector<Student> masterStudents = new Vector<>();
+        Vector<String> masterStudentsIDs = new Vector<>();
+
+        for (Student student : students_vector) {
+            if (!masterStudentsIDs.contains(student.getMasterUniqueID())) {
+                masterStudentsIDs.add(student.getMasterUniqueID());
+            }
+        }
+
+        for (String masterID : masterStudentsIDs) {
+            masterStudents.add(getStudentWithUniqueID(masterID));
+        }
+
+        return masterStudents;
+    }
+
+    public Vector<String> getSecondLayerIDsForStudent(Student firstLayerStudent) {
+        Vector<String> secondLayerIDs = new Vector<>();
+
+        for (Student student : students_vector) {
+            if (student.getMasterUniqueID().contentEquals(firstLayerStudent.getUniqueID())
+                    && !student.getMasterUniqueID().contentEquals(student.getUniqueID())) {
+                secondLayerIDs.add(student.getUniqueID());
+            }
+        }
+
+        return secondLayerIDs;
     }
 }

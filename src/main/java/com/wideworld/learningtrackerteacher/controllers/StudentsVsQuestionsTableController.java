@@ -47,7 +47,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void addQuestion(String question, Integer ID, Integer group) {
         if (group < 1) group = 0;
         // Add extra columns if necessary:
-        System.out.println("adding column");
         TableColumn column = new TableColumn(question);
         column.setPrefWidth(180);
         tableViewArrayList.get(group).getColumns().add(column);

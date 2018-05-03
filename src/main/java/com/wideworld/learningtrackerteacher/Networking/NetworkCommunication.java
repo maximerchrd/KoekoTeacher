@@ -114,7 +114,7 @@ public class NetworkCommunication {
                                 } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
-                                    aClass.updateStudent(student);
+                                    aClass.updateStudentStreams(student);
 
                                     if (SettingsController.nearbyMode == 0) {
                                         SendNewConnectionResponse(student.getOutputStream(), 0);
@@ -166,33 +166,56 @@ public class NetworkCommunication {
     public void SendQuestionID(int QuestID) {
         Vector<Student> StudentsVector = aClass.getStudents_vector();
         System.out.println("to " + StudentsVector.size() + " students");
-        for (Student student : StudentsVector) {
-            SendQuestionID(QuestID,student);
-        }
+        SendQuestionID(QuestID,StudentsVector);
     }
 
-    public void SendQuestionID(int QuestID, Student student) {
-        student = aClass.getStudentWithName(student.getName());
-        Student masterStudent = aClass.getStudentWithUniqueID(student.getMasterUniqueID());
-        Long initialTime = System.nanoTime();
-        while (masterStudent.getPendingPacketUUID().length() > 0 && (System.nanoTime() - initialTime) < 1500000000) { }
-        if (student.getOutputStream() != null) {
-            String questIDString = "";
-            if (!student.getFirstLayer()) {
-                questIDString = "FRWTOPEER///" + student.getUniqueID() + "///";
+    public void SendQuestionID(int QuestID, Vector<Student> students) {
+        for (int i = 0; i < students.size(); i++) {
+            students.set(i, aClass.getStudentWithName(students.get(i).getName()));
+        }
+        Vector<Student> firstLayerStudents = aClass.getFirstLayerStudents();
+
+        //Long initialTime = System.nanoTime();
+        //while (masterStudent.getPendingPacketUUID().length() > 0 && (System.nanoTime() - initialTime) < 1500000000) { }
+
+        for (Student student : firstLayerStudents) {
+            if (student.getOutputStream() != null) {
+                //get the students attached to the first layer Student
+                Vector<String> secondLayerIDs = aClass.getSecondLayerIDsForStudent(student);
+
+                String forwardString = "";
+                for (String secondLayerID : secondLayerIDs) {
+                    forwardString += "FRWTOPEER///" + secondLayerID + "///";
+                }
+
+                //masterStudent.setPendingPacketUUID(UUID.randomUUID().toString().substring(0, 4));
+                //questIDString += "QID:MLT///" + String.valueOf(QuestID) + "///" + masterStudent.getPendingPacketUUID() + "///";
+                byte[] forwardBytearraystring = forwardString.getBytes(Charset.forName("UTF-8"));
+                byte[] idBytearraystring = new byte[80];
+                String questIDString = "QID:MLT:" + forwardBytearraystring.length + "///" + String.valueOf(QuestID) + "///";
+                byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
+                for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
+                    idBytearraystring[i] = prefixBytesArray[i];
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                try {
+                    outputStream.write( idBytearraystring );
+                    outputStream.write( forwardBytearraystring );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                byte bytearraystring[] = outputStream.toByteArray( );
+                System.out.println("sending question: " + new String(bytearraystring) + " to single student");
+                try {
+                    student.getOutputStream().write(bytearraystring, 0, bytearraystring.length);
+                    student.getOutputStream().flush();
+                } catch (IOException ex2) {
+                    ex2.printStackTrace();
+                }
+            } else {
+                System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
             }
-            masterStudent.setPendingPacketUUID(UUID.randomUUID().toString().substring(0,4));
-            questIDString += "QID:MLT///" + String.valueOf(QuestID) + "///" + masterStudent.getPendingPacketUUID() + "///";
-            byte[] bytearraystring = questIDString.getBytes(Charset.forName("UTF-8"));
-            System.out.println("sending question: " + questIDString + " to single student");
-            try {
-                student.getOutputStream().write(bytearraystring, 0, bytearraystring.length);
-                student.getOutputStream().flush();
-            } catch (IOException ex2) {
-                ex2.printStackTrace();
-            }
-        } else {
-            System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
         }
     }
 
@@ -305,8 +328,6 @@ public class NetworkCommunication {
                     ex2.printStackTrace();
                 }
             }
-
-            System.out.println("Done.");
         }
     }
 
@@ -409,8 +430,6 @@ public class NetworkCommunication {
                     ex2.printStackTrace();
                 }
             }
-
-            System.out.println("Done.");
         }
     }
 
@@ -485,7 +504,9 @@ public class NetworkCommunication {
                                     System.out.println(testid);
                                 }
                                 if (nextQuestion != -1) {
-                                    SendQuestionID(nextQuestion, arg_student);
+                                    Vector<Student> singleStudent = new Vector<>();
+                                    singleStudent.add(arg_student);
+                                    SendQuestionID(nextQuestion, singleStudent);
                                 }
 
                                 //set evaluation if question belongs to a test
@@ -736,7 +757,9 @@ public class NetworkCommunication {
                 //get the first question ID which doesn't correspond to a test
                 int i = 0;
                 for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {}
-                SendQuestionID(questionIds.get(i), student);
+                Vector<Student> singleStudent = new Vector<>();
+                singleStudent.add(student);
+                SendQuestionID(questionIds.get(i), singleStudent);
             }
             student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
 
