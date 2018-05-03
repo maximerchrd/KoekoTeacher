@@ -134,7 +134,7 @@ public class NetworkCommunication {
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                for (Iterator<Integer> iterator = activeIDs.iterator(); iterator.hasNext();) {
+                                for (Iterator<Integer> iterator = activeIDs.iterator(); iterator.hasNext(); ) {
                                     if (iterator.next() < 0) {
                                         iterator.remove();
                                     }
@@ -166,7 +166,7 @@ public class NetworkCommunication {
     public void SendQuestionID(int QuestID) {
         Vector<Student> StudentsVector = aClass.getStudents_vector();
         System.out.println("to " + StudentsVector.size() + " students");
-        SendQuestionID(QuestID,StudentsVector);
+        SendQuestionID(QuestID, StudentsVector);
     }
 
     public void SendQuestionID(int QuestID, Vector<Student> students) {
@@ -197,15 +197,15 @@ public class NetworkCommunication {
                 for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];
                 }
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 try {
-                    outputStream.write( idBytearraystring );
-                    outputStream.write( forwardBytearraystring );
+                    outputStream.write(idBytearraystring);
+                    outputStream.write(forwardBytearraystring);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                byte bytearraystring[] = outputStream.toByteArray( );
+                byte bytearraystring[] = outputStream.toByteArray();
                 System.out.println("sending question: " + new String(bytearraystring) + " to single student");
                 try {
                     student.getOutputStream().write(bytearraystring, 0, bytearraystring.length);
@@ -305,29 +305,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            if (student == null) {
-                for (Student singleStudent : aClass.getStudents_vector()) {
-                    if (singleStudent.getFirstLayer() && !singleStudent.getUniqueID().contains("no identifier")) {
-                        OutputStream tempOutputStream = singleStudent.getOutputStream();
-                        try {
-                            tempOutputStream.write(bytearray, 0, arraylength);
-                            tempOutputStream.flush();
-                        } catch (IOException ex2) {
-                            ex2.printStackTrace();
-                        }
-                    }
-                }
-            } else {
-                try {
-                    if (student.getFirstLayer()) {
-                        OutputStream singleStudentOutputStream = student.getOutputStream();
-                        singleStudentOutputStream.write(bytearray, 0, arraylength);
-                        singleStudentOutputStream.flush();
-                    }
-                } catch (IOException ex2) {
-                    ex2.printStackTrace();
-                }
-            }
+            writeToOutputStream(student, bytearray, arraylength);
         }
     }
 
@@ -406,30 +384,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            if (student == null) {
-                for (int i = 0; i < aClass.getClassSize(); i++) {
-                    student = aClass.getStudents_vector().get(i);
-                    if (student.getFirstLayer()) {
-                        OutputStream tempOutputStream = student.getOutputStream();
-                        try {
-                            tempOutputStream.write(bytearray, 0, arraylength);
-                            tempOutputStream.flush();
-                        } catch (IOException ex2) {
-                            ex2.printStackTrace();
-                        }
-                    }
-                }
-            } else {
-                try {
-                    if (student.getFirstLayer()) {
-                        OutputStream singleStudentOutputStream = student.getOutputStream();
-                        singleStudentOutputStream.write(bytearray, 0, arraylength);
-                        singleStudentOutputStream.flush();
-                    }
-                } catch (IOException ex2) {
-                    ex2.printStackTrace();
-                }
-            }
+            writeToOutputStream(student, bytearray, arraylength);
         }
     }
 
@@ -437,7 +392,7 @@ public class NetworkCommunication {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
-            byte [] bytesArray = DataConversion.testToBytesArray(testToSend);
+            byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
             if (singleStudentOutputStream == null) {
                 for (int i = 0; i < aClass.getClassSize(); i++) {
                     OutputStream tempOutputStream = aClass.getStudents_vector().get(i).getOutputStream();
@@ -514,7 +469,7 @@ public class NetworkCommunication {
                                     System.out.println("inserting question evaluation for test");
                                     int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
                                     if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
-                                        arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex,eval);
+                                        arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
                                     }
                                     Boolean testCompleted = true;
                                     for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
@@ -527,9 +482,9 @@ public class NetworkCommunication {
                                         for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
                                             testEval += questEval;
                                         }
-                                        testEval = testEval /  arg_student.getActiveTest().getQuestionsEvaluations().size();
+                                        testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
                                         arg_student.getActiveTest().setTestEvaluation(testEval);
-                                        DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(),arg_student.getName(),testEval);
+                                        DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
@@ -541,10 +496,10 @@ public class NetworkCommunication {
 
                                 student.setMasterUniqueID(answerString.split("///")[1]);
                                 student.setFirstLayer(true);
-                                ReceptionProtocol.receivedCONN(student,answerString,aClass);
+                                ReceptionProtocol.receivedCONN(student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
-                                Student.essentialCopyStudent(student,arg_student);
+                                Student.essentialCopyStudent(student, arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
@@ -660,7 +615,7 @@ public class NetworkCommunication {
 
     public void SendCorrection(Integer questionID) {
         String messageToSend = "CORR///";
-        messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0,4) + "///";
+        messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0, 4) + "///";
         byte[] bytes = new byte[80];
         int bytes_length = 0;
         try {
@@ -756,7 +711,8 @@ public class NetworkCommunication {
             if (questionIds.size() > 0) {
                 //get the first question ID which doesn't correspond to a test
                 int i = 0;
-                for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {}
+                for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {
+                }
                 Vector<Student> singleStudent = new Vector<>();
                 singleStudent.add(student);
                 SendQuestionID(questionIds.get(i), singleStudent);
@@ -818,10 +774,43 @@ public class NetworkCommunication {
         }
     }
 
+    private void writeToOutputStream(Student student, byte[] bytearray, int arraylength) {
+        Thread writingThread = new Thread() {
+            public void run() {
+                if (student == null) {
+                    for (Student singleStudent : aClass.getStudents_vector()) {
+                        if (singleStudent.getFirstLayer() && !singleStudent.getUniqueID().contains("no identifier")) {
+                            try {
+                                synchronized (singleStudent.getOutputStream()) {
+                                    singleStudent.getOutputStream().write(bytearray, 0, arraylength);
+                                    singleStudent.getOutputStream().flush();
+                                }
+                            } catch (IOException ex2) {
+                                ex2.printStackTrace();
+                            }
+                        }
+                    }
+                } else {
+                    if (student.getFirstLayer() && !student.getUniqueID().contains("no identifier")) {
+                        try {
+                            synchronized (student.getOutputStream()) {
+                                student.getOutputStream().write(bytearray, 0, arraylength);
+                                student.getOutputStream().flush();
+                            }
+                        } catch (IOException ex2) {
+                            ex2.printStackTrace();
+                        }
+                    }
+                }
+            }
+        };
+        writingThread.start();
+    }
 
-    public void popUpIfStudentIdentifierCollision( String studentName) {
+    public void popUpIfStudentIdentifierCollision(String studentName) {
         Platform.runLater(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 final Stage dialog = new Stage();
                 dialog.initModality(Modality.APPLICATION_MODAL);
                 dialog.initOwner(LearningTracker.studentsVsQuestionsTableControllerSingleton);
@@ -831,7 +820,7 @@ public class NetworkCommunication {
                 Scene dialogScene = new Scene(dialogVbox, 400, 40);
                 dialog.setScene(dialogScene);
                 dialog.show();
-                }
+            }
         });
     }
 }
