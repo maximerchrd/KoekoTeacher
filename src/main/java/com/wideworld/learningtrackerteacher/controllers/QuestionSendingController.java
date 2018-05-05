@@ -182,6 +182,22 @@ public class QuestionSendingController extends Window implements Initializable {
                             event.setDropCompleted(true);
                             treeCell.getTreeItem().setExpanded(true);
                             event.consume();
+                        } else if (treeCell.getTreeItem().getChildren() != draggedQuestion) {
+                            TreeItem<QuestionGeneric> treeItem = new TreeItem<>();
+                            while (treeItem.getParent() != root) {
+                                treeItem = treeCell.getTreeItem().getParent();
+                            }
+                            if (treeItem.getValue().getGlobalID() < 0) {
+                                System.out.println("OK OK");
+                                treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
+                                        String.valueOf(draggedQuestion.getGlobalID()), "bla", "EVALUATION<60");
+                                event.setDropCompleted(true);
+                                treeCell.getTreeItem().setExpanded(true);
+                                event.consume();
+                            }
+                        } else {
+                            System.out.println("Trying to drag on self or on question not belonging to any test");
                         }
                         draggedQuestion = null;
                     }
@@ -321,7 +337,7 @@ public class QuestionSendingController extends Window implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            QuestionsNotReadyPopUpController controller = fxmlLoader.<QuestionsNotReadyPopUpController>getController();
+            QuestionsNotReadyPopUpController controller = fxmlLoader.getController();
             controller.initParameters(questionGeneric);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -346,7 +362,7 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        CreateQuestionController controller = fxmlLoader.<CreateQuestionController>getController();
+        CreateQuestionController controller = fxmlLoader.getController();
         controller.initVariables(genericQuestionsList, allQuestionsTree);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
@@ -364,7 +380,7 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        EditQuestionController controller = fxmlLoader.<EditQuestionController>getController();
+        EditQuestionController controller = fxmlLoader.getController();
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
         controller.initVariables(genericQuestionsList, allQuestionsTree, questionGeneric, selectedItem);
@@ -563,7 +579,7 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        CreateTestController controller = fxmlLoader.<CreateTestController>getController();
+        CreateTestController controller = fxmlLoader.getController();
         ArrayList<String> testNames = new ArrayList<>();
         for (Test test : testsList) {
             testNames.add(test.getTestName());
@@ -587,7 +603,7 @@ public class QuestionSendingController extends Window implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            EditTestController controller = fxmlLoader.<EditTestController>getController();
+            EditTestController controller = fxmlLoader.getController();
             ArrayList<String> testNames = new ArrayList<>();
             for (Test test : testsList) {
                 testNames.add(test.getTestName());
@@ -635,7 +651,7 @@ public class QuestionSendingController extends Window implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            CreateGroupController controller = fxmlLoader.<CreateGroupController>getController();
+            CreateGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
             for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_vector()) {
                 studentsList.add(singleStudent.getName());
@@ -692,7 +708,7 @@ public class QuestionSendingController extends Window implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            AssignQuestionsToNewClassPopUpController controller = fxmlLoader.<AssignQuestionsToNewClassPopUpController>getController();
+            AssignQuestionsToNewClassPopUpController controller = fxmlLoader.getController();
             controller.initParameters(activeClass);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -723,7 +739,7 @@ public class QuestionSendingController extends Window implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            EditGroupController controller = fxmlLoader.<EditGroupController>getController();
+            EditGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
             for (Student singleStudent : LearningTracker.studentGroupsAndClass.get(0).getStudents_vector()) {
                 studentsList.add(singleStudent.getName());

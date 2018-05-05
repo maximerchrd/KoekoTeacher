@@ -1,4 +1,4 @@
-package collect;
+package com.wideworld.learningtrackerteacher.controllers;
 
 public class Professor {
     private String _id_prof;

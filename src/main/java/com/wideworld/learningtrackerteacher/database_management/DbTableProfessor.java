@@ -1,6 +1,7 @@
 package com.wideworld.learningtrackerteacher.database_management;
 
-import collect.Professor;
+
+import com.wideworld.learningtrackerteacher.controllers.Professor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
