@@ -17,6 +17,7 @@ public class DbTableTests {
                     "(ID_TEST       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_TEST_GLOBAL      INT     NOT NULL, " +
                     " NAME      TEXT     NOT NULL, " +
+                    " TEST_MODE           INT    NOT NULL," +
                     " QUANTITATIVE_EVAL           TEXT    NOT NULL," +
                     " MODIF_DATE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
@@ -35,12 +36,13 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT ID_TEST_GLOBAL,NAME FROM tests;";
+            String query = "SELECT ID_TEST_GLOBAL,NAME,TEST_MODE FROM tests;";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 Test newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
                 newTest.setIdTest(Integer.parseInt(rs.getString("ID_TEST_GLOBAL")));
+                newTest.setTestMode(rs.getInt("TEST_MODE"));
                 ArrayList<Integer> newQuestionIDsList = DbTableRelationQuestionTest.getQuestionIdsFromTestName(String.valueOf(newTest.getIdTest()));
                 ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
                 for (int i = 0; i < newQuestionIDsList.size(); i++) {
@@ -104,11 +106,12 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT NAME FROM tests WHERE ID_TEST_GLOBAL = '" + testID + "';";
+            String query = "SELECT NAME,TEST_MODE FROM tests WHERE ID_TEST_GLOBAL = '" + testID + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
+                newTest.setTestMode(rs.getInt("TEST_MODE"));
                 newTest.setIdTest(testID);
             }
             stmt.close();
@@ -135,10 +138,10 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "INSERT INTO tests (ID_TEST_GLOBAL,NAME,QUANTITATIVE_EVAL)" +
+            String sql = "INSERT INTO tests (ID_TEST_GLOBAL,NAME,TEST_MODE,QUANTITATIVE_EVAL)" +
                     "VALUES ('" +
                     2000000 + "','" +
-                    name + "','-1');";
+                    name + "','0','-1');";
             stmt.executeUpdate(sql);
             sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);
@@ -206,6 +209,26 @@ public class DbTableTests {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "UPDATE tests SET NAME = '" + newName + "' " +
+                    "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+    static public void changeTestMode(int global_id, Integer testMode) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "' " +
                     "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();

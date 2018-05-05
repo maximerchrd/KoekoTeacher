@@ -201,7 +201,7 @@ public class NetworkCommunication {
     }
 
     public void SendQuestionIDs(ArrayList<Integer> QuestID, Student student) throws IOException {
-        byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID);
+        byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID, 0);
         writeToOutputStream(student, bytearray);
     }
 

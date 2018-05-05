@@ -333,8 +333,7 @@ public class QuestionSendingController extends Window implements Initializable {
             if (questionGeneric.getGlobalID() > 0) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
-                ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
+                activateTestSynchroneousQuestions();
             }
          }
     }

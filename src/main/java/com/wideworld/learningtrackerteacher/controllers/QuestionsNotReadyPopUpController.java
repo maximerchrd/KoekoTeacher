@@ -1,5 +1,6 @@
 package com.wideworld.learningtrackerteacher.controllers;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
 import com.wideworld.learningtrackerteacher.Networking.NetworkCommunication;
 import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionTest;
 import com.wideworld.learningtrackerteacher.questions_management.QuestionGeneric;
@@ -22,6 +23,7 @@ public class QuestionsNotReadyPopUpController extends Window {
         this.questionGeneric = questionGeneric;
         text.setText("Some questions might not be saved on all devices. \nDo you really want to try to activate the question now?");
     }
+
     public void waitQuestions() {
         Stage stage = (Stage) text.getScene().getWindow();
         stage.close();
@@ -31,8 +33,7 @@ public class QuestionsNotReadyPopUpController extends Window {
             if (questionGeneric.getGlobalID() > 0) {
                 NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
             } else {
-                ArrayList<Integer> questionIds = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
-                NetworkCommunication.networkCommunicationSingleton.activateTest(questionIds, questionGeneric.getGlobalID());
+                LearningTracker.questionSendingControllerSingleton.activateTestSynchroneousQuestions();
             }
 
         Stage stage = (Stage) text.getScene().getWindow();

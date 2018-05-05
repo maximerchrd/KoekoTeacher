@@ -45,7 +45,7 @@ public class DataConversion {
         return  wholeByteArray;
     }
 
-    static public byte[] questionsSetToBytesArray(ArrayList<Integer> questionIDs) {
+    static public byte[] questionsSetToBytesArray(ArrayList<Integer> questionIDs, Integer testMode) {
         String testString = "";
 
         for (Integer questionId : questionIDs) {
@@ -54,7 +54,7 @@ public class DataConversion {
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
-        String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + "///";
+        String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + ":" + testMode +  "///";
         byte[] byteArrayPrefix = prefix.getBytes();
         byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
