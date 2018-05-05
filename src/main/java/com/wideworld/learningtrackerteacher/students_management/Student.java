@@ -20,7 +20,6 @@ public class Student {
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
     private double overallPercentage = -1;
-    private Boolean mConnectedByBT = false;
     private Integer numberOfAnswers;
     private Integer studentID = -1;
     private ArrayList<Integer> testQuestionsIDs;
@@ -28,40 +27,30 @@ public class Student {
     private Test activeTest;
     private Boolean connected;
     private ArrayList<String> deviceQuestions;
-    private String masterUniqueID = "no identifier";
-    private Boolean isFirstLayer;
-    private String pendingPacketUUID;
 
 
     //constructors
     public Student() {
-        isFirstLayer = true;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "some UUID";
     }
     public Student(String arg_MacAddress, String arg_name) {
-        isFirstLayer = true;
         uniqueID = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "some UUID";
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
-        isFirstLayer = true;
         uniqueID = arg_address;
         mName = arg_name;
-        mConnectedByBT = connectedByBT;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
-        pendingPacketUUID = "some UUID";
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
@@ -78,9 +67,6 @@ public class Student {
     }
     public void setName(String arg_name) {
         mName = arg_name;
-    }
-    public void setmConnectedByBT(Boolean connectedByBT) {
-        mConnectedByBT = connectedByBT;
     }
     public void setOutputStream(OutputStream arg_outputstream) {
         mOutputStream = arg_outputstream;
@@ -102,15 +88,6 @@ public class Student {
     }
     public void setDeviceQuestions(ArrayList<String> deviceQuestions) {
         this.deviceQuestions = deviceQuestions;
-    }
-    public void setMasterUniqueID(String masterUniqueID) {
-        this.masterUniqueID = masterUniqueID;
-    }
-    public void setFirstLayer(Boolean firstLayer) {
-        isFirstLayer = firstLayer;
-    }
-    public void setPendingPacketUUID(String pendingPacketUUID) {
-        this.pendingPacketUUID = pendingPacketUUID;
     }
 
     //getters
@@ -144,20 +121,8 @@ public class Student {
     public InputStream getInputStream() {
         return mInputStream;
     }
-    public Boolean getmConnectedByBT() {
-        return mConnectedByBT;
-    }
     public Integer getStudentID() {
         return studentID;
-    }
-    public String getMasterUniqueID() {
-        return masterUniqueID;
-    }
-    public Boolean getFirstLayer() {
-        return isFirstLayer;
-    }
-    public String getPendingPacketUUID() {
-        return pendingPacketUUID;
     }
 
     public ArrayList<String> getDeviceQuestions() {
@@ -201,6 +166,5 @@ public class Student {
     static public void essentialCopyStudent(Student copyFromStudent, Student copyToStudent) {
         copyToStudent.setName(copyFromStudent.getName());
         copyToStudent.setUniqueID(copyFromStudent.getUniqueID());
-        copyToStudent.setMasterUniqueID(copyFromStudent.getMasterUniqueID());
     }
 }

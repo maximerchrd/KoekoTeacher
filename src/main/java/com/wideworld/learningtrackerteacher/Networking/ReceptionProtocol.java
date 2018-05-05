@@ -31,22 +31,12 @@ public class ReceptionProtocol {
         if (aClass.studentDeviceIDAlreadyInClass(student)) {
             aClass.updateStudentButNotStreams(student);
         } else {
-            if (student.getUniqueID().contentEquals(student.getMasterUniqueID())) {
-                aClass.updateStudentButNotStreams(student);
-            } else {
-                aClass.addStudent(student);
-                System.out.println("adding student: " + student.getName() + " to class for Network Communication.");
-                System.out.println("Students in class: ");
-                for (Student printStudent : aClass.getStudents_vector()) {
-                    System.out.println(printStudent.getName());
-                }
-            }
+            aClass.updateStudentButNotStreams(student);
         }
         if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
             aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
             System.out.println("Increasing the number of connected android devices");
         }
-        aClass.getStudentsPath().put(student.getUniqueID(), student.getOutputStream());
     }
 
     static public void receivedANSW(Student arg_student, String answerString, ArrayList<ArrayList<Integer>> questionIdsForGroups,
@@ -83,7 +73,7 @@ public class ReceptionProtocol {
             System.out.println("inserting question evaluation for test");
             int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
             if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
-                arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex,eval);
+                arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
             }
             Boolean testCompleted = true;
             for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
@@ -96,24 +86,20 @@ public class ReceptionProtocol {
                 for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
                     testEval += questEval;
                 }
-                testEval = testEval /  arg_student.getActiveTest().getQuestionsEvaluations().size();
+                testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
                 arg_student.getActiveTest().setTestEvaluation(testEval);
-                DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(),arg_student.getName(),testEval);
+                DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
             }
         }
     }
 
     static public void receivedGOTIT(String answerString, Student arg_student) {
         if (answerString.split("///").length > 1) {
-            if (answerString.split("///")[1].contains(arg_student.getPendingPacketUUID())) {
-                arg_student.setPendingPacketUUID("");
-                System.out.println("Using some deprecated feature: pending packet UUID");
-            } else {
-                if (answerString.split("///").length > 2) {
-                    String questionID = answerString.split("///")[1];
-                    String studentID = answerString.split("///")[2];
-                    System.out.println("client received question: " + questionID);
-                    if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
+            if (answerString.split("///").length > 2) {
+                String questionID = answerString.split("///")[1];
+                String studentID = answerString.split("///")[2];
+                System.out.println("client received question: " + questionID);
+                if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
                         /*int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
                         if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1
                                 && studentID.contentEquals(arg_student.getUniqueID())) {    //we also need to check if the student who got the question is from the first layer
@@ -126,12 +112,11 @@ public class ReceptionProtocol {
                                 e.printStackTrace();
                             }
                         }*/
-                        //add the ID to the ID list for the student inside the class
-                        LearningTracker.studentGroupsAndClass.get(0).getStudentWithUniqueID(studentID).getDeviceQuestions().add(questionID);
-                        System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
-                        if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
-                            QuestionSendingController.readyToActivate = true;
-                        }
+                    //add the ID to the ID list for the student inside the class
+                    LearningTracker.studentGroupsAndClass.get(0).getStudentWithUniqueID(studentID).getDeviceQuestions().add(questionID);
+                    System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
+                    if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
+                        QuestionSendingController.readyToActivate = true;
                     }
                 }
             }

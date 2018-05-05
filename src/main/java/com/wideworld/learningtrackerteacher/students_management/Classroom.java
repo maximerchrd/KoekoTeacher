@@ -25,7 +25,6 @@ public class Classroom {
     private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<Integer> IDsToStoreOnDevices;
-    private Map<String, OutputStream> studentsPath;
 
     public Classroom() {
         students_vector = new Vector<>();
@@ -37,7 +36,6 @@ public class Classroom {
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
         IDsToStoreOnDevices = new ArrayList<>();
-        studentsPath =  new HashMap<String, OutputStream>();
     }
 
     //getters
@@ -77,9 +75,6 @@ public class Classroom {
     public ArrayList<Integer> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
-    public Map<String, OutputStream> getStudentsPath() {
-        return studentsPath;
-    }
 
 
     //setters
@@ -107,9 +102,7 @@ public class Classroom {
     public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
-    public void setStudentsPath(Map<String, OutputStream> studentsPath) {
-        this.studentsPath = studentsPath;
-    }
+
 
 
     //other get methods
@@ -232,8 +225,6 @@ public class Classroom {
         if (index >= 0) {
             students_vector.get(index).setName(student.getName());
             students_vector.get(index).setUniqueID(student.getUniqueID());
-            students_vector.get(index).setMasterUniqueID(student.getMasterUniqueID());
-            students_vector.get(index).setFirstLayer(student.getFirstLayer());
         } else {
             System.out.println("A problem occured: student not in class when trying to update infos");
         }
@@ -329,33 +320,4 @@ public class Classroom {
         return  questionsReached;
     }
 
-    public Vector<Student> getFirstLayerStudents() {
-        Vector<Student> masterStudents = new Vector<>();
-        Vector<String> masterStudentsIDs = new Vector<>();
-
-        for (Student student : students_vector) {
-            if (!masterStudentsIDs.contains(student.getMasterUniqueID())) {
-                masterStudentsIDs.add(student.getMasterUniqueID());
-            }
-        }
-
-        for (String masterID : masterStudentsIDs) {
-            masterStudents.add(getStudentWithUniqueID(masterID));
-        }
-
-        return masterStudents;
-    }
-
-    public Vector<String> getSecondLayerIDsForStudent(Student firstLayerStudent) {
-        Vector<String> secondLayerIDs = new Vector<>();
-
-        for (Student student : students_vector) {
-            if (student.getMasterUniqueID().contentEquals(firstLayerStudent.getUniqueID())
-                    && !student.getMasterUniqueID().contentEquals(student.getUniqueID())) {
-                secondLayerIDs.add(student.getUniqueID());
-            }
-        }
-
-        return secondLayerIDs;
-    }
 }
