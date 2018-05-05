@@ -215,7 +215,7 @@ public class Classroom {
 
 
     //update methods
-    public void updateStudentStreams(Student student) {
+    public Student updateStudentStreams(Student student) {
         int index = indexOfStudentWithAddress(student.getInetAddress().toString());
         if (index >= 0) {
             students_vector.get(index).setInputStream(student.getInputStream());
@@ -223,6 +223,8 @@ public class Classroom {
         } else {
             System.out.println("A problem occured: student not in class when trying to update infos");
         }
+
+        return students_vector.get(index);
     }
 
     public void updateStudentButNotStreams(Student student) {

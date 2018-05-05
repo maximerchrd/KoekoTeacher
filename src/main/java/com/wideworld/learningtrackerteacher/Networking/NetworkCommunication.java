@@ -100,31 +100,31 @@ public class NetworkCommunication {
                                     aClass.addStudentIfNotInClass(student);
                                     System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
                                     if (SettingsController.nearbyMode == 0) {
-                                        SendNewConnectionResponse(student.getOutputStream(), 0);
+                                        SendNewConnectionResponse(student, 0);
                                     } else if (SettingsController.nearbyMode == 1) {
                                         // WARNING: smaller than 1 because the connection string is not yet received.
                                         // If the protocol is changed, this MUST BE modified as well
                                         if (aClass.getNbAndroidDevices() < 1) {
-                                            SendNewConnectionResponse(student.getOutputStream(), 1);
+                                            SendNewConnectionResponse(student, 1);
                                         } else {
-                                            SendNewConnectionResponse(student.getOutputStream(), 2);
+                                            SendNewConnectionResponse(student, 2);
                                         }
                                     }
 
                                 } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
-                                    aClass.updateStudentStreams(student);
+                                    student = aClass.updateStudentStreams(student);
 
                                     if (SettingsController.nearbyMode == 0) {
-                                        SendNewConnectionResponse(student.getOutputStream(), 0);
+                                        SendNewConnectionResponse(student, 0);
                                     } else if (SettingsController.nearbyMode == 1) {
                                         // WARNING: smaller than 1 because the connection string is not yet received.
                                         // If the protocol is changed, this MUST BE modified as well
                                         if (aClass.getNbAndroidDevices() < 1) {
-                                            SendNewConnectionResponse(student.getOutputStream(), 1);
+                                            SendNewConnectionResponse(student, 1);
                                         } else {
-                                            SendNewConnectionResponse(student.getOutputStream(), 2);
+                                            SendNewConnectionResponse(student, 2);
                                         }
                                     }
                                 }
@@ -134,15 +134,13 @@ public class NetworkCommunication {
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                for (Iterator<Integer> iterator = activeIDs.iterator(); iterator.hasNext(); ) {
-                                    if (iterator.next() < 0) {
-                                        iterator.remove();
-                                    }
-                                }
+                                activeIDs.removeIf(integer -> integer < 0);
                                 if (activeIDs.size() > 0) {
                                     try {
-                                        sendMultipleChoiceWithID(activeIDs.get(0), student);
-                                        sendShortAnswerQuestionWithID(activeIDs.get(0), student);
+                                        for (Integer activeID : activeIDs) {
+                                            sendMultipleChoiceWithID(activeID, student);
+                                            sendShortAnswerQuestionWithID(activeID, student);
+                                        }
                                         System.out.println("address: " + student.getInetAddress());
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -207,28 +205,16 @@ public class NetworkCommunication {
 
                 byte bytearraystring[] = outputStream.toByteArray();
                 System.out.println("sending question: " + new String(bytearraystring) + " to single student");
-                try {
-                    student.getOutputStream().write(bytearraystring, 0, bytearraystring.length);
-                    student.getOutputStream().flush();
-                } catch (IOException ex2) {
-                    ex2.printStackTrace();
-                }
+                writeToOutputStream(student, bytearraystring);
             } else {
                 System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
             }
         }
     }
 
-    public void SendQuestionIDs(ArrayList<Integer> QuestID, OutputStream singleStudentOutputStream) throws IOException {
-        if (singleStudentOutputStream != null) {
-            byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID);
-            try {
-                singleStudentOutputStream.write(bytearray, 0, bytearray.length);
-                singleStudentOutputStream.flush();
-            } catch (IOException ex2) {
-                ex2.printStackTrace();
-            }
-        }
+    public void SendQuestionIDs(ArrayList<Integer> QuestID, Student student) throws IOException {
+        byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID);
+        writeToOutputStream(student, bytearray);
     }
 
     public void sendMultipleChoiceWithID(int questionID, Student student) throws IOException {
@@ -305,7 +291,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, bytearray, arraylength);
+            writeToOutputStream(student, bytearray);
         }
     }
 
@@ -384,33 +370,16 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, bytearray, arraylength);
+            writeToOutputStream(student, bytearray);
         }
     }
 
-    public void sendTestWithID(int testID, OutputStream singleStudentOutputStream) throws IOException {
+    public void sendTestWithID(int testID, Student student) throws IOException {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
             byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
-            if (singleStudentOutputStream == null) {
-                for (int i = 0; i < aClass.getClassSize(); i++) {
-                    OutputStream tempOutputStream = aClass.getStudents_vector().get(i).getOutputStream();
-                    try {
-                        tempOutputStream.write(bytesArray, 0, bytesArray.length);
-                        tempOutputStream.flush();
-                    } catch (IOException ex2) {
-                        ex2.printStackTrace();
-                    }
-                }
-            } else {
-                try {
-                    singleStudentOutputStream.write(bytesArray, 0, bytesArray.length);
-                    singleStudentOutputStream.flush();
-                } catch (IOException ex2) {
-                    ex2.printStackTrace();
-                }
-            }
+            writeToOutputStream(student, bytesArray);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -575,12 +544,7 @@ public class NetworkCommunication {
                 e.printStackTrace();
             }
         }
-        try {
-            student.getOutputStream().write(bytes, 0, bytes.length);
-            student.getOutputStream().flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        writeToOutputStream(student, bytes);
     }
 
     public void UpdateEvaluation(double evaluation, Integer questionID, Integer studentID) {
@@ -605,12 +569,7 @@ public class NetworkCommunication {
                 e.printStackTrace();
             }
         }
-        try {
-            student.getOutputStream().write(bytes, 0, bytes.length);
-            student.getOutputStream().flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        writeToOutputStream(student, bytes);
     }
 
     public void SendCorrection(Integer questionID) {
@@ -630,21 +589,12 @@ public class NetworkCommunication {
                 e.printStackTrace();
             }
         }
-        try {
-            for (Student student : aClass.getStudents_vector()) {
-                student.getOutputStream().write(bytes, 0, bytes.length);
-                student.getOutputStream().flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Informations for error; studentGroupsAndClass stored in class object:");
-            for (Student student : aClass.getStudents_vector()) {
-                System.out.println("name: " + student.getName() + "; ip: " + student.getUniqueID());
-            }
+        for (Student student : aClass.getStudents_vector()) {
+            writeToOutputStream(student, bytes);
         }
     }
 
-    private void SendNewConnectionResponse(OutputStream arg_outputStream, Integer nearbyMode) throws IOException {
+    private void SendNewConnectionResponse(Student student, Integer nearbyMode) throws IOException {
         String response;
         if (nearbyMode == 1) {
             response = "SERVR///ADVER///";
@@ -658,10 +608,7 @@ public class NetworkCommunication {
         for (int i = 0; i < bytes_length; i++) {
             bytes[i] = response.getBytes("UTF-8")[i];
         }
-        arg_outputStream.write(bytes, 0, bytes.length);
-        arg_outputStream.flush();
-        //serverOutStream.write(bytes, 0, bytes.length);
-        //serverOutStream.flush();
+        writeToOutputStream(student, bytes);
     }
 
     public Classroom getClassroom() {
@@ -757,7 +704,7 @@ public class NetworkCommunication {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
                 try {
-                    SendQuestionIDs(questionIds, student.getOutputStream());
+                    SendQuestionIDs(questionIds, student);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -774,7 +721,7 @@ public class NetworkCommunication {
         }
     }
 
-    private void writeToOutputStream(Student student, byte[] bytearray, int arraylength) {
+    private void writeToOutputStream(Student student, byte[] bytearray) {
         Thread writingThread = new Thread() {
             public void run() {
                 if (student == null) {
@@ -782,7 +729,7 @@ public class NetworkCommunication {
                         if (singleStudent.getFirstLayer() && !singleStudent.getUniqueID().contains("no identifier")) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
-                                    singleStudent.getOutputStream().write(bytearray, 0, arraylength);
+                                    singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
                                     singleStudent.getOutputStream().flush();
                                 }
                             } catch (IOException ex2) {
@@ -794,7 +741,7 @@ public class NetworkCommunication {
                     if (student.getFirstLayer() && !student.getUniqueID().contains("no identifier")) {
                         try {
                             synchronized (student.getOutputStream()) {
-                                student.getOutputStream().write(bytearray, 0, arraylength);
+                                student.getOutputStream().write(bytearray, 0, bytearray.length);
                                 student.getOutputStream().flush();
                             }
                         } catch (IOException ex2) {
