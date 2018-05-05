@@ -171,26 +171,12 @@ public class NetworkCommunication {
         for (int i = 0; i < students.size(); i++) {
             students.set(i, aClass.getStudentWithName(students.get(i).getName()));
         }
-        Vector<Student> firstLayerStudents = aClass.getFirstLayerStudents();
 
-        //Long initialTime = System.nanoTime();
-        //while (masterStudent.getPendingPacketUUID().length() > 0 && (System.nanoTime() - initialTime) < 1500000000) { }
 
-        for (Student student : firstLayerStudents) {
+        for (Student student : students) {
             if (student.getOutputStream() != null) {
-                //get the students attached to the first layer Student
-                Vector<String> secondLayerIDs = aClass.getSecondLayerIDsForStudent(student);
-
-                String forwardString = "";
-                for (String secondLayerID : secondLayerIDs) {
-                    forwardString += "FRWTOPEER///" + secondLayerID + "///";
-                }
-
-                //masterStudent.setPendingPacketUUID(UUID.randomUUID().toString().substring(0, 4));
-                //questIDString += "QID:MLT///" + String.valueOf(QuestID) + "///" + masterStudent.getPendingPacketUUID() + "///";
-                byte[] forwardBytearraystring = forwardString.getBytes(Charset.forName("UTF-8"));
                 byte[] idBytearraystring = new byte[80];
-                String questIDString = "QID:MLT:" + forwardBytearraystring.length + "///" + String.valueOf(QuestID) + "///";
+                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
                 byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
                 for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];
@@ -198,7 +184,6 @@ public class NetworkCommunication {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 try {
                     outputStream.write(idBytearraystring);
-                    outputStream.write(forwardBytearraystring);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -463,8 +448,6 @@ public class NetworkCommunication {
                                 student.setOutputStream(arg_student.getOutputStream());
                                 student.setInputStream(arg_student.getInputStream());
 
-                                student.setMasterUniqueID(answerString.split("///")[1]);
-                                student.setFirstLayer(true);
                                 ReceptionProtocol.receivedCONN(student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
@@ -492,8 +475,6 @@ public class NetworkCommunication {
                                             student.setOutputStream(arg_student.getOutputStream());
                                             student.setInputStream(arg_student.getInputStream());
 
-                                            student.setMasterUniqueID(answerString.split("///")[1]);
-                                            student.setFirstLayer(false);
                                             ReceptionProtocol.receivedCONN(student, truncatedAnswerString, aClass);
                                         } else if (truncatedAnswerString.split("///")[0].contains("ANSW")) {
                                             ReceptionProtocol.receivedANSW(aClass.getStudentWithUniqueID(truncatedAnswerString.split("///")[1]),
@@ -524,11 +505,7 @@ public class NetworkCommunication {
     }
 
     public void SendEvaluation(double evaluation, int questionID, Student student) {
-        String evalToSend = "";
-        if (!student.getFirstLayer()) {
-            evalToSend += "FRWTOPEER///" + student.getUniqueID() + "///";
-        }
-        evalToSend += "EVAL///" + evaluation + "///" + questionID + "///";
+        String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
         byte[] bytes = new byte[80];
         int bytes_length = 0;
@@ -550,9 +527,7 @@ public class NetworkCommunication {
     public void UpdateEvaluation(double evaluation, Integer questionID, Integer studentID) {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "";
-        if (!student.getFirstLayer()) {
-            evalToSend += "FRWTOPEER///" + student.getUniqueID() + "///";
-        }
+
         evalToSend += "UPDEV///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
         byte[] bytes = new byte[80];
@@ -726,7 +701,7 @@ public class NetworkCommunication {
             public void run() {
                 if (student == null) {
                     for (Student singleStudent : aClass.getStudents_vector()) {
-                        if (singleStudent.getFirstLayer() && !singleStudent.getUniqueID().contains("no identifier")) {
+                        if (!singleStudent.getUniqueID().contains("no identifier")) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -738,7 +713,7 @@ public class NetworkCommunication {
                         }
                     }
                 } else {
-                    if (student.getFirstLayer() && !student.getUniqueID().contains("no identifier")) {
+                    if (!student.getUniqueID().contains("no identifier")) {
                         try {
                             synchronized (student.getOutputStream()) {
                                 student.getOutputStream().write(bytearray, 0, bytearray.length);
