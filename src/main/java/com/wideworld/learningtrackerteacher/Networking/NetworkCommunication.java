@@ -26,6 +26,7 @@ import java.util.*;
 public class NetworkCommunication {
     static public NetworkCommunication networkCommunicationSingleton;
     private LearningTrackerController learningTrackerController = null;
+    public Classroom aClass = null;
 
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
@@ -33,7 +34,6 @@ public class NetworkCommunication {
     private ArrayList<OutputStream> outstream_list;
     private ArrayList<InputStream> instream_list;
     private int number_of_clients = 0;
-    private Classroom aClass = null;
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
 
@@ -80,7 +80,7 @@ public class NetworkCommunication {
             System.out.println("\nServer Started. Waiting for clients to connect...");
             outstream_list = new ArrayList<OutputStream>();
             instream_list = new ArrayList<InputStream>();
-            aClass = new Classroom();
+            aClass = LearningTracker.studentGroupsAndClass.get(0);
             Thread connectionthread = new Thread() {
                 public void run() {
                     while (true) {
@@ -183,7 +183,10 @@ public class NetworkCommunication {
                 }
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 try {
-                    outputStream.write(idBytearraystring);
+                    synchronized (outputStream) {
+                        outputStream.write(idBytearraystring);
+                        outputStream.flush();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -203,7 +206,6 @@ public class NetworkCommunication {
     }
 
     public void sendMultipleChoiceWithID(int questionID, Student student) throws IOException {
-        QuestionSendingController.readyToActivate = false;
         QuestionMultipleChoice questionMultipleChoice = null;
         try {
             questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
@@ -276,12 +278,23 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
+            //set not ready just before sending the question
+            QuestionSendingController.readyToActivate = false;
             writeToOutputStream(student, bytearray);
+
+            //add the question ID to the students personal questions and test if all questions have been sent
+            if (student == null) {
+                for (Student singleStudent : aClass.getStudents_vector()) {
+                    singleStudent.getDeviceQuestions().add(String.valueOf(questionMultipleChoice.getID()));
+                }
+            } else {
+                student.getDeviceQuestions().add(String.valueOf(questionMultipleChoice.getID()));
+            }
+            QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
         }
     }
 
     public void sendShortAnswerQuestionWithID(int questionID, Student student) throws IOException {
-        QuestionSendingController.readyToActivate = false;
         QuestionShortAnswer questionShortAnswer = null;
         try {
             questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
@@ -355,7 +368,19 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
+            //set not ready just before sending the question
+            QuestionSendingController.readyToActivate = false;
             writeToOutputStream(student, bytearray);
+
+            //add the question ID to the students personal questions and test if all questions have been sent
+            if (student == null) {
+                for (Student singleStudent : aClass.getStudents_vector()) {
+                    singleStudent.getDeviceQuestions().add(String.valueOf(questionShortAnswer.getID()));
+                }
+            } else {
+                student.getDeviceQuestions().add(String.valueOf(questionShortAnswer.getID()));
+            }
+            QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
         }
     }
 
@@ -457,34 +482,6 @@ public class NetworkCommunication {
                                 learningTrackerController.userDisconnected(student);
                                 if (answerString.contains("Android")) {
                                     aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() - 1);
-                                }
-                            } else if (answerString.split("///")[0].contains("GOTIT")) {
-                                ReceptionProtocol.receivedGOTIT(answerString, arg_student);
-                            } else if (answerString.split("///")[0].contains("FORWARD")) {
-                                //if some datas were merged, we try to split it here
-                                String[] substrings = answerString.split("FORWARD");
-
-                                for (String substring : substrings) {
-                                    if (answerString.split("///").length > 3) {
-                                        String truncatedAnswerString = answerString.substring(answerString.indexOf(answerString.split("///")[1]) +
-                                                answerString.split("///")[1].length() + 3);
-                                        if (truncatedAnswerString.split("///")[0].contains("CONN")) {
-                                            //clone student otherwise we modify the first layer student
-                                            Student student = new Student();
-                                            student.setInetAddress(arg_student.getInetAddress());
-                                            student.setOutputStream(arg_student.getOutputStream());
-                                            student.setInputStream(arg_student.getInputStream());
-
-                                            ReceptionProtocol.receivedCONN(student, truncatedAnswerString, aClass);
-                                        } else if (truncatedAnswerString.split("///")[0].contains("ANSW")) {
-                                            ReceptionProtocol.receivedANSW(aClass.getStudentWithUniqueID(truncatedAnswerString.split("///")[1]),
-                                                    truncatedAnswerString, questionIdsForGroups, studentNamesForGroups);
-                                        } else if (truncatedAnswerString.split("///")[0].contains("GOTIT")) {
-                                            ReceptionProtocol.receivedGOTIT(truncatedAnswerString, arg_student);
-                                        }
-                                    } else {
-                                        System.out.println("Problem reading forwarded string: truncated");
-                                    }
                                 }
                             }
                         } else {
@@ -701,7 +698,7 @@ public class NetworkCommunication {
             public void run() {
                 if (student == null) {
                     for (Student singleStudent : aClass.getStudents_vector()) {
-                        if (!singleStudent.getUniqueID().contains("no identifier")) {
+                        //if (!singleStudent.getUniqueID().contains("no identifier")) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -710,10 +707,10 @@ public class NetworkCommunication {
                             } catch (IOException ex2) {
                                 ex2.printStackTrace();
                             }
-                        }
+                        //}
                     }
                 } else {
-                    if (!student.getUniqueID().contains("no identifier")) {
+                    //if (!student.getUniqueID().contains("no identifier")) {
                         try {
                             synchronized (student.getOutputStream()) {
                                 student.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -722,7 +719,7 @@ public class NetworkCommunication {
                         } catch (IOException ex2) {
                             ex2.printStackTrace();
                         }
-                    }
+                    //}
                 }
             }
         };

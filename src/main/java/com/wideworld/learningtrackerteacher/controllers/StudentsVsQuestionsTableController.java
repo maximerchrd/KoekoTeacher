@@ -177,7 +177,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else {
                 tableViewArrayList.get(group).getItems().add(tableViewArrayList.get(group).getItems().size() - 1,singleStudentAnswersLine);
             }
-            LearningTracker.studentGroupsAndClass.get(group).addStudent(UserStudent);
 
             //add evaluation line
             if (LearningTracker.studentGroupsAndClass.get(group).getActiveEvaluations() != null) {

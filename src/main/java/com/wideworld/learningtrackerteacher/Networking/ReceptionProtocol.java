@@ -92,36 +92,4 @@ public class ReceptionProtocol {
             }
         }
     }
-
-    static public void receivedGOTIT(String answerString, Student arg_student) {
-        if (answerString.split("///").length > 1) {
-            if (answerString.split("///").length > 2) {
-                String questionID = answerString.split("///")[1];
-                String studentID = answerString.split("///")[2];
-                System.out.println("client received question: " + questionID);
-                if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().contains(Integer.valueOf(questionID))) {
-                        /*int IDindex = LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().indexOf(Integer.valueOf(questionID));
-                        if (LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().size() > IDindex + 1
-                                && studentID.contentEquals(arg_student.getUniqueID())) {    //we also need to check if the student who got the question is from the first layer
-                            try {
-                                System.out.println("active ids: " + LearningTracker.studentGroupsAndClass.get(0).getActiveIDs());
-                                System.out.println("IDindex: " + IDindex);
-                                NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
-                                NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(LearningTracker.studentGroupsAndClass.get(0).getActiveIDs().get(IDindex + 1), arg_student);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }*/
-                    //add the ID to the ID list for the student inside the class
-                    LearningTracker.studentGroupsAndClass.get(0).getStudentWithUniqueID(studentID).getDeviceQuestions().add(questionID);
-                    System.out.println("transfer finished? " + LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices());
-                    if (LearningTracker.studentGroupsAndClass.get(0).allQuestionsOnDevices()) {
-                        QuestionSendingController.readyToActivate = true;
-                    }
-                }
-            }
-        } else {
-            System.out.println("received GOTIT but array from parsed string too short");
-        }
-    }
 }

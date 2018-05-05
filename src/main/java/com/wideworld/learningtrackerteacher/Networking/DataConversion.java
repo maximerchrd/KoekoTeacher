@@ -32,8 +32,10 @@ public class DataConversion {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         try {
-            outputStream.write(wholeByteArray);
-            outputStream.write(bytearraytest);
+            synchronized (outputStream) {
+                outputStream.write(wholeByteArray);
+                outputStream.write(bytearraytest);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,8 +63,10 @@ public class DataConversion {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         try {
-            outputStream.write(wholeByteArray);
-            outputStream.write(bytearraytest);
+            synchronized (outputStream) {
+                outputStream.write(wholeByteArray);
+                outputStream.write(bytearraytest);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

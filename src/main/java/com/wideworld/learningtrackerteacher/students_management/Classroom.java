@@ -316,7 +316,9 @@ public class Classroom {
                 questionsReached = false;
                 break;
             }
-        }
+            System.out.println("check if all questions on device: " + questionsReached);
+            System.out.println("activeIDs: " + activeIDs);
+            System.out.println("device IDs: " + deviceQuestions);        }
         return  questionsReached;
     }
 
