@@ -2,7 +2,9 @@ package com.wideworld.learningtrackerteacher.database_management;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -43,6 +45,32 @@ public class DbTableRelationQuestionQuestion {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+    }
+
+    static public Vector<String> getQuestionsLinkedToQuestion(String questionID, String test) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        Vector<String> questionIDs = new Vector<>();
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT ID_GLOBAL_2 FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "' AND TEST='" + test + "';";
+            ResultSet rs = stmt.executeQuery( sql );
+            while ( rs.next() ) {
+                questionIDs.add(rs.getString("ID_GLOBAL_2"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+
+        return questionIDs;
     }
 
     static public void removeRelationsWithQuestion(String questionID) {

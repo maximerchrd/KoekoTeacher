@@ -130,7 +130,7 @@ public class DbTableQuestionMultipleChoice {
      * @param questionID
      * @throws Exception
      */
-    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(int questionID) throws Exception {
+    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(int questionID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         questionMultipleChoice.setID(questionID);
         Connection c = null;

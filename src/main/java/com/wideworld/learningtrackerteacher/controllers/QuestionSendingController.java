@@ -183,15 +183,15 @@ public class QuestionSendingController extends Window implements Initializable {
                             treeCell.getTreeItem().setExpanded(true);
                             event.consume();
                         } else if (treeCell.getTreeItem().getChildren() != draggedQuestion) {
-                            TreeItem<QuestionGeneric> treeItem = new TreeItem<>();
-                            while (treeItem.getParent() != root) {
-                                treeItem = treeCell.getTreeItem().getParent();
+                            TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
+                            while (treeItemTest.getParent() != root) {
+                                treeItemTest = treeItemTest.getParent();
                             }
-                            if (treeItem.getValue().getGlobalID() < 0) {
+                            if (treeItemTest.getValue().getGlobalID() < 0) {
                                 System.out.println("OK OK");
                                 treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
-                                        String.valueOf(draggedQuestion.getGlobalID()), "bla", "EVALUATION<60");
+                                        String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "EVALUATION<60");
                                 event.setDropCompleted(true);
                                 treeCell.getTreeItem().setExpanded(true);
                                 event.consume();
@@ -271,7 +271,11 @@ public class QuestionSendingController extends Window implements Initializable {
                 for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
                     if (genericQuestionsList.get(i).getGlobalID() == id) {
                         found = true;
-                        newTest.getChildren().add(new TreeItem<>(genericQuestionsList.get(i)));
+                        TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
+                        newTest.getChildren().add(questionItem);
+
+                        //add the questions linked to the test questions
+                        populateWithLinkedQuestions(testGeneric, id, questionItem);
                     }
                 }
             }
@@ -306,6 +310,31 @@ public class QuestionSendingController extends Window implements Initializable {
                 e.printStackTrace();
             }
 
+        }
+    }
+
+    private void populateWithLinkedQuestions(QuestionGeneric testGeneric, Integer id, TreeItem questionItem) {
+        Vector<String> linkedQuestionsIds = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(id),testGeneric.getQuestion());
+        for (String questionID : linkedQuestionsIds) {
+            if (DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionID) == 0) {
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(questionID));
+                QuestionGeneric questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
+                TreeItem questionChildren = new TreeItem<>(questionGeneric);
+                questionItem.getChildren().add(questionChildren);
+                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(questionID),testGeneric.getQuestion());
+                if (linkedQuestionsIds2.size() > 0) {
+                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionItem);
+                }
+            } else {
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(questionID));
+                QuestionGeneric questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
+                TreeItem questionChildren = new TreeItem<>(questionGeneric);
+                questionItem.getChildren().add(questionChildren);
+                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(questionID),testGeneric.getQuestion());
+                if (linkedQuestionsIds2.size() > 0) {
+                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionItem);
+                }
+            }
         }
     }
 
