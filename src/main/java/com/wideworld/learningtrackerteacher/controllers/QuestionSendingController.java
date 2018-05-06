@@ -323,7 +323,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionItem.getChildren().add(questionChildren);
                 Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(questionID),testGeneric.getQuestion());
                 if (linkedQuestionsIds2.size() > 0) {
-                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionItem);
+                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionChildren);
                 }
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(questionID));
@@ -332,7 +332,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionItem.getChildren().add(questionChildren);
                 Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(questionID),testGeneric.getQuestion());
                 if (linkedQuestionsIds2.size() > 0) {
-                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionItem);
+                    populateWithLinkedQuestions(testGeneric,Integer.valueOf(questionID),questionChildren);
                 }
             }
         }
