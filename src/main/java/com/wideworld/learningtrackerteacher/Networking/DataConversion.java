@@ -2,6 +2,7 @@ package com.wideworld.learningtrackerteacher.Networking;
 
 // import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.controllers.SettingsController;
+import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionQuestion;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,7 @@ public class DataConversion {
         String testString = "";
         testString += Integer.valueOf(test.getIdTest()) + "///";
         testString += test.getTestName() + "///";
+        testString += DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
 
         for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
             testString += test.getObjectivesIDs().get(i) + "/|/";

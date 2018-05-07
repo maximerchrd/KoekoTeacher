@@ -168,17 +168,13 @@ public class QuestionSendingController extends Window implements Initializable {
                         /* data dropped */
                         /* if there is a string data on dragboard, read it and use it */
                         if (treeCell.getTreeItem().getValue().getGlobalID() < 0) {
-                            /*Dragboard db = event.getDragboard();
-                            boolean success = false;
-                            if (db.hasString()) {
-                                treeCell.setText(db.getString());
-                                success = true;
-                            }
-                            /* let the source know whether the string was successfully
-                             * transferred and used */
 
                             //add a horizontal relation with the question before in the list
-                            TreeItem<QuestionGeneric> questionBefore = treeCell.getTreeItem().getChildren().get(treeCell.getTreeItem().getChildren().size() - 1);
+                            int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
+                            TreeItem<QuestionGeneric> questionBefore = null;
+                            if (bigBrotherIndex >= 0) {
+                                questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
+                            }
                             if (questionBefore != null) {
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
                                         String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
@@ -200,7 +196,11 @@ public class QuestionSendingController extends Window implements Initializable {
                                 System.out.println("OK OK");
 
                                 //add a horizontal relation with the question before in the list
-                                TreeItem<QuestionGeneric> questionBefore = treeCell.getTreeItem().getChildren().get(treeCell.getTreeItem().getChildren().size() - 1);
+                                int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
+                                TreeItem<QuestionGeneric> questionBefore = null;
+                                if (bigBrotherIndex >= 0) {
+                                    questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
+                                }
                                 if (questionBefore != null) {
                                     DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
                                             String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "");
