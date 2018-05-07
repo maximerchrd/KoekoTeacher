@@ -1,7 +1,8 @@
 package com.wideworld.learningtrackerteacher.database_management;
 
 
-import com.wideworld.learningtrackerteacher.controllers.Professor;
+
+import com.wideworld.learningtrackerteacher.students_management.Professor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,9 +50,9 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-	
-	
-    static public void setProfessorMUID(int idProf, String muid) {
+
+
+    static public void setProfessorMUID(String idProf, String muid) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -60,8 +61,8 @@ public class DbTableProfessor {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE professor SET PROF_MUID=" + muid + 
-                    "WHERE ID_PROF=" + idProf + ";";
+            String sql = 	"UPDATE professor SET PROF_MUID='" + muid +
+                    "' WHERE ID_PROF=" + idProf + ";";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -71,7 +72,7 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-	
+
     static public Professor getProfessor() {
         Professor professor = null;
         Connection c = null;
@@ -90,7 +91,7 @@ public class DbTableProfessor {
                 String lname = rs.getString("LASTNAME");
                 String muid = rs.getString("PROF_MUID");
 
-                professor = Professor.createProfessor(id, fname, lname, muid);
+                professor = Professor.createProfessor(id, fname, muid);
             }
             stmt.close();
             c.commit();
