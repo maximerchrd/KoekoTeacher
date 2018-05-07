@@ -176,6 +176,15 @@ public class QuestionSendingController extends Window implements Initializable {
                             }
                             /* let the source know whether the string was successfully
                              * transferred and used */
+
+                            //add a horizontal relation with the question before in the list
+                            TreeItem<QuestionGeneric> questionBefore = treeCell.getTreeItem().getChildren().get(treeCell.getTreeItem().getChildren().size() - 1);
+                            if (questionBefore != null) {
+                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
+                                        String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
+                            }
+
+                            //add the node to the tree
                             treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
                             DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedQuestion.getGlobalID()),
                                     treeCell.getTreeItem().getValue().getQuestion());
@@ -189,6 +198,15 @@ public class QuestionSendingController extends Window implements Initializable {
                             }
                             if (treeItemTest.getValue().getGlobalID() < 0) {
                                 System.out.println("OK OK");
+
+                                //add a horizontal relation with the question before in the list
+                                TreeItem<QuestionGeneric> questionBefore = treeCell.getTreeItem().getChildren().get(treeCell.getTreeItem().getChildren().size() - 1);
+                                if (questionBefore != null) {
+                                    DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
+                                            String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "");
+                                }
+
+                                //add the node to the tree and set the vertical relation
                                 treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
                                         String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "EVALUATION<60");
