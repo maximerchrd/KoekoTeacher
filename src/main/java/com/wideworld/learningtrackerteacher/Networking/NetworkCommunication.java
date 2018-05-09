@@ -384,7 +384,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendTestWithID(int testID, Student student) throws IOException {
+    public ArrayList<Integer> sendTestWithID(int testID, Student student) {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
@@ -393,6 +393,8 @@ public class NetworkCommunication {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return testToSend.getIdsQuestions();
     }
 
     /**

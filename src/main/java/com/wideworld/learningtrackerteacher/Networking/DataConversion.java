@@ -15,7 +15,18 @@ public class DataConversion {
         String testString = "";
         testString += Integer.valueOf(test.getIdTest()) + "///";
         testString += test.getTestName() + "///";
-        testString += DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
+        String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
+        testString += testMap;
+
+        //insert the question ids into the test
+        ArrayList<Integer> questionIDs = new ArrayList<>();
+        String[] questionMapIDs = testMap.split("\\|\\|\\|");
+        for (int i = 0; i < questionMapIDs.length; i++) {
+            if (!questionMapIDs[i].contentEquals("")) {
+                questionIDs.add(Integer.valueOf(questionMapIDs[i].split(";;;")[0]));
+            }
+        }
+        test.setIdsQuestions(questionIDs);
 
         for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
             testString += test.getObjectivesIDs().get(i) + "/|/";

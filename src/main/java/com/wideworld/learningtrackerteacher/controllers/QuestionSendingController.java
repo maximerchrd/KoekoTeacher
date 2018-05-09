@@ -193,9 +193,7 @@ public class QuestionSendingController extends Window implements Initializable {
                                 treeItemTest = treeItemTest.getParent();
                             }
                             if (treeItemTest.getValue().getGlobalID() < 0) {
-                                System.out.println("OK OK");
-
-                                //add a horizontal relation with the question before in the list
+                                System.out.println("OK OK");//add a horizontal relation with the question before in the list
                                 int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
                                 TreeItem<QuestionGeneric> questionBefore = null;
                                 if (bigBrotherIndex >= 0) {
@@ -1002,6 +1000,7 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     private void sendTestToStudents(QuestionGeneric questionGeneric, Integer group) {
+        ArrayList<Integer> questionIDs = new ArrayList<>();
         int globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
 
@@ -1012,11 +1011,7 @@ public class QuestionSendingController extends Window implements Initializable {
             if (!LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(globalID)) {
                 LearningTracker.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(globalID);
             }
-            try {
-                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null);
         } else {
             //if the test isn't in the ready questions list (like when loading new class) add it. Otherwise, show the popup for questions collision
             Boolean testInList = false;
@@ -1029,16 +1024,12 @@ public class QuestionSendingController extends Window implements Initializable {
                 popUpIfQuestionCollision();
             } else {
                 readyQuestionsList.getItems().add(questionGeneric);
-                try {
-                    NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null); //do I need that?
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-globalID, null); //do I need that?
+
             }
         }
 
         //send questions linked to the test
-        ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(questionGeneric.getQuestion());
         for (Integer questionID : questionIDs) {
             QuestionGeneric questionGeneric2 = new QuestionGeneric();
             Boolean found = false;
