@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.QuestionBrowsingController">
+<AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionBrowsingController">
    <children>
       <HBox prefHeight="50.0" prefWidth="483.0">
          <children>

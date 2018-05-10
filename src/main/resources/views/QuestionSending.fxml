@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="QuestionSending" prefHeight="333.0" prefWidth="916.0" style="-fx-background-color: #E8E8E8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wideworld.learningtrackerteacher.controllers.QuestionSendingController">
+<AnchorPane fx:id="QuestionSending" prefHeight="333.0" prefWidth="916.0" style="-fx-background-color: #E8E8E8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionSendingController">
    <children>
       <Button layoutX="305.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestion" prefHeight="27.0" prefWidth="206.0" text="Deactivate question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
       <Button layoutX="305.0" layoutY="220.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="27.0" prefWidth="206.0" text="Activate question/test" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="405.0" AnchorPane.rightAnchor="176.0" />
