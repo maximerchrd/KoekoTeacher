@@ -64,6 +64,7 @@ public class DBManager {
 		DbTableSettings.createTableSettings(c,stmt);
 		DbTableRelationObjectiveTest.createTableRelationObjectiveTest(c,stmt);
 		DbTableProfessor.createTableProfessor(c, stmt);
+		DbTableRelationQuestionQuestion.createTableRelationQuestionQuestion(c, stmt);
 		try {
 			stmt.close();
 			c.close();

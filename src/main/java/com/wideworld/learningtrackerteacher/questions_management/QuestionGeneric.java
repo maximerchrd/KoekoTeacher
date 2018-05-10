@@ -63,6 +63,28 @@ public class QuestionGeneric {
     public void setIntTypeOfQuestion(int intTypeOfQuestion) {
         this.intTypeOfQuestion = intTypeOfQuestion;
     }
+
+    //other methods
+    static public QuestionGeneric mcqToQuestionGeneric (QuestionMultipleChoice questionMultipleChoice) {
+        QuestionGeneric questionGeneric = new QuestionGeneric();
+        questionGeneric.setGlobalID(questionMultipleChoice.getID());
+        questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
+        questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
+        questionGeneric.setIntTypeOfQuestion(0);
+
+        return questionGeneric;
+    }
+
+    static public QuestionGeneric shrtaqToQuestionGeneric (QuestionShortAnswer questionShortAnswer) {
+        QuestionGeneric questionGeneric = new QuestionGeneric();
+        questionGeneric.setGlobalID(questionShortAnswer.getID());
+        questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
+        questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
+        questionGeneric.setIntTypeOfQuestion(1);
+
+        return questionGeneric;
+    }
+
     @Override
     public String toString()  {
         return this.question;

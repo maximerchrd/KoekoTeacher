@@ -1,5 +1,6 @@
 package com.wideworld.learningtrackerteacher.questions_management;
 
+import java.sql.Timestamp;
 import java.util.Vector;
 
 public class QuestionMultipleChoice {
@@ -27,6 +28,8 @@ public class QuestionMultipleChoice {
 	private String OPT8;
 	private String OPT9;
 	private String IMAGE;
+	private String QCM_MUID;
+	private Timestamp QCM_UPD_TMS;
 	private Vector<String> subjects;
 	private Vector<String> objectives;
 	private Vector <String> answers;
@@ -176,6 +179,12 @@ public class QuestionMultipleChoice {
 	public String getIMAGE() {
 		return IMAGE;
 	}
+	public String getQCM_MUID() {
+		return QCM_MUID;
+	}
+	public Timestamp getQCM_UPD_TMS() {
+		return QCM_UPD_TMS;
+	}
 	public Vector<String> getSubjects() {
 		return subjects;
 	}
@@ -237,6 +246,12 @@ public class QuestionMultipleChoice {
 		} else {
 			IMAGE = iMAGE;
 		}
+	}
+	public void setQCM_MUID(String QCM_MUID) {
+		this.QCM_MUID = QCM_MUID;
+	}
+	public void setQCM_UPD_TMS(Timestamp QCM_UPD_TMS) {
+		this.QCM_UPD_TMS = QCM_UPD_TMS;
 	}
 	public void setSubjects(Vector<String> subjects) {
 		this.subjects = subjects;

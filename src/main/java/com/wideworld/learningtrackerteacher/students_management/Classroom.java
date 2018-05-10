@@ -7,12 +7,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 28/03/17.
  */
 public class Classroom {
-    private ArrayList<Student> students_array = null;
+    private Vector<Student> students_vector = null;
     private ArrayList<String> students_addresses = null;
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
@@ -24,10 +25,9 @@ public class Classroom {
     private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<Integer> IDsToStoreOnDevices;
-    private Map<String, OutputStream> studentsPath;
 
     public Classroom() {
-        students_array = new ArrayList<>();
+        students_vector = new Vector<>();
         students_addresses = new ArrayList<>();
         current_set_quest_mult_choice = new ArrayList<>();
         current_set_quest_short_answer = new ArrayList<>();
@@ -36,7 +36,6 @@ public class Classroom {
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
         IDsToStoreOnDevices = new ArrayList<>();
-        studentsPath =  new HashMap<String, OutputStream>();
     }
 
     //getters
@@ -65,19 +64,16 @@ public class Classroom {
         return className;
     }
     public int getClassSize() {
-        return students_array.size();
+        return students_vector.size();
     }
-    public ArrayList<Student> getStudents_array() {
-        return students_array;
+    public Vector<Student> getStudents_vector() {
+        return students_vector;
     }
     public ArrayList<Integer> getActiveIDs() {
         return activeIDs;
     }
     public ArrayList<Integer> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
-    }
-    public Map<String, OutputStream> getStudentsPath() {
-        return studentsPath;
     }
 
 
@@ -106,18 +102,16 @@ public class Classroom {
     public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
-    public void setStudentsPath(Map<String, OutputStream> studentsPath) {
-        this.studentsPath = studentsPath;
-    }
+
 
 
     //other get methods
     public Student getStudentWithID(Integer studentID) {
         Student student = new Student();
-        for (int i = 0; i < students_array.size(); i++) {
-            if (String.valueOf(studentID).contentEquals(String.valueOf(students_array.get(i).getStudentID()))) {
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (String.valueOf(studentID).contentEquals(String.valueOf(students_vector.get(i).getStudentID()))) {
                 System.out.println("equal");
-                student = students_array.get(i);
+                student = students_vector.get(i);
             }
         }
         return student;
@@ -125,10 +119,12 @@ public class Classroom {
 
     public Student getStudentWithUniqueID(String deviceID) {
         Student student = new Student();
-        for (int i = 0; i < students_array.size(); i++) {
-            if (String.valueOf(deviceID).contentEquals(String.valueOf(students_array.get(i).getUniqueID()))) {
-                System.out.println("equal");
-                student = students_array.get(i);
+        Boolean found = false;
+        for (int i = 0; i < students_vector.size() && !found; i++) {
+            if (deviceID.contentEquals(students_vector.get(i).getUniqueID())) {
+                student = students_vector.get(i);
+                System.out.println("found student: " + student.getName() + " with device ID");
+                found = true;
             }
         }
         return student;
@@ -136,10 +132,10 @@ public class Classroom {
 
     public Student getStudentWithName(String studentName) {
         Student student = new Student();
-        for (int i = 0; i < students_array.size(); i++) {
-            if (studentName.contentEquals(String.valueOf(students_array.get(i).getName()))) {
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (studentName.contentEquals(String.valueOf(students_vector.get(i).getName()))) {
                 System.out.println("equal");
-                student = students_array.get(i);
+                student = students_vector.get(i);
             }
         }
         return student;
@@ -155,8 +151,8 @@ public class Classroom {
 
     public int indexOfStudentWithAddress (String address) {
         int index = -1;
-        for (int i = 0;i < students_array.size(); i++) {
-            if (students_array.get(i).getInetAddress().toString().equals(address)) {
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (students_vector.get(i).getInetAddress().toString().equals(address)) {
                 index = i;
             }
         }
@@ -165,8 +161,8 @@ public class Classroom {
 
     private int readStudents_addresses() {
         students_addresses.clear();
-        for (int i = 0; i < students_array.size(); i++) {
-            students_addresses.add(students_array.get(i).getInetAddress().toString());
+        for (int i = 0; i < students_vector.size(); i++) {
+            students_addresses.add(students_vector.get(i).getInetAddress().toString());
         }
         return students_addresses.size();
     }
@@ -191,7 +187,7 @@ public class Classroom {
         current_set_quest_short_answer.add(questionShortAnswer);
     }
     public void addStudent(Student student) {
-        students_array.add(student);
+        students_vector.add(student);
     }
     public void addStudentIfNotInClass(Student student) {
         int students_addresses_size = readStudents_addresses();
@@ -199,24 +195,36 @@ public class Classroom {
         if (students_addresses_size > 0) {
             if (!students_addresses.contains(student.getUniqueID())) {
                 System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueID());
-                students_array.add(student);
+                students_vector.add(student);
             } else {
                 int index = students_addresses.indexOf(student.getUniqueID());
-                students_array.remove(index);
-                students_array.add(student);
+                students_vector.remove(index);
+                students_vector.add(student);
             }
         } else {
-            students_array.add(student);
+            students_vector.add(student);
         }
     }
 
 
     //update methods
-    public void updateStudent (Student student) {
+    public Student updateStudentStreams(Student student) {
         int index = indexOfStudentWithAddress(student.getInetAddress().toString());
         if (index >= 0) {
-            students_array.remove(index);
-            students_array.add(student);
+            students_vector.get(index).setInputStream(student.getInputStream());
+            students_vector.get(index).setOutputStream(student.getOutputStream());
+        } else {
+            System.out.println("A problem occured: student not in class when trying to update infos");
+        }
+
+        return students_vector.get(index);
+    }
+
+    public void updateStudentButNotStreams(Student student) {
+        int index = indexOfStudentWithAddress(student.getInetAddress().toString());
+        if (index >= 0) {
+            students_vector.get(index).setName(student.getName());
+            students_vector.get(index).setUniqueID(student.getUniqueID());
         } else {
             System.out.println("A problem occured: student not in class when trying to update infos");
         }
@@ -264,7 +272,7 @@ public class Classroom {
         String last_address = students_addresses.get(students_addresses.size() - 1);
         students_addresses.remove(students_addresses.size() - 1);
         if (students_addresses.contains(last_address)) {
-            students_array.remove(students_array.size() - 1);
+            students_vector.remove(students_vector.size() - 1);
         }
     }
 
@@ -283,7 +291,7 @@ public class Classroom {
 
     public Boolean studentDeviceIDAlreadyInClass (Student student) {
         ArrayList<String> deviceIDs = new ArrayList<>();
-        for (Student stud : students_array) {
+        for (Student stud : students_vector) {
             deviceIDs.add(stud.getUniqueID());
         }
         if (deviceIDs.size() > 0) {
@@ -299,7 +307,7 @@ public class Classroom {
 
     public Boolean allQuestionsOnDevices() {
         Boolean questionsReached = true;
-        for (Student student : students_array) {
+        for (Student student : students_vector) {
             ArrayList<Integer> deviceQuestions = new ArrayList<>();
             for (String id : student.getDeviceQuestions()) {
                 deviceQuestions.add(Integer.valueOf(id));
@@ -308,7 +316,10 @@ public class Classroom {
                 questionsReached = false;
                 break;
             }
-        }
+            System.out.println("check if all questions on device: " + questionsReached);
+            System.out.println("activeIDs: " + activeIDs);
+            System.out.println("device IDs: " + deviceQuestions);        }
         return  questionsReached;
     }
+
 }

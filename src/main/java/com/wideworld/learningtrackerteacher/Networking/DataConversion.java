@@ -2,6 +2,7 @@ package com.wideworld.learningtrackerteacher.Networking;
 
 // import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.controllers.SettingsController;
+import com.wideworld.learningtrackerteacher.database_management.DbTableRelationQuestionQuestion;
 import com.wideworld.learningtrackerteacher.questions_management.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,18 @@ public class DataConversion {
         String testString = "";
         testString += Integer.valueOf(test.getIdTest()) + "///";
         testString += test.getTestName() + "///";
+        String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
+        testString += testMap;
+
+        //insert the question ids into the test
+        ArrayList<Integer> questionIDs = new ArrayList<>();
+        String[] questionMapIDs = testMap.split("\\|\\|\\|");
+        for (int i = 0; i < questionMapIDs.length; i++) {
+            if (!questionMapIDs[i].contentEquals("")) {
+                questionIDs.add(Integer.valueOf(questionMapIDs[i].split(";;;")[0]));
+            }
+        }
+        test.setIdsQuestions(questionIDs);
 
         for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
             testString += test.getObjectivesIDs().get(i) + "/|/";
@@ -25,15 +38,17 @@ public class DataConversion {
         String textDataSize = String.valueOf(bytearraytest.length);
         String prefix = "TEST:" + textDataSize + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
-        byte[] wholeByteArray = new byte[40];
+        byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
             wholeByteArray[i] = byteArrayPrefix[i];
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         try {
-            outputStream.write(wholeByteArray);
-            outputStream.write(bytearraytest);
+            synchronized (outputStream) {
+                outputStream.write(wholeByteArray);
+                outputStream.write(bytearraytest);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,7 +58,7 @@ public class DataConversion {
         return  wholeByteArray;
     }
 
-    static public byte[] questionsSetToBytesArray(ArrayList<Integer> questionIDs) {
+    static public byte[] questionsSetToBytesArray(ArrayList<Integer> questionIDs, Integer testMode) {
         String testString = "";
 
         for (Integer questionId : questionIDs) {
@@ -52,17 +67,19 @@ public class DataConversion {
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
-        String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + "///";
+        String prefix = "TESYN:" + textDataSize + ":" + SettingsController.correctionMode + ":" + testMode +  "///";
         byte[] byteArrayPrefix = prefix.getBytes();
-        byte[] wholeByteArray = new byte[40];
+        byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
             wholeByteArray[i] = byteArrayPrefix[i];
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         try {
-            outputStream.write(wholeByteArray);
-            outputStream.write(bytearraytest);
+            synchronized (outputStream) {
+                outputStream.write(wholeByteArray);
+                outputStream.write(bytearraytest);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

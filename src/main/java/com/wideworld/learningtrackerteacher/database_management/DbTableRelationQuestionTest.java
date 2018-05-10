@@ -11,6 +11,8 @@ import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
+ *
+ * TO BE REMOVED. REPLACED BY QUESTION - QUESTION RELATIONS
  */
 public class DbTableRelationQuestionTest {
     static public void createTableRelationQuestionTest(Connection connection, Statement statement) {

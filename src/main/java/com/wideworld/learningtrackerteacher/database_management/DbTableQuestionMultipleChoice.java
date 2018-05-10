@@ -2,11 +2,9 @@ package com.wideworld.learningtrackerteacher.database_management;
 
 import com.wideworld.learningtrackerteacher.questions_management.QuestionMultipleChoice;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.ZonedDateTime;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -130,7 +128,7 @@ public class DbTableQuestionMultipleChoice {
      * @param questionID
      * @throws Exception
      */
-    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(int questionID) throws Exception {
+    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(int questionID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         questionMultipleChoice.setID(questionID);
         Connection c = null;
@@ -195,6 +193,76 @@ public class DbTableQuestionMultipleChoice {
         }
         return last_id_global;
     }
+
+    private static void QuestionMultipleChoiceFromRecord(QuestionMultipleChoice questionMultipleChoice, ResultSet rs) throws SQLException {
+        questionMultipleChoice.setID(rs.getInt("ID_QUESTION"));
+        questionMultipleChoice.setLEVEL(rs.getString("LEVEL"));
+        questionMultipleChoice.setQUESTION(rs.getString("QUESTION"));
+        questionMultipleChoice.setOPT0(rs.getString("OPTION0"));
+        questionMultipleChoice.setOPT1(rs.getString("OPTION1"));
+        questionMultipleChoice.setOPT2(rs.getString("OPTION2"));
+        questionMultipleChoice.setOPT3(rs.getString("OPTION3"));
+        questionMultipleChoice.setOPT4(rs.getString("OPTION4"));
+        questionMultipleChoice.setOPT5(rs.getString("OPTION5"));
+        questionMultipleChoice.setOPT6(rs.getString("OPTION6"));
+        questionMultipleChoice.setOPT7(rs.getString("OPTION7"));
+        questionMultipleChoice.setOPT8(rs.getString("OPTION8"));
+        questionMultipleChoice.setOPT9(rs.getString("OPTION9"));
+        questionMultipleChoice.setNB_CORRECT_ANS(rs.getInt("NB_CORRECT_ANS"));
+        questionMultipleChoice.setQCM_MUID(rs.getString("QCM_MUID"));
+        questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
+    }
+
+    static public Vector<QuestionMultipleChoice> getQuestionsMultipleChoice() {
+        Vector<QuestionMultipleChoice> questions = new Vector<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT * FROM multiple_choice_questions;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                QuestionMultipleChoice qcm = new QuestionMultipleChoice();
+                QuestionMultipleChoiceFromRecord(qcm, rs);
+                questions.add(qcm);
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return questions;
+    }
+
+
+    static public void setQuestionMultipleChoiceMUID(int idQMC, String muid) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"UPDATE question_multiple_choice SET QMC_MUID='" + muid +
+                    "' WHERE ID_QUESTION=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static public void removeMultipleChoiceQuestionWithID(String ID) throws Exception {
         Connection c = null;
         Statement stmt = null;

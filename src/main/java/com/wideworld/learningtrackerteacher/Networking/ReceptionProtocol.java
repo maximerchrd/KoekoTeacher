@@ -1,5 +1,7 @@
 package com.wideworld.learningtrackerteacher.Networking;
 
+import com.wideworld.learningtrackerteacher.LearningTracker;
+import com.wideworld.learningtrackerteacher.controllers.QuestionSendingController;
 import com.wideworld.learningtrackerteacher.database_management.DbTableIndividualQuestionForStudentResult;
 import com.wideworld.learningtrackerteacher.database_management.DbTableStudents;
 import com.wideworld.learningtrackerteacher.students_management.Classroom;
@@ -7,6 +9,7 @@ import com.wideworld.learningtrackerteacher.students_management.Student;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class ReceptionProtocol {
 
@@ -26,22 +29,21 @@ public class ReceptionProtocol {
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
         if (aClass.studentDeviceIDAlreadyInClass(student)) {
-            aClass.updateStudent(student);
+            aClass.updateStudentButNotStreams(student);
         } else {
-            aClass.addStudent(student);
+            aClass.updateStudentButNotStreams(student);
         }
         if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
             aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
             System.out.println("Increasing the number of connected android devices");
         }
-        aClass.getStudentsPath().put(student.getUniqueID(), student.getOutputStream());
     }
 
     static public void receivedANSW(Student arg_student, String answerString, ArrayList<ArrayList<Integer>> questionIdsForGroups,
                                     ArrayList<ArrayList<String>> studentNamesForGroups) {
         double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),
                 answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-        //NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
+        NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
         //find out to which group the student and answer belong
         Integer groupIndex = 0;
@@ -61,7 +63,9 @@ public class ReceptionProtocol {
             System.out.println(testid);
         }
         if (nextQuestion != -1) {
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, arg_student);
+            Vector<Student> singleStudent = new Vector<>();
+            singleStudent.add(arg_student);
+            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, singleStudent);
         }
 
         //set evaluation if question belongs to a test
@@ -69,7 +73,7 @@ public class ReceptionProtocol {
             System.out.println("inserting question evaluation for test");
             int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
             if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
-                arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex,eval);
+                arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
             }
             Boolean testCompleted = true;
             for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
@@ -82,9 +86,9 @@ public class ReceptionProtocol {
                 for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
                     testEval += questEval;
                 }
-                testEval = testEval /  arg_student.getActiveTest().getQuestionsEvaluations().size();
+                testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
                 arg_student.getActiveTest().setTestEvaluation(testEval);
-                DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(),arg_student.getName(),testEval);
+                DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
             }
         }
     }

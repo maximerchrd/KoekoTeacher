@@ -17,6 +17,7 @@ public class Test {
     private ArrayList<Integer> objectivesIDs;
     private Double testEvaluation;
     private Boolean isSynchroneousQuestionsTest;
+    private Integer testMode;
 
     public Test() {
         this.testName = "";
@@ -25,6 +26,7 @@ public class Test {
         this.genericQuestions = new ArrayList<QuestionGeneric>();
         this.questionsEvaluations = new ArrayList<>();
         this.isSynchroneousQuestionsTest = false;
+        this.testMode = 0;
     }
 
     public void addGenericQuestion(QuestionGeneric questionGeneric) {
@@ -32,6 +34,7 @@ public class Test {
         idsQuestions.add(questionGeneric.getGlobalID());
     }
 
+    //getters
     public String getTestName() {
         return testName;
     }
@@ -68,6 +71,11 @@ public class Test {
         return isSynchroneousQuestionsTest;
     }
 
+    public Integer getTestMode() {
+        return testMode;
+    }
+
+    //setter
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
     }
@@ -102,5 +110,9 @@ public class Test {
 
     public void setSynchroneousQuestionsTest(Boolean synchroneousQuestionsTest) {
         isSynchroneousQuestionsTest = synchroneousQuestionsTest;
+    }
+
+    public void setTestMode(Integer testMode) {
+        this.testMode = testMode;
     }
 }
