@@ -50,7 +50,7 @@ public class DbTableProfessor {
     }
 	
 	
-    static public void setProfessorMUID(int idProf, String muid) {
+    static public void setProfessorMUID(String idProf, String muid) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -59,8 +59,8 @@ public class DbTableProfessor {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE professor SET PROF_MUID=" + muid + 
-                    "WHERE ID_PROF=" + idProf + ";";
+            String sql = 	"UPDATE professor SET PROF_MUID='" + muid +
+                    "' WHERE ID_PROF=" + idProf + ";";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -89,7 +89,7 @@ public class DbTableProfessor {
                 String lname = rs.getString("LASTNAME");
                 String muid = rs.getString("PROF_MUID");
 
-                professor = Professor.createProfessor(id, fname, lname, muid);
+                professor = Professor.createProfessor(id, fname, muid);
             }
             stmt.close();
             c.commit();
