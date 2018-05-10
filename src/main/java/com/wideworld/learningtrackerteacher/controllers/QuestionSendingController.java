@@ -193,7 +193,6 @@ public class QuestionSendingController extends Window implements Initializable {
                                 treeItemTest = treeItemTest.getParent();
                             }
                             if (treeItemTest.getValue().getGlobalID() < 0) {
-                                System.out.println("OK OK");//add a horizontal relation with the question before in the list
                                 int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
                                 TreeItem<QuestionGeneric> questionBefore = null;
                                 if (bigBrotherIndex >= 0) {
@@ -834,12 +833,17 @@ public class QuestionSendingController extends Window implements Initializable {
             } else {
                 students = DbTableClasses.getStudentsInClass(activeClass);
             }
+
+            //if there is a problem with the students
+            if (students.size() == 0) {
+                students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+            }
             ArrayList<String> studentNames = new ArrayList<>();
             for (Student student : students) {
                 studentNames.add(student.getName());
             }
-
-            NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames,readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
+            //NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames,readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
         } else {
             System.out.println("No test is selected");
         }
