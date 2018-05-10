@@ -1,6 +1,8 @@
 package com.wideworld.learningtrackerteacher.database_management;
 
-import collect.Professor;
+
+
+import com.wideworld.learningtrackerteacher.students_management.Professor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -48,8 +50,7 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-	
-	
+
     static public void setProfessorMUID(String idProf, String muid) {
         Connection c = null;
         Statement stmt = null;
@@ -70,7 +71,7 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-	
+
     static public Professor getProfessor() {
         Professor professor = null;
         Connection c = null;
