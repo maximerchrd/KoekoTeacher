@@ -136,12 +136,16 @@ public class NetworkCommunication {
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                activeIDs.removeIf(integer -> integer < 0);
+                                //activeIDs.removeIf(integer -> integer < 0);
                                 if (activeIDs.size() > 0) {
                                     try {
                                         for (Integer activeID : activeIDs) {
-                                            sendMultipleChoiceWithID(activeID, student);
-                                            sendShortAnswerQuestionWithID(activeID, student);
+                                            if (activeID > 0) {
+                                                sendMultipleChoiceWithID(activeID, student);
+                                                sendShortAnswerQuestionWithID(activeID, student);
+                                            } else {
+                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-activeID, student);
+                                            }
                                         }
                                         System.out.println("address: " + student.getInetAddress());
                                     } catch (Exception e) {
