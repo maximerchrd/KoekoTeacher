@@ -31,6 +31,10 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
 public class SettingsController implements Initializable {
 
     static public Integer nearbyMode = -1;
+
+    /**
+     *  -1: not initialized; 0: OFF; 1: ON
+     */
     static public Integer correctionMode = -1;
     @FXML
     private TextArea logTextArea;

@@ -182,7 +182,7 @@ public class NetworkCommunication {
         for (Student student : students) {
             if (student.getOutputStream() != null) {
                 byte[] idBytearraystring = new byte[80];
-                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
                 byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
                 for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];
