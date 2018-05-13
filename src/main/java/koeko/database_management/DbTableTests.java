@@ -92,6 +92,13 @@ public class DbTableTests {
 
         return newTest;
     }
+
+    /**
+     * testMode: 0 = certificative assessment; 1 = formative assessment with no question order; 2 = formative assessment
+     * with order enforced
+     * @param testID
+     * @return
+     */
     static public Test getTestWithID(Integer testID) {
         Test newTest = new Test();
         if (testID < 0) {
@@ -128,7 +135,7 @@ public class DbTableTests {
 
         return newTest;
     }
-    static public Integer addTest(String name) {
+    static public Integer addTest(Test newTest) {
         Integer testID = 0;
         Connection c = null;
         Statement stmt = null;
@@ -141,7 +148,7 @@ public class DbTableTests {
             String sql = "INSERT INTO tests (ID_TEST_GLOBAL,NAME,TEST_MODE,QUANTITATIVE_EVAL)" +
                     "VALUES ('" +
                     2000000 + "','" +
-                    name + "','0','-1');";
+                    newTest.getTestName() + "','" + newTest.getTestMode() + "','-1');";
             stmt.executeUpdate(sql);
             sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);

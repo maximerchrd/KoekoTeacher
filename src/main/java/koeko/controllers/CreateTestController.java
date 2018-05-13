@@ -19,6 +19,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import koeko.questions_management.Test;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.net.URL;
@@ -66,7 +67,9 @@ public class CreateTestController  extends Window implements Initializable {
 
     public void saveTest() {
         if (!testNames.contains(testName.getText())) {
-            Integer testID = DbTableTests.addTest(testName.getText());
+            Test newTest = new Test();
+            newTest.setTestName(testName.getText());
+            Integer testID = DbTableTests.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
             test.setGlobalID(-testID);

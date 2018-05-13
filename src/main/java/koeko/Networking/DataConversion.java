@@ -32,6 +32,7 @@ public class DataConversion {
             testString += test.getObjectives().get(i) + "|||";
         }
         testString += "///";
+        testString += test.getTestMode() + "///";
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
