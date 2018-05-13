@@ -59,7 +59,7 @@ public class NetworkCommunication {
     }
 
     /**
-     * starts the bluetooth server
+     * starts the server
      *
      * @throws IOException
      */

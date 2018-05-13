@@ -1041,7 +1041,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (genericQuestionsList.get(i).getGlobalID() == questionID) {
                     found = true;
                     questionGeneric2 = genericQuestionsList.get(i);
-                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), false, true);
+                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), true, true);
                 }
             }
 
