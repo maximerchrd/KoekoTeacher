@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import koeko.questions_management.Test;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.net.URL;
@@ -30,21 +31,32 @@ public class EditTestController extends Window implements Initializable {
     private ArrayList<ComboBox> objectivesComboBoxArrayList;
     private String presentName;
     private ArrayList<String> objectives;
+    private Test test;
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
+    @FXML private CheckBox certificativeCheckBox;
+    @FXML private Button addObjectiveButton;
 
-    public void initParameters(TreeView treeView, ArrayList<String> testNames, String presentName, ArrayList<String> objectives) {
+    public void initParameters(TreeView treeView, ArrayList<String> testNames, String testID, ArrayList<String> objectives) {
         this.treeView = treeView;
         this.testNames = testNames;
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
-        this.presentName = presentName;
         this.objectives = objectives;
-        testName.setText(presentName);
         for (String obj : objectives) {
             addObjective(obj);
         }
+        test = DbTableTests.getTestWithID(Integer.valueOf(testID));
+        this.presentName = test.getTestName();
+        if (test.getTestMode() == 0) {
+            certificativeCheckBox.setSelected(true);
+            addObjectiveButton.setDisable(true);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(true);
+            }
+        }
+        testName.setText(presentName);
     }
 
     public void addObjective() {
@@ -75,7 +87,26 @@ public class EditTestController extends Window implements Initializable {
         TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
     }
 
+    public void certificativeCheckBoxAction() {
+        if (certificativeCheckBox.isSelected()) {
+            addObjectiveButton.setDisable(true);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(true);
+            }
+        } else {
+            addObjectiveButton.setDisable(false);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(false);
+            }
+        }
+    }
+
     public void saveTest() {
+        if (certificativeCheckBox.isSelected()) {
+            DbTableTests.changeTestMode(test.getIdTest(),0);
+        } else {
+            DbTableTests.changeTestMode(test.getIdTest(),1);
+        }
         if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
             TreeItem<QuestionGeneric> testTreeItem = (TreeItem<QuestionGeneric>) treeView.getSelectionModel().getSelectedItem();
             testTreeItem.getValue().setQuestion(testName.getText());
@@ -84,13 +115,15 @@ public class EditTestController extends Window implements Initializable {
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();
-            for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
-                try {
-                    newObjectives.add(objectiveCombo.getEditor().getText());
-                    DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);
-                    DbTableRelationObjectiveTest.addRelationObjectiveTest(objectiveCombo.getEditor().getText(), testName.getText());
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (!certificativeCheckBox.isSelected()) {
+                for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
+                    try {
+                        newObjectives.add(objectiveCombo.getEditor().getText());
+                        DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);
+                        DbTableRelationObjectiveTest.addRelationObjectiveTest(objectiveCombo.getEditor().getText(), testName.getText());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             for (String obj : objectives) {

@@ -653,7 +653,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 testNames.add(test.getTestName());
             }
             ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(questionGeneric.getQuestion());
-            controller.initParameters(allQuestionsTree, testNames, questionGeneric.getQuestion(), objectives);
+            controller.initParameters(allQuestionsTree, testNames, String.valueOf(-questionGeneric.getGlobalID()), objectives);
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);

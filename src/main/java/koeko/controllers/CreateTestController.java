@@ -1,5 +1,6 @@
 package koeko.controllers;
 
+import javafx.scene.control.*;
 import koeko.database_management.DbTableLearningObjectives;
 import koeko.database_management.DbTableRelationObjectiveTest;
 import koeko.database_management.DbTableTests;
@@ -9,10 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -32,15 +29,19 @@ public class CreateTestController  extends Window implements Initializable {
     private ArrayList<String> testNames;
     private ArrayList<HBox> hBoxArrayList;
     private ArrayList<ComboBox> objectivesComboBoxArrayList;
+    private Integer testMode;
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
+    @FXML private CheckBox certificativeCheckBox;
+    @FXML private Button addObjectiveButton;
 
     public void initParameters(TreeItem<QuestionGeneric> root, ArrayList<String> testNames) {
         this.root = root;
         this.testNames = testNames;
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
+        testMode = 1;
     }
 
     public void addObjective() {
@@ -65,10 +66,29 @@ public class CreateTestController  extends Window implements Initializable {
         TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
     }
 
+    public void certificativeCheckBoxAction() {
+        if (certificativeCheckBox.isSelected()) {
+            addObjectiveButton.setDisable(true);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(true);
+            }
+        } else {
+            addObjectiveButton.setDisable(false);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(false);
+            }
+        }
+    }
+
     public void saveTest() {
         if (!testNames.contains(testName.getText())) {
             Test newTest = new Test();
             newTest.setTestName(testName.getText());
+            if (certificativeCheckBox.isSelected()) {
+                newTest.setTestMode(0);
+            } else {
+                newTest.setTestMode(1);
+            }
             Integer testID = DbTableTests.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
@@ -78,12 +98,14 @@ public class CreateTestController  extends Window implements Initializable {
             root.getChildren().add(testTreeItem);
 
             //add objectives to test
-            for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
-                try {
-                    DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);
-                    DbTableRelationObjectiveTest.addRelationObjectiveTest(objectiveCombo.getEditor().getText(), testName.getText());
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (!certificativeCheckBox.isSelected()) {
+                for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
+                    try {
+                        DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);
+                        DbTableRelationObjectiveTest.addRelationObjectiveTest(objectiveCombo.getEditor().getText(), testName.getText());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             Stage stage = (Stage) testName.getScene().getWindow();
