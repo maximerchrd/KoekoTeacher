@@ -82,6 +82,11 @@ public class QuestionSendingController extends Window implements Initializable {
             QuestionGeneric testGeneric = new QuestionGeneric();
             testGeneric.setGlobalID(-test.getIdTest());
             testGeneric.setQuestion(test.getTestName());
+            if (test.getTestMode() == 0) {
+                testGeneric.setTypeOfQuestion("TECE");
+            } else if (test.getTestMode() == 1) {
+                testGeneric.setTypeOfQuestion("TEFO");
+            }
             testsNodeList.add(testGeneric);
         }
         //create root
@@ -102,7 +107,11 @@ public class QuestionSendingController extends Window implements Initializable {
                             if (item.getGlobalID() > 0) {
                                 setGraphic(getTreeItem().getGraphic());
                             } else {
-                                setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
+                                if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+                                    setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
+                                } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
+                                    setGraphic(new ImageView(new Image("/drawable/test_certificative.png", 30, 30, true, true)));
+                                }
                             }
                         } else {
                             setText(null);

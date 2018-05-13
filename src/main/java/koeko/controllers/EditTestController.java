@@ -110,6 +110,14 @@ public class EditTestController extends Window implements Initializable {
         if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
             TreeItem<QuestionGeneric> testTreeItem = (TreeItem<QuestionGeneric>) treeView.getSelectionModel().getSelectedItem();
             testTreeItem.getValue().setQuestion(testName.getText());
+
+            //set the type of resource (formative/certificative test)
+            if (certificativeCheckBox.isSelected()) {
+                testTreeItem.getValue().setTypeOfQuestion("TECE");
+            } else {
+                testTreeItem.getValue().setTypeOfQuestion("TEFO");
+            }
+
             treeView.refresh();
             DbTableTests.renameTest(-testTreeItem.getValue().getGlobalID(),testName.getText());
 

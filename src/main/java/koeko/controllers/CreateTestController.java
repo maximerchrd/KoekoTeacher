@@ -94,6 +94,14 @@ public class CreateTestController  extends Window implements Initializable {
             QuestionGeneric test = new QuestionGeneric();
             test.setGlobalID(-testID);
             test.setQuestion(testName.getText());
+
+            //set the type of resource (formative/certificative test)
+            if (certificativeCheckBox.isSelected()) {
+                test.setTypeOfQuestion("TECE");
+            } else {
+                test.setTypeOfQuestion("TEFO");
+            }
+
             testTreeItem.setValue(test);
             root.getChildren().add(testTreeItem);
 
