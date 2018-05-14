@@ -1,9 +1,8 @@
 package koeko.database_management;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import koeko.view.Subject;
+
+import java.sql.*;
 import java.util.Vector;
 
 /**
@@ -215,4 +214,60 @@ public class DbTableSubject {
         }
         return parentSubjects;
     }
+
+
+
+    static public Vector<Subject> getSubjects() {
+        Vector<Subject> subjects = new Vector<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT * FROM subjects;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String sbjName = rs.getString("SUBJECT");
+                int sbjId = rs.getInt("ID_SUBJECT");
+                String sbjMUID = rs.getString("SBJ_MUID");
+                Timestamp sbjUPD_DTS = rs.getTimestamp("SBJ_UPD_DTS");
+                Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
+                subjects.add(sbj);
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return subjects;
+    }
+
+
+    static public void setSubjectMUID(int idSbj, String muid) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"UPDATE subjects SET SBJ_MUID='" + muid +
+                    "' WHERE ID_SUBJECT=" + idSbj + ";";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
 }

@@ -2,7 +2,7 @@ package koeko.database_management;
 
 
 
-import koeko.students_management.Professor;
+import koeko.view.Professor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
