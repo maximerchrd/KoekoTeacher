@@ -11,7 +11,8 @@
       <Label layoutX="26.0" layoutY="50.0" text="Name of the Test:" />
       <TextField fx:id="testName" layoutX="153.0" layoutY="45.0" />
       <Button layoutX="348.0" layoutY="45.0" mnemonicParsing="false" onAction="#saveTest" text="Save Test" />
-      <Button layoutX="153.0" layoutY="105.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
-      <VBox fx:id="vBoxObjectives" layoutX="153.0" layoutY="140.0" prefHeight="200.0" prefWidth="210.0" />
+      <Button fx:id="addObjectiveButton" layoutX="258.0" layoutY="106.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
+      <VBox fx:id="vBoxObjectives" layoutX="237.0" layoutY="140.0" prefHeight="200.0" prefWidth="210.0" />
+      <CheckBox fx:id="certificativeCheckBox" layoutX="39.0" layoutY="110.0" mnemonicParsing="false" onAction="#certificativeCheckBoxAction" text="Certificative Assessment" />
    </children>
 </AnchorPane>

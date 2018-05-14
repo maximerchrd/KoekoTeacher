@@ -59,7 +59,7 @@ public class NetworkCommunication {
     }
 
     /**
-     * starts the bluetooth server
+     * starts the server
      *
      * @throws IOException
      */
@@ -136,12 +136,16 @@ public class NetworkCommunication {
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                activeIDs.removeIf(integer -> integer < 0);
+                                //activeIDs.removeIf(integer -> integer < 0);
                                 if (activeIDs.size() > 0) {
                                     try {
                                         for (Integer activeID : activeIDs) {
-                                            sendMultipleChoiceWithID(activeID, student);
-                                            sendShortAnswerQuestionWithID(activeID, student);
+                                            if (activeID > 0) {
+                                                sendMultipleChoiceWithID(activeID, student);
+                                                sendShortAnswerQuestionWithID(activeID, student);
+                                            } else {
+                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-activeID, student);
+                                            }
                                         }
                                         System.out.println("address: " + student.getInetAddress());
                                     } catch (Exception e) {
@@ -178,7 +182,7 @@ public class NetworkCommunication {
         for (Student student : students) {
             if (student.getOutputStream() != null) {
                 byte[] idBytearraystring = new byte[80];
-                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///";
+                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
                 byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
                 for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];

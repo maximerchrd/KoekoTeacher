@@ -24,7 +24,7 @@ public class Test {
         this.genericQuestions = new ArrayList<QuestionGeneric>();
         this.questionsEvaluations = new ArrayList<>();
         this.isSynchroneousQuestionsTest = false;
-        this.testMode = 0;
+        this.testMode = 1;
     }
 
     public void addGenericQuestion(QuestionGeneric questionGeneric) {

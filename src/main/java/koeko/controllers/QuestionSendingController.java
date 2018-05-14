@@ -82,6 +82,11 @@ public class QuestionSendingController extends Window implements Initializable {
             QuestionGeneric testGeneric = new QuestionGeneric();
             testGeneric.setGlobalID(-test.getIdTest());
             testGeneric.setQuestion(test.getTestName());
+            if (test.getTestMode() == 0) {
+                testGeneric.setTypeOfQuestion("TECE");
+            } else if (test.getTestMode() == 1) {
+                testGeneric.setTypeOfQuestion("TEFO");
+            }
             testsNodeList.add(testGeneric);
         }
         //create root
@@ -102,7 +107,11 @@ public class QuestionSendingController extends Window implements Initializable {
                             if (item.getGlobalID() > 0) {
                                 setGraphic(getTreeItem().getGraphic());
                             } else {
-                                setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
+                                if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+                                    setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
+                                } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
+                                    setGraphic(new ImageView(new Image("/drawable/test_certificative.png", 30, 30, true, true)));
+                                }
                             }
                         } else {
                             setText(null);
@@ -653,7 +662,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 testNames.add(test.getTestName());
             }
             ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(questionGeneric.getQuestion());
-            controller.initParameters(allQuestionsTree, testNames, questionGeneric.getQuestion(), objectives);
+            controller.initParameters(allQuestionsTree, testNames, String.valueOf(-questionGeneric.getGlobalID()), objectives);
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
@@ -1041,7 +1050,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (genericQuestionsList.get(i).getGlobalID() == questionID) {
                     found = true;
                     questionGeneric2 = genericQuestionsList.get(i);
-                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), false, true);
+                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), true, true);
                 }
             }
 
