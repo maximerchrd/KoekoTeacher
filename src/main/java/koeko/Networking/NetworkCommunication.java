@@ -101,34 +101,10 @@ public class NetworkCommunication {
                                 if (!aClass.studentAlreadyInClass(student)) {
                                     aClass.addStudentIfNotInClass(student);
                                     System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
-                                    if (SettingsController.nearbyMode == 0) {
-                                        SendNewConnectionResponse(student, 0);
-                                    } else if (SettingsController.nearbyMode == 1) {
-                                        // WARNING: smaller than 1 because the connection string is not yet received.
-                                        // If the protocol is changed, this MUST BE modified as well
-                                        if (aClass.getNbAndroidDevices() < 1) {
-                                            SendNewConnectionResponse(student, 1);
-                                        } else {
-                                            SendNewConnectionResponse(student, 2);
-                                        }
-                                    }
-
                                 } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
                                     student = aClass.updateStudentStreams(student);
-
-                                    if (SettingsController.nearbyMode == 0) {
-                                        SendNewConnectionResponse(student, 0);
-                                    } else if (SettingsController.nearbyMode == 1) {
-                                        // WARNING: smaller than 1 because the connection string is not yet received.
-                                        // If the protocol is changed, this MUST BE modified as well
-                                        if (aClass.getNbAndroidDevices() < 1) {
-                                            SendNewConnectionResponse(student, 1);
-                                        } else {
-                                            SendNewConnectionResponse(student, 2);
-                                        }
-                                    }
                                 }
 
                                 //start a new thread for listening to each student
@@ -572,23 +548,6 @@ public class NetworkCommunication {
         for (Student student : aClass.getStudents_vector()) {
             writeToOutputStream(student, bytes);
         }
-    }
-
-    private void SendNewConnectionResponse(Student student, Integer nearbyMode) throws IOException {
-        String response;
-        if (nearbyMode == 1) {
-            response = "SERVR///ADVER///";
-        } else if (nearbyMode == 2) {
-            response = "SERVR///DISCV///";
-        } else {
-            response = "SERVR///NONEA///";
-        }
-        byte[] bytes = new byte[80];
-        int bytes_length = response.getBytes("UTF-8").length;
-        for (int i = 0; i < bytes_length; i++) {
-            bytes[i] = response.getBytes("UTF-8")[i];
-        }
-        writeToOutputStream(student, bytes);
     }
 
     public Classroom getClassroom() {

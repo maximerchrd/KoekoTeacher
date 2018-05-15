@@ -30,10 +30,6 @@ public class ReceptionProtocol {
         } else {
             aClass.updateStudentButNotStreams(student);
         }
-        if (aClass.studentAlreadyInClass(student) && answerString.contains("Android")) {
-            aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() + 1);
-            System.out.println("Increasing the number of connected android devices");
-        }
     }
 
     static public void receivedANSW(Student arg_student, String answerString, ArrayList<ArrayList<Integer>> questionIdsForGroups,

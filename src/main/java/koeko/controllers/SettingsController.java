@@ -30,8 +30,6 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
 
 public class SettingsController implements Initializable {
 
-    static public Integer nearbyMode = -1;
-
     /**
      *  -1: not initialized; 0: OFF; 1: ON
      */
@@ -41,21 +39,8 @@ public class SettingsController implements Initializable {
     @FXML
     private TextField teacherName;
     @FXML
-    private ToggleButton nearbyModeButton;
-    @FXML
     private ToggleButton correctionModeButton;
 
-    public void nearbyModeChanged() {
-        if (nearbyModeButton.isSelected()) {
-            nearbyMode = 1;
-            DbTableSettings.insertNearbyMode(nearbyMode);
-            nearbyModeButton.setText("ON");
-        } else {
-            nearbyMode = 0;
-            DbTableSettings.insertNearbyMode(nearbyMode);
-            nearbyModeButton.setText("OFF");
-        }
-    }
 
     public void correctionModeChanged() {
         if (correctionModeButton.isSelected()) {
@@ -132,16 +117,8 @@ public class SettingsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        nearbyMode = DbTableSettings.getNearbyMode();
         correctionMode = DbTableSettings.getCorrectionMode();
         teacherName.setText(DbTableSettings.getTeacherName());
-
-        if (nearbyMode == 0) {
-            nearbyModeButton.setText("OFF");
-        } else if (nearbyMode == 1) {
-            nearbyModeButton.setText("ON");
-            nearbyModeButton.setSelected(true);
-        }
 
         if (correctionMode == 0) {
             correctionModeButton.setText("OFF");
@@ -149,16 +126,5 @@ public class SettingsController implements Initializable {
             correctionModeButton.setText("ON");
             correctionModeButton.setSelected(true);
         }
-
-        /*try {
-            String outFile = "LT_" + LocalDateTime.now().toString() + ".out";
-            outFile = outFile.replace(":", "-");
-            String errFile = "LT_" + LocalDateTime.now().toString() + ".err";
-            errFile = errFile.replace(":", "-");
-            System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(outFile)), true));
-            System.setErr(new PrintStream(new BufferedOutputStream(new FileOutputStream(errFile)), true));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }*/
     }
 }
