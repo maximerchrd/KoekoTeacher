@@ -390,7 +390,8 @@ public class NetworkCommunication {
         Thread listeningthread = new Thread() {
             public void run() {
                 int bytesread = 0;
-                while (bytesread >= 0) {
+                Boolean ableToRead = true;
+                while (bytesread >= 0 && ableToRead) {
                     try {
                         byte[] in_bytearray = new byte[1000];
                         bytesread = answerInStream.read(in_bytearray);
@@ -464,8 +465,14 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);
-                                if (answerString.contains("Android")) {
-                                    aClass.setNbAndroidDevices(aClass.getNbAndroidDevices() - 1);
+                                if (answerString.contains("close-connection")) {
+                                    System.out.println("Student device really disconnecting. We should close the connection");
+                                    arg_student.getOutputStream().flush();
+                                    arg_student.getOutputStream().close();
+                                    arg_student.setOutputStream(null);
+                                    arg_student.getInputStream().close();
+                                    arg_student.setInputStream(null);
+                                    ableToRead = false;
                                 }
                             }
                         } else {
