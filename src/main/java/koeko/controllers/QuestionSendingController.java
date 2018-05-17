@@ -1,5 +1,7 @@
 package koeko.controllers;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.Test;
@@ -31,6 +33,7 @@ import koeko.database_management.*;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -93,7 +96,14 @@ public class QuestionSendingController extends Window implements Initializable {
         root = new TreeItem<>(new QuestionGeneric());
         root.setExpanded(true);
         allQuestionsTree.setShowRoot(false);
-        populateTree(root);
+        Task<Void> loadQuestions = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                populateTree(root);
+                return null;
+            }
+        };
+        new Thread(loadQuestions).start();
         allQuestionsTree.setRoot(root);
         allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
             @Override
