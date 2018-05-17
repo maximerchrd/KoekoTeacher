@@ -379,6 +379,25 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void activateQuestionForStudents() {
+        //build the students vector
+        String group = "";
+        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+            group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
+        }
+        Vector<Student> students = new Vector<>();
+        if (group.length() > 0) {
+            students = DbTableClasses.getStudentsInClass(group);
+        } else {
+            students = DbTableClasses.getStudentsInClass(activeClass);
+        }
+
+        //if there is a problem with the students
+        if (students.size() == 0) {
+            students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+        }
+
+
+        //get the selected questions
         QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
 
         System.out.println("ready? " + QuestionSendingController.readyToActivate);
@@ -391,7 +410,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 e.printStackTrace();
             }
             QuestionsNotReadyPopUpController controller = fxmlLoader.getController();
-            controller.initParameters(questionGeneric);
+            controller.initParameters(questionGeneric, students);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);
@@ -400,7 +419,7 @@ public class QuestionSendingController extends Window implements Initializable {
             stage.show();
         } else {
             if (questionGeneric.getGlobalID() > 0) {
-                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
+                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID(), students);
             } else {
                 activateTestSynchroneousQuestions();
             }
@@ -814,20 +833,6 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void activateQuestionsForGroup() {
-        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-            String group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
-            ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
-            Vector<Student> students = DbTableClasses.getStudentsInClass(group);
-            ArrayList<String> studentNames = new ArrayList<>();
-            for (Student student : students) {
-                studentNames.add(student.getName());
-            }
-
-            NetworkCommunication.networkCommunicationSingleton.activateTestForGroup(questionIDs, studentNames, 0);
-        }
-    }
-
     public void activateTestSynchroneousQuestions() {
         if (readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID() < 0) {
             String group = "";
@@ -835,7 +840,6 @@ public class QuestionSendingController extends Window implements Initializable {
                 group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
             }
             String testName = readyQuestionsList.getSelectionModel().getSelectedItem().getQuestion();
-            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testName);
             Vector<Student> students = new Vector<>();
             if (group.length() > 0) {
                 students = DbTableClasses.getStudentsInClass(group);
@@ -847,12 +851,8 @@ public class QuestionSendingController extends Window implements Initializable {
             if (students.size() == 0) {
                 students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
             }
-            ArrayList<String> studentNames = new ArrayList<>();
-            for (Student student : students) {
-                studentNames.add(student.getName());
-            }
+
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
-            //NetworkCommunication.networkCommunicationSingleton.activateTestSynchroneousQuestions(questionIDs, studentNames,readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
         } else {
             System.out.println("No test is selected");
         }

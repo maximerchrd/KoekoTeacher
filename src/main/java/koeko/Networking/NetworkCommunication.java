@@ -69,15 +69,6 @@ public class NetworkCommunication {
             // First we create a server socket and bind it to port 9090.
             ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
 
-
-            // wait for an incoming connection...
-            /*System.out.println("Server is waiting for an incoming connection on host="
-                    + InetAddress.getLocalHost().getHostAddress() + "; "
-                    + InetAddress.getLocalHost().getCanonicalHostName() + "; "
-                    + InetAddress.getLocalHost().getHostName()
-                    + " port=" + myServerSocket.getLocalPort());*/
-
-
             //Wait for client connection
             System.out.println("\nServer Started. Waiting for clients to connect...");
             outstream_list = new ArrayList<OutputStream>();
@@ -180,11 +171,6 @@ public class NetworkCommunication {
                 System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
             }
         }
-    }
-
-    public void SendQuestionIDs(ArrayList<Integer> QuestID, Student student) throws IOException {
-        byte[] bytearray = DataConversion.questionsSetToBytesArray(QuestID, 0);
-        writeToOutputStream(student, bytearray);
     }
 
     public void sendMultipleChoiceWithID(int questionID, Student student) throws IOException {
@@ -569,22 +555,6 @@ public class NetworkCommunication {
         learningTrackerController.addQuestion(question, ID, group);
     }
 
-    public void activateTest(ArrayList<Integer> questionIds, Integer testID) {
-        if (questionIds.size() > 0) {
-            SendQuestionID(questionIds.get(0));
-        }
-        for (Student student : aClass.getStudents_vector()) {
-            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
-            Test studentTest = new Test();
-            studentTest.setIdTest(testID);
-            studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
-            for (Integer ignored : questionIds) {
-                studentTest.getQuestionsEvaluations().add(-1.0);
-            }
-            student.setActiveTest(studentTest);
-        }
-    }
-
     public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
 
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
@@ -622,48 +592,6 @@ public class NetworkCommunication {
                 }
                 student.setActiveTest(studentTest);
             }
-        }
-    }
-
-    public void activateTestSynchroneousQuestions(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
-
-        if (students.size() == 0) {
-            Vector<Student> studentsVector = aClass.getStudents_vector();
-            for (Student std : studentsVector) {
-                students.add(std.getName());
-            }
-        }
-
-        //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
-        /*if (questionIdsForGroups.size() == Koeko.studentGroupsAndClass.size() - 1) {
-            questionIdsForGroups.clear();
-            studentNamesForGroups.clear();
-        }
-        //add question IDs(clone it because we want to remove its content later without affecting the source array) and students to group arrays
-        questionIdsForGroups.add(new ArrayList<>());
-        for (Integer id : questionIds) {
-            questionIdsForGroups.get(questionIdsForGroups.size() - 1).add(id);
-        }
-        studentNamesForGroups.add(students);*/
-
-        for (String studentName : students) {
-            Student student = aClass.getStudentWithName(studentName);
-            if (questionIds.size() > 0) {
-                try {
-                    SendQuestionIDs(questionIds, student);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
-            Test studentTest = new Test();
-            studentTest.setSynchroneousQuestionsTest(true);
-            studentTest.setIdTest(testID);
-            studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
-            for (Integer ignored : questionIds) {
-                studentTest.getQuestionsEvaluations().add(-1.0);
-            }
-            student.setActiveTest(studentTest);
         }
     }
 

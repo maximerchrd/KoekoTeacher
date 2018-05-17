@@ -7,13 +7,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import koeko.students_management.Student;
+
+import java.util.Vector;
 
 public class QuestionsNotReadyPopUpController extends Window {
     @FXML private Label text;
     QuestionGeneric questionGeneric;
+    Vector<Student> students;
 
-    public void initParameters(QuestionGeneric questionGeneric) {
+    public void initParameters(QuestionGeneric questionGeneric, Vector<Student> students) {
         this.questionGeneric = questionGeneric;
+        this.students = students;
         text.setText("Some questions might not be saved on all devices. \nDo you really want to try to activate the question now?");
     }
 
@@ -24,7 +29,7 @@ public class QuestionsNotReadyPopUpController extends Window {
 
     public void sendAnyway() {
             if (questionGeneric.getGlobalID() > 0) {
-                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID());
+                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID(),students);
             } else {
                 Koeko.questionSendingControllerSingleton.activateTestSynchroneousQuestions();
             }
