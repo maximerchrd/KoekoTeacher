@@ -232,8 +232,8 @@ public class DbTableSubject {
             while (rs.next()) {
                 String sbjName = rs.getString("SUBJECT");
                 int sbjId = rs.getInt("ID_SUBJECT");
-                String sbjMUID = rs.getString("SBJ_MUID");
-                Timestamp sbjUPD_DTS = rs.getTimestamp("SBJ_UPD_DTS");
+                String sbjMUID = rs.getString("IDENTIFIER");
+                Timestamp sbjUPD_DTS = rs.getTimestamp("MODIF_DATE");
                 Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
                 subjects.add(sbj);
             }
@@ -258,7 +258,7 @@ public class DbTableSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE subjects SET SBJ_MUID='" + muid +
+            String sql = 	"UPDATE subjects SET IDENTIFIER='" + muid +
                     "' WHERE ID_SUBJECT=" + idSbj + ";";
             stmt.executeUpdate(sql);
             stmt.close();

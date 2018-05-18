@@ -176,13 +176,13 @@ public class DbTableRelationQuestionSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT subjects.SBJ_MUID, SUBJECT_LEVEL FROM subjects " +
+            String query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
                     "INNER JOIN question_subject_relation on subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
                     "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
                     "where ID_QUESTION=" + questionId + ";";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String sbjMUID = rs.getString("SBJ_MUID");
+                String sbjMUID = rs.getString("IDENTIFIER");
                 int level = rs.getInt("SUBJECT_LEVEL");
                 RelationQuestionSubject rqs = new RelationQuestionSubject(questionId, sbjMUID, level);
                 subjects.add(rqs);

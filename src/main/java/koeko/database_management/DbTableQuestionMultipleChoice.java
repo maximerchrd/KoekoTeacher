@@ -209,7 +209,7 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setOPT8(rs.getString("OPTION8"));
         questionMultipleChoice.setOPT9(rs.getString("OPTION9"));
         questionMultipleChoice.setNB_CORRECT_ANS(rs.getInt("NB_CORRECT_ANS"));
-        questionMultipleChoice.setQCM_MUID(rs.getString("QCM_MUID"));
+        questionMultipleChoice.setQCM_MUID(rs.getString("IDENTIFIER"));
         questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
     }
 
@@ -251,7 +251,7 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE question_multiple_choice SET QMC_MUID='" + muid +
+            String sql = 	"UPDATE multiple_choice_questions SET IDENTIFIER='" + muid +
                     "' WHERE ID_QUESTION=" + idQMC + ";";
             stmt.executeUpdate(sql);
             stmt.close();
