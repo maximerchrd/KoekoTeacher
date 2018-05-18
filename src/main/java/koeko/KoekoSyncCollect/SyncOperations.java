@@ -18,11 +18,11 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 public class SyncOperations {
-    static String connectionString = "jdbc:mysql://localhost/global_collect?";
+    static String connectionString = "jdbc:mysql://localhost/koeko_collect?";
     static String userName = "testuser";
     static String userPass = "mysqltest99**";
-    //static String connectionString = "jdbc:mysql://188.226.155.245/global_collect?user=koeko_testClient&password=ko&KOwird34jolI";
-    //static String connectionString = "jdbc:mysql://188.226.155.245/global_collect?user=root&password=henearkr";
+    //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=koeko_testClient&password=ko&KOwird34jolI";
+    //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=root&password=henearkr";
 
     static public void SyncAll() throws Exception {
         // Check if connection works, exit if not
@@ -55,13 +55,11 @@ public class SyncOperations {
             UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
         }
 
-
-
-
         // Third step, launch sp to update web with new data
         SyncCollect2WEB();
 
         // Fourth step, download selected items to local DB
+
 
     }
 
@@ -163,7 +161,7 @@ public class SyncOperations {
         try {
             c = ConnectToMySQL();
             c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL spSetQuestionMultipleChoice(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+            stmt =  c.prepareCall("{CALL spSetQuestionMultipleChoice(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
             stmt.setInt(1, Integer.parseInt(qcm.getLEVEL()));
             stmt.setString(2, qcm.getQUESTION());
             stmt.setString(3, qcm.getOPT0());
@@ -176,13 +174,13 @@ public class SyncOperations {
             stmt.setString(10, qcm.getOPT7());
             stmt.setString(11, qcm.getOPT8());
             stmt.setString(12, qcm.getOPT9());
-            stmt.setInt(23, qcm.getNB_CORRECT_ANS());
-            stmt.setString(24, qcm.getIMAGE());
-            stmt.setString(25, qcm.getQCM_MUID());
-            stmt.setString(26, ownerMUID);
-            stmt.setTimestamp(27, qcm.getQCM_UPD_TMS());
+            stmt.setInt(13, qcm.getNB_CORRECT_ANS());
+            stmt.setString(14, qcm.getIMAGE());
+            stmt.setString(15, qcm.getQCM_MUID());
+            stmt.setString(16, ownerMUID);
+            stmt.setTimestamp(17, qcm.getQCM_UPD_TMS());
             stmt.execute();
-            String muid = stmt.getString(25);
+            String muid = stmt.getString(15);
             if (muid != null) {
                 qcm.setQCM_MUID(muid);
                 DbTableQuestionMultipleChoice.setQuestionMultipleChoiceMUID(qcm.getID(), muid);
@@ -235,15 +233,15 @@ public class SyncOperations {
             // Delete all relations to subjects for this question
 
             Statement delStmt = c.createStatement();
-            String sql = "DELETE FROM subject_question_relation WHERE SQR_QUE_ID=(SELECT QMC_ID FROM question_multiple_choice WHERE QMC_MUID='" + questionMUID + "');";
+            String sql = "DELETE FROM subject_question_relation WHERE SQR_QUE_MUID='" + questionMUID + "';";
             delStmt.executeUpdate(sql);
             delStmt.close();
 
             Enumeration en = subjectsLinked.elements();
             while(en.hasMoreElements()) {
                 RelationQuestionSubject rqs = (RelationQuestionSubject) en.nextElement();
-                String sqlIns = "INSERT INTO global_collect.subject_question_relation (SQR_SBJ_ID, SQR_QUE_ID, SQR_QUE_TYP, SQR_LEVEL) VALUE (" +
-                                "(SELECT SBJ_ID FROM subject WHERE SBJ_MUID=" + rqs.get_subjectMUID() + ")," + rqs.get_questionId() + ",'MCQ'," + rqs.get_level() + ");";
+                String sqlIns = "INSERT INTO koeko_collect.subject_question_relation (SQR_SBJ_MUID, SQR_QUE_MUID, SQR_QUE_TYP, SQR_LEVEL) VALUE ('" +
+                                rqs.get_subjectMUID() + "','" + questionMUID + "','MCQ'," + rqs.get_level() + ");";
                 stmt =  c.createStatement();
                 stmt.executeUpdate(sqlIns);
                 stmt.close();
@@ -264,7 +262,7 @@ public class SyncOperations {
         try {
             c = ConnectToMySQL();
             c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL global_collect.spSyncToWEB()}");
+            stmt =  c.prepareCall("{CALL koeko_collect.spSyncToWEB()}");
             stmt.execute();
             stmt.close();
             c.commit();

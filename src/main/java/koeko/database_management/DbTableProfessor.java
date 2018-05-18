@@ -1,7 +1,5 @@
 package koeko.database_management;
 
-
-
 import koeko.view.Professor;
 
 import java.sql.Connection;
@@ -49,7 +47,8 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-
+	
+	
     static public void setProfessorMUID(String idProf, String muid) {
         Connection c = null;
         Statement stmt = null;
@@ -70,7 +69,7 @@ public class DbTableProfessor {
             System.exit(0);
         }
     }
-
+	
     static public Professor getProfessor() {
         Professor professor = null;
         Connection c = null;
