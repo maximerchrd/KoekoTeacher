@@ -3,6 +3,7 @@ package koeko.database_management;
 import koeko.view.Subject;
 
 import java.sql.*;
+import java.util.Date;
 import java.util.Vector;
 
 /**
@@ -39,7 +40,7 @@ public class DbTableSubject {
                     2000000 + "','" +
                     subject +"');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE subjects SET ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+            sql = "UPDATE subjects SET MODIF_DATE='" + DBUtils.UniversalTimestamp() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -233,7 +234,7 @@ public class DbTableSubject {
                 String sbjName = rs.getString("SUBJECT");
                 int sbjId = rs.getInt("ID_SUBJECT");
                 String sbjMUID = rs.getString("IDENTIFIER");
-                Timestamp sbjUPD_DTS = rs.getTimestamp("MODIF_DATE");
+                Timestamp sbjUPD_DTS = Timestamp.valueOf(rs.getString("MODIF_DATE"));
                 Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
                 subjects.add(sbj);
             }

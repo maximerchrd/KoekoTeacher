@@ -52,7 +52,6 @@ public class DbTableProfessor {
     static public void setProfessorMUID(String idProf, String muid) {
         Connection c = null;
         Statement stmt = null;
-        stmt = null;
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");

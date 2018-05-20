@@ -1,5 +1,6 @@
 package koeko.KoekoSyncCollect;
 
+import koeko.GlobalCollectManagment.GCQuestionMultipleChoice;
 import koeko.view.Professor;
 import koeko.view.Subject;
 import koeko.view.RelationQuestionSubject;
@@ -9,10 +10,7 @@ import koeko.database_management.DbTableRelationQuestionSubject;
 import koeko.database_management.DbTableSubject;
 import koeko.questions_management.QuestionMultipleChoice;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
@@ -22,7 +20,9 @@ public class SyncOperations {
     static String userName = "testuser";
     static String userPass = "mysqltest99**";
     //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=koeko_testClient&password=ko&KOwird34jolI";
-    //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=root&password=henearkr";
+    //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?";
+    //static String userName = "root";
+    //static String userPass = "henearkr";
 
     static public void SyncAll() throws Exception {
         // Check if connection works, exit if not
@@ -59,7 +59,7 @@ public class SyncOperations {
         SyncCollect2WEB();
 
         // Fourth step, download selected items to local DB
-
+        DownloadMultipleChoiceQuestions(professor.get_muid());
 
     }
 
@@ -271,6 +271,39 @@ public class SyncOperations {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+    }
+
+    static private void DownloadMultipleChoiceQuestions(String profMuid) {
+            Connection c = null;
+            Statement stmt = null;
+            stmt = null;
+            try {
+                c = ConnectToMySQL();
+                c.setAutoCommit(false);
+                stmt = c.createStatement();
+                String query = "SELECT * FROM koeko_collect.question_multiple_choice join koeko_collect.selection on SEL_QUESTION_MUID=QMC_MUID WHERE SEL_PRF_MUID='" + profMuid + "';";
+                ResultSet rs = stmt.executeQuery(query);
+                while (rs.next()) {
+                    QuestionMultipleChoice qcm = new QuestionMultipleChoice();
+                    GCQuestionMultipleChoice.QuestionMultipleChoiceFromRecord(qcm, rs);
+                    DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(qcm);
+                    RemoveSelection(c, profMuid, qcm.getQCM_MUID());
+                }
+                stmt.close();
+                c.commit();
+                c.close();
+            } catch ( Exception e ) {
+                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+                System.exit(0);
+            }
+    }
+
+    private static void RemoveSelection(Connection c, String profMuid, String qcm_muid) throws Exception{
+        Statement stmt = c.createStatement();
+        String sql = "DELETE FROM koeko_collect.selection WHERE SEL_PRF_MUID='" + profMuid +
+                "'AND SEL_QUESTION_MUID='" + qcm_muid + "';";
+        stmt.execute(sql);
+        stmt.close();
     }
 
 }
