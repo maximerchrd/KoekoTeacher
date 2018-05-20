@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionBrowsingController">
+<AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.SubjectsBrowsing.QuestionBrowsingController">
    <children>
       <HBox prefHeight="50.0" prefWidth="483.0">
          <children>
@@ -25,6 +25,6 @@
       <Button disable="true" layoutX="24.0" layoutY="155.0" mnemonicParsing="false" text="Filter questions with subject" AnchorPane.topAnchor="155.0" />
       <Button disable="true" layoutX="24.0" layoutY="122.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Delete the subject" AnchorPane.topAnchor="122.0" />
       <Button disable="true" layoutX="24.0" layoutY="87.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Edit the subject" AnchorPane.topAnchor="87.0" />
-      <Button disable="true" layoutX="24.0" layoutY="54.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" AnchorPane.topAnchor="54.0" />
+      <Button layoutX="24.0" layoutY="54.0" mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" AnchorPane.topAnchor="54.0" />
    </children>
 </AnchorPane>
