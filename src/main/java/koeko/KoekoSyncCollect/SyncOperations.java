@@ -16,13 +16,13 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 public class SyncOperations {
-    static String connectionString = "jdbc:mysql://localhost/koeko_collect?";
-    static String userName = "testuser";
-    static String userPass = "mysqltest99**";
+    //static String connectionString = "jdbc:mysql://localhost/koeko_collect?";
+    //static String userName = "testuser";
+    //static String userPass = "mysqltest99**";
     //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=koeko_testClient&password=ko&KOwird34jolI";
-    //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?";
-    //static String userName = "root";
-    //static String userPass = "henearkr";
+    static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?";
+    static String userName = "root";
+    static String userPass = "henearkr";
 
     static public void SyncAll() throws Exception {
         // Check if connection works, exit if not

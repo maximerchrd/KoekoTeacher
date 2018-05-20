@@ -234,7 +234,18 @@ public class DbTableSubject {
                 String sbjName = rs.getString("SUBJECT");
                 int sbjId = rs.getInt("ID_SUBJECT");
                 String sbjMUID = rs.getString("IDENTIFIER");
-                Timestamp sbjUPD_DTS = Timestamp.valueOf(rs.getString("MODIF_DATE"));
+                Timestamp sbjUPD_DTS;
+                if (rs.getString("MODIF_DATE") != null) {
+                    try {
+                        sbjUPD_DTS = Timestamp.valueOf(rs.getString("MODIF_DATE"));
+                    } catch(IllegalArgumentException e) {
+                        sbjUPD_DTS = new Timestamp(0);
+                        System.out.println(rs.getString("MODIF_DATE"));
+                        e.printStackTrace();
+                    }
+                } else {
+                    sbjUPD_DTS = new Timestamp(0);
+                }
                 Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
                 subjects.add(sbj);
             }
