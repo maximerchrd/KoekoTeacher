@@ -194,7 +194,7 @@ public class DbTableRelationQuestionQuestion {
             //add the relations to other IDs as: ///nextNodeID1;;;relNodeID1:::condition1;;;relNodeID2;;;condition2|||nextNodeID2///
             for (String relation : testMap) {
                 if (relation.split("\\|\\|\\|")[0].contentEquals(nextNode)) {
-                    nextNodeWithRelations += ";;;" + relation.split("\\|\\|\\|")[2] + ":::" + relation.split("\\|\\|\\|")[1];
+                    nextNodeWithRelations += ";;;" + relation.split("\\|\\|\\|")[2] + ":::" + relation.split("\\|\\|\\|")[1] + ":::END:::";
                 }
             }
 

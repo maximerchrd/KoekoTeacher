@@ -134,12 +134,6 @@ public class NetworkCommunication {
         }
     }
 
-    public void SendQuestionID(int QuestID) {
-        Vector<Student> StudentsVector = aClass.getStudents_vector();
-        System.out.println("to " + StudentsVector.size() + " students");
-        SendQuestionID(QuestID, StudentsVector);
-    }
-
     public void SendQuestionID(int QuestID, Vector<Student> students) {
         for (int i = 0; i < students.size(); i++) {
             students.set(i, aClass.getStudentWithName(students.get(i).getName()));

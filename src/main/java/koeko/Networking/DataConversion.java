@@ -27,6 +27,8 @@ public class DataConversion {
         }
         test.setIdsQuestions(questionIDs);
 
+        testString += "///";
+
         for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
             testString += test.getObjectivesIDs().get(i) + "/|/";
             testString += test.getObjectives().get(i) + "|||";
