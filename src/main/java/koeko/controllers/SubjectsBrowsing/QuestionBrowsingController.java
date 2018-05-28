@@ -22,10 +22,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.controllers.CreateQuestionController;
-import koeko.database_management.DbTableRelationQuestionQuestion;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableRelationQuestionTest;
-import koeko.database_management.DbTableSubject;
+import koeko.database_management.*;
 import koeko.students_management.Subject;
 
 import java.io.IOException;
@@ -59,9 +56,11 @@ public class QuestionBrowsingController implements Initializable {
 
         //build the subjects tree
         //create root
-        root = new TreeItem<>(new Subject());
+        Subject subject = new Subject();
+        subject.set_subjectName("All subjects");
+        root = new TreeItem<>(subject);
         root.setExpanded(true);
-        subjectsTree.setShowRoot(false);
+        subjectsTree.setShowRoot(true);
         Task<Void> loadQuestions = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -252,7 +251,12 @@ public class QuestionBrowsingController implements Initializable {
 
     public void filterQuestionsWithSubject() {
         Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
-        Vector<String> questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());
+        Vector<String> questionIds;
+        if (subject.get_subjectName().contentEquals("All subjects")) {
+            questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
+        } else {
+            questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());
+        }
         Koeko.questionSendingControllerSingleton.populateTree(questionIds);
     }
 }
