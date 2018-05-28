@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-public class CreateTestController  extends Window implements Initializable {
+public class CreateTestController extends Window implements Initializable {
     private TreeItem<QuestionGeneric> root;
     private ArrayList<String> testNames;
     private ArrayList<HBox> hBoxArrayList;

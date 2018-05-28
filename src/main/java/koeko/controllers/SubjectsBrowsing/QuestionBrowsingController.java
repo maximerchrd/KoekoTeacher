@@ -12,8 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -21,7 +19,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import koeko.Koeko;
-import koeko.controllers.CreateQuestionController;
 import koeko.database_management.*;
 import koeko.students_management.Subject;
 
@@ -35,7 +32,7 @@ import java.util.Vector;
  * Created by maximerichard on 13.03.18.
  */
 public class QuestionBrowsingController implements Initializable {
-    private TreeItem<Subject> root;
+    static public TreeItem<Subject> rootSubjectSingleton;
     private Subject draggedSubject;
 
     @FXML private Label labelIP;
@@ -55,21 +52,21 @@ public class QuestionBrowsingController implements Initializable {
 
 
         //build the subjects tree
-        //create root
+        //create rootSubjectSingleton
         Subject subject = new Subject();
         subject.set_subjectName("All subjects");
-        root = new TreeItem<>(subject);
-        root.setExpanded(true);
+        rootSubjectSingleton = new TreeItem<>(subject);
+        rootSubjectSingleton.setExpanded(true);
         subjectsTree.setShowRoot(true);
         Task<Void> loadQuestions = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                populateSubjectTree(root);
+                populateSubjectTree(rootSubjectSingleton);
                 return null;
             }
         };
         new Thread(loadQuestions).start();
-        subjectsTree.setRoot(root);
+        subjectsTree.setRoot(rootSubjectSingleton);
         subjectsTree.setCellFactory(new Callback<TreeView<Subject>, TreeCell<Subject>>() {
             @Override
             public TreeCell<Subject> call(TreeView<Subject> stringTreeView) {
@@ -164,7 +161,7 @@ public class QuestionBrowsingController implements Initializable {
                             event.consume();
                         } else if (treeCell.getTreeItem().getChildren() != draggedSubject) {
                             TreeItem<Subject> treeItemTest = treeCell.getTreeItem();
-                            while (treeItemTest.getParent() != root) {
+                            while (treeItemTest.getParent() != rootSubjectSingleton) {
                                 treeItemTest = treeItemTest.getParent();
                             }
                             if (treeItemTest.getValue().getGlobalID() < 0) {
@@ -240,7 +237,8 @@ public class QuestionBrowsingController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        CreateQuestionController controller = fxmlLoader.getController();
+        CreateSubjectController controller = fxmlLoader.getController();
+
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
