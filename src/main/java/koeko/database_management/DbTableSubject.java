@@ -1,6 +1,5 @@
 package koeko.database_management;
-
-import koeko.view.Subject;
+import koeko.students_management.Subject;
 
 import java.sql.*;
 import java.util.Date;
@@ -78,7 +77,7 @@ public class DbTableSubject {
 
         return subjects;
     }
-    static public Vector<String> getAllSubjects() {
+    static public Vector<String> getAllSubjectsAsStrings() {
         Vector<String> subjects = new Vector<>();
         Connection c = null;
         Statement stmt = null;
@@ -92,6 +91,33 @@ public class DbTableSubject {
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 subjects.add(rs.getString("SUBJECT"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return subjects;
+    }
+    static public Vector<Subject> getAllSubjects() {
+        Vector<Subject> subjects = new Vector<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT SUBJECT,ID_SUBJECT_GLOBAL FROM subjects;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                subjects.add(new Subject());
+                subjects.get(subjects.size() - 1).set_subjectName(rs.getString("SUBJECT"));
+                subjects.get(subjects.size() - 1).set_subjectMUID(rs.getString("ID_SUBJECT_GLOBAL"));
             }
             stmt.close();
             c.commit();

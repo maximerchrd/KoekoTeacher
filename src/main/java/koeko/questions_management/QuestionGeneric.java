@@ -1,5 +1,8 @@
 package koeko.questions_management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by maximerichard on 22.11.17.
  */
@@ -83,6 +86,15 @@ public class QuestionGeneric {
         questionGeneric.setIntTypeOfQuestion(1);
 
         return questionGeneric;
+    }
+
+    static public QuestionGeneric searchForQuestionWithID (List<QuestionGeneric> questionList, String id) {
+        for (QuestionGeneric questionGeneric : questionList) {
+            if (id.contentEquals(String.valueOf(questionGeneric.getGlobalID()))) {
+                return questionGeneric;
+            }
+        }
+        return null;
     }
 
     @Override

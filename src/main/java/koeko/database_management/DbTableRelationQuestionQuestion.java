@@ -55,6 +55,33 @@ public class DbTableRelationQuestionQuestion {
         }
     }
 
+    static public Set<String> getQuestionsLinkedToTest(String test) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        Set<String> questionIDs = new LinkedHashSet<>();
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST='" + test + "';";
+            ResultSet rs = stmt.executeQuery( sql );
+            while ( rs.next() ) {
+                questionIDs.add(rs.getString("ID_GLOBAL_1"));
+                questionIDs.add(rs.getString("ID_GLOBAL_2"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+
+        return questionIDs;
+    }
+
     static public Vector<String> getQuestionsLinkedToQuestion(String questionID, String test) {
         Connection c = null;
         Statement stmt = null;

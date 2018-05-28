@@ -87,7 +87,7 @@ public class EditQuestionController implements Initializable {
         addSubject("");
     }
     public void addSubject(String subject) {
-        Vector<String> subjectsVector = DbTableSubject.getAllSubjects();
+        Vector<String> subjectsVector = DbTableSubject.getAllSubjectsAsStrings();
         String[] subjects = subjectsVector.toArray(new String[subjectsVector.size()]);;
         ObservableList<String> options =
                 FXCollections.observableArrayList(subjects);

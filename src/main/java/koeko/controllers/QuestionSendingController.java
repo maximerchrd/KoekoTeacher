@@ -36,10 +36,7 @@ import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.util.*;
 import java.lang.*;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -99,7 +96,7 @@ public class QuestionSendingController extends Window implements Initializable {
         Task<Void> loadQuestions = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                populateTree(root);
+                populateTree(null);
                 return null;
             }
         };
@@ -294,26 +291,76 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
 
-    private void populateTree(TreeItem<QuestionGeneric> root) {
+    public void populateTree(Vector<String> IDs) {
         //populate tree
-        for (QuestionGeneric testGeneric : testsNodeList) {
-            TreeItem newTest = new TreeItem<>(testGeneric);
-            root.getChildren().add(newTest);
-            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testGeneric.getQuestion());
-            for (Integer id : questionIDs) {
-                Boolean found = false;
-                for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
-                    if (genericQuestionsList.get(i).getGlobalID() == id) {
-                        found = true;
-                        TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
-                        newTest.getChildren().add(questionItem);
 
-                        //add the questions linked to the test questions
-                        populateWithLinkedQuestions(testGeneric, id, questionItem);
+        //filter according to selected subject
+        if (IDs != null) {
+            root.getChildren().clear();
+            genericQuestionsList.clear();
+            for (String id : IDs) {
+                QuestionGeneric questionGeneric = new QuestionGeneric();
+                questionGeneric.setGlobalID(Integer.valueOf(id));
+                genericQuestionsList.add(questionGeneric);
+            }
+
+            for (QuestionGeneric testGeneric : testsNodeList) {
+                Set<String> questionIDs = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(testGeneric.getQuestion());
+
+                //apply subject filter
+                for (String id : questionIDs) {
+                    if (IDs.contains(String.valueOf(id))) {
+                        for (String id2 : questionIDs) {
+                            QuestionGeneric questionGeneric = QuestionGeneric.searchForQuestionWithID(genericQuestionsList, id2);
+                            if (questionGeneric == null) {
+                                questionGeneric = new QuestionGeneric();
+                                questionGeneric.setGlobalID(Integer.valueOf(id2));
+                                genericQuestionsList.add(questionGeneric);
+                            }
+                        }
+                        break;
                     }
                 }
             }
         }
+
+        //first add the tests
+        for (QuestionGeneric testGeneric : testsNodeList) {
+            ArrayList<Integer> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testGeneric.getQuestion());
+
+            //apply subject filter
+            Boolean addTest = false;
+            if (IDs != null) {
+                for (Integer id : questionIDs) {
+                    if (IDs.contains(String.valueOf(id))) {
+                        addTest = true;
+                        break;
+                    }
+                }
+            } else {
+                addTest = true;
+            }
+            if (addTest) {
+                TreeItem newTest = new TreeItem<>(testGeneric);
+                root.getChildren().add(newTest);
+                for (Integer id : questionIDs) {
+                    Boolean found = false;
+                    for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
+                        if (genericQuestionsList.get(i).getGlobalID() == id) {
+                            found = true;
+                            TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
+                            newTest.getChildren().add(questionItem);
+
+                            //add the questions linked to the test questions
+                            populateWithLinkedQuestions(testGeneric, id, questionItem);
+                        }
+                    }
+                }
+            }
+        }
+
+        //then add the questions
+
         for (int i = 0; i < genericQuestionsList.size(); i++) {
             try {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(genericQuestionsList.get(i).getGlobalID());

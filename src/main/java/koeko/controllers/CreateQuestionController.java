@@ -80,7 +80,7 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void addSubject() {
-        Vector<String> subjectsVector = DbTableSubject.getAllSubjects();
+        Vector<String> subjectsVector = DbTableSubject.getAllSubjectsAsStrings();
         String[] subjects = subjectsVector.toArray(new String[subjectsVector.size()]);;
         ObservableList<String> options =
                 FXCollections.observableArrayList(subjects);
