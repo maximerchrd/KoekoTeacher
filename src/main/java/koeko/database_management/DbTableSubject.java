@@ -49,6 +49,22 @@ public class DbTableSubject {
             System.exit(0);
         }
     }
+
+    static public void updateSubject(String oldSubject, String newSubject) {
+        String sql = 	"UPDATE subjects SET SUBJECT = ? WHERE SUBJECT = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, newSubject);
+            pstmt.setString(2, oldSubject);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     static public Vector<String> getSubjectsForQuestionID(int questionID) {
         Vector<String> subjects = new Vector<>();
         Connection c = null;

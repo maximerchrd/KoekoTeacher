@@ -247,6 +247,24 @@ public class QuestionBrowsingController implements Initializable {
         stage.show();
     }
 
+    public void editSubject() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditSubject.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        EditSubjectController controller = fxmlLoader.getController();
+        controller.initializeSubject(subjectsTree.getSelectionModel().getSelectedItem().getValue().get_subjectName(), subjectsTree);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Edit the Subject");
+        stage.setScene(new Scene(root1));
+        stage.show();
+    }
+
     public void filterQuestionsWithSubject() {
         Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
         Vector<String> questionIds;
