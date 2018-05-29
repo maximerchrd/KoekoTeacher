@@ -2,10 +2,7 @@ package koeko.database_management;
 
 import koeko.view.RelationQuestionSubject;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Vector;
 
 /**
@@ -163,6 +160,27 @@ public class DbTableRelationQuestionSubject {
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
+        }
+    }
+
+    static public void removeRelationSubjectQuestion(String subjectname, String questionID) {
+        Connection c = null;
+        PreparedStatement stmt = null;
+        stmt = null;
+        String subjectId = DbTableSubject.getSujectIdentifier(subjectname);
+        String sql = "DELETE FROM question_subject_relation WHERE ID_GLOBAL=? AND " +
+                "ID_SUBJECT_GLOBAL = ? ";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, questionID);
+            pstmt.setString(2, subjectId);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 

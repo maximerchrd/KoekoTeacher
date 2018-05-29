@@ -65,6 +65,32 @@ public class DbTableSubject {
         }
     }
 
+    static public String getSujectIdentifier(String subjectName) {
+        String sql = 	"SELECT ID_SUBJECT_GLOBAL,IDENTIFIER FROM subjects WHERE SUBJECT = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, subjectName);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String identifier = rs.getString("IDENTIFIER");
+                String intId = rs.getString("ID_SUBJECT_GLOBAL");
+                if ( identifier != null && identifier.length() > 0) {
+                    return identifier;
+                } else {
+                    return intId;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     static public Vector<String> getSubjectsForQuestionID(int questionID) {
         Vector<String> subjects = new Vector<>();
         Connection c = null;

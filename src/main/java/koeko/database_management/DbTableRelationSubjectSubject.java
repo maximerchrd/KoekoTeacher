@@ -5,6 +5,8 @@ import koeko.students_management.Subject;
 import java.sql.*;
 import java.util.Vector;
 
+import static koeko.database_management.DbTableRelationQuestionSubject.getQuestionsIdsForSubject;
+
 /**
  * Created by maximerichard on 24.11.17.
  */
@@ -26,10 +28,31 @@ public class DbTableRelationSubjectSubject {
     /**
      * Method that adds a relation between a question and a subject
      * by linking the last added question with the subject given as parameter
+     * It also deletes the former relation, the former question-subject relations and
+     * adds the new question-subject relations
      * @param subjectParent,subjectChild
-     * @throws Exception
      */
-    static public void addRelationSubjectSubject(String subjectParent, String subjectChild) {
+    static public void addRelationSubjectSubject(String subjectParent, String subjectChild, String oldSubjectParent) {
+        //BEGIN remove the old question-subject relations
+        Vector<String> childQuestions = new Vector<>();
+        Vector<String> parentQuestions = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(oldSubjectParent);
+        Vector<String> childSubjects = DbTableSubject.getSubjectsWithParent(oldSubjectParent);
+        for (String childSubject : childSubjects) {
+            if (!childSubject.contentEquals(subjectChild)) {
+                Vector<String> partChildQuestions = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(childSubject);
+                childQuestions.addAll(partChildQuestions);
+            }
+        }
+
+        for (String id : childQuestions) {
+            parentQuestions.remove(id);
+        }
+
+        for (String questionId : parentQuestions) {
+            DbTableRelationQuestionSubject.removeRelationSubjectQuestion(oldSubjectParent, questionId);
+        }
+        //END remove the old question-subject relations
+
         Connection c = null;
         Statement stmt = null;
         stmt = null;

@@ -148,7 +148,8 @@ public class QuestionBrowsingController implements Initializable {
                     public void handle(DragEvent event) {
                         /* data dropped */
                         if (!treeCell.getTreeItem().getValue().get_subjectName().contentEquals(draggedSubject.get_subjectName())) {
-                            DbTableRelationSubjectSubject.addRelationSubjectSubject(treeCell.getTreeItem().getValue().get_subjectName(),draggedItem.getValue().get_subjectName());
+                            DbTableRelationSubjectSubject.addRelationSubjectSubject(treeCell.getTreeItem().getValue().get_subjectName(),draggedItem.getValue().get_subjectName(),
+                                    draggedItem.getParent().getValue().get_subjectName());
                             draggedItem.getParent().getChildren().remove(draggedItem);
                             treeCell.getTreeItem().getChildren().add(draggedItem);
                         } else {
