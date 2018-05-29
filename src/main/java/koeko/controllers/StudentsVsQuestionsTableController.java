@@ -370,7 +370,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         Integer nbGroups = Koeko.studentGroupsAndClass.size() - 1;
         //Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
 
-        for (int i = 0; i < nbGroups; i++) {
+        int groupsLoaded = 0;
+        if (tableVBox.getChildren().size() > 1) {
+            int vboxSize = tableVBox.getChildren().size();
+            tableVBox.getChildren().remove(1, vboxSize);
+            groupsLoaded = 1;
+        }
+
+        for (int i = groupsLoaded; i < nbGroups; i++) {
             addGroup(groups.get(i), i);
 
             //add studentGroupsAndClass for group

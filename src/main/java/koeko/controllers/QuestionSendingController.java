@@ -926,8 +926,10 @@ public class QuestionSendingController extends Window implements Initializable {
         //    removeQuestion(0);
         //}
         //Koeko.studentGroupsAndClass.get(group).getActiveIDs().clear();
-        if (Koeko.studentGroupsAndClass.get(group).getActiveIDs().size() == 0) {
+        if (Koeko.studentGroupsAndClass.get(group).getActiveIDs().size() == 0 && groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             Koeko.studentGroupsAndClass.get(group).setActiveIDs(DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString()));
+        } else {
+            System.out.println("no active id or groupsCombobox selectedItem is null");
         }
         //refreshReadyQuestionsList(group);
         for (int i = 0; i < questionIds.size(); i++) {
