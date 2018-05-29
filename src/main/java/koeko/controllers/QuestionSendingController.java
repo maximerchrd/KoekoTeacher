@@ -512,7 +512,7 @@ public class QuestionSendingController extends Window implements Initializable {
         EditQuestionController controller = fxmlLoader.getController();
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        controller.initVariables(genericQuestionsList, allQuestionsTree, questionGeneric, selectedItem);
+        controller.initVariables(genericQuestionsList, allQuestionsTree, questionGeneric, selectedItem, allQuestionsTree);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);

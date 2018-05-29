@@ -113,7 +113,7 @@ public class DbTableQuestionMultipleChoice {
                     "NB_CORRECT_ANS='" + quest.getNB_CORRECT_ANS() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "', " +
                     "MODIF_DATE='" + ZonedDateTime.now() + "' " +
-                    "WHERE ID_GLOBAL='" + ZonedDateTime.now() + "';";
+                    "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

@@ -42,6 +42,7 @@ public class EditQuestionController implements Initializable {
     private TreeView<QuestionGeneric> allQuestionsTree;
     private QuestionGeneric questionGeneric;
     private TreeItem treeItem;
+    private TreeView treeView;
 
     @FXML private VBox vBox;
     @FXML private VBox vBoxSubjects;
@@ -51,11 +52,12 @@ public class EditQuestionController implements Initializable {
     @FXML private TextField imagePath;
 
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree,
-                              QuestionGeneric questionGeneric, TreeItem treeItem) {
+                              QuestionGeneric questionGeneric, TreeItem treeItem, TreeView treeView) {
         genericQuestionsList = argGenericQuestionsList;
         allQuestionsTree = argAllQuestionsTree;
         this.questionGeneric = questionGeneric;
         this.treeItem = treeItem;
+        this.treeView = treeView;
         fillFields();
     }
 
@@ -231,12 +233,13 @@ public class EditQuestionController implements Initializable {
             questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
             Node questionImage = null;
             questionImage = new ImageView(new Image("file:" + new_questshortanswer.getIMAGE(), 20, 20, true, false));
-            if (new_questshortanswer.getIMAGE().length() < 1) {
+            if (new_questshortanswer.getIMAGE().length() < 1 || new_questshortanswer.getIMAGE().contentEquals("none")) {
                 treeItem.setValue(questionGeneric);
             } else {
                 treeItem.setValue(questionGeneric);
                 treeItem.setGraphic(questionImage);
             }
+            treeView.refresh();
 
             DbTableRelationQuestionSubject.removeRelationsWithQuestion(questionGeneric.getGlobalID());
             for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
@@ -279,7 +282,6 @@ public class EditQuestionController implements Initializable {
             new_questmultchoice.setID(questionGeneric.getGlobalID());
             try {
                 DbTableQuestionMultipleChoice.updateMultipleChoiceQuestion(new_questmultchoice);
-
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -291,12 +293,13 @@ public class EditQuestionController implements Initializable {
             questionGeneric.setImagePath(new_questmultchoice.getIMAGE());
             Node questionImage = null;
             questionImage = new ImageView(new Image("file:" + new_questmultchoice.getIMAGE(), 20, 20, true, false));
-            if (new_questmultchoice.getIMAGE().length() < 1) {
+            if (new_questmultchoice.getIMAGE().length() < 1 || new_questmultchoice.getIMAGE().contentEquals("none")) {
                 treeItem.setValue(questionGeneric);
             } else {
                 treeItem.setValue(questionGeneric);
                 treeItem.setGraphic(questionImage);
             }
+            treeView.refresh();
 
             DbTableRelationQuestionSubject.removeRelationsWithQuestion(questionGeneric.getGlobalID());
             for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
