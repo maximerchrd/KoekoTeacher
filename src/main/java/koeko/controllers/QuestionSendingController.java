@@ -165,7 +165,7 @@ public class QuestionSendingController extends Window implements Initializable {
                         /* show to the user that it is an actual gesture target */
                         if (event.getGestureSource() != treeCell &&
                                 event.getDragboard().hasString()) {
-                            treeCell.setTextFill(Color.GREEN);
+                            treeCell.setTextFill(Color.LIGHTGREEN);
                         }
                         event.consume();
                     }

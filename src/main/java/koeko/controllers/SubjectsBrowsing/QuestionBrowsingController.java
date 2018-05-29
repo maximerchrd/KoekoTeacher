@@ -34,6 +34,12 @@ import java.util.Vector;
 public class QuestionBrowsingController implements Initializable {
     static public TreeItem<Subject> rootSubjectSingleton;
     private Subject draggedSubject;
+    private TreeItem<Subject> draggedItem;
+
+    private Vector<Subject> subjects;
+    private Vector<String> subjectsIds;
+    private Vector<String> parentIds;
+    private Vector<String> childIds;
 
     @FXML private Label labelIP;
     @FXML private TreeView<Subject> subjectsTree;
@@ -52,6 +58,8 @@ public class QuestionBrowsingController implements Initializable {
 
 
         //build the subjects tree
+        subjectsTree.getStylesheets().add("/style/treeview.css");
+
         //create rootSubjectSingleton
         Subject subject = new Subject();
         subject.set_subjectName("All subjects");
@@ -86,8 +94,8 @@ public class QuestionBrowsingController implements Initializable {
                 treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        if (treeCell.getTreeItem().getValue().get_subjectId() > 0) {
                             draggedSubject = treeCell.getTreeItem().getValue();
+                            draggedItem = treeCell.getTreeItem();
                             Dragboard db = subjectsTree.startDragAndDrop(TransferMode.ANY);
 
                             /* Put a string on a dragboard */
@@ -96,7 +104,6 @@ public class QuestionBrowsingController implements Initializable {
                             db.setContent(content);
 
                             mouseEvent.consume();
-                        }
                     }
                 });
 
@@ -107,8 +114,8 @@ public class QuestionBrowsingController implements Initializable {
                          * and if it has a string data */
                         if (event.getGestureSource() != treeCell &&
                                 event.getDragboard().hasString()) {
-                            /* allow for both copying and moving, whatever user chooses */
-                            event.acceptTransferModes(TransferMode.COPY);
+                            //set the type of dropping: MOVE AND/OR COPY
+                            event.acceptTransferModes(TransferMode.MOVE);
                         }
 
                         event.consume();
@@ -121,7 +128,8 @@ public class QuestionBrowsingController implements Initializable {
                         /* show to the user that it is an actual gesture target */
                         if (event.getGestureSource() != treeCell &&
                                 event.getDragboard().hasString()) {
-                            treeCell.setTextFill(Color.GREEN);
+                            //treeCell.setStyle(String.format("-fx-background-color: green"));
+                            treeCell.setTextFill(Color.LIGHTGREEN);
                         }
                         event.consume();
                     }
@@ -129,6 +137,7 @@ public class QuestionBrowsingController implements Initializable {
                 treeCell.setOnDragExited(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
                         /* mouse moved away, remove the graphical cues */
+                        //treeCell.setStyle(String.format("-fx-background-color: white"));
                         treeCell.setTextFill(Color.BLACK);
                         event.consume();
                     }
@@ -138,55 +147,14 @@ public class QuestionBrowsingController implements Initializable {
                 treeCell.setOnDragDropped(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
                         /* data dropped */
-                        /* if there is a string data on dragboard, read it and use it */
-                        /*if (treeCell.getTreeItem().getValue().get_subjectMUID() < 0) {
-
-                            //add a horizontal relation with the question before in the list
-                            int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
-                            TreeItem<Subject> questionBefore = null;
-                            if (bigBrotherIndex >= 0) {
-                                questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
-                            }
-                            if (questionBefore != null) {
-                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                        String.valueOf(draggedSubject.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
-                            }
-
-                            //add the node to the tree
-                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedSubject));
-                            DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedSubject.getGlobalID()),
-                                    treeCell.getTreeItem().getValue().getQuestion());
-                            event.setDropCompleted(true);
-                            treeCell.getTreeItem().setExpanded(true);
-                            event.consume();
-                        } else if (treeCell.getTreeItem().getChildren() != draggedSubject) {
-                            TreeItem<Subject> treeItemTest = treeCell.getTreeItem();
-                            while (treeItemTest.getParent() != rootSubjectSingleton) {
-                                treeItemTest = treeItemTest.getParent();
-                            }
-                            if (treeItemTest.getValue().getGlobalID() < 0) {
-                                int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
-                                TreeItem<Subject> questionBefore = null;
-                                if (bigBrotherIndex >= 0) {
-                                    questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
-                                }
-                                if (questionBefore != null) {
-                                    DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                            String.valueOf(draggedSubject.getGlobalID()), treeItemTest.getValue().getQuestion(), "");
-                                }
-
-                                //add the node to the tree and set the vertical relation
-                                treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedSubject));
-                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
-                                        String.valueOf(draggedSubject.getGlobalID()), treeItemTest.getValue().getQuestion(), "EVALUATION<60");
-                                event.setDropCompleted(true);
-                                treeCell.getTreeItem().setExpanded(true);
-                                event.consume();
-                            }
+                        if (!treeCell.getTreeItem().getValue().get_subjectName().contentEquals(draggedSubject.get_subjectName())) {
+                            DbTableRelationSubjectSubject.addRelationSubjectSubject(treeCell.getTreeItem().getValue().get_subjectName(),draggedItem.getValue().get_subjectName());
+                            draggedItem.getParent().getChildren().remove(draggedItem);
+                            treeCell.getTreeItem().getChildren().add(draggedItem);
                         } else {
-                            System.out.println("Trying to drag on self or on question not belonging to any test");
+                            System.out.println("Trying to drag on self");
                         }
-                        draggedSubject = null;*/
+                        draggedSubject = null;
                     }
                 });
 
@@ -207,12 +175,52 @@ public class QuestionBrowsingController implements Initializable {
     }
 
     private void populateSubjectTree(TreeItem<Subject> root) {
-        //retrieve data from the db
-        Vector<Subject> subjects = DbTableSubject.getAllSubjects();
-
+        //BEGIN retrieve data from the db and prepare the vectors
+        subjects = DbTableSubject.getAllSubjects();
+        subjectsIds = new Vector<>();
         for (Subject subject : subjects) {
+            subjectsIds.add(String.valueOf(subject.get_subjectMUID()));
+        }
+
+        Vector<Vector<String>> idsRelationPairs = DbTableRelationSubjectSubject.getAllSubjectIDsRelations();
+        parentIds = new Vector<>();
+        childIds = new Vector<>();
+        for (Vector<String> pair : idsRelationPairs) {
+            parentIds.add(pair.get(0));
+            childIds.add(pair.get(1));
+        }
+
+        Vector<String> topSubjects = new Vector<>();
+        for (String subjectId : subjectsIds) {
+            if (!childIds.contains(subjectId)) {
+                topSubjects.add(subjectId);
+            }
+        }
+        //END retrieve data from the db and prepare the vectors
+
+        for (String subjectId : topSubjects) {
+            Subject subject = subjects.get(subjectsIds.indexOf(subjectId));
             TreeItem subjectTreeItem = new TreeItem<>(subject);
             root.getChildren().add(subjectTreeItem);
+
+            populateWithChildren(subjectId, subjectTreeItem);
+        }
+    }
+
+    private void populateWithChildren(String subjectID, TreeItem<Subject> subjectTreeItem) {
+        Vector<String> childrenIds = new Vector<>();
+        for (int i = 0; i < parentIds.size(); i++) {
+            if (parentIds.get(i).contentEquals(subjectID)) {
+                childrenIds.add(childIds.get(i));
+            }
+        }
+
+        //
+        for (String childrenId : childrenIds) {
+            Subject subject = subjects.get(subjectsIds.indexOf(childrenId));
+            TreeItem<Subject> newItem = new TreeItem<>(subject);
+            subjectTreeItem.getChildren().add(newItem);
+            populateWithChildren(childrenId, newItem);
         }
     }
 

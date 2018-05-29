@@ -1,8 +1,8 @@
 package koeko.database_management;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import koeko.students_management.Subject;
+
+import java.sql.*;
 import java.util.Vector;
 
 /**
@@ -33,15 +33,56 @@ public class DbTableRelationSubjectSubject {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
+        String sql = 	"DELETE FROM subject_subject_relation WHERE ID_SUBJECT_GLOBAL_CHILD = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = ?)";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, subjectChild);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        sql = "INSERT OR IGNORE INTO subject_subject_relation (ID_SUBJECT_GLOBAL_PARENT, ID_SUBJECT_GLOBAL_CHILD) SELECT DISTINCT ID_SUBJECT_GLOBAL," +
+                "(SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE  SUBJECT=?)" +
+                "FROM subjects WHERE  SUBJECT=?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, subjectChild);
+            pstmt.setString(2, subjectParent);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        Vector<String> questionIDs = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subjectChild);
+        for (int i = 0; i < questionIDs.size(); i++) {
+            DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(questionIDs.get(i)),"");
+        }
+    }
+
+    static public Vector<Vector<String>> getAllSubjectIDsRelations() {
+        Vector<Vector<String>> subjectsPairs = new Vector<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "INSERT OR IGNORE INTO subject_subject_relation (ID_SUBJECT_GLOBAL_PARENT, ID_SUBJECT_GLOBAL_CHILD) SELECT DISTINCT ID_SUBJECT_GLOBAL," +
-                    "(SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE  SUBJECT='" + subjectChild + "')" +
-                    "FROM subjects WHERE  SUBJECT='" + subjectParent + "';";
-            stmt.executeUpdate(sql);
+            String query = "SELECT ID_SUBJECT_GLOBAL_PARENT,ID_SUBJECT_GLOBAL_CHILD FROM subject_subject_relation;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                subjectsPairs.add(new Vector<>());
+                subjectsPairs.get(subjectsPairs.size() - 1).add(rs.getString("ID_SUBJECT_GLOBAL_PARENT"));
+                subjectsPairs.get(subjectsPairs.size() - 1).add(rs.getString("ID_SUBJECT_GLOBAL_CHILD"));
+            }
             stmt.close();
             c.commit();
             c.close();
@@ -50,10 +91,7 @@ public class DbTableRelationSubjectSubject {
             System.exit(0);
         }
 
-        Vector<String> questionIDs = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subjectChild);
-        for (int i = 0; i < questionIDs.size(); i++) {
-            DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(questionIDs.get(i)),"");
-        }
+        return subjectsPairs;
     }
 
     public static void removeRelationsForSubject(String subject) {
