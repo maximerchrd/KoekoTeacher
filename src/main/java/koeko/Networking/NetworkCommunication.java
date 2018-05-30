@@ -162,7 +162,6 @@ public class NetworkCommunication {
                 System.out.println("sending question: " + new String(bytearraystring) + " to single student");
                 writeToOutputStream(student, bytearraystring);
             } else {
-                /**TODO when we have already some students and we load a class with same students, outputstream is dead*/
                 System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
             }
         }

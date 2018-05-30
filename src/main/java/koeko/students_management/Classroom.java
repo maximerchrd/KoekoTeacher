@@ -346,6 +346,10 @@ public class Classroom {
                     students_vector.remove(student);
                 }
                 students_vector.add(studentToMerge);
+            } else if (studentsToMerge.get(0).getInetAddress() != null
+                    && !studentsToMerge.get(0).getUniqueID().contentEquals("no identifier")
+                    && !studentsToMerge.get(0).getName().contentEquals("no name")) {
+                System.out.println("mergeStudentsOnNameAndIP: the present student is probably more complete. we do nothing.");
             } else if (!studentToMerge.getName().contentEquals("no name") && !studentsToMerge.get(0).getName().contentEquals("no name")
                     && studentsToMerge.get(0).getInetAddress() != null && studentsToMerge.get(0).getInetAddress().toString().length() > 0) {
                 students_vector.remove(studentsToMerge.get(0));
@@ -354,7 +358,7 @@ public class Classroom {
                     studentsToMerge.get(0).getName().contentEquals(studentToMerge.getName()) &&
                     studentsToMerge.get(0).getUniqueID().contentEquals(studentToMerge.getUniqueID()) &&
                     studentsToMerge.get(0).getStudentID().equals(studentToMerge.getStudentID())) {
-                System.out.println("merging probably equal objects: we do nothing");
+                System.out.println("mergeStudentsOnNameAndIP: merging probably equal objects. we do nothing");
             } else {
                 System.out.println("mergeStudentsOnNameAndIP: implementation not complete.");
             }
