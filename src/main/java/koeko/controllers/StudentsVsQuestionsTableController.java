@@ -195,16 +195,18 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
         } else {
             //BEGIN change connection status to connected
-            int indexStudent = -1;
-            for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
-                if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) {
-                    indexStudent = i;
+            if (connection) {
+                int indexStudent = -1;
+                for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
+                    if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) {
+                        indexStudent = i;
+                    }
                 }
-            }
-            if (indexStudent >= 0) {
-                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
-                singleStudentAnswersLine.setStatus("connected");
-                tableViewArrayList.get(group).getItems().set(indexStudent,singleStudentAnswersLine);
+                if (indexStudent >= 0) {
+                    SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
+                    singleStudentAnswersLine.setStatus("connected");
+                    tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
+                }
             }
             //END change connection status to connected
 
