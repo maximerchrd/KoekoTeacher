@@ -448,7 +448,7 @@ public class QuestionSendingController extends Window implements Initializable {
             students = DbTableClasses.getStudentsInClass(activeClass);
         }
 
-        //if there is a problem with the students
+        //if there is no class selected
         if (students.size() == 0) {
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
         }

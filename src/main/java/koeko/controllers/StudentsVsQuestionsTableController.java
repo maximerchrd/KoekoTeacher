@@ -159,9 +159,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
+        System.out.println("adding user with connection:" + connection);
+        if (connection) {
+            System.out.println("bla");
+        }
         ArrayList<String> studentNames = new ArrayList<>();
         for (Student student: Koeko.studentGroupsAndClass.get(group).getStudents_vector()) studentNames.add(student.getName());
         if (!studentNames.contains(UserStudent.getName())) {
+            Koeko.studentGroupsAndClass.get(group).addStudentIfNotInClass(UserStudent);
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
@@ -189,15 +194,22 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //adapt table height
             tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
         } else {
+            //BEGIN change connection status to connected
             int indexStudent = -1;
             for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
-                if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) indexStudent = i;
+                if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) {
+                    indexStudent = i;
+                }
             }
             if (indexStudent >= 0) {
                 SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
                 singleStudentAnswersLine.setStatus("connected");
                 tableViewArrayList.get(group).getItems().set(indexStudent,singleStudentAnswersLine);
             }
+            //END change connection status to connected
+
+            //we merge students if we have same ip address and one is not initialized (name="no name") and if we have 2 same names
+            Koeko.studentGroupsAndClass.get(group).mergeStudentsOnNameAndIP(UserStudent);
         }
     }
 
@@ -367,7 +379,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void loadGroups() {
         ArrayList<String> groups = DbTableClasses.getGroupsFromClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-        Integer nbGroups = Koeko.studentGroupsAndClass.size() - 1;
+        groups.add(0,chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+        Integer nbGroups = Koeko.studentGroupsAndClass.size();
         //Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
 
         int groupsLoaded = 0;
@@ -377,23 +390,20 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             groupsLoaded = 1;
         }
 
-        for (int i = groupsLoaded; i < nbGroups; i++) {
-            addGroup(groups.get(i), i);
+        for (int i = 0; i < nbGroups; i++) {
+            if (i > 0) {
+                addGroup(groups.get(i), i);
+            }
 
             //add studentGroupsAndClass for group
             Vector<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
             for (Student student : students) {
-                addUser(student, false, i + 1);
-                Koeko.studentGroupsAndClass.get(i + 1).addStudent(student);
+                addUser(student, false, i);
             }
         }
     }
 
     public void loadClass() {
-        Vector<Student> students = DbTableClasses.getStudentsInClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-        for (int i = 0; i < students.size(); i++) {
-            addUser(students.get(i),false);
-        }
         String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
         Koeko.questionSendingControllerSingleton.activeClassChanged(activeClass);
         loadGroups();

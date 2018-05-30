@@ -91,7 +91,7 @@ public class NetworkCommunication {
                                 student.setOutputStream(skt.getOutputStream());
                                 if (!aClass.studentAlreadyInClass(student)) {
                                     aClass.addStudentIfNotInClass(student);
-                                    System.out.println("aClass.size() = " + aClass.getClassSize() + " adding student: " + student.getInetAddress().toString());
+                                    System.out.println("aClass.size() = " + aClass.getClassSize() + ". Added student: " + student.getInetAddress().toString());
                                 } else {
                                     student.setInputStream(skt.getInputStream());
                                     student.setOutputStream(skt.getOutputStream());
@@ -162,6 +162,7 @@ public class NetworkCommunication {
                 System.out.println("sending question: " + new String(bytearraystring) + " to single student");
                 writeToOutputStream(student, bytearraystring);
             } else {
+                /**TODO when we have already some students and we load a class with same students, outputstream is dead*/
                 System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
             }
         }

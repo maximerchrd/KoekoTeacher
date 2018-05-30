@@ -149,8 +149,10 @@ public class Classroom {
     public int indexOfStudentWithAddress (String address) {
         int index = -1;
         for (int i = 0; i < students_vector.size(); i++) {
-            if (students_vector.get(i).getInetAddress().toString().equals(address)) {
-                index = i;
+            if (students_vector.get(i).getInetAddress() != null) {
+                if (students_vector.get(i).getInetAddress().toString().equals(address)) {
+                    index = i;
+                }
             }
         }
         return index;
@@ -159,7 +161,11 @@ public class Classroom {
     private int readStudents_addresses() {
         students_addresses.clear();
         for (int i = 0; i < students_vector.size(); i++) {
-            students_addresses.add(students_vector.get(i).getInetAddress().toString());
+            if (students_vector.get(i).getInetAddress() != null) {
+                students_addresses.add(students_vector.get(i).getInetAddress().toString());
+            } else {
+                students_addresses.add("");
+            }
         }
         return students_addresses.size();
     }
@@ -190,13 +196,17 @@ public class Classroom {
         int students_addresses_size = readStudents_addresses();
         System.out.println("studentGroupsAndClass addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
-            if (!students_addresses.contains(student.getUniqueID())) {
+            if (!students_addresses.contains(student.getInetAddress().toString())) {
                 System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueID());
                 students_vector.add(student);
             } else {
-                int index = students_addresses.indexOf(student.getUniqueID());
-                students_vector.remove(index);
-                students_vector.add(student);
+                int index = students_addresses.indexOf(student.getInetAddress().toString());
+                if (index > -1) {
+                    students_vector.remove(index);
+                    students_vector.add(student);
+                } else {
+                    System.out.println("ERROR in addStudentIfNotInClass: index of student address not found even though should be in array");
+                }
             }
         } else {
             students_vector.add(student);
@@ -315,8 +325,39 @@ public class Classroom {
             }
             System.out.println("check if all questions on device: " + questionsReached);
             System.out.println("activeIDs: " + activeIDs);
-            System.out.println("device IDs: " + deviceQuestions);        }
+            System.out.println("device IDs: " + deviceQuestions);
+        }
         return  questionsReached;
     }
 
+    public void mergeStudentsOnNameAndIP(Student studentToMerge) {
+        ArrayList<Student> studentsToMerge = new ArrayList<>();
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (!students_vector.get(i).getName().contentEquals("no name") && studentToMerge.getName().contentEquals(students_vector.get(i).getName())) {
+                studentsToMerge.add(students_vector.get(i));
+            } else if (students_vector.get(i).getInetAddress() != null && studentToMerge.getInetAddress().equals(students_vector.get(i).getInetAddress())) {
+                studentsToMerge.add(students_vector.get(i));
+            }
+        }
+
+        if (studentsToMerge.size() > 0) {
+            if (studentToMerge.getInetAddress() != null && studentToMerge.getInetAddress().toString().length() > 0 && !studentToMerge.getName().contentEquals("no name")) {
+                for (Student student : studentsToMerge) {
+                    students_vector.remove(student);
+                }
+                students_vector.add(studentToMerge);
+            } else if (!studentToMerge.getName().contentEquals("no name") && !studentsToMerge.get(0).getName().contentEquals("no name")
+                    && studentsToMerge.get(0).getInetAddress() != null && studentsToMerge.get(0).getInetAddress().toString().length() > 0) {
+                students_vector.remove(studentsToMerge.get(0));
+                students_vector.add(studentToMerge);
+            } else if  (studentsToMerge.get(0).getInetAddress() == null && studentToMerge.getInetAddress() == null &&
+                    studentsToMerge.get(0).getName().contentEquals(studentToMerge.getName()) &&
+                    studentsToMerge.get(0).getUniqueID().contentEquals(studentToMerge.getUniqueID()) &&
+                    studentsToMerge.get(0).getStudentID().equals(studentToMerge.getStudentID())) {
+                System.out.println("merging probably equal objects: we do nothing");
+            } else {
+                System.out.println("mergeStudentsOnNameAndIP: implementation not complete.");
+            }
+        }
+    }
 }
