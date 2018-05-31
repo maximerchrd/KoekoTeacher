@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.LearningTrackerController;
 import koeko.controllers.QuestionSendingController;
-import koeko.controllers.StudentsVsQuestionsTableController;
+import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.database_management.DBManager;
 import koeko.students_management.Classroom;
 import javafx.application.Application;

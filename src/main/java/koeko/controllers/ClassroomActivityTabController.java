@@ -1,5 +1,6 @@
 package koeko.controllers;
 
+import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.students_management.Student;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

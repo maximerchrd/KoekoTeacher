@@ -1,6 +1,8 @@
-package koeko.controllers;
+package koeko.controllers.StudentsVsQuestions;
 
 import koeko.Koeko;
+import koeko.controllers.CreateClassController;
+import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
@@ -43,6 +45,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     private ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
+    @FXML private ComboBox chooseTestCombo;
 
     public void addQuestion(String question, Integer ID, Integer group) {
         if (group < 1) group = 0;
@@ -408,6 +411,13 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void loadClass() {
         String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
         Koeko.questionSendingControllerSingleton.activeClassChanged(activeClass);
+
+        chooseTestCombo.getItems().clear();
+        ArrayList<String> tests = DbTableRelationClassTest.getTestsForClass(activeClass);
+        for (String test : tests) {
+            chooseTestCombo.getItems().add(test);
+        }
+
         loadGroups();
     }
 
@@ -475,6 +485,26 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.remove(groupIndex);
         tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
         tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
+    }
+
+    public void launchChooseTest() {
+        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/ChooseTest.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ChooseTestController controller = fxmlLoader.<ChooseTestController>getController();
+            controller.initializeParameters(chooseTestCombo, chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Assign a Certificative Test to the Class");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        }
     }
 
     @Override
