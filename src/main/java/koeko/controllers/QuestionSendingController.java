@@ -184,25 +184,29 @@ public class QuestionSendingController extends Window implements Initializable {
                         /* data dropped */
                         /* if there is a string data on dragboard, read it and use it */
                         if (treeCell.getTreeItem().getValue().getGlobalID() < 0) {
+                            if (treeCell.getTreeItem().getValue().getTypeOfQuestion().contentEquals("TEFO")) {
 
-                            //add a horizontal relation with the question before in the list
-                            int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
-                            TreeItem<QuestionGeneric> questionBefore = null;
-                            if (bigBrotherIndex >= 0) {
-                                questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
-                            }
-                            if (questionBefore != null) {
-                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                        String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
-                            }
+                                //add a horizontal relation with the question before in the list
+                                int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
+                                TreeItem<QuestionGeneric> questionBefore = null;
+                                if (bigBrotherIndex >= 0) {
+                                    questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
+                                }
+                                if (questionBefore != null) {
+                                    DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
+                                            String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
+                                }
 
-                            //add the node to the tree
-                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
-                            DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedQuestion.getGlobalID()),
-                                    treeCell.getTreeItem().getValue().getQuestion());
-                            event.setDropCompleted(true);
-                            treeCell.getTreeItem().setExpanded(true);
-                            event.consume();
+                                //add the node to the tree
+                                treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                                DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedQuestion.getGlobalID()),
+                                        treeCell.getTreeItem().getValue().getQuestion());
+                                event.setDropCompleted(true);
+                                treeCell.getTreeItem().setExpanded(true);
+                                event.consume();
+                            } else {
+                                System.out.println("Trying to drag on certificative test");
+                            }
                         } else if (treeCell.getTreeItem().getChildren() != draggedQuestion) {
                             TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
                             while (treeItemTest.getParent() != root) {
@@ -710,6 +714,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
         CreateTestController controller = fxmlLoader.getController();
         ArrayList<String> testNames = new ArrayList<>();
+        testsList = DbTableTests.getAllTests();
         for (Test test : testsList) {
             testNames.add(test.getTestName());
         }
@@ -734,6 +739,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             EditTestController controller = fxmlLoader.getController();
             ArrayList<String> testNames = new ArrayList<>();
+            testsList = DbTableTests.getAllTests();
             for (Test test : testsList) {
                 testNames.add(test.getTestName());
             }

@@ -15,7 +15,7 @@ public class Test {
     private ArrayList<Integer> objectivesIDs;
     private Double testEvaluation;
     private Boolean isSynchroneousQuestionsTest;
-    private Integer testMode;
+    private Integer testMode;   //0: certificative test; 1: formative test
 
     public Test() {
         this.testName = "";

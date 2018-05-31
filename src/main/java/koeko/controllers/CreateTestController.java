@@ -67,7 +67,7 @@ public class CreateTestController extends Window implements Initializable {
     }
 
     public void certificativeCheckBoxAction() {
-        if (certificativeCheckBox.isSelected()) {
+        if (!certificativeCheckBox.isSelected()) {
             addObjectiveButton.setDisable(true);
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
                 comboBox.setDisable(true);
@@ -106,7 +106,7 @@ public class CreateTestController extends Window implements Initializable {
             root.getChildren().add(testTreeItem);
 
             //add objectives to test
-            if (!certificativeCheckBox.isSelected()) {
+            if (certificativeCheckBox.isSelected()) {
                 for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
                     try {
                         DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);

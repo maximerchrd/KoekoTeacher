@@ -51,9 +51,9 @@ public class EditTestController extends Window implements Initializable {
         this.presentName = test.getTestName();
         if (test.getTestMode() == 0) {
             certificativeCheckBox.setSelected(true);
-            addObjectiveButton.setDisable(true);
+            addObjectiveButton.setDisable(false);
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
-                comboBox.setDisable(true);
+                comboBox.setDisable(false);
             }
         }
         testName.setText(presentName);
@@ -123,7 +123,7 @@ public class EditTestController extends Window implements Initializable {
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();
-            if (!certificativeCheckBox.isSelected()) {
+            if (certificativeCheckBox.isSelected()) {
                 for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
                     try {
                         newObjectives.add(objectiveCombo.getEditor().getText());
