@@ -216,4 +216,17 @@ public class DbTableRelationQuestionSubject {
         return subjects;
     }
 
+    static public void removeRelationWithSubject(String subject) {
+        String sql = 	"DELETE FROM question_subject_relation WHERE ID_SUBJECT_GLOBAL=(SELECT ID_SUBJECT_GLOBAL " +
+                "FROM subjects WHERE SUBJECT=?)";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, subject);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

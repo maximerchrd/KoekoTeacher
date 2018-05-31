@@ -13,10 +13,13 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.database_management.*;
@@ -31,7 +34,7 @@ import java.util.Vector;
 /**
  * Created by maximerichard on 13.03.18.
  */
-public class QuestionBrowsingController implements Initializable {
+public class QuestionBrowsingController extends Window implements Initializable {
     static public TreeItem<Subject> rootSubjectSingleton;
     private Subject draggedSubject;
     private TreeItem<Subject> draggedItem;
@@ -272,6 +275,28 @@ public class QuestionBrowsingController implements Initializable {
         stage.setTitle("Edit the Subject");
         stage.setScene(new Scene(root1));
         stage.show();
+    }
+
+    public void deleteSubject() {
+        if (subjectsTree.getSelectionModel().getSelectedItem() != null) {
+            if (subjectsTree.getSelectionModel().getSelectedItem().getChildren().size() == 0) {
+                Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
+                DbTableRelationSubjectSubject.deleteRelationWhereSubjectIsChild(subject.get_subjectName());
+                DbTableRelationQuestionSubject.removeRelationWithSubject(subject.get_subjectName());
+                DbTableSubject.deleteSubject(subject.get_subjectName());
+                TreeItem<Subject> itemToDelete = subjectsTree.getSelectionModel().getSelectedItem();
+                itemToDelete.getParent().getChildren().remove(itemToDelete);
+            } else {
+                final Stage dialog = new Stage();
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.initOwner(this);
+                VBox dialogVbox = new VBox(20);
+                dialogVbox.getChildren().add(new Text("Sorry, it is not possible to delete a subject with sub-subject(s)."));
+                Scene dialogScene = new Scene(dialogVbox, 400, 40);
+                dialog.setScene(dialogScene);
+                dialog.show();
+            }
+        }
     }
 
     public void filterQuestionsWithSubject() {

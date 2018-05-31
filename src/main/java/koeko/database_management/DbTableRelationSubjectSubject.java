@@ -140,4 +140,18 @@ public class DbTableRelationSubjectSubject {
             System.exit(0);
         }
     }
+
+    static public void deleteRelationWhereSubjectIsChild(String subject) {
+        String sql = "DELETE FROM subject_subject_relation WHERE ID_SUBJECT_GLOBAL_CHILD=(SELECT ID_SUBJECT_GLOBAL " +
+                "FROM subjects WHERE SUBJECT=?)";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, subject);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
