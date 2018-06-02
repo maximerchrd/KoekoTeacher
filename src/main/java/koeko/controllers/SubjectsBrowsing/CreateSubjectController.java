@@ -11,7 +11,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import koeko.database_management.DbTableSubject;
-import koeko.students_management.Subject;
+import koeko.view.Subject;
 
 import java.net.URL;
 import java.util.ResourceBundle;

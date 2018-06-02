@@ -1,14 +1,15 @@
 package koeko.view;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Professor {
+public class Professor implements Serializable {
     private String _id_prof;
     private String _alias;
     private String _muid;
     private Timestamp _updateTS;
 
-    private Professor() {
+    public Professor() {
     }
 
     public static Professor createProfessor(String id, String alias, String muid) {

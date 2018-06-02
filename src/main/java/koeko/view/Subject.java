@@ -1,8 +1,18 @@
 package koeko.view;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-public class Subject {
+public class Subject implements Serializable {
+
+    public Subject() {
+        this._subjectName = "";
+        this._subjectId = 0;
+        this._subjectMUID = "";
+        this._sbjUpdDts = Timestamp.valueOf(LocalDateTime.now());
+    }
+
     public Subject(String _subjectName, int _subjectId, String _subjectMUID, Timestamp _sbjUpdDts) {
         this._subjectName = _subjectName;
         this._subjectId = _subjectId;

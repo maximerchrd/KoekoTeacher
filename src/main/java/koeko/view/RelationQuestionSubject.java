@@ -1,6 +1,8 @@
 package koeko.view;
 
-public class RelationQuestionSubject {
+import java.io.Serializable;
+
+public class RelationQuestionSubject implements Serializable {
     private int _questionId;
     private String _subjectMUID;
     private int _level;

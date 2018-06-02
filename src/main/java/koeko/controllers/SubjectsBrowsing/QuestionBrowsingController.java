@@ -23,7 +23,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.database_management.*;
-import koeko.students_management.Subject;
+import koeko.view.Subject;
 
 import java.io.IOException;
 import java.net.InetAddress;

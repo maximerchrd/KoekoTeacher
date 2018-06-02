@@ -1,5 +1,5 @@
 package koeko.database_management;
-import koeko.students_management.Subject;
+import koeko.view.Subject;
 
 import java.sql.*;
 import java.util.Date;
