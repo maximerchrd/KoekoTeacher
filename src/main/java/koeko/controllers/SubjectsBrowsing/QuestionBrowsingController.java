@@ -183,7 +183,13 @@ public class QuestionBrowsingController extends Window implements Initializable 
         subjects = DbTableSubject.getAllSubjects();
         subjectsIds = new Vector<>();
         for (Subject subject : subjects) {
-            subjectsIds.add(String.valueOf(subject.get_subjectMUID()));
+            String subjectID = "";
+            if (subject.get_subjectMUID() != null && !subject.get_subjectMUID().contentEquals("")) {
+                subjectID = subject.get_subjectMUID();
+            } else {
+                subjectID = String.valueOf(subject.get_subjectId());
+            }
+            subjectsIds.add(String.valueOf(subjectID));
         }
 
         Vector<Vector<String>> idsRelationPairs = DbTableRelationSubjectSubject.getAllSubjectIDsRelations();
