@@ -20,6 +20,7 @@ public class DbTableIndividualQuestionForStudentResult {
             statement = connection.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS individual_question_for_student_result " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    " QUESTION_TYPE             INT, " +        //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective
                     " ID_GLOBAL             INT    NOT NULL, " +
                     " ID_STUDENT_GLOBAL     INT    NOT NULL, " +
                     " DATE                  TEXT    NOT NULL, " +
@@ -120,6 +121,44 @@ public class DbTableIndividualQuestionForStudentResult {
         return quantitative_evaluation;
     }
 
+    static public void addIndividualObjectiveForStudentResult(String id_global, String student_name, String quantitativeEvaluation, String evalType, String testName) {
+
+        String sql = "DELETE FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
+                "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = ? AND TEST_BELONGING = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, student_name);
+            pstmt.setString(2, id_global);
+            pstmt.setString(3, testName);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        sql = "INSERT INTO individual_question_for_student_result (QUESTION_TYPE,ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
+                "VALUES ('2',?,(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?),date('now'),'none','none','none',?,?,'none',?,'none');";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, String.valueOf(id_global));
+            pstmt.setString(2, student_name);
+            pstmt.setString(3, evalType);
+            pstmt.setString(4, String.valueOf(quantitativeEvaluation));
+            pstmt.setString(5, testName);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     static public double addIndividualTestEval(int id_global, String student_name, Double testEvaluation) {
         double quantitative_evaluation = -1;
         student_name = student_name.replace("'", "''");
@@ -145,6 +184,49 @@ public class DbTableIndividualQuestionForStudentResult {
             System.exit(0);
         }
         return quantitative_evaluation;
+    }
+
+    static public String getResultForStudentForObjectiveInTest(String studentName, String objectiveID, String testName) {
+        String result = "";
+        String sql = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
+                "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = ? AND TEST_BELONGING = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, studentName);
+            pstmt.setString(2, objectiveID);
+            pstmt.setString(3, testName);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                result = rs.getString("QUANTITATIVE_EVAL");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return result;
+    }
+
+    static public void deleteResultForStudentForObjectiveInTest(String studentName, String objectiveID, String testName) {
+        String sql = "DELETE FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
+                "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = ? AND TEST_BELONGING = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, studentName);
+            pstmt.setString(2, objectiveID);
+            pstmt.setString(3, testName);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     static public String exportResults(String file_name) {
