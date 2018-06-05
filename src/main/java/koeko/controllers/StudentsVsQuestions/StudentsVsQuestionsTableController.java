@@ -1,11 +1,13 @@
 package koeko.controllers.StudentsVsQuestions;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.cell.TextFieldTableCell;
 import koeko.Koeko;
 import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
+import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import javafx.application.Platform;
@@ -416,6 +418,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
         chooseTestCombo.getItems().clear();
         ArrayList<String> tests = DbTableRelationClassTest.getTestsForClass(activeClass);
+        chooseTestCombo.getItems().add("No test");
         for (String test : tests) {
             chooseTestCombo.getItems().add(test);
         }
@@ -511,9 +514,24 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     public void certificativeTestSelected() {
 
-        //remove questions columns if some are present
-        while (tableViewArrayList.get(0).getColumns().size() > 3) {
-            removeQuestion(0);
+        //remove questions or objectives columns if some are present
+        String firstQuestion = "";
+        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
+            firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
+        }
+        if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
+            tableViewArrayList.get(0).getColumns().remove(3, tableViewArrayList.get(0).getColumns().size());
+        } else {
+            while (tableViewArrayList.get(0).getColumns().size() > 3) {
+                removeQuestion(0);
+            }
+        }
+
+        //load questions if the selected certificative test is "No test"
+        if (chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
+            for (QuestionGeneric questionGeneric : Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems()) {
+                addQuestion(questionGeneric.getQuestion(), questionGeneric.getGlobalID(), 0);
+            }
         }
 
         //BEGIN display objectives as questions in table
@@ -551,17 +569,27 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
         //END display objectives as questions in table
 
-        ArrayList<Integer> objectivesIDs = DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+        //BEGIN fill table with results for objectives
+        if (!chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
+            ArrayList<Integer> objectivesIDs = DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
 
-        for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
+            for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
 
-            SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
-            for (int i = 0; i < objectivesIDs.size(); i++) {
-                String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
-                        String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
-                singleStudentAnswersLine.setAnswer(eval, i);
+                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
+                for (int i = 0; i < objectivesIDs.size(); i++) {
+                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
+                            String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+                    singleStudentAnswersLine.setAnswer(eval, i);
+                }
+            }
+        } else {
+            for (SingleStudentAnswersLine singleStudentAnswersLine : tableViewArrayList.get(0).getItems()) {
+                for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
+                    singleStudentAnswersLine.setAnswer("", i);
+                }
             }
         }
+        //END fill table with results for objectives
     }
 
     @Override
