@@ -64,7 +64,7 @@ public class QuestionSendingController extends Window implements Initializable {
     //questions ready for activation (right panel)
     static public Vector<String> IDsFromBroadcastedQuestions = new Vector<>();
     @FXML
-    private ListView<QuestionGeneric> readyQuestionsList;
+    public ListView<QuestionGeneric> readyQuestionsList;
 
     @FXML private ComboBox groupsCombobox;
 

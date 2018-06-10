@@ -1,9 +1,6 @@
 package koeko.database_management;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Vector;
 
 /**
@@ -105,5 +102,30 @@ public class DbTableLearningObjectives {
         }
 
         return objectives;
+    }
+
+    static public String getObjectiveIdFromName(String objective) {
+        String idObjective = "";
+
+        String sql = "SELECT ID_OBJECTIVE_GLOBAL, IDENTIFIER FROM learning_objectives WHERE OBJECTIVE = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, String.valueOf(objective));
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                idObjective = rs.getString("IDENTIFIER");
+                if (idObjective == null) {
+                    idObjective = rs.getString("ID_OBJECTIVE_GLOBAL");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return idObjective;
     }
 }
