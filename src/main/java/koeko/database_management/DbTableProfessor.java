@@ -15,11 +15,12 @@ public class DbTableProfessor {
         try {
             statement = connection.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS professor " +
-                    "(ID_PROF       INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    " PROF_MUID    TEXT, " +
-                    " FIRSTNAME      TEXT     NOT NULL, " +
-                    " LASTNAME      TEXT, " +
-                    " UNIQUE (LASTNAME) ) ";
+                    "(ID_PROF    INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    " PROF_MUID  TEXT, " +
+                    " FIRSTNAME  TEXT, " +
+                    " LASTNAME   TEXT    NOT NULL, " +
+                    " ALIAS      TEXT    NOT NULL, " +
+                    " UNIQUE (ALIAS) ) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -27,7 +28,7 @@ public class DbTableProfessor {
         }
     }
 
-    static public void addProfessor(String firstname, String lastname) {
+    static public void addProfessor(String firstname, String lastname, String alias) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -36,8 +37,8 @@ public class DbTableProfessor {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO professor (FIRSTNAME,LASTNAME) " +
-                    "VALUES ('" + firstname + "','" + lastname + "');";
+            String sql = 	"INSERT OR IGNORE INTO professor (FIRSTNAME,LASTNAME, ALIAS) " +
+                    "VALUES ('" + firstname + "','" + lastname + "','" + alias + "');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -83,11 +84,10 @@ public class DbTableProfessor {
             ResultSet rs = stmt.executeQuery(query);
             if (rs.next()) {
                 String id = rs.getString("ID_PROF");
-                String fname = rs.getString("FIRSTNAME");
-                String lname = rs.getString("LASTNAME");
+                String alias = rs.getString("ALIAS");
                 String muid = rs.getString("PROF_MUID");
 
-                professor = Professor.createProfessor(id, fname, muid);
+                professor = Professor.createProfessor(id, alias, muid);
             }
             stmt.close();
             c.commit();

@@ -1,5 +1,9 @@
 package koeko.KoekoSyncCollect;
 
+import koeko.database_management.DbTableQuestionMultipleChoice;
+import koeko.database_management.DbTableRelationQuestionSubject;
+import koeko.database_management.DbTableSubject;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -13,6 +17,12 @@ public class TCPCommunication {
     String cstrUploadFIle = "MONT";
     String cstrUploadObjt = "SOBJ";
     String cstrDownldFIle = "DESC";
+    String cstrGetSeleWeb = "GSWE";
+    String cstrDelRelQSub = "DRQS";
+    String cstrSynCol2Web = "SC2W";
+    String cstrByeByeDude = "BYEB";
+    String cstrDescStep00 = "DSC0";
+    String cstrDescStep01 = "DSC1";
 
     private Socket _socket;
     private String _imagePath;
@@ -100,6 +110,15 @@ public class TCPCommunication {
     public void SendCommande(String commande) throws IOException  {
         byte[] cmdBuf = commande.getBytes();
         if (cmdBuf.length != 4)
+            return;
+        _outStream.write(cmdBuf);
+        _outStream.flush();
+    }
+
+    // Send the command to the server
+    public void SendMUID(String muid) throws IOException {
+        byte[] cmdBuf = muid.getBytes();
+        if (cmdBuf.length != 15)
             return;
         _outStream.write(cmdBuf);
         _outStream.flush();
@@ -222,10 +241,132 @@ public class TCPCommunication {
         if (IsAcknowledged()) {
             SendFilename(filename);
             if (IsAcknowledged()) {
-                ReceiveFile(filename);
+                ReceiveBinaryFile(filename);
                 bOK = true;
             }
         }
         return bOK;
+    }
+
+    public boolean GetSelectionFromWEB(String profMuid) {
+        boolean bOK = false;
+        try {
+            SendCommande(cstrGetSeleWeb);
+            if (IsAcknowledged()) {
+                SendMUID(profMuid);
+                if (IsAcknowledged()) {
+                    bOK = true;
+                }
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
+    public boolean RemoveSubjectRelation(String qcmMuid) {
+        boolean bOK = false;
+        try {
+            SendCommande(cstrDelRelQSub);
+            if (IsAcknowledged()) {
+                SendMUID(qcmMuid);
+                if (IsAcknowledged()) {
+                    bOK = true;
+                }
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
+    public boolean SyncCollect2WEB() {
+        boolean bOK = false;
+        try {
+            SendCommande(cstrSynCol2Web);
+            if (IsAcknowledged()) {
+                bOK = true;
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
+    private Object GetObject() {
+        Object obj = null;
+        try {
+            ObjectInputStream ois = new ObjectInputStream(_inStream);
+            obj = ois.readObject();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return obj;
+    }
+
+    public boolean DownloadSelection() {
+        boolean bOK = true;
+
+        try {
+            SendCommande(cstrDescStep00);
+            Object toDld = GetObject();
+            if (toDld.getClass().getName().equals("koeko.view.GlobalToLocal")) {
+                koeko.view.GlobalToLocal gtl = (koeko.view.GlobalToLocal)toDld;
+
+                // Download each kind of objects
+                SendCommande(cstrDescStep01);
+                int cnt = 0;
+                while (cnt<gtl.get_nbQuestionMultipleChoice()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.QuestionMultipleChoiceView")) {
+                        koeko.view.QuestionMultipleChoiceView qcm = (koeko.view.QuestionMultipleChoiceView)rcv;
+                        DbTableQuestionMultipleChoice.addIfNeededMultipleChoiceQuestionFromView(qcm);
+                        if (!qcm.getIMAGE().equals("none"))
+                            ReceiveBinaryFile(qcm.getIMAGE());
+                    }
+                    cnt++;
+                }
+
+                cnt = 0;
+                while (cnt<gtl.get_nbSubject()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.Subject")) {
+                        koeko.view.Subject sbj = (koeko.view.Subject)rcv;
+                        DbTableSubject.addIfNeededSubject(sbj);
+                    }
+                    cnt++;
+                }
+
+                cnt = 0;
+                while (cnt < gtl.get_nbRelationQcmSbj()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.RelationQuestionSubject")) {
+                        koeko.view.RelationQuestionSubject rqs = (koeko.view.RelationQuestionSubject)rcv;
+                        DbTableRelationQuestionSubject.addIfNeededRelationQuestionSubject(rqs);
+                    }
+                    cnt++;
+                }
+                bOK = IsAcknowledged();
+            } else
+                bOK = false;
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
+    public void EndSynchronisation() {
+        try {
+            SendCommande(cstrByeByeDude);
+            _socket.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
     }
 }

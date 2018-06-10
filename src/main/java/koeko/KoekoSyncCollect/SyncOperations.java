@@ -1,39 +1,54 @@
 package koeko.KoekoSyncCollect;
 
-import koeko.GlobalCollectManagment.GCQuestionMultipleChoice;
+import koeko.IniFile;
+import koeko.database_management.*;
 import koeko.view.Professor;
 import koeko.view.Subject;
+import koeko.view.Utilities;
 import koeko.view.RelationQuestionSubject;
-import koeko.database_management.DbTableProfessor;
-import koeko.database_management.DbTableQuestionMultipleChoice;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableSubject;
-import koeko.questions_management.QuestionMultipleChoice;
+import koeko.view.QuestionMultipleChoiceView;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.sql.*;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
 
 public class SyncOperations {
-    //static String connectionString = "jdbc:mysql://localhost/koeko_collect?";
-    //static String userName = "testuser";
-    //static String userPass = "mysqltest99**";
+    static String connectionString = "jdbc:mysql://localhost/koeko_collect?";
+    static String userName = "testuser";
+    static String userPass = "mysqltest99**";
     //static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?user=koeko_testClient&password=ko&KOwird34jolI";
-    static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?";
-    static String userName = "root";
-    static String userPass = "henearkr";
+//    static String connectionString = "jdbc:mysql://188.226.155.245/koeko_collect?";
+//    static String userName = "root";
+//    static String userPass = "henearkr";
 
-    static public void SyncAll() throws Exception {
+    static private TCPCommunication _tcpcom;
+
+    static private void InitializeTransfer(InetAddress serverAddress, int serverPort) throws Exception {
+        Socket socket = new Socket(serverAddress, serverPort);
+
+        IniFile ini = new IniFile(".\\src\\main\\java\\koeko\\koeko.ini");
+        String imagePath = ini.getString("File", "SourceImagePath", ".\\");
+        _tcpcom = new TCPCommunication(socket, imagePath);
+    }
+
+    static public void SyncAll(InetAddress serverAddress, int serverPort) throws Exception {
+        // Create the connection to the server for synchronisation
+        InitializeTransfer(serverAddress, serverPort);
+
         // Check if connection works, exit if not
         CheckMySQLConnection();
+
 
         // Before synchronisation, make sure the prof is known in the global database
         Professor professor = DbTableProfessor.getProfessor();
         CreateOrUpdateProfessor(professor);
 
         // First step, launch sp to copy selection from web to koeko
-        GetSelectionFromWEB(professor.get_muid());
+        boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid());
 
         // Second step, upload data to koeko
 
@@ -44,23 +59,33 @@ public class SyncOperations {
             CreateOrUpdateSubject(sbj);
         }
 
-        Vector<QuestionMultipleChoice> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoice();
+        Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
         en = qcmVector.elements();
         while(en.hasMoreElements()) {
-            QuestionMultipleChoice qcm = (QuestionMultipleChoice) en.nextElement();
+            QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
             CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
 
             // Get the subjects linked to the question
             Vector<RelationQuestionSubject> subjectsLinked = DbTableRelationQuestionSubject.getSubjectsForQuestion(qcm.getID());
-            UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
+            if (!subjectsLinked.isEmpty())
+                UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
         }
 
         // Third step, launch sp to update web with new data
-        SyncCollect2WEB();
+        _tcpcom.SyncCollect2WEB();
+        System.out.println("WEB synchronized");
 
         // Fourth step, download selected items to local DB
-        DownloadMultipleChoiceQuestions(professor.get_muid());
+        _tcpcom.DownloadSelection();
+        System.out.println("Selection downloaded");
 
+        // Termine le processus de synchronisation avec le serveur
+        _tcpcom.EndSynchronisation();
+        System.out.println("Ending synchronization");
+
+        // Note la dernière synchro
+        DBTableSyncOp.SetLastSyncOp(Utilities.TimestampForNowAsString());
+        System.out.println("Marking sync time");
     }
 
 
@@ -108,202 +133,64 @@ public class SyncOperations {
     }
 
     static private void CreateOrUpdateProfessor(Professor prof) {
-        Connection c = null;
-        CallableStatement stmt = null;
-        stmt = null;
         try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL spSetProfessor(?, ?, ?)}");
-            stmt.setString(1, prof.get_alias());
-            stmt.setString(2, prof.get_muid());
-            stmt.setTimestamp(3, prof.get_timestamp());
-            stmt.execute();
-            String muid = stmt.getString(2);
+            String muid = _tcpcom.SendSerializableObject(prof);
             if (muid != null) {
                 prof.set_muid(muid);
                 DbTableProfessor.setProfessorMUID(prof.get_id_prof(), muid);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
     }
 
-
-    static private void GetSelectionFromWEB(String profMuid) {
-        Connection c = null;
-        CallableStatement stmt = null;
-        stmt = null;
+    static private void CreateOrUpdateQuestionMultipleChoice(QuestionMultipleChoiceView qcm, String ownerMUID) {
         try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL spGetSelectionFromWEB(?)}");
-            stmt.setString(1,profMuid);
-            stmt.execute();
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-        }
-    }
-
-
-    static private void CreateOrUpdateQuestionMultipleChoice(QuestionMultipleChoice qcm, String ownerMUID) {
-        Connection c = null;
-        CallableStatement stmt = null;
-        stmt = null;
-        try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL spSetQuestionMultipleChoice(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
-            stmt.setInt(1, Integer.parseInt(qcm.getLEVEL()));
-            stmt.setString(2, qcm.getQUESTION());
-            stmt.setString(3, qcm.getOPT0());
-            stmt.setString(4, qcm.getOPT1());
-            stmt.setString(5, qcm.getOPT2());
-            stmt.setString(6, qcm.getOPT3());
-            stmt.setString(7, qcm.getOPT4());
-            stmt.setString(8, qcm.getOPT5());
-            stmt.setString(9, qcm.getOPT6());
-            stmt.setString(10, qcm.getOPT7());
-            stmt.setString(11, qcm.getOPT8());
-            stmt.setString(12, qcm.getOPT9());
-            stmt.setInt(13, qcm.getNB_CORRECT_ANS());
-            stmt.setString(14, qcm.getIMAGE());
-            stmt.setString(15, qcm.getQCM_MUID());
-            stmt.setString(16, ownerMUID);
-            stmt.setTimestamp(17, qcm.getQCM_UPD_TMS());
-            stmt.execute();
-            String muid = stmt.getString(15);
+            if (!qcm.getIMAGE().equals("none")) {
+                boolean bOK = _tcpcom.SendFile(qcm.getIMAGE());
+                if (!bOK) throw new Exception("File upload failed!");
+            }
+            String muid = _tcpcom.SendSerializableObject(qcm);
             if (muid != null) {
                 qcm.setQCM_MUID(muid);
                 DbTableQuestionMultipleChoice.setQuestionMultipleChoiceMUID(qcm.getID(), muid);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
     }
 
-
     static private void CreateOrUpdateSubject(Subject sbj) {
-        Connection c = null;
-        CallableStatement stmt = null;
-        stmt = null;
         try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL spSetSubject(?, ?, ?)}");
-            stmt.setString(1, sbj.get_subjectName());
-            stmt.setString(2, sbj.get_subjectMUID());
-            stmt.setTimestamp(3, sbj.get_sbjUpdDts());
-            stmt.execute();
-            String muid = stmt.getString(2);
+            String muid = _tcpcom.SendSerializableObject(sbj);
             if (muid != null) {
                 sbj.set_subjectMUID(muid);
                 DbTableSubject.setSubjectMUID(sbj.get_subjectId(), muid);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
     }
-
 
     static private void UpdateSubjectQuestionRelation(String questionMUID, Vector<RelationQuestionSubject> subjectsLinked) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-
-            // Delete all relations to subjects for this question
-
-            Statement delStmt = c.createStatement();
-            String sql = "DELETE FROM subject_question_relation WHERE SQR_QUE_MUID='" + questionMUID + "';";
-            delStmt.executeUpdate(sql);
-            delStmt.close();
-
-            Enumeration en = subjectsLinked.elements();
-            while(en.hasMoreElements()) {
-                RelationQuestionSubject rqs = (RelationQuestionSubject) en.nextElement();
-                String sqlIns = "INSERT INTO koeko_collect.subject_question_relation (SQR_SBJ_MUID, SQR_QUE_MUID, SQR_QUE_TYP, SQR_LEVEL) VALUE ('" +
-                                rqs.get_subjectMUID() + "','" + questionMUID + "','MCQ'," + rqs.get_level() + ");";
-                stmt =  c.createStatement();
-                stmt.executeUpdate(sqlIns);
-                stmt.close();
-            }
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-        }
-    }
-
-
-    static private void SyncCollect2WEB() {
-        Connection c = null;
-        CallableStatement stmt = null;
-        stmt = null;
-        try {
-            c = ConnectToMySQL();
-            c.setAutoCommit(false);
-            stmt =  c.prepareCall("{CALL koeko_collect.spSyncToWEB()}");
-            stmt.execute();
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-        }
-    }
-
-    static private void DownloadMultipleChoiceQuestions(String profMuid) {
-            Connection c = null;
-            Statement stmt = null;
-            stmt = null;
+        boolean bOK = _tcpcom.RemoveSubjectRelation(questionMUID);
+        if (bOK) {
             try {
-                c = ConnectToMySQL();
-                c.setAutoCommit(false);
-                stmt = c.createStatement();
-                String query = "SELECT * FROM koeko_collect.question_multiple_choice join koeko_collect.selection on SEL_QUESTION_MUID=QMC_MUID WHERE SEL_PRF_MUID='" + profMuid + "';";
-                ResultSet rs = stmt.executeQuery(query);
-                while (rs.next()) {
-                    QuestionMultipleChoice qcm = new QuestionMultipleChoice();
-                    GCQuestionMultipleChoice.QuestionMultipleChoiceFromRecord(qcm, rs);
-                    DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(qcm);
-                    RemoveSelection(c, profMuid, qcm.getQCM_MUID());
+                Enumeration en = subjectsLinked.elements();
+                while(en.hasMoreElements()) {
+                    RelationQuestionSubject rqs = (RelationQuestionSubject) en.nextElement();
+                    rqs.set_questionMUID(questionMUID);
+                    String muid = _tcpcom.SendSerializableObject(rqs);
                 }
-                stmt.close();
-                c.commit();
-                c.close();
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );
                 System.exit(0);
             }
-    }
+        }
 
-    private static void RemoveSelection(Connection c, String profMuid, String qcm_muid) throws Exception{
-        Statement stmt = c.createStatement();
-        String sql = "DELETE FROM koeko_collect.selection WHERE SEL_PRF_MUID='" + profMuid +
-                "'AND SEL_QUESTION_MUID='" + qcm_muid + "';";
-        stmt.execute(sql);
-        stmt.close();
     }
 
 }

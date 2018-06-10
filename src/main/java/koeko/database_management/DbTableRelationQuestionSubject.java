@@ -55,6 +55,135 @@ public class DbTableRelationQuestionSubject {
         }
     }
 
+
+    /**
+     * method to check if it is neede to insert a relation question/subject
+     * @param rqs
+     * @throws Exception
+     */
+    static public boolean checkIfExists(RelationQuestionSubject rqs) throws Exception {
+        // Check if the relation question/subject exists already
+        boolean bExists = true;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT  COUNT(1) FROM question_subject_relation qsr " +
+                    "JOIN subjects sbj ON sbj.ID_SUBJECT_GLOBAL = qsr.ID_SUBJECT_GLOBAL " +
+                    "JOIN multiple_choice_questions mcq ON mcq.ID_GLOBAL=qsr.ID_GLOBAL " +
+                    "WHERE mcq.IDENTIFIER='" + rqs.get_questionMUID() + "'and sbj.IDENTIFIER='" + rqs.get_subjectMUID() + "';";
+            ResultSet result_query = stmt.executeQuery(sql);
+            bExists = (Integer.parseInt(result_query.getString(1)) > 0);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return bExists;
+    }
+
+    /**
+     * method to get the id global of the subject base on the IDENTIFIER
+     * @param rqs
+     * @throws Exception
+     */
+    static public int getSubjectId(RelationQuestionSubject rqs) throws Exception {
+        // Check if the relation question/subject exists already
+        int sbj_id = 0;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT  ID_SUBJECT_GLOBAL FROM subjects " +
+                    "WHERE IDENTIFIER='" + rqs.get_subjectMUID() + "';";
+            ResultSet result_query = stmt.executeQuery(sql);
+            sbj_id = Integer.parseInt(result_query.getString(1));
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return sbj_id;
+    }
+
+    /**
+     * method to get the id global of the subject base on the IDENTIFIER
+     * @param rqs
+     * @throws Exception
+     */
+    static public int getQUestionId(RelationQuestionSubject rqs) throws Exception {
+        // Check if the relation question/subject exists already
+        int rec_id = 0;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_question " +
+                    "WHERE IDENTIFIER='" + rqs.get_questionMUID() + "';";
+            ResultSet result_query = stmt.executeQuery(sql);
+            rec_id = Integer.parseInt(result_query.getString(1));
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return rec_id;
+    }
+
+    /**
+     * Method that adds a relation between a question and a subject
+     * by linking the last added question with the subject given as parameter
+     *
+     * @param rqs
+     * @throws Exception
+     */
+    static public void addIfNeededRelationQuestionSubject(RelationQuestionSubject rqs) throws Exception {
+        // Check if the question exists already
+        if (checkIfExists(rqs))
+            return;
+
+        int sbj_id = getSubjectId(rqs);
+        int mcq_id = getQUestionId(rqs);
+        // insert the relation
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) VALUES (" +
+                    mcq_id + "," + sbj_id + "," + rqs.get_level() + ");";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+    }
+
+
     /**
      * Method that adds a relation between a question and a subject
      * by linking the question with questionID to the subject given as parameter

@@ -1,6 +1,7 @@
 package koeko.database_management;
 
 import koeko.questions_management.QuestionMultipleChoice;
+import koeko.view.QuestionMultipleChoiceView;
 
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -45,6 +46,87 @@ public class DbTableQuestionMultipleChoice {
      * @throws Exception
      */
     static public void addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
+        String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
+                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
+                    "VALUES ('" +
+                    quest.getLEVEL() + "','" +
+                    quest.getQUESTION() + "','" +
+                    quest.getOPT0() + "','" +
+                    quest.getOPT1() + "','" +
+                    quest.getOPT2() + "','" +
+                    quest.getOPT3() + "','" +
+                    quest.getOPT4() + "','" +
+                    quest.getOPT5() + "','" +
+                    quest.getOPT6() + "','" +
+                    quest.getOPT7() + "','" +
+                    quest.getOPT8() + "','" +
+                    quest.getOPT9() + "','" +
+                    quest.getNB_CORRECT_ANS() + "','" +
+                    quest.getIMAGE() + "','" +
+                    globalID +"','" +
+                    ZonedDateTime.now() +"');";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+
+
+    /**
+     * method for inserting new question into table multiple_choice_question
+     * @param quest
+     * @throws Exception
+     */
+    static public boolean checkIfExists(QuestionMultipleChoiceView quest) throws Exception {
+        // Check if the question exists already
+        boolean bExists = true;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+            ResultSet result_query = stmt.executeQuery(sql);
+            bExists = (Integer.parseInt(result_query.getString(1)) > 0);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return bExists;
+    }
+
+
+    /**
+     * method for inserting new question into table multiple_choice_question
+     * @param quest
+     * @throws Exception
+     */
+    static public void addIfNeededMultipleChoiceQuestionFromView(QuestionMultipleChoiceView quest) throws Exception {
+        // Check if the question exists already
+        if (checkIfExists(quest))
+            return;
+
         String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
         Connection c = null;
         Statement stmt = null;
@@ -194,7 +276,7 @@ public class DbTableQuestionMultipleChoice {
         return last_id_global;
     }
 
-    private static void QuestionMultipleChoiceFromRecord(QuestionMultipleChoice questionMultipleChoice, ResultSet rs) throws SQLException {
+    private static void QuestionMultipleChoiceViewFromRecord(QuestionMultipleChoiceView questionMultipleChoice, ResultSet rs) throws SQLException {
         questionMultipleChoice.setID(rs.getInt("ID_QUESTION"));
         questionMultipleChoice.setLEVEL(rs.getString("LEVEL"));
         questionMultipleChoice.setQUESTION(rs.getString("QUESTION"));
@@ -213,8 +295,8 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
     }
 
-    static public Vector<QuestionMultipleChoice> getQuestionsMultipleChoice() {
-        Vector<QuestionMultipleChoice> questions = new Vector<>();
+    static public Vector<QuestionMultipleChoiceView> getQuestionsMultipleChoiceView() {
+        Vector<QuestionMultipleChoiceView> questions = new Vector<>();
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -223,11 +305,11 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT * FROM multiple_choice_questions;";
+            String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop);";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                QuestionMultipleChoice qcm = new QuestionMultipleChoice();
-                QuestionMultipleChoiceFromRecord(qcm, rs);
+                QuestionMultipleChoiceView qcm = new QuestionMultipleChoiceView();
+                QuestionMultipleChoiceViewFromRecord(qcm, rs);
                 questions.add(qcm);
             }
             stmt.close();

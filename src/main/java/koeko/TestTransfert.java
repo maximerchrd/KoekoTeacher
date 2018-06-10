@@ -6,6 +6,7 @@ import koeko.database_management.DbTableProfessor;
 import koeko.view.Professor;
 import org.sqlite.date.DateParser;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -55,12 +56,12 @@ public class TestTransfert {
         Professor professor = DbTableProfessor.getProfessor();
         if (professor == null) {
             System.out.println("no Prof");
-            DbTableProfessor.addProfessor("Ali", "Ass");
+            DbTableProfessor.addProfessor("Ali", "Merle", "Ali Ass");
         } else {
             System.out.println("Welcome professor " + professor.get_alias());
         }
 
-        SyncOperations.SyncAll();
+        SyncOperations.SyncAll(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
 
     }
 

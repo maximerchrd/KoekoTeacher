@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class RelationQuestionSubject implements Serializable {
     private int _questionId;
     private String _subjectMUID;
+    private String _questionMUID;
     private int _level;
 
     public int get_questionId() {
@@ -29,6 +30,18 @@ public class RelationQuestionSubject implements Serializable {
 
     public void set_level(int _level) {
         this._level = _level;
+    }
+
+    public String get_questionMUID() {
+        return _questionMUID;
+    }
+
+    public void set_questionMUID(String _questionMUID) {
+        this._questionMUID = _questionMUID;
+    }
+
+    public RelationQuestionSubject() {
+
     }
 
     public RelationQuestionSubject(int _questionId, String _subjectMUID, int _level) {

@@ -2,6 +2,9 @@ package koeko.view;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Professor implements Serializable {
     private String _id_prof;
@@ -45,6 +48,13 @@ public class Professor implements Serializable {
     }
 
     public Timestamp get_timestamp() {
+        // ZonedDateTime zdt;
+        //String sdt;
+        if (_updateTS == null) {
+            ZonedDateTime zdt = ZonedDateTime.ofInstant(ZonedDateTime.now().toInstant(), ZoneId.of("UTC"));
+            String sdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
+            _updateTS = Timestamp.valueOf(sdt);
+        }
         return _updateTS;
     }
 

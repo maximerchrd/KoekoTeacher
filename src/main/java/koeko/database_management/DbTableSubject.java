@@ -50,6 +50,66 @@ public class DbTableSubject {
         }
     }
 
+
+
+    /**
+     * method for inserting new question into table subject
+     * @param sbj
+     * @throws Exception
+     */
+    static public boolean checkIfExists(Subject sbj) throws Exception {
+        // Check if the question exists already
+        boolean bExists = true;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + sbj.get_subjectMUID() + "';";
+            ResultSet result_query = stmt.executeQuery(sql);
+            bExists = (Integer.parseInt(result_query.getString(1)) > 0);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return bExists;
+    }
+
+
+    static public void addIfNeededSubject(Subject sbj) throws Exception {
+        if (checkIfExists(sbj))
+            return;
+
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT,IDENTIFIER) " +
+                    "VALUES ('" +
+                    2000000 + "','" +
+                    sbj.get_subjectName() + "','" + sbj.get_subjectMUID() + "');";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE subjects SET MODIF_DATE='" + DBUtils.UniversalTimestamp() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static public void updateSubject(String oldSubject, String newSubject) {
         String sql = 	"UPDATE subjects SET SUBJECT = ? WHERE SUBJECT = ?";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
@@ -285,7 +345,7 @@ public class DbTableSubject {
     }
 
 
-
+    // Get all subjects that must be synchronized to global collect
     static public Vector<Subject> getSubjects() {
         Vector<Subject> subjects = new Vector<>();
         Connection c = null;
@@ -296,7 +356,7 @@ public class DbTableSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT * FROM subjects;";
+            String query = "SELECT * FROM subjects WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop);";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 String sbjName = rs.getString("SUBJECT");
