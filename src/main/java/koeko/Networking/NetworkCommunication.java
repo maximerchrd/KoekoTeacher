@@ -359,6 +359,31 @@ public class NetworkCommunication {
         return testToSend.getIdsQuestions();
     }
 
+    public void sendTestEvaluation(String studentName, String test, String objective, String evaluation) {
+        Student student = aClass.getStudentWithName(studentName);
+        if (student.getOutputStream() != null) {
+            String testId = DbTableTests.getTestIdWithName(test);
+            String objectiveId = DbTableLearningObjectives.getObjectiveIdFromName(objective);
+            String toSend = testId + "///" + test + "///" + objectiveId + "///" + objective + "///" + evaluation + "///";
+            try {
+                byte[] bytesArray = toSend.getBytes();
+                String prefix = "OEVAL:" + bytesArray.length + "///";
+                byte[] bytesPrefix = new byte[80];
+                byte[] bytesPrefixString = prefix.getBytes();
+                for (int i = 0; i < bytesPrefixString.length; i++) {
+                    bytesPrefix[i] = bytesPrefixString[i];
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                outputStream.write(bytesPrefix);
+                outputStream.write(bytesArray);
+                byte wholeBytesArray[] = outputStream.toByteArray( );
+                writeToOutputStream(student, wholeBytesArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * method that listen for the client data transfers
      *

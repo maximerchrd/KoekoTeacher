@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.cell.TextFieldTableCell;
 import koeko.Koeko;
+import koeko.Networking.NetworkCommunication;
 import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
@@ -512,11 +513,26 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
+    public void sendObjectiveEvaluationToStudents() {
+        String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
+        if (test != null && !test.contentEquals("No test")) {
+            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+                for (int j = 3; j < tableViewArrayList.get(0).getColumns().size(); j++) {
+                    String objective = tableViewArrayList.get(0).getColumns().get(j).getText();
+                    String evaluation = tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
+                    NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
+                }
+            }
+        }
+    }
+
     public void certificativeTestSelected() {
 
         //remove questions or objectives columns if some are present
         String firstQuestion = "";
-        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
+        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size() > 0 &&
+                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
             firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
         }
         if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
