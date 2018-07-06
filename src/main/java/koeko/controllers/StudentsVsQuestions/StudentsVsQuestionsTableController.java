@@ -184,7 +184,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else {
                 singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
             }
-            for (int i = 0; i < Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().get(0).getAnswers().size(); i++) {
                 singleStudentAnswersLine.addAnswer();
             }
             if (tableViewArrayList.get(group).getItems().size() == 0) {
@@ -543,6 +543,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size() > 0 &&
                 Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
             firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
+
+            //remove questions if some are present in the ready list
+            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().clear();
         }
         if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
             tableViewArrayList.get(0).getColumns().remove(3, tableViewArrayList.get(0).getColumns().size());
@@ -587,7 +590,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             final int objectiveIndex = k;
             column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                    // p.getValue() returns the Person instance for a particular TableView row
+                    // p.getValue() returns the instance for a particular TableView row
                     return p.getValue().getAnswers().get(objectiveIndex);
                 }
             });
