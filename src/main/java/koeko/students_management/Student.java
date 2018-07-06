@@ -6,6 +6,7 @@ import koeko.questions_management.Test;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -34,6 +35,11 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        try {
+            mInetAddress = InetAddress.getByName("");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
     public Student(String arg_MacAddress, String arg_name) {
         uniqueID = arg_MacAddress;
@@ -42,6 +48,11 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        try {
+            mInetAddress = InetAddress.getByName("");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
         uniqueID = arg_address;
@@ -50,6 +61,11 @@ public class Student {
         testQuestionsIDs = new ArrayList<>();
         activeTest = new Test();
         deviceQuestions = new ArrayList<>();
+        try {
+            mInetAddress = InetAddress.getByName("");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
     public void increaseNumberOfAnswers () {
         numberOfAnswers++;
