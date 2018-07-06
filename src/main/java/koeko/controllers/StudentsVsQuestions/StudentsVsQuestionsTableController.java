@@ -169,10 +169,12 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
         System.out.println("adding user with connection:" + connection);
         if (connection) {
-            System.out.println("bla");
+            System.out.println("Student connection in addUser");
         }
+
+        //fill an array containing the names already present in the table
         ArrayList<String> studentNames = new ArrayList<>();
-        for (Student student: Koeko.studentGroupsAndClass.get(group).getStudents_vector()) studentNames.add(student.getName());
+        for (SingleStudentAnswersLine singleStudentAnswersLine: tableViewArrayList.get(group).getItems()) studentNames.add(singleStudentAnswersLine.getStudent());
         if (!studentNames.contains(UserStudent.getName())) {
             Koeko.studentGroupsAndClass.get(group).addStudentIfNotInClass(UserStudent);
             //for (int k = 0; k < 10; k++) {
@@ -242,7 +244,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             answer += "#/#";
         }
         Integer indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
-        Integer indexRow = indexOfStudent(Koeko.studentGroupsAndClass.get(group).getStudents_vector(), student);
+
+        Integer indexRow = -1;
+        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                indexRow = i;
+            }
+        }
+
         if (indexColumn >= 0 && indexRow >= 0) {
             SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
             singleStudentAnswersLine.setAnswer(answer, indexColumn);

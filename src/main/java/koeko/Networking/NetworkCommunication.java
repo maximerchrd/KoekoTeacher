@@ -98,8 +98,6 @@ public class NetworkCommunication {
                                     student = aClass.updateStudentStreams(student);
                                 }
 
-                                //start a new thread for listening to each student
-                                listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
@@ -119,6 +117,9 @@ public class NetworkCommunication {
                                         e.printStackTrace();
                                     }
                                 }
+
+                                //start a new thread for listening to each student
+                                listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
@@ -136,7 +137,7 @@ public class NetworkCommunication {
 
     public void SendQuestionID(int QuestID, Vector<Student> students) {
         for (int i = 0; i < students.size(); i++) {
-            students.set(i, aClass.getStudentWithName(students.get(i).getName()));
+            students.set(i, aClass.getStudentWithIP(students.get(i).getInetAddress().toString()));
         }
 
 
@@ -365,6 +366,7 @@ public class NetworkCommunication {
             String testId = DbTableTests.getTestIdWithName(test);
             String objectiveId = DbTableLearningObjectives.getObjectiveIdFromName(objective);
             String toSend = testId + "///" + test + "///" + objectiveId + "///" + objective + "///" + evaluation + "///";
+            System.out.println("Sending string: " + toSend);
             try {
                 byte[] bytesArray = toSend.getBytes();
                 String prefix = "OEVAL:" + bytesArray.length + "///";
@@ -457,16 +459,10 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
-                                //clone student otherwise we modify the first layer student
-                                Student student = new Student();
-                                student.setInetAddress(arg_student.getInetAddress());
-                                student.setOutputStream(arg_student.getOutputStream());
-                                student.setInputStream(arg_student.getInputStream());
-
-                                ReceptionProtocol.receivedCONN(student, answerString, aClass);
+                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
-                                Student.essentialCopyStudent(student, arg_student);
+                                Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
                                 learningTrackerController.userDisconnected(student);

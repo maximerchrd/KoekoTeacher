@@ -107,7 +107,16 @@ public class Classroom {
         Student student = new Student();
         for (int i = 0; i < students_vector.size(); i++) {
             if (String.valueOf(studentID).contentEquals(String.valueOf(students_vector.get(i).getStudentID()))) {
-                System.out.println("equal");
+                student = students_vector.get(i);
+            }
+        }
+        return student;
+    }
+
+    public Student getStudentWithIP(String ip) {
+        Student student = new Student();
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (ip.contentEquals(students_vector.get(i).getInetAddress().toString())) {
                 student = students_vector.get(i);
             }
         }
@@ -316,11 +325,18 @@ public class Classroom {
         Boolean questionsReached = true;
         for (Student student : students_vector) {
             ArrayList<Integer> deviceQuestions = new ArrayList<>();
+
+            //convert question ids string to int
             for (String id : student.getDeviceQuestions()) {
                 deviceQuestions.add(Integer.valueOf(id));
             }
+
+            //check if the questions on the device contain the active questions
             if (!deviceQuestions.containsAll(activeIDs)) {
                 questionsReached = false;
+                System.out.println("check if all questions on device: " + questionsReached);
+                System.out.println("activeIDs: " + activeIDs);
+                System.out.println("device IDs: " + deviceQuestions);
                 break;
             }
             System.out.println("check if all questions on device: " + questionsReached);

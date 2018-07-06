@@ -461,6 +461,7 @@ public class QuestionSendingController extends Window implements Initializable {
         //get the selected questions
         QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
 
+        QuestionSendingController.readyToActivate = NetworkCommunication.networkCommunicationSingleton.aClass.allQuestionsOnDevices();
         System.out.println("ready? " + QuestionSendingController.readyToActivate);
         if (!QuestionSendingController.readyToActivate) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/QuestionsNotReadyPopUp.fxml"));
