@@ -11,6 +11,7 @@ public class Professor implements Serializable {
     private String _alias;
     private String _muid;
     private Timestamp _updateTS;
+    private String _language;
 
     public Professor() {
     }
@@ -62,5 +63,12 @@ public class Professor implements Serializable {
         this._updateTS = _updateTS;
     }
 
+    public String get_language() {
+        return _language;
+    }
+
+    public void set_language(String _language) {
+        this._language = _language;
+    }
 
 }

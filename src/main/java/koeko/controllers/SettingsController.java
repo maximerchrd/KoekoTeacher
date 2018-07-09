@@ -1,5 +1,9 @@
 package koeko.controllers;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import koeko.database_management.DbTableProfessor;
 import koeko.database_management.DbTableQuestionGeneric;
 import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableSettings;
@@ -10,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import koeko.view.Professor;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -40,6 +45,8 @@ public class SettingsController implements Initializable {
     private TextField teacherName;
     @FXML
     private ToggleButton correctionModeButton;
+    @FXML
+    private ComboBox languageCombobox;
 
 
     public void correctionModeChanged() {
@@ -52,6 +59,18 @@ public class SettingsController implements Initializable {
             DbTableSettings.insertCorrectionMode(correctionMode);
             correctionModeButton.setText("OFF");
         }
+    }
+
+    public void setUserName() {
+        Professor professor = DbTableProfessor.getProfessor();
+        if (professor == null) {
+            DbTableProfessor.addProfessor(teacherName.getText(),teacherName.getText(),teacherName.getText());
+        } else {
+            DbTableProfessor.setProfessorAlias("1", teacherName.getText());
+        }
+    }
+    public void setLanguage() {
+        DbTableProfessor.setProfessorLanguage(teacherName.getText(),languageCombobox.getSelectionModel().getSelectedItem().toString());
     }
 
     public void sendToWebsite() {
@@ -118,7 +137,17 @@ public class SettingsController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         correctionMode = DbTableSettings.getCorrectionMode();
-        teacherName.setText(DbTableSettings.getTeacherName());
+        ObservableList<String> data = FXCollections.observableArrayList("English", "Français", "Deutsch");
+        languageCombobox.setItems(data);
+        Professor professor = DbTableProfessor.getProfessor();
+        if (professor == null) {
+            teacherName.setText("No Name");
+        } else {
+            teacherName.setText(professor.get_alias());
+            if (professor.get_language() != null) {
+                languageCombobox.getSelectionModel().select(professor.get_language());
+            }
+        }
 
         if (correctionMode == 0) {
             correctionModeButton.setText("OFF");

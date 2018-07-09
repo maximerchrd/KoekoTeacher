@@ -12,12 +12,22 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label text="Teacher's Name:" />
-                  <TextField fx:id="teacherName">
+                  <Label text="User Name:" />
+                  <TextField fx:id="teacherName" onAction="#setUserName">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="Language:" />
+                  <ComboBox fx:id="languageCombobox" onAction="#setLanguage" prefWidth="150.0" promptText="Select Language">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ComboBox>
                </children>
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
