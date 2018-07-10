@@ -137,7 +137,7 @@ public class NetworkCommunication {
 
     public void SendQuestionID(int QuestID, Vector<Student> students) {
         for (int i = 0; i < students.size(); i++) {
-            students.set(i, aClass.getStudentWithIP(students.get(i).getInetAddress().toString()));
+            students.set(i, aClass.getStudentWithName(students.get(i).getName()));
         }
 
 

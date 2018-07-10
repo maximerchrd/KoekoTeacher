@@ -1,6 +1,5 @@
 package koeko.controllers.StudentsVsQuestions;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.cell.TextFieldTableCell;
 import koeko.Koeko;
@@ -167,7 +166,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
-        System.out.println("adding user with connection:" + connection);
+        System.out.println("adding user with connection:" + connection + "; ip: " + UserStudent.getInetAddress().toString());
         if (connection) {
             System.out.println("Student connection in addUser");
         }
@@ -221,7 +220,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //END change connection status to connected
 
             //we merge students if we have same ip address and one is not initialized (name="no name") and if we have 2 same names
-            Koeko.studentGroupsAndClass.get(group).mergeStudentsOnNameAndIP(UserStudent);
+            Koeko.studentGroupsAndClass.get(group).mergeStudentsOnNameOrIP(UserStudent);
         }
     }
 
@@ -473,7 +472,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         //add questions
         ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
         for (Integer id : questionIDs) {
-            Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().add(id);
+            Koeko.studentGroupsAndClass.get(groupIndex).getActiveIDs().add(id);
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
             }
@@ -488,18 +487,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else if (questionType == 1) {
                 question = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id).getQUESTION();
             }
-            /*if (Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().size() !=
-                    Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().size()) {
-                Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().add(question);
-            }*/
-            addQuestion(question, id, groupIndex + 1);
+            addQuestion(question, id, groupIndex);
         }
     }
 
     public void removeGroup(int groupIndex) {
         tableViewArrayList.remove(groupIndex);
-        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
-        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
+        tableVBox.getChildren().remove(1 + (groupIndex) * 2);
+        tableVBox.getChildren().remove(1 + (groupIndex) * 2);
     }
 
     public void launchChooseTest() {
