@@ -8,10 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -46,14 +43,17 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     @FXML private Label labelIP;
     @FXML private TreeView<Subject> subjectsTree;
+    @FXML public Accordion browseSubjectsAccordion;
 
     public void initialize(URL location, ResourceBundle resources) {
+        Koeko.questionBrowsingControllerSingleton = this;
+
         final String[] ip_address = {""};
         Task<Void> getIPTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 ip_address[0] = InetAddress.getLocalHost().getHostAddress();
-                Platform.runLater(() -> labelIP.setText("studentGroupsAndClass should connect \nto the following address: " + ip_address[0]));
+                Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address[0]));
                 return null;
             }
         };
@@ -240,7 +240,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
             @Override
             protected Void call() throws Exception {
                 ip_address[0] = InetAddress.getLocalHost().getHostAddress();
-                Platform.runLater(() -> labelIP.setText("studentGroupsAndClass should connect \nto the following address: " + ip_address[0]));
+                Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address[0]));
                 return null;
             }
         };

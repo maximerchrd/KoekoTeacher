@@ -1,9 +1,11 @@
 package koeko.controllers;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
@@ -68,8 +70,19 @@ public class QuestionSendingController extends Window implements Initializable {
 
     @FXML private ComboBox groupsCombobox;
 
+    @FXML private ComboBox uiChoiceBox;
+
+    @FXML private Accordion questionSendingAccordion;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
+
+        //setup UI choicebox
+        uiChoiceBox.setItems(FXCollections.observableArrayList(
+                "Basic Commands", "Advanced Commands")
+        );
+        uiChoiceBox.getSelectionModel().select(0);
+
         //all questions tree (left panel)
         //retrieve data from db
         try {
@@ -919,6 +932,20 @@ public class QuestionSendingController extends Window implements Initializable {
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
         } else {
             System.out.println("No test is selected");
+        }
+    }
+
+    public void changeUI() {
+        if (uiChoiceBox.getSelectionModel().getSelectedIndex() == 0) {
+            questionSendingAccordion.setVisible(false);
+            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(false);
+            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(false);
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(false);
+        } else {
+            questionSendingAccordion.setVisible(true);
+            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(true);
+            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(true);
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(true);
         }
     }
 

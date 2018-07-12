@@ -21,7 +21,7 @@
             </Button>
          </children>
       </HBox>
-      <Accordion prefHeight="208.0" prefWidth="483.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
+      <Accordion fx:id="browseSubjectsAccordion" prefHeight="208.0" prefWidth="483.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
         <panes>
           <TitledPane animated="false" text="Browse Subjects">
             <content>

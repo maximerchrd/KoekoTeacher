@@ -27,7 +27,7 @@
         </items>
       </SplitPane>
       <Button layoutX="193.0" layoutY="234.0" mnemonicParsing="false" onAction="#broadcastQuestionForStudents" prefHeight="27.0" prefWidth="170.0" text="Broadcast question" AnchorPane.bottomAnchor="70.0" AnchorPane.rightAnchor="535.0" />
-      <Accordion layoutX="700.0" layoutY="7.0" AnchorPane.rightAnchor="5.0">
+      <Accordion fx:id="questionSendingAccordion" layoutX="681.0" layoutY="62.0" visible="false" AnchorPane.rightAnchor="5.0">
         <panes>
           <TitledPane animated="false" text="Formative Test">
             <content>
@@ -65,5 +65,6 @@
           </TitledPane>
         </panes>
       </Accordion>
+      <ComboBox fx:id="uiChoiceBox" layoutX="683.0" layoutY="14.0" onAction="#changeUI" prefHeight="27.0" prefWidth="202.0" />
    </children>
 </AnchorPane>

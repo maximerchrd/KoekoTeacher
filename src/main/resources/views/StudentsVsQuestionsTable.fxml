@@ -15,8 +15,8 @@
             </AnchorPane>
         </content>
       </ScrollPane>
-      <Button layoutX="6.0" layoutY="14.0" mnemonicParsing="false" onAction="#editEvaluation" prefHeight="27.0" prefWidth="193.0" text="Edit evaluation" />
-      <Accordion layoutX="2.0" layoutY="57.0">
+      <Button fx:id="editEvalButton" layoutX="6.0" layoutY="14.0" mnemonicParsing="false" onAction="#editEvaluation" prefHeight="27.0" prefWidth="193.0" text="Edit evaluation" visible="false" />
+      <Accordion fx:id="tableAccordion" layoutX="2.0" layoutY="57.0" visible="false">
         <panes>
           <TitledPane animated="false" text="Class and Groups">
             <content>

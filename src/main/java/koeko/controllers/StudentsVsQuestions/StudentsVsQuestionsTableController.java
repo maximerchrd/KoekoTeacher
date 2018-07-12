@@ -50,6 +50,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
     @FXML private ComboBox chooseTestCombo;
+    @FXML public Button editEvalButton;
+    @FXML public Accordion tableAccordion;
+
 
     public void addQuestion(String question, Integer ID, Integer group) {
         if (group < 1) group = 0;
