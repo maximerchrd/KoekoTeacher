@@ -56,6 +56,9 @@ public class Koeko extends Application {
         primaryStage.setWidth(primaryScreenBounds.getWidth());
         primaryStage.setHeight(primaryScreenBounds.getHeight());
 
+        //change UI mode (do it here because before, some elements are still null
+        Koeko.questionSendingControllerSingleton.changeUI();
+
         primaryStage.setScene(scene);
         primaryStage.show();
 

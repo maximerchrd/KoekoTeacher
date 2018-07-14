@@ -81,7 +81,8 @@ public class QuestionSendingController extends Window implements Initializable {
         uiChoiceBox.setItems(FXCollections.observableArrayList(
                 "Basic Commands", "Advanced Commands")
         );
-        uiChoiceBox.getSelectionModel().select(0);
+        int uiMode = DbTableSettings.getUIMode();
+        uiChoiceBox.getSelectionModel().select(uiMode);
 
         //all questions tree (left panel)
         //retrieve data from db
@@ -951,11 +952,13 @@ public class QuestionSendingController extends Window implements Initializable {
             Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(false);
             Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(false);
             Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(false);
+            DbTableSettings.insertUIMode(0);
         } else {
             questionSendingAccordion.setVisible(true);
             Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(true);
             Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(true);
             Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(true);
+            DbTableSettings.insertUIMode(1);
         }
     }
 
