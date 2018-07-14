@@ -8,9 +8,9 @@
 
 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="548.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.SettingsController">
    <children>
-      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="50.0" prefWidth="855.0">
                <children>
                   <Label text="User Name:" />
                   <TextField fx:id="teacherName" onAction="#setUserName">
@@ -20,7 +20,7 @@
                   </TextField>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="50.0" prefWidth="200.0">
                <children>
                   <Label text="Language:" />
                   <ComboBox fx:id="languageCombobox" onAction="#setLanguage" prefWidth="150.0" promptText="Select Language">
@@ -32,7 +32,7 @@
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label prefHeight="29.0" prefWidth="456.0" text="Give the results to students when they answer the question:" />
+                  <Label prefHeight="29.0" prefWidth="381.0" text="Give the results to students when they answer the question:" />
                   <ToggleButton fx:id="correctionModeButton" mnemonicParsing="false" onAction="#correctionModeChanged" text="ToggleButton">
                      <HBox.margin>
                         <Insets left="10.0" />
@@ -40,9 +40,15 @@
                   </ToggleButton>
                </children>
             </HBox>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <children>
+                  <Label text="Synchronization key: " />
+                  <TextField fx:id="synchronizationKeyTextField" />
+               </children>
+            </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#sendToWebsite" text="Try to send questions to websit (do not use for now)" />
+                  <Button mnemonicParsing="false" onAction="#syncWithServer" text="Synchronize with Web Server" />
                </children>
             </HBox>
          </children></VBox>

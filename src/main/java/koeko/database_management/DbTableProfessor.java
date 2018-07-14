@@ -17,6 +17,7 @@ public class DbTableProfessor {
                     " FIRSTNAME  TEXT, " +
                     " LASTNAME   TEXT    NOT NULL, " +
                     " ALIAS      TEXT    NOT NULL, " +
+                    " SYNC_KEY  TEXT, " +
                     " LANGUAGE TEXT, " +
                     " UNIQUE (ALIAS) ) ";
             statement.executeUpdate(sql);
@@ -105,6 +106,23 @@ public class DbTableProfessor {
         }
     }
 
+    static public void setProfessorSyncKey(String alias, String synchronizationKey) {
+        String sql = 	"UPDATE professor SET SYNC_KEY=? WHERE ALIAS=?;";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, synchronizationKey);
+            pstmt.setString(2, alias);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     static public Professor getProfessor() {
         Professor professor = null;
         Connection c = null;
@@ -117,18 +135,23 @@ public class DbTableProfessor {
             stmt = c.createStatement();
             String query = "SELECT * FROM professor;";
             ResultSet rs = stmt.executeQuery(query);
+
+            String alias = "";
             if (rs.next()) {
                 String id = rs.getString("ID_PROF");
-                String alias = rs.getString("ALIAS");
+                alias = rs.getString("ALIAS");
                 String muid = rs.getString("PROF_MUID");
                 String language = rs.getString("LANGUAGE");
+                String sync_key = rs.getString("SYNC_KEY");
 
                 professor = Professor.createProfessor(id, alias, muid);
                 professor.set_language(language);
+                professor.set_synchronizationKey(sync_key);
             }
             stmt.close();
             c.commit();
             c.close();
+            setProfessorSyncKey(alias, "");
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);

@@ -3,6 +3,7 @@ package koeko.controllers;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
+import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.database_management.DbTableProfessor;
 import koeko.database_management.DbTableQuestionGeneric;
 import koeko.database_management.DbTableQuestionMultipleChoice;
@@ -25,6 +26,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,8 @@ public class SettingsController implements Initializable {
     private ToggleButton correctionModeButton;
     @FXML
     private ComboBox languageCombobox;
+    @FXML
+    private TextField synchronizationKeyTextField;
 
 
     public void correctionModeChanged() {
@@ -69,8 +73,18 @@ public class SettingsController implements Initializable {
             DbTableProfessor.setProfessorAlias("1", teacherName.getText());
         }
     }
+
     public void setLanguage() {
         DbTableProfessor.setProfessorLanguage(teacherName.getText(),languageCombobox.getSelectionModel().getSelectedItem().toString());
+    }
+
+    public void syncWithServer() {
+        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+        try {
+            SyncOperations.SyncAll(InetAddress.getByName("188.226.155.245"), 50507);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendToWebsite() {
