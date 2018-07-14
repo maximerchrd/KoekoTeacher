@@ -25,7 +25,7 @@ public class Student {
     private ArrayList<Integer> testQuestionsIDs;
     private Integer activeTestID;
     private Test activeTest;
-    private Boolean connected;
+    private Boolean connected = false;
     private ArrayList<String> deviceQuestions;
 
 

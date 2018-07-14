@@ -1,5 +1,6 @@
 package koeko.students_management;
 
+import koeko.Koeko;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 
@@ -333,24 +334,26 @@ public class Classroom {
     public Boolean allQuestionsOnDevices() {
         Boolean questionsReached = true;
         for (Student student : students_vector) {
-            ArrayList<Integer> deviceQuestions = new ArrayList<>();
+            if (student.getConnected()) {
+                ArrayList<Integer> deviceQuestions = new ArrayList<>();
 
-            //convert question ids string to int
-            for (String id : student.getDeviceQuestions()) {
-                deviceQuestions.add(Integer.valueOf(id));
-            }
+                //convert question ids string to int
+                for (String id : student.getDeviceQuestions()) {
+                    deviceQuestions.add(Integer.valueOf(id));
+                }
 
-            //check if the questions on the device contain the active questions
-            if (!deviceQuestions.containsAll(activeIDs)) {
-                questionsReached = false;
+                //check if the questions on the device contain the active questions
+                if (!deviceQuestions.containsAll(activeIDs)) {
+                    questionsReached = false;
+                    System.out.println("check if all questions on device: " + questionsReached);
+                    System.out.println("activeIDs: " + activeIDs);
+                    System.out.println("device IDs: " + deviceQuestions);
+                    break;
+                }
                 System.out.println("check if all questions on device: " + questionsReached);
                 System.out.println("activeIDs: " + activeIDs);
                 System.out.println("device IDs: " + deviceQuestions);
-                break;
             }
-            System.out.println("check if all questions on device: " + questionsReached);
-            System.out.println("activeIDs: " + activeIDs);
-            System.out.println("device IDs: " + deviceQuestions);
         }
         return  questionsReached;
     }

@@ -477,7 +477,10 @@ public class NetworkCommunication {
                                 //copy some basic informations because arg_student is used to write the answer into the table
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
-                                Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
+                                Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
+                                student.setUniqueID(answerString.split("///")[1]);
+                                student.setName(answerString.split("///")[2]);
+                                student.setConnected(false);
                                 learningTrackerController.userDisconnected(student);
                                 if (answerString.contains("close-connection")) {
                                     System.out.println("Student device really disconnecting. We should close the connection");
