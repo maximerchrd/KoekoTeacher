@@ -465,9 +465,19 @@ public class QuestionSendingController extends Window implements Initializable {
             students = DbTableClasses.getStudentsInClass(activeClass);
         }
 
-        //if there is no class selected
         if (students.size() == 0) {
+            //if there is no class selected
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+        } else {
+            Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().clone();
+            for (int i = 0; i < tableStudents.size(); i++) {
+                for (int j = 0; j < students.size(); j++) {
+                    if (tableStudents.get(i).getName().contentEquals(students.get(j).getName())) {
+                        tableStudents.remove(tableStudents.get(i));
+                    }
+                }
+            }
+            students.addAll(tableStudents);
         }
 
 

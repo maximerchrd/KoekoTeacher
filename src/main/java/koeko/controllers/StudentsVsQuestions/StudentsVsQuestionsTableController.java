@@ -172,6 +172,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         System.out.println("adding user with connection:" + connection + "; ip: " + UserStudent.getInetAddress().toString());
         if (connection) {
             System.out.println("Student connection in addUser");
+        } else {
+            System.out.println("Student without connection in addUser");
         }
 
         //fill an array containing the names already present in the table
