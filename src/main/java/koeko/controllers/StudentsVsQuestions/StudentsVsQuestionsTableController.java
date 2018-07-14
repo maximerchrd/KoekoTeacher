@@ -55,55 +55,57 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
 
     public void addQuestion(String question, Integer ID, Integer group) {
-        if (group < 1) group = 0;
-        // Add extra columns if necessary:
-        TableColumn column = new TableColumn(question);
-        column.setPrefWidth(180);
-        tableViewArrayList.get(group).getColumns().add(column);
+        if (ID > 0) {
+            if (group < 1) group = 0;
+            // Add extra columns if necessary:
+            TableColumn column = new TableColumn(question);
+            column.setPrefWidth(180);
+            tableViewArrayList.get(group).getColumns().add(column);
 
-        Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
-        //questions.add(question);
-        //questionsIDs.add(ID);
+            Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
+            //questions.add(question);
+            //questionsIDs.add(ID);
 
-        //add the evaluations for the table
-        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-            tableViewArrayList.get(group).getItems().get(i).addAnswer();
-            if (Koeko.studentGroupsAndClass.get(group).getActiveEvaluations() != null
-                    && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
-                Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+            //add the evaluations for the table
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+                tableViewArrayList.get(group).getItems().get(i).addAnswer();
+                if (Koeko.studentGroupsAndClass.get(group).getActiveEvaluations() != null
+                        && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
+                    Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+                }
             }
-        }
-        Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
+            Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
 
 
-        final int questionIndex = Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
-        column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                // p.getValue() returns the Person instance for a particular TableView row
-                return p.getValue().getAnswers().get(questionIndex);
-            }
-        });
-        column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
-            @Override
-            public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
-                return new TableCell<SingleStudentAnswersLine, String>() {
+            final int questionIndex = Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
+            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
+                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
+                    // p.getValue() returns the Person instance for a particular TableView row
+                    return p.getValue().getAnswers().get(questionIndex);
+                }
+            });
+            column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
+                @Override
+                public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
+                    return new TableCell<SingleStudentAnswersLine, String>() {
 
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!isEmpty()) {
-                            this.setTextFill(Color.RED);
-                            // Get fancy and change color based on data
-                            if(item.contains("#/#")) {
-                                this.setTextFill(Color.GREEN);
+                        @Override
+                        public void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (!isEmpty()) {
+                                this.setTextFill(Color.RED);
+                                // Get fancy and change color based on data
+                                if (item.contains("#/#")) {
+                                    this.setTextFill(Color.GREEN);
+                                }
+                                setText(item.replace("#/#", ""));
                             }
-                            setText(item.replace("#/#",""));
                         }
-                    }
 
-                };
-            }
-        });
+                    };
+                }
+            });
+        }
     }
 
     public void removeQuestion(int index) {
