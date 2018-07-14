@@ -414,14 +414,27 @@ public class NetworkCommunication {
                                 SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
                                 //find out to which group the student and answer belong
-                                Integer groupIndex = 0;
+                                Integer groupIndex = -1;
                                 Integer questID = Integer.valueOf(answerString.split("///")[5]);
-                                for (int i = 0; i < studentNamesForGroups.size(); i++) {
-                                    if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
+                                for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+                                    if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
+                                            Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
                                         groupIndex = i;
-                                        questionIdsForGroups.get(i).remove(questID);
+                                        Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
+                                                .remove(questID);
                                     }
                                 }
+
+                                if (groupIndex == -1) {
+                                    groupIndex = 0;
+                                    for (int i = 0; i < studentNamesForGroups.size(); i++) {
+                                        if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
+                                            groupIndex = i;
+                                            questionIdsForGroups.get(i).remove(questID);
+                                        }
+                                    }
+                                }
+
                                 learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval,
                                         Integer.valueOf(answerString.split("///")[5]), groupIndex);
                                 Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));

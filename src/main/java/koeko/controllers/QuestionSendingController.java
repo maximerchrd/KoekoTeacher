@@ -454,7 +454,7 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void activateQuestionForStudents() {
-        //build the students vector
+        //START build the students vector
         String group = "";
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
@@ -470,6 +470,7 @@ public class QuestionSendingController extends Window implements Initializable {
             //if there is no class selected
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
         } else {
+            //if a class is selected, make sure that all students connected get the question
             Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().clone();
             for (int i = 0; i < tableStudents.size(); i++) {
                 for (int j = 0; j < students.size(); j++) {
@@ -480,7 +481,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             students.addAll(tableStudents);
         }
-
+        //END build the students vector
 
         //get the selected questions
         QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
@@ -509,7 +510,33 @@ public class QuestionSendingController extends Window implements Initializable {
             } else {
                 activateTestSynchroneousQuestions();
             }
-         }
+        }
+
+        //keep track of which questions are activated for which students in which group
+        for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+            if (group.contentEquals(Koeko.studentGroupsAndClass.get(i).getClassName())) {
+                for (int j = 0; j < students.size(); j++) {
+                    Vector<String> questionIds = Koeko.studentGroupsAndClass.get(i).
+                            getOngoingQuestionsForStudent().get(students.get(j).getName());
+
+                    if (questionIds == null) {
+                        questionIds = new Vector<>();
+
+                    }
+                    questionIds.add(String.valueOf(questionGeneric.getGlobalID()));
+
+                    //if the id corresponds to a test, also add the questions linked to it
+                    if (questionGeneric.getGlobalID() < 0) {
+                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTests.getTestWithID(-questionGeneric.getGlobalID()).getTestName());
+                        for (String question : questions) {
+                            questionIds.add(question);
+                        }
+                    }
+
+                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().put(students.get(j).getName(), questionIds);
+                }
+            }
+        }
     }
 
     public void createQuestion() {

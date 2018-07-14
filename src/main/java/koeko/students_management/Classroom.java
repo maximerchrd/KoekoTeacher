@@ -4,6 +4,7 @@ import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -22,6 +23,7 @@ public class Classroom {
     private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<Integer> IDsToStoreOnDevices;
+    private HashMap<String, Vector<String>> ongoingQuestionsForStudent;
 
     public Classroom() {
         students_vector = new Vector<>();
@@ -33,6 +35,7 @@ public class Classroom {
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
         IDsToStoreOnDevices = new ArrayList<>();
+        ongoingQuestionsForStudent = new HashMap<>();
     }
 
     //getters
@@ -72,6 +75,9 @@ public class Classroom {
     public ArrayList<Integer> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
+    public HashMap<String, Vector<String>> getOngoingQuestionsForStudent() {
+        return ongoingQuestionsForStudent;
+    }
 
 
     //setters
@@ -98,6 +104,9 @@ public class Classroom {
     }
     public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
+    }
+    public void setOngoingQuestionsForStudent(HashMap<String, Vector<String>> ongoingQuestionsForStudent) {
+        this.ongoingQuestionsForStudent = ongoingQuestionsForStudent;
     }
 
 
