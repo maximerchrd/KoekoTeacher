@@ -30,7 +30,7 @@ public class SyncOperations {
     static private void InitializeTransfer(InetAddress serverAddress, int serverPort) throws Exception {
         Socket socket = new Socket(serverAddress, serverPort);
 
-        IniFile ini = new IniFile(".\\src\\main\\java\\koeko\\koeko.ini");
+        IniFile ini = new IniFile("./src/main/java/koeko/koeko.ini");
         String imagePath = ini.getString("File", "SourceImagePath", ".\\");
         _tcpcom = new TCPCommunication(socket, imagePath);
     }
@@ -39,6 +39,10 @@ public class SyncOperations {
         // Create the connection to the server for synchronisation
         InitializeTransfer(serverAddress, serverPort);
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         // Before synchronisation, make sure the prof is known in the global database
         Professor professor = DbTableProfessor.getProfessor();
         CreateOrUpdateProfessor(professor);
@@ -84,7 +88,10 @@ public class SyncOperations {
         System.out.println("Marking sync time");
     }
 
+<<<<<<< Updated upstream
 /*
+=======
+>>>>>>> Stashed changes
 
     private static Connection ConnectToMySQL() {
         // Connexion à mysql

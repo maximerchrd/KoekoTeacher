@@ -111,13 +111,14 @@ public class DbTableSubject {
     }
 
     static public void updateSubject(String oldSubject, String newSubject) {
-        String sql = 	"UPDATE subjects SET SUBJECT = ? WHERE SUBJECT = ?";
+        String sql = 	"UPDATE subjects SET SUBJECT = ?, MODIF_DATE = ?  WHERE SUBJECT = ?";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
             pstmt.setString(1, newSubject);
-            pstmt.setString(2, oldSubject);
+            pstmt.setString(2, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(3, oldSubject);
             // update
             pstmt.executeUpdate();
         } catch (SQLException e) {

@@ -5,7 +5,6 @@ import koeko.view.QuestionMultipleChoiceView;
 import koeko.view.Utilities;
 
 import java.sql.*;
-import java.time.ZonedDateTime;
 import java.util.Vector;
 
 /**
@@ -75,7 +74,11 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
+<<<<<<< Updated upstream
                     Utilities.TimestampForNow() +"');";
+=======
+                    DBUtils.UniversalTimestampAsString() +"');";
+>>>>>>> Stashed changes
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -156,7 +159,11 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
+<<<<<<< Updated upstream
                     quest.getQCM_UPD_TMS().toString() +"');";
+=======
+                    DBUtils.UniversalTimestampAsString() +"');";
+>>>>>>> Stashed changes
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -195,7 +202,7 @@ public class DbTableQuestionMultipleChoice {
                     "OPTION9='" + quest.getOPT9() + "', " +
                     "NB_CORRECT_ANS='" + quest.getNB_CORRECT_ANS() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "', " +
-                    "MODIF_DATE='" + ZonedDateTime.now() + "' " +
+                    "MODIF_DATE='" + DBUtils.UniversalTimestampAsString() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
             stmt.close();

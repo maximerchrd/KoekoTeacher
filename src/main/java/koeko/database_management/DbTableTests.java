@@ -150,7 +150,8 @@ public class DbTableTests {
                     2000000 + "','" +
                     newTest.getTestName() + "','" + newTest.getTestMode() + "','-1');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
+            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST, MODIF_DATE = '" + DBUtils.UniversalTimestampAsString()
+                    + "' WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);
             sql = "SELECT ID_TEST_GLOBAL FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
             ResultSet rs = stmt.executeQuery(sql);
@@ -215,8 +216,8 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET NAME = '" + newName + "' " +
-                    "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
+            String sql = "UPDATE tests SET NAME = '" + newName + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+                    "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -235,8 +236,8 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "' " +
-                    "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
+            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+                    "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
