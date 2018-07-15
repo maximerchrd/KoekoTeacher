@@ -1,9 +1,9 @@
 package koeko.controllers.StudentsVsQuestions;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.cell.TextFieldTableCell;
 import koeko.Koeko;
+import koeko.Networking.NetworkCommunication;
 import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
@@ -50,57 +50,62 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
     @FXML private ComboBox chooseTestCombo;
+    @FXML public Button editEvalButton;
+    @FXML public Accordion tableAccordion;
+
 
     public void addQuestion(String question, Integer ID, Integer group) {
-        if (group < 1) group = 0;
-        // Add extra columns if necessary:
-        TableColumn column = new TableColumn(question);
-        column.setPrefWidth(180);
-        tableViewArrayList.get(group).getColumns().add(column);
+        if (ID > 0) {
+            if (group < 1) group = 0;
+            // Add extra columns if necessary:
+            TableColumn column = new TableColumn(question);
+            column.setPrefWidth(180);
+            tableViewArrayList.get(group).getColumns().add(column);
 
-        Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
-        //questions.add(question);
-        //questionsIDs.add(ID);
+            Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
+            //questions.add(question);
+            //questionsIDs.add(ID);
 
-        //add the evaluations for the table
-        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-            tableViewArrayList.get(group).getItems().get(i).addAnswer();
-            if (Koeko.studentGroupsAndClass.get(group).getActiveEvaluations() != null
-                    && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
-                Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+            //add the evaluations for the table
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+                tableViewArrayList.get(group).getItems().get(i).addAnswer();
+                if (Koeko.studentGroupsAndClass.get(group).getActiveEvaluations() != null
+                        && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
+                    Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+                }
             }
-        }
-        Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
+            Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
 
 
-        final int questionIndex = Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
-        column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                // p.getValue() returns the Person instance for a particular TableView row
-                return p.getValue().getAnswers().get(questionIndex);
-            }
-        });
-        column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
-            @Override
-            public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
-                return new TableCell<SingleStudentAnswersLine, String>() {
+            final int questionIndex = Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
+            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
+                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
+                    // p.getValue() returns the Person instance for a particular TableView row
+                    return p.getValue().getAnswers().get(questionIndex);
+                }
+            });
+            column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
+                @Override
+                public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
+                    return new TableCell<SingleStudentAnswersLine, String>() {
 
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!isEmpty()) {
-                            this.setTextFill(Color.RED);
-                            // Get fancy and change color based on data
-                            if(item.contains("#/#")) {
-                                this.setTextFill(Color.GREEN);
+                        @Override
+                        public void updateItem(String item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (!isEmpty()) {
+                                this.setTextFill(Color.RED);
+                                // Get fancy and change color based on data
+                                if (item.contains("#/#")) {
+                                    this.setTextFill(Color.GREEN);
+                                }
+                                setText(item.replace("#/#", ""));
                             }
-                            setText(item.replace("#/#",""));
                         }
-                    }
 
-                };
-            }
-        });
+                    };
+                }
+            });
+        }
     }
 
     public void removeQuestion(int index) {
@@ -166,12 +171,16 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
-        System.out.println("adding user with connection:" + connection);
+        System.out.println("adding user with connection:" + connection + "; ip: " + UserStudent.getInetAddress().toString());
         if (connection) {
-            System.out.println("bla");
+            System.out.println("Student connection in addUser");
+        } else {
+            System.out.println("Student without connection in addUser");
         }
+
+        //fill an array containing the names already present in the table
         ArrayList<String> studentNames = new ArrayList<>();
-        for (Student student: Koeko.studentGroupsAndClass.get(group).getStudents_vector()) studentNames.add(student.getName());
+        for (SingleStudentAnswersLine singleStudentAnswersLine: tableViewArrayList.get(group).getItems()) studentNames.add(singleStudentAnswersLine.getStudent());
         if (!studentNames.contains(UserStudent.getName())) {
             Koeko.studentGroupsAndClass.get(group).addStudentIfNotInClass(UserStudent);
             //for (int k = 0; k < 10; k++) {
@@ -181,7 +190,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else {
                 singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
             }
-            for (int i = 0; i < Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size(); i++) {
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().get(0).getAnswers().size(); i++) {
                 singleStudentAnswersLine.addAnswer();
             }
             if (tableViewArrayList.get(group).getItems().size() == 0) {
@@ -218,7 +227,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //END change connection status to connected
 
             //we merge students if we have same ip address and one is not initialized (name="no name") and if we have 2 same names
-            Koeko.studentGroupsAndClass.get(group).mergeStudentsOnNameAndIP(UserStudent);
+            Koeko.studentGroupsAndClass.get(group).mergeStudentsOnNameOrIP(UserStudent);
         }
     }
 
@@ -241,7 +250,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             answer += "#/#";
         }
         Integer indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
-        Integer indexRow = indexOfStudent(Koeko.studentGroupsAndClass.get(group).getStudents_vector(), student);
+
+        Integer indexRow = -1;
+        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                indexRow = i;
+            }
+        }
+
         if (indexColumn >= 0 && indexRow >= 0) {
             SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
             singleStudentAnswersLine.setAnswer(answer, indexColumn);
@@ -463,7 +479,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         //add questions
         ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
         for (Integer id : questionIDs) {
-            Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().add(id);
+            Koeko.studentGroupsAndClass.get(groupIndex).getActiveIDs().add(id);
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);
             }
@@ -478,18 +494,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             } else if (questionType == 1) {
                 question = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id).getQUESTION();
             }
-            /*if (Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveIDs().size() !=
-                    Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().size()) {
-                Koeko.studentGroupsAndClass.get(groupIndex + 1).getActiveQuestions().add(question);
-            }*/
-            addQuestion(question, id, groupIndex + 1);
+            addQuestion(question, id, groupIndex);
         }
     }
 
     public void removeGroup(int groupIndex) {
         tableViewArrayList.remove(groupIndex);
-        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
-        tableVBox.getChildren().remove(1 + (groupIndex - 1) * 2);
+        tableVBox.getChildren().remove(1 + (groupIndex) * 2);
+        tableVBox.getChildren().remove(1 + (groupIndex) * 2);
     }
 
     public void launchChooseTest() {
@@ -512,12 +524,30 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
+    public void sendObjectiveEvaluationToStudents() {
+        String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
+        if (test != null && !test.contentEquals("No test")) {
+            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+                for (int j = 3; j < tableViewArrayList.get(0).getColumns().size(); j++) {
+                    String objective = tableViewArrayList.get(0).getColumns().get(j).getText();
+                    String evaluation = tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
+                    NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
+                }
+            }
+        }
+    }
+
     public void certificativeTestSelected() {
 
         //remove questions or objectives columns if some are present
         String firstQuestion = "";
-        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
+        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size() > 0 &&
+                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
             firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
+
+            //remove questions if some are present in the ready list
+            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().clear();
         }
         if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
             tableViewArrayList.get(0).getColumns().remove(3, tableViewArrayList.get(0).getColumns().size());
@@ -562,7 +592,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             final int objectiveIndex = k;
             column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                    // p.getValue() returns the Person instance for a particular TableView row
+                    // p.getValue() returns the instance for a particular TableView row
                     return p.getValue().getAnswers().get(objectiveIndex);
                 }
             });

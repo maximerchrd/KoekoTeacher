@@ -1,9 +1,11 @@
 package koeko.controllers;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
@@ -68,8 +70,20 @@ public class QuestionSendingController extends Window implements Initializable {
 
     @FXML private ComboBox groupsCombobox;
 
+    @FXML private ComboBox uiChoiceBox;
+
+    @FXML private Accordion questionSendingAccordion;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
+
+        //setup UI choicebox
+        uiChoiceBox.setItems(FXCollections.observableArrayList(
+                "Basic Commands", "Advanced Commands")
+        );
+        int uiMode = DbTableSettings.getUIMode();
+        uiChoiceBox.getSelectionModel().select(uiMode);
+
         //all questions tree (left panel)
         //retrieve data from db
         try {
@@ -440,7 +454,7 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void activateQuestionForStudents() {
-        //build the students vector
+        //START build the students vector
         String group = "";
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
@@ -452,15 +466,27 @@ public class QuestionSendingController extends Window implements Initializable {
             students = DbTableClasses.getStudentsInClass(activeClass);
         }
 
-        //if there is no class selected
         if (students.size() == 0) {
+            //if there is no class selected
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+        } else {
+            //if a class is selected, make sure that all students connected get the question
+            Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().clone();
+            for (int i = 0; i < tableStudents.size(); i++) {
+                for (int j = 0; j < students.size(); j++) {
+                    if (tableStudents.get(i).getName().contentEquals(students.get(j).getName())) {
+                        tableStudents.remove(tableStudents.get(i));
+                    }
+                }
+            }
+            students.addAll(tableStudents);
         }
-
+        //END build the students vector
 
         //get the selected questions
         QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
 
+        QuestionSendingController.readyToActivate = NetworkCommunication.networkCommunicationSingleton.aClass.allQuestionsOnDevices();
         System.out.println("ready? " + QuestionSendingController.readyToActivate);
         if (!QuestionSendingController.readyToActivate) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/QuestionsNotReadyPopUp.fxml"));
@@ -484,7 +510,33 @@ public class QuestionSendingController extends Window implements Initializable {
             } else {
                 activateTestSynchroneousQuestions();
             }
-         }
+        }
+
+        //keep track of which questions are activated for which students in which group
+        for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+            if (group.contentEquals(Koeko.studentGroupsAndClass.get(i).getClassName())) {
+                for (int j = 0; j < students.size(); j++) {
+                    Vector<String> questionIds = Koeko.studentGroupsAndClass.get(i).
+                            getOngoingQuestionsForStudent().get(students.get(j).getName());
+
+                    if (questionIds == null) {
+                        questionIds = new Vector<>();
+
+                    }
+                    questionIds.add(String.valueOf(questionGeneric.getGlobalID()));
+
+                    //if the id corresponds to a test, also add the questions linked to it
+                    if (questionGeneric.getGlobalID() < 0) {
+                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTests.getTestWithID(-questionGeneric.getGlobalID()).getTestName());
+                        for (String question : questions) {
+                            questionIds.add(question);
+                        }
+                    }
+
+                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().put(students.get(j).getName(), questionIds);
+                }
+            }
+        }
     }
 
     public void createQuestion() {
@@ -918,6 +970,22 @@ public class QuestionSendingController extends Window implements Initializable {
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
         } else {
             System.out.println("No test is selected");
+        }
+    }
+
+    public void changeUI() {
+        if (uiChoiceBox.getSelectionModel().getSelectedIndex() == 0) {
+            questionSendingAccordion.setVisible(false);
+            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(false);
+            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(false);
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(false);
+            DbTableSettings.insertUIMode(0);
+        } else {
+            questionSendingAccordion.setVisible(true);
+            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(true);
+            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(true);
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(true);
+            DbTableSettings.insertUIMode(1);
         }
     }
 

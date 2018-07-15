@@ -16,10 +16,12 @@ public class DbTableSettings {
                     "(ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " NEARBY_MODE      INT    NOT NULL, " +
                     " CORRECTION_MODE      INT    NOT NULL, " +
+                    " UI_MODE      INT NOT NULL," +
                     " TEACHER_NAME      TEXT     NOT NULL) ";
             statement.executeUpdate(sql);
-            sql = "INSERT INTO settings (NEARBY_MODE, CORRECTION_MODE, TEACHER_NAME)" +
+            sql = "INSERT INTO settings (NEARBY_MODE, CORRECTION_MODE, UI_MODE, TEACHER_NAME)" +
                     "VALUES ('" +
+                    0 + "','" +
                     0 + "','" +
                     0 + "','" +
                     "No Name" + "');";
@@ -82,6 +84,32 @@ public class DbTableSettings {
         return correctionMode;
     }
 
+    static public Integer getUIMode() {
+        Integer UiMode = -1;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT UI_MODE FROM settings WHERE ID = 1;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                UiMode = Integer.parseInt(rs.getString("UI_MODE"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return UiMode;
+    }
+
     static public String getTeacherName() {
         String teacherName = "";
         Connection c = null;
@@ -118,6 +146,26 @@ public class DbTableSettings {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "UPDATE settings SET NEARBY_MODE = " + nearbyMode +" WHERE ID = 1";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+    static public void insertUIMode(Integer UIMode) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE settings SET UI_MODE = " + UIMode +" WHERE ID = 1";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

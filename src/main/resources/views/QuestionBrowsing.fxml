@@ -21,10 +21,22 @@
             </Button>
          </children>
       </HBox>
-      <TreeView fx:id="subjectsTree" layoutX="231.0" layoutY="54.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="231.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="54.0" />
-      <Button layoutX="24.0" layoutY="155.0" mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject" AnchorPane.topAnchor="155.0" />
-      <Button layoutX="24.0" layoutY="122.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject" AnchorPane.topAnchor="122.0" />
-      <Button layoutX="24.0" layoutY="87.0" mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject" AnchorPane.topAnchor="87.0" />
-      <Button layoutX="24.0" layoutY="54.0" mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" AnchorPane.topAnchor="54.0" />
+      <Accordion fx:id="browseSubjectsAccordion" prefHeight="208.0" prefWidth="483.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
+        <panes>
+          <TitledPane animated="false" text="Browse Subjects">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button layoutX="14.0" layoutY="63.0" mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject" />
+                        <TreeView fx:id="subjectsTree" layoutX="219.0" layoutY="14.0" AnchorPane.bottomAnchor="15.800000000000011" AnchorPane.topAnchor="14.0" />
+                        <Button layoutX="14.0" layoutY="140.0" mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject" />
+                        <Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject" AnchorPane.topAnchor="90.0" />
+                        <Button layoutX="14.0" layoutY="24.0" mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </TitledPane>
+        </panes>
+      </Accordion>
    </children>
 </AnchorPane>

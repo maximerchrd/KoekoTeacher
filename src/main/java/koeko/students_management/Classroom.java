@@ -1,9 +1,11 @@
 package koeko.students_management;
 
+import koeko.Koeko;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -22,6 +24,7 @@ public class Classroom {
     private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<Integer> IDsToStoreOnDevices;
+    private HashMap<String, Vector<String>> ongoingQuestionsForStudent;
 
     public Classroom() {
         students_vector = new Vector<>();
@@ -33,6 +36,7 @@ public class Classroom {
         activeEvaluations = new ArrayList<>();
         averageEvaluations = new ArrayList<>();
         IDsToStoreOnDevices = new ArrayList<>();
+        ongoingQuestionsForStudent = new HashMap<>();
     }
 
     //getters
@@ -72,6 +76,9 @@ public class Classroom {
     public ArrayList<Integer> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
+    public HashMap<String, Vector<String>> getOngoingQuestionsForStudent() {
+        return ongoingQuestionsForStudent;
+    }
 
 
     //setters
@@ -99,6 +106,9 @@ public class Classroom {
     public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
+    public void setOngoingQuestionsForStudent(HashMap<String, Vector<String>> ongoingQuestionsForStudent) {
+        this.ongoingQuestionsForStudent = ongoingQuestionsForStudent;
+    }
 
 
 
@@ -107,7 +117,16 @@ public class Classroom {
         Student student = new Student();
         for (int i = 0; i < students_vector.size(); i++) {
             if (String.valueOf(studentID).contentEquals(String.valueOf(students_vector.get(i).getStudentID()))) {
-                System.out.println("equal");
+                student = students_vector.get(i);
+            }
+        }
+        return student;
+    }
+
+    public Student getStudentWithIP(String ip) {
+        Student student = new Student();
+        for (int i = 0; i < students_vector.size(); i++) {
+            if (ip.contentEquals(students_vector.get(i).getInetAddress().toString())) {
                 student = students_vector.get(i);
             }
         }
@@ -315,22 +334,31 @@ public class Classroom {
     public Boolean allQuestionsOnDevices() {
         Boolean questionsReached = true;
         for (Student student : students_vector) {
-            ArrayList<Integer> deviceQuestions = new ArrayList<>();
-            for (String id : student.getDeviceQuestions()) {
-                deviceQuestions.add(Integer.valueOf(id));
+            if (student.getConnected()) {
+                ArrayList<Integer> deviceQuestions = new ArrayList<>();
+
+                //convert question ids string to int
+                for (String id : student.getDeviceQuestions()) {
+                    deviceQuestions.add(Integer.valueOf(id));
+                }
+
+                //check if the questions on the device contain the active questions
+                if (!deviceQuestions.containsAll(activeIDs)) {
+                    questionsReached = false;
+                    System.out.println("check if all questions on device: " + questionsReached);
+                    System.out.println("activeIDs: " + activeIDs);
+                    System.out.println("device IDs: " + deviceQuestions);
+                    break;
+                }
+                System.out.println("check if all questions on device: " + questionsReached);
+                System.out.println("activeIDs: " + activeIDs);
+                System.out.println("device IDs: " + deviceQuestions);
             }
-            if (!deviceQuestions.containsAll(activeIDs)) {
-                questionsReached = false;
-                break;
-            }
-            System.out.println("check if all questions on device: " + questionsReached);
-            System.out.println("activeIDs: " + activeIDs);
-            System.out.println("device IDs: " + deviceQuestions);
         }
         return  questionsReached;
     }
 
-    public void mergeStudentsOnNameAndIP(Student studentToMerge) {
+    public void mergeStudentsOnNameOrIP(Student studentToMerge) {
         ArrayList<Student> studentsToMerge = new ArrayList<>();
         for (int i = 0; i < students_vector.size(); i++) {
             if (!students_vector.get(i).getName().contentEquals("no name") && studentToMerge.getName().contentEquals(students_vector.get(i).getName())) {
@@ -341,7 +369,8 @@ public class Classroom {
         }
 
         if (studentsToMerge.size() > 0) {
-            if (studentToMerge.getInetAddress() != null && studentToMerge.getInetAddress().toString().length() > 0 && !studentToMerge.getName().contentEquals("no name")) {
+            if (studentToMerge.getInetAddress() != null && studentToMerge.getInetAddress().toString().length() > 0 && !studentToMerge.getName().contentEquals("no name")
+                    && !studentToMerge.getUniqueID().contentEquals("no identifier")) {
                 for (Student student : studentsToMerge) {
                     students_vector.remove(student);
                 }
@@ -349,7 +378,7 @@ public class Classroom {
             } else if (studentsToMerge.get(0).getInetAddress() != null
                     && !studentsToMerge.get(0).getUniqueID().contentEquals("no identifier")
                     && !studentsToMerge.get(0).getName().contentEquals("no name")) {
-                System.out.println("mergeStudentsOnNameAndIP: the present student is probably more complete. we do nothing.");
+                System.out.println("mergeStudentsOnNameOrIP: the present student is probably more complete. we do nothing.");
             } else if (!studentToMerge.getName().contentEquals("no name") && !studentsToMerge.get(0).getName().contentEquals("no name")
                     && studentsToMerge.get(0).getInetAddress() != null && studentsToMerge.get(0).getInetAddress().toString().length() > 0) {
                 students_vector.remove(studentsToMerge.get(0));
@@ -358,9 +387,9 @@ public class Classroom {
                     studentsToMerge.get(0).getName().contentEquals(studentToMerge.getName()) &&
                     studentsToMerge.get(0).getUniqueID().contentEquals(studentToMerge.getUniqueID()) &&
                     studentsToMerge.get(0).getStudentID().equals(studentToMerge.getStudentID())) {
-                System.out.println("mergeStudentsOnNameAndIP: merging probably equal objects. we do nothing");
+                System.out.println("mergeStudentsOnNameOrIP: merging probably equal objects. we do nothing");
             } else {
-                System.out.println("mergeStudentsOnNameAndIP: implementation not complete.");
+                System.out.println("mergeStudentsOnNameOrIP: implementation not complete.");
             }
         }
     }

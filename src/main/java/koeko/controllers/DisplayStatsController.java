@@ -1,6 +1,7 @@
 package koeko.controllers;
 
 
+import koeko.ResultsManagement.Result;
 import koeko.database_management.DbTableStudents;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,9 +50,10 @@ public class DisplayStatsController implements Initializable {
             rootItem.getChildren().add(item);
         }
         students_tree.setRoot(rootItem);
+        students_tree.setShowRoot(false);
 
         //combobox with time span
-        time_step.getItems().addAll("All");
+        time_step.getItems().addAll("All", "Week", "Month");
         time_step.getSelectionModel().select("All");
 
         int screenWidth = (int) (Toolkit.getDefaultToolkit().getScreenSize().getWidth());
@@ -64,50 +66,74 @@ public class DisplayStatsController implements Initializable {
 
     public void displayChartButtonClicked() {
         TreeItem selectedItem = (TreeItem)students_tree.getSelectionModel().getSelectedItem();
-        drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString());
+        int timeStep = time_step.getSelectionModel().getSelectedIndex();
+        drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString(),
+                timeStep);
     }
 
     public void eraseChartButtonClicked() {
         bar_chart.getData().remove(0, bar_chart.getData().size());
     }
 
-    private void drawChart(String valuesType, String student) {
+    private void drawChart(String valuesType, String student, int timeStep) {
 
         XYChart.Series series1 = new XYChart.Series();
         if (valuesType.contentEquals("Evaluation vs subject")) {
             categoryXAxis.setLabel("Subjects");
             numberYAxis.setLabel("Evaluation [%]");
-            Vector<Vector<String>> studentResultsPerSubject = DbTableStudents.getStudentResultsPerSubject(student.toString());
-            Vector<String> subjects = studentResultsPerSubject.get(0);
-            Vector<String> results = studentResultsPerSubject.get(1);
-            series1.setName(student.toString());
-            for (int i = 0; i < subjects.size(); i++) {
-                series1.getData().add(new XYChart.Data(subjects.get(i), Double.parseDouble(results.get(i))));
-            }
+            Result studentResultsPerSubject = DbTableStudents.getStudentResultsPerSubjectPerTimeStep(student.toString(), timeStep);
+            Vector<String> subjects = studentResultsPerSubject.getXaxisValues();
+            putResultsIntoSeries(student, timeStep, series1, studentResultsPerSubject, subjects);
         } else if (valuesType.contentEquals("Evaluation vs objective")) {
             categoryXAxis.setLabel("Learning objectives");
             numberYAxis.setLabel("Evaluation [%]");
-            Vector<Vector<String>> studentResultsPerObjective = DbTableStudents.getStudentResultsPerObjective(student.toString());
-            Vector<String> objectives = studentResultsPerObjective.get(0);
-            Vector<String> results = studentResultsPerObjective.get(1);
-            series1.setName(student.toString());
-            for (int i = 0; i < objectives.size(); i++) {
-                if (objectives.get(i).length() > 16) {
-                    objectives.set(i, objectives.get(i).substring(0,15) + "\n" + objectives.get(i).substring(15,objectives.get(i).length()));
-                    if (objectives.get(i).length() > 31) {
-                        objectives.set(i, objectives.get(i).substring(0, 30) + "\n" + objectives.get(i).substring(30, objectives.get(i).length()));
-                        if (objectives.get(i).length() > 46) {
-                            objectives.set(i, objectives.get(i).substring(0, 45) + "...");
-                        }
-                    }
-                }
-                series1.getData().add(new XYChart.Data(objectives.get(i), Double.parseDouble(results.get(i))));
-            }
+            Result studentResultsPerObjective = DbTableStudents.getStudentResultsPerObjectivePerTimeStep(student.toString(), timeStep);
+            Vector<String> objectives = studentResultsPerObjective.getXaxisValues();
+            putResultsIntoSeries(student, timeStep, series1, studentResultsPerObjective, objectives);
         }
 
-        bar_chart.getData().addAll(series1);
+
         bar_chart.setPrefWidth(chartScrollPane.getWidth());
         bar_chart.setPrefHeight(chartScrollPane.getHeight());
         bar_chart.setAnimated(false);
+    }
+
+    private void putResultsIntoSeries(String student, int timeStep, XYChart.Series series1, Result studentResultsPerXValue, Vector<String> xValue) {
+        if (timeStep == 0) {
+            series1.setName(student.toString());
+            for (int i = 0; i < xValue.size(); i++) {
+                series1.getData().add(new XYChart.Data(xValue.get(i), Double.parseDouble(studentResultsPerXValue.getResults().get(i).get(0))));
+            }
+            bar_chart.getData().addAll(series1);
+        } else {
+            Vector<XYChart.Series> series = new Vector<>();
+            for (int i = 0; i < xValue.size(); i++) {
+                for (int j = 0; j < studentResultsPerXValue.getResults().get(i).size(); j++) {
+                    int k = 0;
+                    for (; k < series.size(); k++) {
+                        if (studentResultsPerXValue.getDates().get(i).get(j).contentEquals(series.get(k).getName())) {
+                            break;
+                        }
+                    }
+                    if (k == series.size()) {
+                        XYChart.Series serie = new XYChart.Series();
+                        serie.setName(studentResultsPerXValue.getDates().get(i).get(j));
+                        if (studentResultsPerXValue.getResults().get(i).get(j).contentEquals("NaN")) {
+                            studentResultsPerXValue.getResults().get(i).set(j, "0.0");
+                        }
+                        serie.getData().add(new XYChart.Data(xValue.get(i), Double.parseDouble(studentResultsPerXValue.getResults().get(i).get(j))));
+                        series.add(serie);
+                    } else {
+                        if (studentResultsPerXValue.getResults().get(i).get(j).contentEquals("NaN")) {
+                            studentResultsPerXValue.getResults().get(i).set(j, "0.0");
+                        }
+                        series.get(k).getData().add(new XYChart.Data(xValue.get(i), Double.parseDouble(studentResultsPerXValue.getResults().get(i).get(j))));
+                    }
+                }
+            }
+            for (int k = 0; k < series.size(); k++) {
+                bar_chart.getData().addAll(series.get(k));
+            }
+        }
     }
 }

@@ -11,6 +11,8 @@ public class Professor implements Serializable {
     private String _alias;
     private String _muid;
     private Timestamp _updateTS;
+    private String _language;
+    private String _synchronizationKey = "";
 
     public Professor() {
     }
@@ -62,5 +64,19 @@ public class Professor implements Serializable {
         this._updateTS = _updateTS;
     }
 
+    public String get_language() {
+        return _language;
+    }
 
+    public void set_language(String _language) {
+        this._language = _language;
+    }
+
+    public String get_synchronizationKey() {
+        return _synchronizationKey;
+    }
+
+    public void set_synchronizationKey(String _synchronizationKey) {
+        this._synchronizationKey = _synchronizationKey;
+    }
 }

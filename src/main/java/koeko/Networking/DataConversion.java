@@ -60,6 +60,31 @@ public class DataConversion {
         return  wholeByteArray;
     }
 
+    static public byte[] testEvalToBytesArray(String evalToSend) {
+        byte[] bytearraytesteval = evalToSend.getBytes();
+        String textDataSize = String.valueOf(bytearraytesteval.length);
+        String prefix = "OEVAL:" + textDataSize + "///";
+        byte[] byteArrayPrefix = prefix.getBytes();
+        byte[] wholeByteArray = new byte[80];
+        for (int i = 0; i < byteArrayPrefix.length; i++) {
+            wholeByteArray[i] = byteArrayPrefix[i];
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            synchronized (outputStream) {
+                outputStream.write(wholeByteArray);
+                outputStream.write(bytearraytesteval);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        wholeByteArray = outputStream.toByteArray( );
+
+        return  wholeByteArray;
+    }
+
     static public byte[] questionsSetToBytesArray(ArrayList<Integer> questionIDs, Integer testMode) {
         String testString = "";
 

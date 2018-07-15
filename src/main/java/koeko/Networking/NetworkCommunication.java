@@ -98,8 +98,6 @@ public class NetworkCommunication {
                                     student = aClass.updateStudentStreams(student);
                                 }
 
-                                //start a new thread for listening to each student
-                                listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
 
                                 //send the active questions
                                 ArrayList<Integer> activeIDs = (ArrayList<Integer>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
@@ -119,6 +117,9 @@ public class NetworkCommunication {
                                         e.printStackTrace();
                                     }
                                 }
+
+                                //start a new thread for listening to each student
+                                listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
@@ -359,6 +360,32 @@ public class NetworkCommunication {
         return testToSend.getIdsQuestions();
     }
 
+    public void sendTestEvaluation(String studentName, String test, String objective, String evaluation) {
+        Student student = aClass.getStudentWithName(studentName);
+        if (student.getOutputStream() != null) {
+            String testId = DbTableTests.getTestIdWithName(test);
+            String objectiveId = DbTableLearningObjectives.getObjectiveIdFromName(objective);
+            String toSend = testId + "///" + test + "///" + objectiveId + "///" + objective + "///" + evaluation + "///";
+            System.out.println("Sending string: " + toSend);
+            try {
+                byte[] bytesArray = toSend.getBytes();
+                String prefix = "OEVAL:" + bytesArray.length + "///";
+                byte[] bytesPrefix = new byte[80];
+                byte[] bytesPrefixString = prefix.getBytes();
+                for (int i = 0; i < bytesPrefixString.length; i++) {
+                    bytesPrefix[i] = bytesPrefixString[i];
+                }
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                outputStream.write(bytesPrefix);
+                outputStream.write(bytesArray);
+                byte wholeBytesArray[] = outputStream.toByteArray( );
+                writeToOutputStream(student, wholeBytesArray);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * method that listen for the client data transfers
      *
@@ -387,14 +414,27 @@ public class NetworkCommunication {
                                 SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
 
                                 //find out to which group the student and answer belong
-                                Integer groupIndex = 0;
+                                Integer groupIndex = -1;
                                 Integer questID = Integer.valueOf(answerString.split("///")[5]);
-                                for (int i = 0; i < studentNamesForGroups.size(); i++) {
-                                    if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
+                                for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+                                    if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
+                                            Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
                                         groupIndex = i;
-                                        questionIdsForGroups.get(i).remove(questID);
+                                        Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
+                                                .remove(questID);
                                     }
                                 }
+
+                                if (groupIndex == -1) {
+                                    groupIndex = 0;
+                                    for (int i = 0; i < studentNamesForGroups.size(); i++) {
+                                        if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
+                                            groupIndex = i;
+                                            questionIdsForGroups.get(i).remove(questID);
+                                        }
+                                    }
+                                }
+
                                 learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval,
                                         Integer.valueOf(answerString.split("///")[5]), groupIndex);
                                 Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
@@ -432,18 +472,15 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
-                                //clone student otherwise we modify the first layer student
-                                Student student = new Student();
-                                student.setInetAddress(arg_student.getInetAddress());
-                                student.setOutputStream(arg_student.getOutputStream());
-                                student.setInputStream(arg_student.getInputStream());
-
-                                ReceptionProtocol.receivedCONN(student, answerString, aClass);
+                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
-                                Student.essentialCopyStudent(student, arg_student);
+                                Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
-                                Student student = new Student(answerString.split("///")[1], answerString.split("///")[2]);
+                                Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
+                                student.setUniqueID(answerString.split("///")[1]);
+                                student.setName(answerString.split("///")[2]);
+                                student.setConnected(false);
                                 learningTrackerController.userDisconnected(student);
                                 if (answerString.contains("close-connection")) {
                                     System.out.println("Student device really disconnecting. We should close the connection");

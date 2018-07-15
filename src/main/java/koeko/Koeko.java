@@ -7,6 +7,7 @@ import koeko.Networking.NetworkCommunication;
 import koeko.controllers.LearningTrackerController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
+import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.database_management.DBManager;
 import koeko.students_management.Classroom;
 import javafx.application.Application;
@@ -23,6 +24,7 @@ import javafx.stage.WindowEvent;
 public class Koeko extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
+    static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
 
     public static void main(String[] args) throws Exception {
@@ -53,6 +55,9 @@ public class Koeko extends Application {
         primaryStage.setY(primaryScreenBounds.getMinY());
         primaryStage.setWidth(primaryScreenBounds.getWidth());
         primaryStage.setHeight(primaryScreenBounds.getHeight());
+
+        //change UI mode (do it here because before, some elements are still null
+        Koeko.questionSendingControllerSingleton.changeUI();
 
         primaryStage.setScene(scene);
         primaryStage.show();

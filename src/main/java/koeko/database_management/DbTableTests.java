@@ -246,4 +246,30 @@ public class DbTableTests {
             System.exit(0);
         }
     }
+
+    public static String getTestIdWithName(String test) {
+        String testId = "";
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT ID_TEST_GLOBAL FROM tests WHERE NAME = '" + test + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                testId = rs.getString("ID_TEST_GLOBAL");
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return testId;
+    }
 }
