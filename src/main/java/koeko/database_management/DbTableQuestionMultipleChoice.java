@@ -74,11 +74,7 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
-<<<<<<< Updated upstream
                     Utilities.TimestampForNow() +"');";
-=======
-                    DBUtils.UniversalTimestampAsString() +"');";
->>>>>>> Stashed changes
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -159,11 +155,8 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
-<<<<<<< Updated upstream
                     quest.getQCM_UPD_TMS().toString() +"');";
-=======
-                    DBUtils.UniversalTimestampAsString() +"');";
->>>>>>> Stashed changes
+
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
