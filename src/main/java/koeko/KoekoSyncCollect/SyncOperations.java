@@ -39,10 +39,6 @@ public class SyncOperations {
         // Create the connection to the server for synchronisation
         InitializeTransfer(serverAddress, serverPort);
 
-        // Check if connection works, exit if not
-        CheckMySQLConnection();
-
-
         // Before synchronisation, make sure the prof is known in the global database
         Professor professor = DbTableProfessor.getProfessor();
         CreateOrUpdateProfessor(professor);
@@ -88,28 +84,7 @@ public class SyncOperations {
         System.out.println("Marking sync time");
     }
 
-
-    // Check
-    private static void CheckMySQLConnection() {
-        // Connexion à mysql
-        Properties properties = new Properties();
-        properties.setProperty("user", userName);
-        properties.setProperty("password", userPass);
-                properties.setProperty("useSSL", "false");
-        properties.setProperty("autoReconnect", "true");
-
-        try {
-            // This will load the MySQL driver, each DB has its own driver
-            Class.forName("com.mysql.jdbc.Driver");
-            // Setup the connection with the DB
-            Connection connect = null;
-            connect = DriverManager.getConnection(connectionString, properties);
-            connect.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-        }
-    }
+/*
 
     private static Connection ConnectToMySQL() {
         // Connexion à mysql
@@ -131,6 +106,7 @@ public class SyncOperations {
         }
         return connect;
     }
+*/
 
     static private void CreateOrUpdateProfessor(Professor prof) {
         try {

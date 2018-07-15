@@ -2,6 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.time.ZonedDateTime;
@@ -74,7 +75,7 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
-                    ZonedDateTime.now() +"');";
+                    Utilities.TimestampForNow() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -155,7 +156,7 @@ public class DbTableQuestionMultipleChoice {
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
-                    ZonedDateTime.now() +"');";
+                    quest.getQCM_UPD_TMS().toString() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -293,6 +294,7 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setNB_CORRECT_ANS(rs.getInt("NB_CORRECT_ANS"));
         questionMultipleChoice.setQCM_MUID(rs.getString("IDENTIFIER"));
         questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
+        questionMultipleChoice.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
     }
 
     static public Vector<QuestionMultipleChoiceView> getQuestionsMultipleChoiceView() {
