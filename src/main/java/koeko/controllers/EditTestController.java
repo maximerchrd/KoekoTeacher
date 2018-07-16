@@ -1,8 +1,6 @@
 package koeko.controllers;
 
-import koeko.database_management.DbTableLearningObjectives;
-import koeko.database_management.DbTableRelationObjectiveTest;
-import koeko.database_management.DbTableTests;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +20,7 @@ import org.controlsfx.control.textfield.TextFields;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.Vector;
 
 public class EditTestController extends Window implements Initializable {
@@ -37,6 +36,7 @@ public class EditTestController extends Window implements Initializable {
     @FXML private VBox vBoxObjectives;
     @FXML private CheckBox certificativeCheckBox;
     @FXML private Button addObjectiveButton;
+    @FXML private Label warningLabel;
 
     public void initParameters(TreeView treeView, ArrayList<String> testNames, String testID, ArrayList<String> objectives) {
         this.treeView = treeView;
@@ -55,8 +55,19 @@ public class EditTestController extends Window implements Initializable {
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
                 comboBox.setDisable(false);
             }
+        } else {
+            addObjectiveButton.setDisable(true);
         }
         testName.setText(presentName);
+
+        ArrayList<Integer> questionsOfTest = DbTableRelationQuestionTest.getQuestionIdsFromTestName(test.getTestName());
+        if (questionsOfTest.size() == 0) {
+            warningLabel.setText("");
+        } else {
+            warningLabel.setText("You cannot change the type of a formative test \nwhich contains questions");
+            addObjectiveButton.setDisable(true);
+            certificativeCheckBox.setDisable(true);
+        }
     }
 
     public void addObjective() {
@@ -88,7 +99,7 @@ public class EditTestController extends Window implements Initializable {
     }
 
     public void certificativeCheckBoxAction() {
-        if (certificativeCheckBox.isSelected()) {
+        if (!certificativeCheckBox.isSelected()) {
             addObjectiveButton.setDisable(true);
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
                 comboBox.setDisable(true);
