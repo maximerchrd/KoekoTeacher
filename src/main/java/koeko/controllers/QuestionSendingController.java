@@ -611,9 +611,12 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void importQuestions() {
+        String importDoneMessage = "Import Done.\n";
+
         List<String> input = readFile("questions/questions.csv");
         input.remove(0);
         for (int i = 0; i < input.size(); i++) {
+            input.set(i, input.get(i) + "END");
             String[] question = input.get(i).split(";");
 
             if (question.length >= 6) {
@@ -644,27 +647,50 @@ public class QuestionSendingController extends Window implements Initializable {
                 }
 
             } else {
+                importDoneMessage += "problem importing following question (missing fields)\n";
                 System.out.println("problem importing following question (missing fields)");
                 for (String questionPart : question) {
+                    importDoneMessage += questionPart;
                     System.out.println(questionPart);
                 }
             }
         }
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        GenericPopUpController controller = fxmlLoader.getController();
+        controller.initParameters(importDoneMessage);
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Import");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     public void exportQuestions() {
+        Boolean exportOK = true;
         ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
         try {
             questionGenericArrayList = DbTableQuestionGeneric.getAllGenericQuestions();
         } catch (Exception e) {
+            exportOK = false;
             e.printStackTrace();
         }
         PrintWriter writer = null;
         try {
             writer = new PrintWriter("questions/questions.csv", "UTF-8");
         } catch (FileNotFoundException e) {
+            exportOK = false;
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            exportOK = false;
             e.printStackTrace();
         }
         writer.println("Questions Type (0 = question multiple choice, 1 = question short answer);Question text;Right Answers;Other Options;Picture;Subjects;Objectives");
@@ -754,6 +780,26 @@ public class QuestionSendingController extends Window implements Initializable {
 
         }
         writer.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        GenericPopUpController controller = fxmlLoader.getController();
+        if (exportOK) {
+            controller.initParameters("Export Done!");
+        } else {
+            controller.initParameters("There was a problem during export :-(");
+        }
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Export");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     public void createTest() {

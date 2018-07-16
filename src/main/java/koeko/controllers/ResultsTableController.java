@@ -1,5 +1,11 @@
 package koeko.controllers;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import koeko.controllers.controllers_tools.SingleResultForTable;
 import koeko.database_management.DbTableIndividualQuestionForStudentResult;
 import javafx.collections.ObservableList;
@@ -10,6 +16,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -56,12 +63,16 @@ public class ResultsTableController implements Initializable {
     }
 
     public void exportResults() {
+        String exportDoneMessage = "Export of Results Done!";
+
         PrintWriter writer = null;
         try {
             writer = new PrintWriter("results.csv", "UTF-8");
         } catch (FileNotFoundException e) {
+            exportDoneMessage = "Sorry, we had a problem exporting results :-(";
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            exportDoneMessage = "Sorry, we had a problem exporting results :-(";
             e.printStackTrace();
         }
         writer.println("Name;Date;Question;Evaluation;Student's answer;Correct answer;Incorrect answer;Subjects;Objectives");
@@ -78,5 +89,22 @@ public class ResultsTableController implements Initializable {
             writer.print(resultsList.get(i).getObjectives().replace(";",",") + "\n");
         }
         writer.close();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        GenericPopUpController controller = fxmlLoader.getController();
+        controller.initParameters(exportDoneMessage);
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Export");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 }
