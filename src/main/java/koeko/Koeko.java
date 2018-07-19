@@ -81,6 +81,8 @@ public class Koeko extends Application {
                 System.exit(0);
             }
         });
+
+        //functionalTesting.mainTesting();
     }
 
 }

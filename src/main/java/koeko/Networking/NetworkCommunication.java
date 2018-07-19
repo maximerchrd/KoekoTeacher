@@ -5,6 +5,7 @@ import koeko.controllers.LearningTrackerController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
+import koeko.functionalTesting;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.questions_management.Test;
@@ -527,6 +528,13 @@ public class NetworkCommunication {
             }
         }
         writeToOutputStream(student, bytes);
+
+        /**
+         * CODE USED FOR TESTING
+         */
+        if (functionalTesting.testMode) {
+            functionalTesting.studentsNbEvalSent.put(student.getName(), functionalTesting.studentsNbEvalSent.get(student.getName()) + 1);
+        }
     }
 
     public void UpdateEvaluation(double evaluation, Integer questionID, Integer studentID) {
