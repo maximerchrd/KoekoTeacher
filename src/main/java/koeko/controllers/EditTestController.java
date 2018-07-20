@@ -47,7 +47,7 @@ public class EditTestController extends Window implements Initializable {
         for (String obj : objectives) {
             addObjective(obj);
         }
-        test = DbTableTests.getTestWithID(Integer.valueOf(testID));
+        test = DbTableTests.getTestWithID(testID);
         this.presentName = test.getTestName();
         if (test.getTestMode() == 0) {
             certificativeCheckBox.setSelected(true);
@@ -60,7 +60,7 @@ public class EditTestController extends Window implements Initializable {
         }
         testName.setText(presentName);
 
-        ArrayList<Integer> questionsOfTest = DbTableRelationQuestionTest.getQuestionIdsFromTestName(test.getTestName());
+        ArrayList<String> questionsOfTest = DbTableRelationQuestionTest.getQuestionIdsFromTestName(test.getTestName());
         if (questionsOfTest.size() == 0) {
             warningLabel.setText("");
         } else {
@@ -130,7 +130,7 @@ public class EditTestController extends Window implements Initializable {
             }
 
             treeView.refresh();
-            DbTableTests.renameTest(-testTreeItem.getValue().getGlobalID(),testName.getText());
+            DbTableTests.renameTest("-" + testTreeItem.getValue().getGlobalID(),testName.getText());
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();

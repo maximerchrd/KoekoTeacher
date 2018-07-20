@@ -152,7 +152,7 @@ public class DbTableSubject {
         return null;
     }
 
-    static public Vector<String> getSubjectsForQuestionID(int questionID) {
+    static public Vector<String> getSubjectsForQuestionID(String questionID) {
         Vector<String> subjects = new Vector<>();
         Connection c = null;
         Statement stmt = null;

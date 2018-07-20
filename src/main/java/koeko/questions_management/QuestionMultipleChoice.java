@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.Vector;
 
 public class QuestionMultipleChoice {
-	private int ID;
+	private String ID;
 	private String SUBJECT;
 	private String LEVEL;
 	private String QUESTION;
@@ -34,12 +34,12 @@ public class QuestionMultipleChoice {
 	private Vector<String> objectives;
 	private Vector <String> answers;
 	public QuestionMultipleChoice()	{
-		ID=0;
+		ID="0";
 		SUBJECT="";
 		LEVEL="";
 		QUESTION="";
 		OPTIONSNUMBER=0;
-		NB_CORRECT_ANS=1;
+		NB_CORRECT_ANS=0;
 		OPT0="";
 		OPT1="";
 		OPT2="";
@@ -85,7 +85,7 @@ public class QuestionMultipleChoice {
 		if (oPT9.length() > 0) i++;
 		OPTIONSNUMBER = i;
 	}
-	public int getID()
+	public String getID()
 	{
 		return ID;
 	}
@@ -191,7 +191,7 @@ public class QuestionMultipleChoice {
 	public Vector<String> getObjectives() {
 		return objectives;
 	}
-	public void setID(int id)
+	public void setID(String id)
 	{
 		ID=id;
 	}

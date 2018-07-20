@@ -12,11 +12,11 @@ public class QuestionGeneric {
     private String imagePath;
     private int intTypeOfQuestion;
     private int indexInList;
-    private int globalID;
+    private String globalID;
     public QuestionGeneric () {
         typeOfQuestion = "undefined";
         indexInList = -1;
-        globalID = -1;
+        globalID = "-1";
         intTypeOfQuestion = -1;
         question = "question not initialized";
         imagePath = "";
@@ -25,14 +25,14 @@ public class QuestionGeneric {
         typeOfQuestion = typeoflist;
         indexInList = indexinlist;
     }
-    public QuestionGeneric(int GlobalID, int typeofQuest) {
+    public QuestionGeneric(int typeofQuest, String GlobalID) {
         intTypeOfQuestion = typeofQuest;
         globalID = GlobalID;
     }
-    public int getGlobalID() {
+    public String getGlobalID() {
         return globalID;
     }
-    public void setGlobalID(int globalID) {
+    public void setGlobalID(String globalID) {
         this.globalID = globalID;
     }
     public void setTypeOfQuestion(String typeofquestion) {

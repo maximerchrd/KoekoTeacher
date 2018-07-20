@@ -50,7 +50,7 @@ public class DbTableLearningObjectives {
             System.exit(0);
         }
     }
-    static public Vector<String> getObjectiveForQuestionID(int questionID) {
+    static public Vector<String> getObjectiveForQuestionID(String questionID) {
         Vector<String> objectives = new Vector<>();
         Connection c = null;
         Statement stmt = null;

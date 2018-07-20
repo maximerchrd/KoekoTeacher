@@ -16,14 +16,14 @@ public class Classroom {
     private ArrayList<String> students_addresses = null;
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
-    private ArrayList<Integer> activeIDs;
+    private ArrayList<String> activeIDs;
     private ArrayList<String> activeQuestions;
     private ArrayList<ArrayList<Double>> activeEvaluations;
     private ArrayList<Double> averageEvaluations;
     private Integer tableIndex = -1;
     private String className = "";
     private Integer nbAndroidDevices = 0;
-    private ArrayList<Integer> IDsToStoreOnDevices;
+    private ArrayList<String> IDsToStoreOnDevices;
     private HashMap<String, Vector<String>> ongoingQuestionsForStudent;
 
     public Classroom() {
@@ -70,10 +70,10 @@ public class Classroom {
     public Vector<Student> getStudents_vector() {
         return students_vector;
     }
-    public ArrayList<Integer> getActiveIDs() {
+    public ArrayList<String> getActiveIDs() {
         return activeIDs;
     }
-    public ArrayList<Integer> getIDsToStoreOnDevices() {
+    public ArrayList<String> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
     public HashMap<String, Vector<String>> getOngoingQuestionsForStudent() {
@@ -94,7 +94,7 @@ public class Classroom {
     public void setClassName(String className) {
         this.className = className;
     }
-    public void setActiveIDs(ArrayList<Integer> activeIDs) {
+    public void setActiveIDs(ArrayList<String> activeIDs) {
         this.activeIDs = activeIDs;
     }
     public void setNbAndroidDevices(Integer nbAndroidDevices) {
@@ -103,7 +103,7 @@ public class Classroom {
     public void setTableIndex(Integer tableIndex) {
         this.tableIndex = tableIndex;
     }
-    public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
+    public void setIDsToStoreOnDevices(ArrayList<String> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
     public void setOngoingQuestionsForStudent(HashMap<String, Vector<String>> ongoingQuestionsForStudent) {
@@ -190,10 +190,10 @@ public class Classroom {
     }
 
     //returns only the question IDs, without the test IDs
-    public ArrayList<Integer> getActiveQuestionIDs() {
-        ArrayList<Integer> questionIDs = new ArrayList<>();
-        for (Integer id : activeIDs) {
-            if (id > 0) {
+    public ArrayList<String> getActiveQuestionIDs() {
+        ArrayList<String> questionIDs = new ArrayList<>();
+        for (String id : activeIDs) {
+            if (Long.valueOf(id) > 0) {
                 questionIDs.add(id);
             }
         }
@@ -335,11 +335,11 @@ public class Classroom {
         Boolean questionsReached = true;
         for (Student student : students_vector) {
             if (student.getConnected()) {
-                ArrayList<Integer> deviceQuestions = new ArrayList<>();
+                ArrayList<String> deviceQuestions = new ArrayList<>();
 
                 //convert question ids string to int
                 for (String id : student.getDeviceQuestions()) {
-                    deviceQuestions.add(Integer.valueOf(id));
+                    deviceQuestions.add(id);
                 }
 
                 //check if the questions on the device contain the active questions

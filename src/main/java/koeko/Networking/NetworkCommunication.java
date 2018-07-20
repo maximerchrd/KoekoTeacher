@@ -40,7 +40,7 @@ public class NetworkCommunication {
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
 
-    private ArrayList<ArrayList<Integer>> questionIdsForGroups;
+    private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
 
 
@@ -101,16 +101,16 @@ public class NetworkCommunication {
 
 
                                 //send the active questions
-                                ArrayList<Integer> activeIDs = (ArrayList<Integer>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
+                                ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
                                 //activeIDs.removeIf(integer -> integer < 0);
                                 if (activeIDs.size() > 0) {
                                     try {
-                                        for (Integer activeID : activeIDs) {
-                                            if (activeID > 0) {
+                                        for (String activeID : activeIDs) {
+                                            if (Long.valueOf(activeID) > 0) {
                                                 sendMultipleChoiceWithID(activeID, student);
                                                 sendShortAnswerQuestionWithID(activeID, student);
                                             } else {
-                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(-activeID, student);
+                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID("-" + activeID, student);
                                             }
                                         }
                                         System.out.println("address: " + student.getInetAddress());
@@ -136,7 +136,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void SendQuestionID(int QuestID, Vector<Student> students) {
+    public void SendQuestionID(String QuestID, Vector<Student> students) {
         for (int i = 0; i < students.size(); i++) {
             students.set(i, aClass.getStudentWithName(students.get(i).getName()));
         }
@@ -169,7 +169,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendMultipleChoiceWithID(int questionID, Student student) throws IOException {
+    public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
         QuestionMultipleChoice questionMultipleChoice = null;
         try {
             questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
@@ -258,7 +258,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendShortAnswerQuestionWithID(int questionID, Student student) throws IOException {
+    public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
         QuestionShortAnswer questionShortAnswer = null;
         try {
             questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
@@ -348,7 +348,7 @@ public class NetworkCommunication {
         }
     }
 
-    public ArrayList<Integer> sendTestWithID(int testID, Student student) {
+    public ArrayList<String> sendTestWithID(String testID, Student student) {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
@@ -410,13 +410,13 @@ public class NetworkCommunication {
                             System.out.println("received answer: " + answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
                                 //arg_student.setName(answerString.split("///")[2]);
-                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),
+                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
                                         answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-                                SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
+                                SendEvaluation(eval, answerString.split("///")[5], arg_student);
 
                                 //find out to which group the student and answer belong
                                 Integer groupIndex = -1;
-                                Integer questID = Integer.valueOf(answerString.split("///")[5]);
+                                String questID = answerString.split("///")[5];
                                 for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
                                     if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
                                             Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
@@ -437,13 +437,13 @@ public class NetworkCommunication {
                                 }
 
                                 learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval,
-                                        Integer.valueOf(answerString.split("///")[5]), groupIndex);
-                                Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
+                                        answerString.split("///")[5], groupIndex);
+                                String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
                                 System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
-                                for (Integer testid : arg_student.getTestQuestions()) {
+                                for (String testid : arg_student.getTestQuestions()) {
                                     System.out.println(testid);
                                 }
-                                if (nextQuestion != -1) {
+                                if (!nextQuestion.contentEquals("-1")) {
                                     Vector<Student> singleStudent = new Vector<>();
                                     singleStudent.add(arg_student);
                                     SendQuestionID(nextQuestion, singleStudent);
@@ -510,7 +510,7 @@ public class NetworkCommunication {
         //}
     }
 
-    public void SendEvaluation(double evaluation, int questionID, Student student) {
+    public void SendEvaluation(double evaluation, String questionID, Student student) {
         String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
         byte[] bytes = new byte[80];
@@ -537,7 +537,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void UpdateEvaluation(double evaluation, Integer questionID, Integer studentID) {
+    public void UpdateEvaluation(double evaluation, String questionID, Integer studentID) {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "";
 
@@ -560,7 +560,7 @@ public class NetworkCommunication {
         writeToOutputStream(student, bytes);
     }
 
-    public void SendCorrection(Integer questionID) {
+    public void SendCorrection(String questionID) {
         String messageToSend = "CORR///";
         messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0, 4) + "///";
         byte[] bytes = new byte[80];
@@ -590,11 +590,11 @@ public class NetworkCommunication {
         learningTrackerController.removeQuestion(index);
     }
 
-    public void addQuestion(String question, Integer ID, Integer group) {
+    public void addQuestion(String question, String ID, Integer group) {
         learningTrackerController.addQuestion(question, ID, group);
     }
 
-    public void activateTestForGroup(ArrayList<Integer> questionIds, ArrayList<String> students, Integer testID) {
+    public void activateTestForGroup(ArrayList<String> questionIds, ArrayList<String> students, String testID) {
 
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
         if (questionIdsForGroups.size() == Koeko.studentGroupsAndClass.size() - 1) {
@@ -603,7 +603,7 @@ public class NetworkCommunication {
         }
         //add ids(clone it because we want to remove its content later without affecting the source array) and students to group arrays
         questionIdsForGroups.add(new ArrayList<>());
-        for (Integer id : questionIds) {
+        for (String id : questionIds) {
             questionIdsForGroups.get(questionIdsForGroups.size() - 1).add(id);
         }
         studentNamesForGroups.add(students);
@@ -613,20 +613,20 @@ public class NetworkCommunication {
             if (questionIds.size() > 0) {
                 //get the first question ID which doesn't correspond to a test
                 int i = 0;
-                for (; i < questionIds.size() && questionIds.get(i) < 0; i++) {
+                for (; i < questionIds.size() && Long.valueOf(questionIds.get(i)) < 0; i++) {
                 }
                 Vector<Student> singleStudent = new Vector<>();
                 singleStudent.add(student);
                 SendQuestionID(questionIds.get(i), singleStudent);
             }
-            student.setTestQuestions((ArrayList<Integer>) questionIds.clone());
+            student.setTestQuestions((ArrayList<String>) questionIds.clone());
 
             //following code not used for now
-            if (testID != 0) {
+            if (Long.valueOf(testID) != 0) {
                 Test studentTest = new Test();
                 studentTest.setIdTest(testID);
-                studentTest.setIdsQuestions((ArrayList<Integer>) questionIds.clone());
-                for (Integer ignored : questionIds) {
+                studentTest.setIdsQuestions((ArrayList<String>) questionIds.clone());
+                for (String ignored : questionIds) {
                     studentTest.getQuestionsEvaluations().add(-1.0);
                 }
                 student.setActiveTest(studentTest);

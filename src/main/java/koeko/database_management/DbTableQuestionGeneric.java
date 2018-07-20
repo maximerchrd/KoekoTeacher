@@ -1,6 +1,7 @@
 package koeko.database_management;
 
 import koeko.questions_management.QuestionGeneric;
+import koeko.view.Utilities;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -39,18 +40,15 @@ public class DbTableQuestionGeneric {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
+            questID = Utilities.localUniqueID();
             String sql = 	"INSERT INTO generic_questions (ID_GLOBAL,REMOVED_STATE,QUESTION_TYPE) " +
                     "VALUES ('" +
-                    2000000 + "','" +
+                    questID + "','" +
                     0 + "','" +
                     questionType +"');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE generic_questions SET ID_GLOBAL = ID_GLOBAL + ID_QUESTION WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions)";
-            stmt.executeUpdate(sql);
-
-            sql = "SELECT ID_GLOBAL FROM generic_questions WHERE ID_GLOBAL = (SELECT MAX(ID_GLOBAL) FROM generic_questions)";
-            ResultSet result_query = stmt.executeQuery(sql);
-            questID = result_query.getString(1);
+            //sql = "UPDATE generic_questions SET ID_GLOBAL = ID_GLOBAL + ID_QUESTION WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions)";
+            //stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
@@ -75,7 +73,7 @@ public class DbTableQuestionGeneric {
             ResultSet rs = stmt.executeQuery( "SELECT * FROM generic_questions WHERE REMOVED_STATE=0;" );
             while ( rs.next() ) {
                 QuestionGeneric quest = new QuestionGeneric();
-                quest.setGlobalID(rs.getInt("ID_GLOBAL"));
+                quest.setGlobalID(rs.getString("ID_GLOBAL"));
                 quest.setIntTypeOfQuestion(rs.getInt("QUESTION_TYPE"));
                 questionGenericArrayList.add(quest);
             }
@@ -139,7 +137,7 @@ public class DbTableQuestionGeneric {
         return questionType;
     }
 
-    static public void removeQuestion (Integer idGlobal) {
+    static public void removeQuestion (String idGlobal) {
         Connection c = null;
         Statement stmt = null;
         try {

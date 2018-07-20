@@ -11,17 +11,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.sql.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 public class functionalTesting {
     static PrintStream originalStream;
     static PrintStream dummyStream;
     static int idOffset = 1000;
-    static int numberStudents = 2;
-    static int numberOfQuestions = 10;
+    static int numberStudents = 1;
+    static int numberOfQuestions = 20;
+    static ArrayList<String> questionPack = new ArrayList<>();
 
     static public Map<String, Integer> studentsNbEvalSent = new LinkedHashMap<>();
     static public Boolean testMode = false;
@@ -58,13 +56,16 @@ public class functionalTesting {
                 System.setOut(originalStream);
                 System.out.println("** Sending questions");
                 System.setOut(dummyStream);
-                sendQuestionsPack(0,functionalTesting.numberOfQuestions);
+
+                sendQuestionsPack();
+
                 System.setOut(originalStream);
                 System.out.println("** Activating questions");
                 System.setOut(dummyStream);
-                activateQuestionsPack(0,functionalTesting.numberOfQuestions);
 
-                deleteQuestionsPack(0, functionalTesting.numberOfQuestions);
+                activateQuestionsPack();
+
+                deleteQuestionsPack();
 
                 System.setOut(originalStream);
                 System.out.println("*** RESULTS ***");
@@ -78,29 +79,29 @@ public class functionalTesting {
         });
     }
 
-    private static void activateQuestionsPack(int startingIndex, int endingIndex) {
+    private static void activateQuestionsPack() {
         Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
-        for (int j = idOffset + startingIndex; j < idOffset + endingIndex; j++) {
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(j, students);
+        for (String id : questionPack) {
+            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(id, students);
             //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
             try {
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             System.setOut(originalStream);
-            System.out.println("Sent question with ID: " + j);
+            System.out.println("Sent question with ID: " + id);
             System.setOut(dummyStream);
         }
     }
 
-    private static void sendQuestionsPack(int startingIndex, int endingIndex) {
+    private static void sendQuestionsPack() {
         Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
         for (int i = 0; i < students.size(); i++) {
-            for (int j = idOffset + startingIndex; j < idOffset + endingIndex; j++) {
+            for (String id : questionPack) {
                 try {
-                    NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(j, students.get(i));
+                    NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(id, students.get(i));
                     //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -126,37 +127,20 @@ public class functionalTesting {
             questionMultipleChoice.setNB_CORRECT_ANS(1);
             questionMultipleChoice.setIMAGE("pictures/image_" + i % 4 + ".jpg");
             try {
-                DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
-                changeMcqID(String.valueOf(idOffset + i), questionMultipleChoice.getQUESTION());
+                questionPack.add(DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static void deleteQuestionsPack(int startingIndex, int endingIndex) {
-        for (int i = idOffset + startingIndex ; i < idOffset + endingIndex; i++) {
+    private static void deleteQuestionsPack() {
+        for (String id : questionPack) {
             try {
-                DbTableQuestionMultipleChoice.removeMultipleChoiceQuestionWithID(String.valueOf(i));
+                DbTableQuestionMultipleChoice.removeMultipleChoiceQuestionWithID(id);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    static private void changeMcqID(String id, String question) {
-        String sql = 	"UPDATE multiple_choice_questions SET ID_GLOBAL = '" + id +
-                "' WHERE QUESTION = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            // set the corresponding param
-            pstmt.setString(1, question);
-
-            // update
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
         }
     }
 }

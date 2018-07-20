@@ -85,7 +85,7 @@ public class DbTableRelationSubjectSubject {
 
         Vector<String> questionIDs = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subjectChild);
         for (int i = 0; i < questionIDs.size(); i++) {
-            DbTableRelationQuestionSubject.addRelationQuestionSubject(Integer.valueOf(questionIDs.get(i)),"");
+            DbTableRelationQuestionSubject.addRelationQuestionSubject(questionIDs.get(i),"");
         }
     }
 

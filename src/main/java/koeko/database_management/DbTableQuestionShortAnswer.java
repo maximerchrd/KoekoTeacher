@@ -110,7 +110,7 @@ public class DbTableQuestionShortAnswer {
             while ( rs.next() ) {
                 QuestionShortAnswer quest = new QuestionShortAnswer();
                 //quest.setSUBJECT(rs.getString(2));
-                quest.setID(rs.getInt(2));
+                quest.setID(rs.getString(2));
                 quest.setLEVEL(rs.getString(3));
                 quest.setQUESTION(rs.getString(4));
                 quest.setIMAGE(rs.getString(5));
@@ -136,7 +136,7 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswerArrayList;
     }
 
-    static public QuestionShortAnswer getShortAnswerQuestionWithId (int questionId) {
+    static public QuestionShortAnswer getShortAnswerQuestionWithId (String questionId) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         questionShortAnswer.setID(questionId);
         Connection c = null;

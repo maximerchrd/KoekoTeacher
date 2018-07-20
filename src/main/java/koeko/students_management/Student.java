@@ -22,7 +22,7 @@ public class Student {
     private double overallPercentage = -1;
     private Integer numberOfAnswers;
     private Integer studentID = -1;
-    private ArrayList<Integer> testQuestionsIDs;
+    private ArrayList<String> testQuestionsIDs;
     private Integer activeTestID;
     private Test activeTest;
     private Boolean connected = false;
@@ -92,7 +92,7 @@ public class Student {
     public void setStudentID(Integer studentID) {
         this.studentID = studentID;
     }
-    public void setTestQuestions(ArrayList<Integer> testQuestions) {
+    public void setTestQuestions(ArrayList<String> testQuestions) {
         this.testQuestionsIDs = testQuestions;
     }
     public void setActiveTestID(Integer activeTestID) {
@@ -115,7 +115,7 @@ public class Student {
     public Boolean getConnected() {
         return connected;
     }
-    public ArrayList<Integer> getTestQuestions() {
+    public ArrayList<String> getTestQuestions() {
         return testQuestionsIDs;
     }
     public Integer getNumberOfAnswers() {
@@ -150,15 +150,15 @@ public class Student {
         return deviceQuestions;
     }
 
-    public Integer getNextQuestionID(Integer formerID) {
-        Integer nextQuestion = -1;
+    public String getNextQuestionID(String formerID) {
+        String nextQuestion = "-1";
         if (!activeTest.getSynchroneousQuestionsTest()) {
             if (testQuestionsIDs != null) {
                 for (int i = 0; i < testQuestionsIDs.size() - 1; i++) {
-                    Integer id = testQuestionsIDs.get(i);
+                    String id = testQuestionsIDs.get(i);
                     if (id.compareTo(formerID) == 0) {
                         nextQuestion = testQuestionsIDs.get(i + 1);
-                        testQuestionsIDs.set(i, -1);
+                        testQuestionsIDs.set(i, "-1");
                     }
                 }
             }

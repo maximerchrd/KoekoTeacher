@@ -18,11 +18,11 @@ public class DataConversion {
         testString += testMap;
 
         //insert the question ids into the test
-        ArrayList<Integer> questionIDs = new ArrayList<>();
+        ArrayList<String> questionIDs = new ArrayList<>();
         String[] questionMapIDs = testMap.split("\\|\\|\\|");
         for (int i = 0; i < questionMapIDs.length; i++) {
             if (!questionMapIDs[i].contentEquals("")) {
-                questionIDs.add(Integer.valueOf(questionMapIDs[i].split(";;;")[0]));
+                questionIDs.add(questionMapIDs[i].split(";;;")[0]);
             }
         }
         test.setIdsQuestions(questionIDs);

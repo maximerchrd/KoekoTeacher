@@ -35,9 +35,9 @@ public class ReceptionProtocol {
 
     static public void receivedANSW(Student arg_student, String answerString, ArrayList<ArrayList<Integer>> questionIdsForGroups,
                                     ArrayList<ArrayList<String>> studentNamesForGroups) {
-        double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(Integer.valueOf(answerString.split("///")[5]),
+        double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
                 answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-        NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, Integer.valueOf(answerString.split("///")[5]), arg_student);
+        NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, answerString.split("///")[5], arg_student);
 
         //find out to which group the student and answer belong
         Integer groupIndex = 0;
@@ -50,13 +50,13 @@ public class ReceptionProtocol {
         }
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addAnswerForUser(arg_student,
                 answerString.split("///")[3], answerString.split("///")[4], eval,
-                Integer.valueOf(answerString.split("///")[5]), groupIndex);
-        Integer nextQuestion = arg_student.getNextQuestionID(Integer.valueOf(answerString.split("///")[5]));
+                answerString.split("///")[5], groupIndex);
+        String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
         System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
-        for (Integer testid : arg_student.getTestQuestions()) {
+        for (String testid : arg_student.getTestQuestions()) {
             System.out.println(testid);
         }
-        if (nextQuestion != -1) {
+        if (!nextQuestion.contentEquals("-1")) {
             Vector<Student> singleStudent = new Vector<>();
             singleStudent.add(arg_student);
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, singleStudent);
