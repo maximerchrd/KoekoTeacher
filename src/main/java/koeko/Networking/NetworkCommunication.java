@@ -479,7 +479,7 @@ public class NetworkCommunication {
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
-                                student.setUniqueID(answerString.split("///")[1]);
+                                student.setUniqueDeviceID(answerString.split("///")[1]);
                                 student.setName(answerString.split("///")[2]);
                                 student.setConnected(false);
                                 learningTrackerController.userDisconnected(student);
@@ -537,7 +537,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void UpdateEvaluation(double evaluation, String questionID, Integer studentID) {
+    public void UpdateEvaluation(double evaluation, String questionID, String studentID) {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "";
 
@@ -639,7 +639,7 @@ public class NetworkCommunication {
             public void run() {
                 if (student == null) {
                     for (Student singleStudent : aClass.getStudents_vector()) {
-                        //if (!singleStudent.getUniqueID().contains("no identifier")) {
+                        //if (!singleStudent.getUniqueDeviceID().contains("no identifier")) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -651,7 +651,7 @@ public class NetworkCommunication {
                         //}
                     }
                 } else {
-                    //if (!student.getUniqueID().contains("no identifier")) {
+                    //if (!student.getUniqueDeviceID().contains("no identifier")) {
                         try {
                             synchronized (student.getOutputStream()) {
                                 student.getOutputStream().write(bytearray, 0, bytearray.length);

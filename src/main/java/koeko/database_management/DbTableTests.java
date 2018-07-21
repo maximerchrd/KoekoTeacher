@@ -102,7 +102,7 @@ public class DbTableTests {
     static public Test getTestWithID(String testID) {
         Test newTest = new Test();
         if (Long.valueOf(testID) < 0) {
-            testID = "-" + testID;
+            testID = String.valueOf(Long.valueOf(testID));
         }
         newTest.setIdTest(testID);
         Connection c = null;

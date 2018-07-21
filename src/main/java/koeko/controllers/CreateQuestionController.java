@@ -211,7 +211,7 @@ public class CreateQuestionController implements Initializable {
             new_questshortanswer.setID(idGlobal);
 
             //put the question in the treeView
-            QuestionGeneric questionGeneric = new QuestionGeneric(new_questshortanswer.getID(), 1);
+            QuestionGeneric questionGeneric = new QuestionGeneric(1, new_questshortanswer.getID());
             questionGeneric.setQuestion(new_questshortanswer.getQUESTION());
             questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
             questionGeneric.setTypeOfQuestion("1");

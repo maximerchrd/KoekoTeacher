@@ -45,8 +45,8 @@ public class DbTableStudents {
      * OR -2 if the student is already in the table and the mac address doesn't correspond to the
      * name already there
      */
-    static public Integer addStudent(String address, String name) {
-        Integer studentID = -1;
+    static public String addStudent(String address, String name) {
+        String studentID = "-1";
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -67,13 +67,13 @@ public class DbTableStudents {
                 String query = "SELECT ID_STUDENT_GLOBAL FROM students WHERE ID_STUDENT = (SELECT MAX(ID_STUDENT) FROM students);";
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next()) {
-                    studentID = rs.getInt("ID_STUDENT_GLOBAL");
+                    studentID = rs.getString("ID_STUDENT_GLOBAL");
                 }
             } else {
                 String query = "SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = '" + name + "';";
                 ResultSet rs = stmt.executeQuery(query);
                 while (rs.next()) {
-                    studentID = rs.getInt("ID_STUDENT_GLOBAL");
+                    studentID = rs.getString("ID_STUDENT_GLOBAL");
                 }
                 query = "SELECT MAC_ADDRESS FROM students WHERE FIRST_NAME = '" + name + "';";
                 rs = stmt.executeQuery(query);
@@ -84,7 +84,7 @@ public class DbTableStudents {
                 if (!macAddress.contentEquals(address)) {
                     sql = "UPDATE students SET MAC_ADDRESS = '" + address + "' WHERE ID_STUDENT_GLOBAL = '" + studentID + "';";
                     stmt.executeUpdate(sql);
-                    studentID = -2;
+                    studentID = "-2";
                 }
             }
             stmt.close();

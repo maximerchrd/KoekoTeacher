@@ -328,7 +328,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void editEvaluation(Integer group) {
         TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
         String globalID = Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
-        Integer studentID = Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
+        String studentID = Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
         if (Long.valueOf(globalID) >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
             Parent root1 = null;

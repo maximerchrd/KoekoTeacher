@@ -14,14 +14,14 @@ import java.util.Arrays;
  * Created by maximerichard on 14/02/17.
  */
 public class Student {
-    private String uniqueID = "no identifier";
+    private String uniqueDeviceID = "no identifier";
+    private String studentID = "-1";
     private InetAddress mInetAddress = null;
     private String mName = "no name";
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
     private double overallPercentage = -1;
     private Integer numberOfAnswers;
-    private Integer studentID = -1;
     private ArrayList<String> testQuestionsIDs;
     private Integer activeTestID;
     private Test activeTest;
@@ -42,7 +42,7 @@ public class Student {
         }
     }
     public Student(String arg_MacAddress, String arg_name) {
-        uniqueID = arg_MacAddress;
+        uniqueDeviceID = arg_MacAddress;
         mName = arg_name;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Student {
         }
     }
     public Student(String arg_address, String arg_name, Boolean connectedByBT) {
-        uniqueID = arg_address;
+        uniqueDeviceID = arg_address;
         mName = arg_name;
         numberOfAnswers = 0;
         testQuestionsIDs = new ArrayList<>();
@@ -77,8 +77,8 @@ public class Student {
     public void setInetAddress(InetAddress arg_inetaddress) {
         mInetAddress = arg_inetaddress;
     }
-    public void setUniqueID(String arg_MacAddress) {
-        uniqueID = arg_MacAddress;
+    public void setUniqueDeviceID(String arg_MacAddress) {
+        uniqueDeviceID = arg_MacAddress;
     }
     public void setName(String arg_name) {
         mName = arg_name;
@@ -89,7 +89,7 @@ public class Student {
     public void setInputStream(InputStream arg_inputstream) {
         mInputStream = arg_inputstream;
     }
-    public void setStudentID(Integer studentID) {
+    public void setStudentID(String studentID) {
         this.studentID = studentID;
     }
     public void setTestQuestions(ArrayList<String> testQuestions) {
@@ -124,8 +124,8 @@ public class Student {
     public InetAddress getInetAddress() {
         return mInetAddress;
     }
-    public String getUniqueID() {
-        return uniqueID;
+    public String getUniqueDeviceID() {
+        return uniqueDeviceID;
     }
     public  String getName() {
         return  mName;
@@ -136,7 +136,7 @@ public class Student {
     public InputStream getInputStream() {
         return mInputStream;
     }
-    public Integer getStudentID() {
+    public String getStudentID() {
         return studentID;
     }
 
@@ -180,6 +180,6 @@ public class Student {
 
     static public void essentialCopyStudent(Student copyFromStudent, Student copyToStudent) {
         copyToStudent.setName(copyFromStudent.getName());
-        copyToStudent.setUniqueID(copyFromStudent.getUniqueID());
+        copyToStudent.setUniqueDeviceID(copyFromStudent.getUniqueDeviceID());
     }
 }

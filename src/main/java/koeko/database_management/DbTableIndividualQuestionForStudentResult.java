@@ -276,7 +276,7 @@ public class DbTableIndividualQuestionForStudentResult {
         return "done";
     }
 
-    static public String getEvalForQuestionAndStudentIDs(String globalID, Integer globalStudentID) {
+    static public String getEvalForQuestionAndStudentIDs(String globalID, String globalStudentID) {
         String evaluation = "";
         String identifier = "";
         Connection c = null;

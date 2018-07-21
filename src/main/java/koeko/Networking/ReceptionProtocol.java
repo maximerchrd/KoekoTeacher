@@ -13,10 +13,10 @@ public class ReceptionProtocol {
     static public void receivedCONN(Student arg_student, String answerString, Classroom aClass) {
         Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
         student.setConnected(true);
-        student.setUniqueID(answerString.split("///")[1]);
+        student.setUniqueDeviceID(answerString.split("///")[1]);
         student.setName(answerString.split("///")[2]);
-        Integer studentID = DbTableStudents.addStudent(answerString.split("///")[1], answerString.split("///")[2]);
-        if (studentID == -2) {
+        String studentID = DbTableStudents.addStudent(answerString.split("///")[1], answerString.split("///")[2]);
+        if (studentID.contentEquals("-2")) {
             NetworkCommunication.networkCommunicationSingleton.popUpIfStudentIdentifierCollision(student.getName());
         }
         student.setStudentID(studentID);

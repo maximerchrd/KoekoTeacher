@@ -172,7 +172,7 @@ public class DbTableClasses {
             while (rs.next()) {
                 Student newStudent = new Student();
                 newStudent.setName(rs.getString("FIRST_NAME"));
-                newStudent.setStudentID(rs.getInt("ID_STUDENT_GLOBAL"));
+                newStudent.setStudentID(rs.getString("ID_STUDENT_GLOBAL"));
                 classes.add(newStudent);
             }
             stmt.close();

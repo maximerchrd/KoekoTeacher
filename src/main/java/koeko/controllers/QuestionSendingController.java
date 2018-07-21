@@ -364,7 +364,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 for (String id : questionIDs) {
                     Boolean found = false;
                     for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
-                        if (genericQuestionsList.get(i).getGlobalID() == id) {
+                        if (genericQuestionsList.get(i).getGlobalID().contentEquals(id)) {
                             found = true;
                             TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
                             newTest.getChildren().add(questionItem);

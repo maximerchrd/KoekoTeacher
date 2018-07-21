@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
  */
 public class EditEvaluationController implements Initializable {
     String identifier = "";
-    Integer studentID = -1;
+    String studentID = "-1";
     String globalID = "-1";
 
     @FXML private TextField currentEval;
@@ -25,7 +25,7 @@ public class EditEvaluationController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
     }
 
-    public void initializeVariable(String globalID, Integer studentID) {
+    public void initializeVariable(String globalID, String studentID) {
         this.studentID = studentID;
         this.globalID = globalID;
         String evalAndIdentifier = DbTableIndividualQuestionForStudentResult.getEvalForQuestionAndStudentIDs(globalID, studentID);
