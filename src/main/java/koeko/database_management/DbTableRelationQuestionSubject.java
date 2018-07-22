@@ -134,7 +134,7 @@ public class DbTableRelationQuestionSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_question " +
+            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions " +
                     "WHERE IDENTIFIER='" + rqs.get_questionMUID() + "';";
             ResultSet result_query = stmt.executeQuery(sql);
             rec_id = Integer.parseInt(result_query.getString(1));

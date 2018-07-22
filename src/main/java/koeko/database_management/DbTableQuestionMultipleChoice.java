@@ -61,17 +61,17 @@ public class DbTableQuestionMultipleChoice {
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
                     "VALUES ('" +
                     quest.getLEVEL() + "','" +
-                    quest.getQUESTION() + "','" +
-                    quest.getOPT0() + "','" +
-                    quest.getOPT1() + "','" +
-                    quest.getOPT2() + "','" +
-                    quest.getOPT3() + "','" +
-                    quest.getOPT4() + "','" +
-                    quest.getOPT5() + "','" +
-                    quest.getOPT6() + "','" +
-                    quest.getOPT7() + "','" +
-                    quest.getOPT8() + "','" +
-                    quest.getOPT9() + "','" +
+                    Utilities.StringToSQL(quest.getQUESTION()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT0()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT1()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT2()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT3()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT4()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT5()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT6()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT7()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT8()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT9()) + "','" +
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
@@ -139,23 +139,24 @@ public class DbTableQuestionMultipleChoice {
             stmt = c.createStatement();
             String sql = 	"INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
                     "VALUES ('" +
                     quest.getLEVEL() + "','" +
-                    quest.getQUESTION() + "','" +
-                    quest.getOPT0() + "','" +
-                    quest.getOPT1() + "','" +
-                    quest.getOPT2() + "','" +
-                    quest.getOPT3() + "','" +
-                    quest.getOPT4() + "','" +
-                    quest.getOPT5() + "','" +
-                    quest.getOPT6() + "','" +
-                    quest.getOPT7() + "','" +
-                    quest.getOPT8() + "','" +
-                    quest.getOPT9() + "','" +
+                    Utilities.StringToSQL(quest.getQUESTION()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT0()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT1()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT2()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT3()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT4()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT5()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT6()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT7()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT8()) + "','" +
+                    Utilities.StringToSQL(quest.getOPT9()) + "','" +
                     quest.getNB_CORRECT_ANS() + "','" +
                     quest.getIMAGE() + "','" +
                     globalID +"','" +
+                    quest.getQCM_MUID() +"','" +
                     quest.getQCM_UPD_TMS().toString() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -307,7 +308,7 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop);";
+            String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 QuestionMultipleChoiceView qcm = new QuestionMultipleChoiceView();

@@ -7,6 +7,12 @@ import java.time.format.DateTimeFormatter;
 
 public class Utilities {
 
+    // Prepare string for the insert in database
+    public static String StringToSQL(String sData) {
+        String sResult = sData.replace("'", "''");
+        return sResult;
+    }
+
     public static String TimestampForNowAsString() {
         ZonedDateTime zdt = ZonedDateTime.ofInstant(ZonedDateTime.now().toInstant(), ZoneId.of("UTC"));
         return zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
