@@ -28,6 +28,10 @@ public class QuestionMultipleChoiceView implements Serializable {
     private String OPT8;
     private String OPT9;
     private String IMAGE;
+    private String LANGUAGE;
+
+
+
     private String QCM_MUID;
     private Timestamp QCM_UPD_TMS;
 
@@ -50,6 +54,7 @@ public class QuestionMultipleChoiceView implements Serializable {
         OPT8="";
         OPT9="";
         IMAGE="none";
+        LANGUAGE="";
     }
 
     public int getID() {
@@ -186,6 +191,14 @@ public class QuestionMultipleChoiceView implements Serializable {
 
     public void setIMAGE(String IMAGE) {
         this.IMAGE = IMAGE;
+    }
+
+    public String getLANGUAGE() {
+        return LANGUAGE;
+    }
+
+    public void setLANGUAGE(String LANGUAGE) {
+        this.LANGUAGE = LANGUAGE;
     }
 
     public String getQCM_MUID() {

@@ -63,6 +63,7 @@ public class SyncOperations {
             en = qcmVector.elements();
             while (en.hasMoreElements()) {
                 QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
+                qcm.setLANGUAGE(professor.get_language());
                 CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
 
                 // Get the subjects linked to the question
