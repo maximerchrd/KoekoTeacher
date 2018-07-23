@@ -313,7 +313,7 @@ public class DbTableRelationQuestionSubject {
         }
     }
 
-    static public Vector<RelationQuestionSubject> getSubjectsForQuestion(int questionId) {
+    static public Vector<RelationQuestionSubject> getSubjectsForQuestion(String questionId) {
         Vector<RelationQuestionSubject> subjects = new Vector<>();
         Connection c = null;
         Statement stmt = null;

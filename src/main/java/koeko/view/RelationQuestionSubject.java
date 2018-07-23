@@ -3,16 +3,16 @@ package koeko.view;
 import java.io.Serializable;
 
 public class RelationQuestionSubject implements Serializable {
-    private int _questionId;
+    private String _questionId;
     private String _subjectMUID;
     private String _questionMUID;
     private int _level;
 
-    public int get_questionId() {
+    public String get_questionId() {
         return _questionId;
     }
 
-    public void set_questionId(int _questionId) {
+    public void set_questionId(String _questionId) {
         this._questionId = _questionId;
     }
 
@@ -44,7 +44,7 @@ public class RelationQuestionSubject implements Serializable {
 
     }
 
-    public RelationQuestionSubject(int _questionId, String _subjectMUID, int _level) {
+    public RelationQuestionSubject(String _questionId, String _subjectMUID, int _level) {
         this._questionId = _questionId;
         this._subjectMUID = _subjectMUID;
         this._level = _level;

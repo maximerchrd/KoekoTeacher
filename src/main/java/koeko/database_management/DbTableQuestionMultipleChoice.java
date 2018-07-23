@@ -46,7 +46,7 @@ public class DbTableQuestionMultipleChoice {
      * @param quest
      * @throws Exception
      */
-    static public void addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
+    static public String addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
         String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
         Connection c = null;
         Statement stmt = null;
@@ -84,6 +84,7 @@ public class DbTableQuestionMultipleChoice {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+        return globalID;
     }
 
 
@@ -212,7 +213,7 @@ public class DbTableQuestionMultipleChoice {
      * @param questionID
      * @throws Exception
      */
-    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(int questionID) {
+    static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(String questionID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         questionMultipleChoice.setID(questionID);
         Connection c = null;
@@ -255,11 +256,11 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(questionID));
         return questionMultipleChoice;
     }
-    static public int getLastIDGlobal() throws Exception {
+    static public String getLastIDGlobal() throws Exception {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
-        int last_id_global = 0;
+        String last_id_global = "0";
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
@@ -267,7 +268,7 @@ public class DbTableQuestionMultipleChoice {
             stmt = c.createStatement();
             String sql = 	"SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
             ResultSet result_query = stmt.executeQuery(sql);
-            last_id_global = Integer.parseInt(result_query.getString(1));
+            last_id_global = result_query.getString(1);
             stmt.close();
             c.commit();
             c.close();
@@ -279,7 +280,7 @@ public class DbTableQuestionMultipleChoice {
     }
 
     private static void QuestionMultipleChoiceViewFromRecord(QuestionMultipleChoiceView questionMultipleChoice, ResultSet rs) throws SQLException {
-        questionMultipleChoice.setID(rs.getInt("ID_QUESTION"));
+        questionMultipleChoice.setID(rs.getString("ID_GLOBAL"));
         questionMultipleChoice.setLEVEL(rs.getString("LEVEL"));
         questionMultipleChoice.setQUESTION(rs.getString("QUESTION"));
         questionMultipleChoice.setOPT0(rs.getString("OPTION0"));
@@ -296,6 +297,7 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setQCM_MUID(rs.getString("IDENTIFIER"));
         questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
         questionMultipleChoice.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+        questionMultipleChoice.setTYPE(0);
     }
 
     static public Vector<QuestionMultipleChoiceView> getQuestionsMultipleChoiceView() {
@@ -327,7 +329,7 @@ public class DbTableQuestionMultipleChoice {
     }
 
 
-    static public void setQuestionMultipleChoiceMUID(int idQMC, String muid) {
+    static public void setQuestionMultipleChoiceMUID(String idQMC, String muid) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

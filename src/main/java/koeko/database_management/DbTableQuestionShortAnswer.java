@@ -1,13 +1,12 @@
 package koeko.database_management;
 
 import koeko.questions_management.QuestionShortAnswer;
+import koeko.view.QuestionMultipleChoiceView;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -26,11 +25,12 @@ public class DbTableQuestionShortAnswer {
                     " MODIF_DATE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }
+
     static public String addShortAnswerQuestion(QuestionShortAnswer quest) throws Exception {
         Connection c = null;
         Statement stmt = null;
@@ -42,7 +42,7 @@ public class DbTableQuestionShortAnswer {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
+            String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
                     "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,MODIF_DATE) " +
                     "VALUES ('" +
                     idGlobal + "','" +
@@ -50,17 +50,17 @@ public class DbTableQuestionShortAnswer {
                     quest.getQUESTION() + "','" +
                     0 + "','" +
                     quest.getIMAGE() + "','" +
-                    DBUtils.UniversalTimestampAsString() +"');";
+                    DBUtils.UniversalTimestampAsString() + "');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
 
             for (int i = 0; i < quest.getANSWER().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(idGlobal,quest.getANSWER().get(i));
+                DbTableAnswerOptions.addAnswerOption(idGlobal, quest.getANSWER().get(i));
             }
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         return idGlobal;
@@ -75,7 +75,7 @@ public class DbTableQuestionShortAnswer {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE short_answer_questions " +
+            String sql = "UPDATE short_answer_questions " +
                     "SET QUESTION='" + quest.getQUESTION() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
                     "MODIF_DATE='" + DBUtils.UniversalTimestampAsString() + "' " +
@@ -86,15 +86,15 @@ public class DbTableQuestionShortAnswer {
             c.close();
             DbTableAnswerOptions.removeOptionsRelationsQuestion(String.valueOf(quest.getID()));
             for (int i = 0; i < quest.getANSWER().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()),quest.getANSWER().get(i));
+                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()), quest.getANSWER().get(i));
             }
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }
 
-    static public List<QuestionShortAnswer> getAllShortAnswersQuestions() throws Exception{
+    static public List<QuestionShortAnswer> getAllShortAnswersQuestions() throws Exception {
         List<QuestionShortAnswer> questionShortAnswerArrayList = new ArrayList<QuestionShortAnswer>();
         // Select All Query
         Connection c = null;
@@ -106,8 +106,8 @@ public class DbTableQuestionShortAnswer {
             System.out.println("Opened database successfully");
 
             stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM short_answer_questions;" );
-            while ( rs.next() ) {
+            ResultSet rs = stmt.executeQuery("SELECT * FROM short_answer_questions;");
+            while (rs.next()) {
                 QuestionShortAnswer quest = new QuestionShortAnswer();
                 //quest.setSUBJECT(rs.getString(2));
                 quest.setID(rs.getString(2));
@@ -116,11 +116,11 @@ public class DbTableQuestionShortAnswer {
                 quest.setIMAGE(rs.getString(5));
                 ArrayList<String> answers = new ArrayList<>();
                 Statement stmt2 = c.createStatement();
-                ResultSet rs2 = stmt2.executeQuery( "SELECT OPTION FROM answer_options " +
+                ResultSet rs2 = stmt2.executeQuery("SELECT OPTION FROM answer_options " +
                         "INNER JOIN question_answeroption_relation ON answer_options.ID_ANSWEROPTION_GLOBAL = question_answeroption_relation.ID_ANSWEROPTION_GLOBAL " +
                         "INNER JOIN short_answer_questions ON question_answeroption_relation.ID_GLOBAL = short_answer_questions.ID_GLOBAL " +
-                        "WHERE short_answer_questions.ID_GLOBAL = '" + quest.getID() +"';" );
-                while ( rs2.next() ) {
+                        "WHERE short_answer_questions.ID_GLOBAL = '" + quest.getID() + "';");
+                while (rs2.next()) {
                     answers.add(rs2.getString(1));
                 }
                 quest.setANSWER(answers);
@@ -129,14 +129,14 @@ public class DbTableQuestionShortAnswer {
             rs.close();
             stmt.close();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         return questionShortAnswerArrayList;
     }
 
-    static public QuestionShortAnswer getShortAnswerQuestionWithId (String questionId) {
+    static public QuestionShortAnswer getShortAnswerQuestionWithId(String questionId) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         questionShortAnswer.setID(questionId);
         Connection c = null;
@@ -147,7 +147,7 @@ public class DbTableQuestionShortAnswer {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = 	"SELECT LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL='" + questionId + "';";
+            String query = "SELECT LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL='" + questionId + "';";
 
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -156,23 +156,99 @@ public class DbTableQuestionShortAnswer {
                 questionShortAnswer.setIMAGE(rs.getString("IMAGE_PATH"));
             }
             ArrayList<String> answers = new ArrayList<>();
-            rs = stmt.executeQuery( "SELECT OPTION FROM answer_options " +
+            rs = stmt.executeQuery("SELECT OPTION FROM answer_options " +
                     "INNER JOIN question_answeroption_relation ON answer_options.ID_ANSWEROPTION_GLOBAL = question_answeroption_relation.ID_ANSWEROPTION_GLOBAL " +
                     "INNER JOIN short_answer_questions ON question_answeroption_relation.ID_GLOBAL = short_answer_questions.ID_GLOBAL " +
-                    "WHERE short_answer_questions.ID_GLOBAL = '" + questionShortAnswer.getID() +"';" );
-            while ( rs.next() ) {
+                    "WHERE short_answer_questions.ID_GLOBAL = '" + questionShortAnswer.getID() + "';");
+            while (rs.next()) {
                 answers.add(rs.getString(1));
             }
             questionShortAnswer.setANSWER(answers);
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         questionShortAnswer.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(questionId));
         questionShortAnswer.setSubjects(DbTableSubject.getSubjectsForQuestionID(questionId));
         return questionShortAnswer;
+    }
+
+    static public Vector<QuestionMultipleChoiceView> getQuestionViews() {
+        Vector<QuestionMultipleChoiceView> questionViews = new Vector<>();
+
+        String sql = "SELECT * FROM short_answer_questions";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                QuestionMultipleChoiceView questionMultipleChoiceView = new QuestionMultipleChoiceView();
+                questionMultipleChoiceView.setID(rs.getString("ID_GLOBAL"));
+                questionMultipleChoiceView.setTYPE(1);
+                questionMultipleChoiceView.setQUESTION(rs.getString("QUESTION"));
+                questionMultipleChoiceView.setQCM_MUID(rs.getString("IDENTIFIER"));
+                questionMultipleChoiceView.setIMAGE(rs.getString("IMAGE_PATH"));
+                questionMultipleChoiceView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+                questionViews.add(questionMultipleChoiceView);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        sql = "SELECT OPTION FROM answer_options ao " +
+                "INNER JOIN question_answeroption_relation rel ON rel.ID_ANSWEROPTION_GLOBAL = ao.ID_ANSWEROPTION_GLOBAL " +
+                "INNER JOIN short_answer_questions sha ON sha.ID_GLOBAL = rel.ID_GLOBAL " +
+                " WHERE sha.ID_GLOBAL = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < questionViews.size(); i++) {
+                pstmt.setString(1,questionViews.get(i).getID());
+                ResultSet rs = pstmt.executeQuery();
+
+                int j = 0;
+                while (rs.next()) {
+                    switch (j) {
+                        case 0:
+                            questionViews.get(i).setOPT0(rs.getString("OPTION"));
+                            break;
+                        case 1:
+                            questionViews.get(i).setOPT1(rs.getString("OPTION"));
+                            break;
+                        case 2:
+                            questionViews.get(i).setOPT2(rs.getString("OPTION"));
+                            break;
+                        case 3:
+                            questionViews.get(i).setOPT3(rs.getString("OPTION"));
+                            break;
+                        case 4:
+                            questionViews.get(i).setOPT4(rs.getString("OPTION"));
+                            break;
+                        case 5:
+                            questionViews.get(i).setOPT5(rs.getString("OPTION"));
+                            break;
+                        case 6:
+                            questionViews.get(i).setOPT6(rs.getString("OPTION"));
+                            break;
+                        case 7:
+                            questionViews.get(i).setOPT7(rs.getString("OPTION"));
+                            break;
+                        case 8:
+                            questionViews.get(i).setOPT8(rs.getString("OPTION"));
+                            break;
+                        default:
+                            questionViews.get(i).setOPT9(questionViews.get(i).getOPT9() + rs.getString("OPTION") + "///");
+                    }
+                    j++;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return questionViews;
     }
 }

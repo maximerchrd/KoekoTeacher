@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class QuestionMultipleChoiceView implements Serializable {
-    private int ID;
+    private String ID;
+    private int TYPE;   //0: QMC; 1: SHRTAQ
     private String SUBJECT;
     private String LEVEL;
     private String QUESTION;
@@ -37,12 +38,13 @@ public class QuestionMultipleChoiceView implements Serializable {
 
 
     public QuestionMultipleChoiceView()	{
-        ID=0;
+        ID="0";
+        TYPE=-1;
         SUBJECT="";
-        LEVEL="";
+        LEVEL="-1";
         QUESTION="";
         OPTIONSNUMBER=0;
-        NB_CORRECT_ANS=1;
+        NB_CORRECT_ANS=0;
         OPT0="";
         OPT1="";
         OPT2="";
@@ -57,12 +59,20 @@ public class QuestionMultipleChoiceView implements Serializable {
         LANGUAGE="";
     }
 
-    public int getID() {
+    public String getID() {
         return ID;
     }
 
-    public void setID(int ID) {
+    public void setID(String ID) {
         this.ID = ID;
+    }
+
+    public int getTYPE() {
+        return TYPE;
+    }
+
+    public void setTYPE(int TYPE) {
+        this.TYPE = TYPE;
     }
 
     public String getSUBJECT() {

@@ -10,6 +10,7 @@ import javafx.scene.control.ComboBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import koeko.Koeko;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.database_management.DbTableProfessor;
 import koeko.database_management.DbTableQuestionGeneric;
@@ -89,11 +90,22 @@ public class SettingsController implements Initializable {
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
-                try {
-                    SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
+                    Boolean success = true;
+                    DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+                    try {
+                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
+                    } catch (Exception e) {
+                        success = false;
+                        e.printStackTrace();
+                    }
+                    if (success) {
+                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                    } else {
+                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization failed", "Synchronization");
+                    }
+                } else {
+                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Chose a language before synchronizing", "Language");
                 }
             }
         });
