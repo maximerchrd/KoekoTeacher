@@ -1,8 +1,15 @@
 package koeko.controllers;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.database_management.DbTableProfessor;
 import koeko.database_management.DbTableQuestionGeneric;
@@ -79,12 +86,17 @@ public class SettingsController implements Initializable {
     }
 
     public void syncWithServer() {
-        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
-        try {
-            SyncOperations.SyncAll(InetAddress.getByName("188.226.155.245"), 50507);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+                try {
+                    SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void sendToWebsite() {

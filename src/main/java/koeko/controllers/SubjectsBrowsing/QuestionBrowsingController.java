@@ -19,6 +19,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
+import koeko.controllers.GenericPopUpController;
 import koeko.database_management.*;
 import koeko.view.Subject;
 
@@ -314,5 +315,24 @@ public class QuestionBrowsingController extends Window implements Initializable 
             questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());
         }
         Koeko.questionSendingControllerSingleton.populateTree(questionIds);
+    }
+
+    public void promptGenericPopUp(String message, String title) {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        GenericPopUpController controller = fxmlLoader.getController();
+        controller.initParameters(message);
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle(title);
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 }

@@ -1,6 +1,7 @@
 package koeko.KoekoSyncCollect;
 
 import koeko.IniFile;
+import koeko.Koeko;
 import koeko.database_management.*;
 import koeko.view.Professor;
 import koeko.view.Subject;
@@ -41,47 +42,51 @@ public class SyncOperations {
 
         // Before synchronisation, make sure the prof is known in the global database
         Professor professor = DbTableProfessor.getProfessor();
-        CreateOrUpdateProfessor(professor);
+        if (professor == null) {
+            Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Enter your pseudo before synchronizing.", "Create teacher");
+        } else {
+            CreateOrUpdateProfessor(professor);
 
-        // First step, launch sp to copy selection from web to koeko
-        boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid());
+            // First step, launch sp to copy selection from web to koeko
+            boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid());
 
-        // Second step, upload data to koeko
+            // Second step, upload data to koeko
 
-        Vector<Subject> sbjVector = DbTableSubject.getSubjects();
-        Enumeration en = sbjVector.elements();
-        while(en.hasMoreElements()) {
-            Subject sbj = (Subject) en.nextElement();
-            CreateOrUpdateSubject(sbj);
+            Vector<Subject> sbjVector = DbTableSubject.getSubjects();
+            Enumeration en = sbjVector.elements();
+            while (en.hasMoreElements()) {
+                Subject sbj = (Subject) en.nextElement();
+                CreateOrUpdateSubject(sbj);
+            }
+
+            Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
+            en = qcmVector.elements();
+            while (en.hasMoreElements()) {
+                QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
+                CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
+
+                // Get the subjects linked to the question
+                Vector<RelationQuestionSubject> subjectsLinked = DbTableRelationQuestionSubject.getSubjectsForQuestion(qcm.getID());
+                if (!subjectsLinked.isEmpty())
+                    UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
+            }
+
+            // Third step, launch sp to update web with new data
+            _tcpcom.SyncCollect2WEB();
+            System.out.println("WEB synchronized");
+
+            // Fourth step, download selected items to local DB
+            _tcpcom.DownloadSelection();
+            System.out.println("Selection downloaded");
+
+            // Termine le processus de synchronisation avec le serveur
+            _tcpcom.EndSynchronisation();
+            System.out.println("Ending synchronization");
+
+            // Note la dernière synchro
+            DBTableSyncOp.SetLastSyncOp(Utilities.TimestampForNowAsString());
+            System.out.println("Marking sync time");
         }
-
-        Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
-        en = qcmVector.elements();
-        while(en.hasMoreElements()) {
-            QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
-            CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
-
-            // Get the subjects linked to the question
-            Vector<RelationQuestionSubject> subjectsLinked = DbTableRelationQuestionSubject.getSubjectsForQuestion(qcm.getID());
-            if (!subjectsLinked.isEmpty())
-                UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
-        }
-
-        // Third step, launch sp to update web with new data
-        _tcpcom.SyncCollect2WEB();
-        System.out.println("WEB synchronized");
-
-        // Fourth step, download selected items to local DB
-        _tcpcom.DownloadSelection();
-        System.out.println("Selection downloaded");
-
-        // Termine le processus de synchronisation avec le serveur
-        _tcpcom.EndSynchronisation();
-        System.out.println("Ending synchronization");
-
-        // Note la dernière synchro
-        DBTableSyncOp.SetLastSyncOp(Utilities.TimestampForNowAsString());
-        System.out.println("Marking sync time");
     }
 
 
