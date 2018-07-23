@@ -28,13 +28,13 @@ public class ClassroomActivityTabController implements Initializable {
 
 
 
-    public void addQuestion(String question, Integer id, Integer group) {
+    public void addQuestion(String question, String id, Integer group) {
         studentsQuestionsTableController.addQuestion(question,id, group);
     }
     public void addUser(Student UserStudent, Boolean connection) {
         studentsQuestionsTableController.addUser(UserStudent,connection);
     }
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer groupIndex) {
+    public void addAnswerForUser(Student student, String answer, String question, double evaluation, String questionId, Integer groupIndex) {
         studentsQuestionsTableController.addAnswerForUser(student,answer,question,evaluation,questionId, groupIndex);
     }
     public void removeQuestion(int index) {

@@ -191,7 +191,7 @@ public class DbTableRelationQuestionSubject {
      * @param subject,questionID
      * @throws Exception
      */
-    static public void addRelationQuestionSubject(Integer questionID, String subject) {
+    static public void addRelationQuestionSubject(String questionID, String subject) {
         //first get the list of all subjects linked to the question (also check parents subjects)
         Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
         Vector<String> allSubjectsVector = new Vector<>();
@@ -272,7 +272,7 @@ public class DbTableRelationQuestionSubject {
         return questionIDs;
     }
 
-    static public void removeRelationsWithQuestion(Integer questionID) {
+    static public void removeRelationsWithQuestion(String questionID) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

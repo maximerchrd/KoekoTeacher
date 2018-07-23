@@ -208,10 +208,10 @@ public class CreateQuestionController implements Initializable {
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            new_questshortanswer.setID(Integer.valueOf(idGlobal));
+            new_questshortanswer.setID(idGlobal);
 
             //put the question in the treeView
-            QuestionGeneric questionGeneric = new QuestionGeneric(new_questshortanswer.getID(), 1);
+            QuestionGeneric questionGeneric = new QuestionGeneric(1, new_questshortanswer.getID());
             questionGeneric.setQuestion(new_questshortanswer.getQUESTION());
             questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
             questionGeneric.setTypeOfQuestion("1");
@@ -271,7 +271,7 @@ public class CreateQuestionController implements Initializable {
             }
 
             //insert question in tree view
-            QuestionGeneric questionGeneric = new QuestionGeneric(new_questmultchoice.getID(),0);
+            QuestionGeneric questionGeneric = new QuestionGeneric(0, new_questmultchoice.getID());
             questionGeneric.setQuestion(new_questmultchoice.getQUESTION());
             questionGeneric.setImagePath(new_questmultchoice.getIMAGE());
             questionGeneric.setTypeOfQuestion("0");

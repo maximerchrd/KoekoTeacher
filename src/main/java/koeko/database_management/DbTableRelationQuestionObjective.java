@@ -45,7 +45,7 @@ public class DbTableRelationQuestionObjective {
         }
     }
 
-    static public void addRelationQuestionObjective(Integer questionID, String objective) throws Exception {
+    static public void addRelationQuestionObjective(String questionID, String objective) throws Exception {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -68,7 +68,7 @@ public class DbTableRelationQuestionObjective {
         }
     }
 
-    static public void removeRelationsWithQuestion(Integer questionID) {
+    static public void removeRelationsWithQuestion(String questionID) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

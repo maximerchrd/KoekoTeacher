@@ -47,8 +47,8 @@ public class DbTableRelationQuestionTest {
             System.exit(0);
         }
     }
-    static public ArrayList<Integer> getQuestionIdsFromTestName(String testName) {
-        ArrayList<Integer> questionIds = new ArrayList<>();
+    static public ArrayList<String> getQuestionIdsFromTestName(String testName) {
+        ArrayList<String> questionIds = new ArrayList<>();
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -60,7 +60,7 @@ public class DbTableRelationQuestionTest {
             String query = "SELECT ID_GLOBAL FROM question_test_relation WHERE TEST_NAME='" + testName + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                questionIds.add(Integer.parseInt(rs.getString("ID_GLOBAL")));
+                questionIds.add(rs.getString("ID_GLOBAL"));
             }
             stmt.close();
             c.commit();
@@ -72,7 +72,7 @@ public class DbTableRelationQuestionTest {
         return questionIds;
     }
 
-    static public void removeQuestionFromTest(String testName, Integer idGlobal) {
+    static public void removeQuestionFromTest(String testName, String idGlobal) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

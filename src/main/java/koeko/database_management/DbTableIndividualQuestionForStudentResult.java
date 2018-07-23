@@ -39,7 +39,7 @@ public class DbTableIndividualQuestionForStudentResult {
         }
     }
 
-    static public double addIndividualQuestionForStudentResult(int id_global, String student_name, String answers, String answerType) {
+    static public double addIndividualQuestionForStudentResult(String id_global, String student_name, String answers, String answerType) {
         double quantitative_evaluation = -1;
         answers = answers.replace("'", "''");
         Connection c = null;
@@ -159,7 +159,7 @@ public class DbTableIndividualQuestionForStudentResult {
         }
     }
 
-    static public double addIndividualTestEval(int id_global, String student_name, Double testEvaluation) {
+    static public double addIndividualTestEval(String id_global, String student_name, Double testEvaluation) {
         double quantitative_evaluation = -1;
         student_name = student_name.replace("'", "''");
         Connection c = null;
@@ -276,7 +276,7 @@ public class DbTableIndividualQuestionForStudentResult {
         return "done";
     }
 
-    static public String getEvalForQuestionAndStudentIDs(Integer globalID, Integer globalStudentID) {
+    static public String getEvalForQuestionAndStudentIDs(String globalID, String globalStudentID) {
         String evaluation = "";
         String identifier = "";
         Connection c = null;
@@ -346,9 +346,9 @@ public class DbTableIndividualQuestionForStudentResult {
                 int questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal (idGlobal);
                 name = DbTableStudents.getStudentNameWithID(Integer.valueOf(studentID));
                 if (questionType == 0) {
-                    questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(Integer.valueOf(idGlobal));
-                    questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(Integer.valueOf(idGlobal)));
-                    questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(Integer.valueOf(idGlobal)));
+                    questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(idGlobal);
+                    questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobal));
+                    questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobal));
                     tempSingleResult.setName(name);
                     tempSingleResult.setDate(date);
                     tempSingleResult.setEvaluation(evaluation);
@@ -375,9 +375,9 @@ public class DbTableIndividualQuestionForStudentResult {
                     }
                     tempSingleResult.setObjectives(objectives);
                 } else {
-                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(Integer.valueOf(idGlobal));
-                    questionShortAnswer.setSubjects(DbTableSubject.getSubjectsForQuestionID(Integer.valueOf(idGlobal)));
-                    questionShortAnswer.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(Integer.valueOf(idGlobal)));
+                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(idGlobal);
+                    questionShortAnswer.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobal));
+                    questionShortAnswer.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobal));
                     tempSingleResult.setName(name);
                     tempSingleResult.setDate(date);
                     tempSingleResult.setEvaluation(evaluation);

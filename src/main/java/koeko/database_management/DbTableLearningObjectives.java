@@ -39,7 +39,8 @@ public class DbTableLearningObjectives {
                     objective.replace("'","''") + "','" +
                     level_cognitive_ability +"');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
+            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE, MODIF_DATE = '" + DBUtils.UniversalTimestampAsString()
+                    + "' WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -49,7 +50,7 @@ public class DbTableLearningObjectives {
             System.exit(0);
         }
     }
-    static public Vector<String> getObjectiveForQuestionID(int questionID) {
+    static public Vector<String> getObjectiveForQuestionID(String questionID) {
         Vector<String> objectives = new Vector<>();
         Connection c = null;
         Statement stmt = null;

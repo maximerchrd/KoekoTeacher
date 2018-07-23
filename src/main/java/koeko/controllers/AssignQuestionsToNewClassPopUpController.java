@@ -21,8 +21,8 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
     }
 
     public void assignQuestions() {
-        ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
-        for (Integer id : questionIds) {
+        ArrayList<String>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
+        for (String id : questionIds) {
             if (!Koeko.studentGroupsAndClass.get(0).getActiveIDs().contains(id)) {
                 Koeko.studentGroupsAndClass.get(0).getActiveIDs().add(id);
                 if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
@@ -30,7 +30,7 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
                 }
             }
         }
-        for (Integer id : Koeko.studentGroupsAndClass.get(0).getActiveIDs()) {
+        for (String id : Koeko.studentGroupsAndClass.get(0).getActiveIDs()) {
             DbTableRelationClassQuestion.addClassQuestionRelation(className, String.valueOf(id));
         }
         Koeko.questionSendingControllerSingleton.refreshReadyQuestionsList();
@@ -40,8 +40,8 @@ public class AssignQuestionsToNewClassPopUpController extends Window implements 
 
     public void doNotAssign() {
         Koeko.studentGroupsAndClass.get(0).getActiveIDs().clear();
-        ArrayList<Integer>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
-        for (Integer id : questionIds) {
+        ArrayList<String>  questionIds = DbTableRelationClassQuestion.getQuestionsIDsForClass(className);
+        for (String id : questionIds) {
             Koeko.studentGroupsAndClass.get(0).getActiveIDs().add(id);
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);

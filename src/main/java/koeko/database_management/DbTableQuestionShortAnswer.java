@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class DbTableQuestionShortAnswer {
                     quest.getQUESTION() + "','" +
                     0 + "','" +
                     quest.getIMAGE() + "','" +
-                    ZonedDateTime.now() +"');";
+                    DBUtils.UniversalTimestampAsString() +"');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -79,7 +78,7 @@ public class DbTableQuestionShortAnswer {
             String sql = 	"UPDATE short_answer_questions " +
                     "SET QUESTION='" + quest.getQUESTION() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
-                    "MODIF_DATE='" + ZonedDateTime.now() + "' " +
+                    "MODIF_DATE='" + DBUtils.UniversalTimestampAsString() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -111,7 +110,7 @@ public class DbTableQuestionShortAnswer {
             while ( rs.next() ) {
                 QuestionShortAnswer quest = new QuestionShortAnswer();
                 //quest.setSUBJECT(rs.getString(2));
-                quest.setID(rs.getInt(2));
+                quest.setID(rs.getString(2));
                 quest.setLEVEL(rs.getString(3));
                 quest.setQUESTION(rs.getString(4));
                 quest.setIMAGE(rs.getString(5));
@@ -137,7 +136,7 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswerArrayList;
     }
 
-    static public QuestionShortAnswer getShortAnswerQuestionWithId (int questionId) {
+    static public QuestionShortAnswer getShortAnswerQuestionWithId (String questionId) {
         QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
         questionShortAnswer.setID(questionId);
         Connection c = null;

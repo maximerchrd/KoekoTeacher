@@ -106,8 +106,8 @@ public class DbTableRelationClassQuestion {
         }
     }
 
-    static public ArrayList<Integer> getQuestionsIDsForClass(String className) {
-        ArrayList<Integer> questionIDs = new ArrayList<>();
+    static public ArrayList<String> getQuestionsIDsForClass(String className) {
+        ArrayList<String> questionIDs = new ArrayList<>();
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -119,7 +119,7 @@ public class DbTableRelationClassQuestion {
             String query = 	"SELECT ID_GLOBAL FROM class_question_relation WHERE CLASS_NAME='" + className + "';";
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()) {
-                questionIDs.add(rs.getInt("ID_GLOBAL"));
+                questionIDs.add(rs.getString("ID_GLOBAL"));
             }
             stmt.close();
             c.commit();

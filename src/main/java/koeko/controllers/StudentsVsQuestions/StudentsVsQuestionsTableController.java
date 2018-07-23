@@ -54,8 +54,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML public Accordion tableAccordion;
 
 
-    public void addQuestion(String question, Integer ID, Integer group) {
-        if (ID > 0) {
+    public void addQuestion(String question, String ID, Integer group) {
+        if (Long.valueOf(ID) > 0) {
             if (group < 1) group = 0;
             // Add extra columns if necessary:
             TableColumn column = new TableColumn(question);
@@ -231,7 +231,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer group) {
+    public void addAnswerForUser(Student student, String answer, String question, double evaluation, String questionId, Integer group) {
         if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
             Platform.runLater(new Runnable(){
                 @Override
@@ -327,9 +327,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
     public void editEvaluation(Integer group) {
         TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
-        Integer globalID = Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
-        Integer studentID = Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
-        if (globalID >= 0) {
+        String globalID = Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
+        String studentID = Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
+        if (Long.valueOf(globalID) >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
             Parent root1 = null;
             try {
@@ -477,8 +477,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
 
         //add questions
-        ArrayList<Integer> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
-        for (Integer id : questionIDs) {
+        ArrayList<String> questionIDs = DbTableRelationClassQuestion.getQuestionsIDsForClass(group);
+        for (String id : questionIDs) {
             Koeko.studentGroupsAndClass.get(groupIndex).getActiveIDs().add(id);
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(id)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(id);

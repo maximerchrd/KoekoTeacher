@@ -19,6 +19,7 @@ public class DbTableProfessor {
                     " ALIAS      TEXT    NOT NULL, " +
                     " SYNC_KEY  TEXT, " +
                     " LANGUAGE TEXT, " +
+                    " MODIF_DATE TEXT, " +
                     " UNIQUE (ALIAS) ) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
@@ -46,6 +47,7 @@ public class DbTableProfessor {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+        setModifDate(alias);
     }
 	
 	
@@ -67,6 +69,8 @@ public class DbTableProfessor {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+
+        setModifDateWIthID(idProf);
     }
 
     static public void setProfessorAlias(String idProf, String alias) {
@@ -87,6 +91,8 @@ public class DbTableProfessor {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+
+        setModifDate(alias);
     }
 
     static public void setProfessorLanguage(String alias, String language) {
@@ -96,6 +102,13 @@ public class DbTableProfessor {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
+            if (language.contentEquals("English")) {
+                language = "eng";
+            } else if (language.contentEquals("Français")) {
+                language = "fra";
+            } else if (language.contentEquals("Deutsch")) {
+                language = "deu";
+            }
             pstmt.setString(1, language);
             pstmt.setString(2, alias);
 
@@ -104,6 +117,8 @@ public class DbTableProfessor {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        setModifDate(alias);
     }
 
     static public void setProfessorSyncKey(String alias, String synchronizationKey) {
@@ -121,6 +136,8 @@ public class DbTableProfessor {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        setModifDate(alias);
     }
 
     static public Professor getProfessor() {
@@ -158,5 +175,39 @@ public class DbTableProfessor {
         }
 
         return professor;
+    }
+
+    static private void setModifDate(String alias) {
+        String sql = 	"UPDATE professor SET MODIF_DATE=? WHERE ALIAS=?;";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(2, alias);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static private void setModifDateWIthID(String idProf) {
+        String sql = 	"UPDATE professor SET MODIF_DATE=? WHERE ID_PROF=?;";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(2, idProf);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

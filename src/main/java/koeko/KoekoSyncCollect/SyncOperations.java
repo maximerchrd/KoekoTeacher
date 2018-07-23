@@ -30,7 +30,7 @@ public class SyncOperations {
     static private void InitializeTransfer(InetAddress serverAddress, int serverPort) throws Exception {
         Socket socket = new Socket(serverAddress, serverPort);
 
-        IniFile ini = new IniFile(".\\src\\main\\java\\koeko\\koeko.ini");
+        IniFile ini = new IniFile("./src/main/java/koeko/koeko.ini");
         String imagePath = ini.getString("File", "SourceImagePath", ".\\");
         _tcpcom = new TCPCommunication(socket, imagePath);
     }
@@ -84,7 +84,6 @@ public class SyncOperations {
         System.out.println("Marking sync time");
     }
 
-/*
 
     private static Connection ConnectToMySQL() {
         // Connexion à mysql
@@ -106,7 +105,6 @@ public class SyncOperations {
         }
         return connect;
     }
-*/
 
     static private void CreateOrUpdateProfessor(Professor prof) {
         try {

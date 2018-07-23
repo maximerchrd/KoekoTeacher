@@ -1,6 +1,5 @@
 package koeko.students_management;
 
-import koeko.Koeko;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 
@@ -16,14 +15,14 @@ public class Classroom {
     private ArrayList<String> students_addresses = null;
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
     private ArrayList<QuestionShortAnswer> current_set_quest_short_answer = null;
-    private ArrayList<Integer> activeIDs;
+    private ArrayList<String> activeIDs;
     private ArrayList<String> activeQuestions;
     private ArrayList<ArrayList<Double>> activeEvaluations;
     private ArrayList<Double> averageEvaluations;
     private Integer tableIndex = -1;
     private String className = "";
     private Integer nbAndroidDevices = 0;
-    private ArrayList<Integer> IDsToStoreOnDevices;
+    private ArrayList<String> IDsToStoreOnDevices;
     private HashMap<String, Vector<String>> ongoingQuestionsForStudent;
 
     public Classroom() {
@@ -70,10 +69,10 @@ public class Classroom {
     public Vector<Student> getStudents_vector() {
         return students_vector;
     }
-    public ArrayList<Integer> getActiveIDs() {
+    public ArrayList<String> getActiveIDs() {
         return activeIDs;
     }
-    public ArrayList<Integer> getIDsToStoreOnDevices() {
+    public ArrayList<String> getIDsToStoreOnDevices() {
         return IDsToStoreOnDevices;
     }
     public HashMap<String, Vector<String>> getOngoingQuestionsForStudent() {
@@ -94,7 +93,7 @@ public class Classroom {
     public void setClassName(String className) {
         this.className = className;
     }
-    public void setActiveIDs(ArrayList<Integer> activeIDs) {
+    public void setActiveIDs(ArrayList<String> activeIDs) {
         this.activeIDs = activeIDs;
     }
     public void setNbAndroidDevices(Integer nbAndroidDevices) {
@@ -103,7 +102,7 @@ public class Classroom {
     public void setTableIndex(Integer tableIndex) {
         this.tableIndex = tableIndex;
     }
-    public void setIDsToStoreOnDevices(ArrayList<Integer> IDsToStoreOnDevices) {
+    public void setIDsToStoreOnDevices(ArrayList<String> IDsToStoreOnDevices) {
         this.IDsToStoreOnDevices = IDsToStoreOnDevices;
     }
     public void setOngoingQuestionsForStudent(HashMap<String, Vector<String>> ongoingQuestionsForStudent) {
@@ -113,10 +112,10 @@ public class Classroom {
 
 
     //other get methods
-    public Student getStudentWithID(Integer studentID) {
+    public Student getStudentWithID(String studentID) {
         Student student = new Student();
         for (int i = 0; i < students_vector.size(); i++) {
-            if (String.valueOf(studentID).contentEquals(String.valueOf(students_vector.get(i).getStudentID()))) {
+            if (studentID.contentEquals(String.valueOf(students_vector.get(i).getStudentID()))) {
                 student = students_vector.get(i);
             }
         }
@@ -137,7 +136,7 @@ public class Classroom {
         Student student = new Student();
         Boolean found = false;
         for (int i = 0; i < students_vector.size() && !found; i++) {
-            if (deviceID.contentEquals(students_vector.get(i).getUniqueID())) {
+            if (deviceID.contentEquals(students_vector.get(i).getUniqueDeviceID())) {
                 student = students_vector.get(i);
                 System.out.println("found student: " + student.getName() + " with device ID");
                 found = true;
@@ -190,10 +189,10 @@ public class Classroom {
     }
 
     //returns only the question IDs, without the test IDs
-    public ArrayList<Integer> getActiveQuestionIDs() {
-        ArrayList<Integer> questionIDs = new ArrayList<>();
-        for (Integer id : activeIDs) {
-            if (id > 0) {
+    public ArrayList<String> getActiveQuestionIDs() {
+        ArrayList<String> questionIDs = new ArrayList<>();
+        for (String id : activeIDs) {
+            if (Long.valueOf(id) > 0) {
                 questionIDs.add(id);
             }
         }
@@ -216,7 +215,7 @@ public class Classroom {
         System.out.println("studentGroupsAndClass addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
             if (!students_addresses.contains(student.getInetAddress().toString())) {
-                System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueID());
+                System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueDeviceID());
                 students_vector.add(student);
             } else {
                 int index = students_addresses.indexOf(student.getInetAddress().toString());
@@ -250,7 +249,7 @@ public class Classroom {
         int index = indexOfStudentWithAddress(student.getInetAddress().toString());
         if (index >= 0) {
             students_vector.get(index).setName(student.getName());
-            students_vector.get(index).setUniqueID(student.getUniqueID());
+            students_vector.get(index).setUniqueDeviceID(student.getUniqueDeviceID());
         } else {
             System.out.println("A problem occured: student not in class when trying to update infos");
         }
@@ -318,10 +317,10 @@ public class Classroom {
     public Boolean studentDeviceIDAlreadyInClass (Student student) {
         ArrayList<String> deviceIDs = new ArrayList<>();
         for (Student stud : students_vector) {
-            deviceIDs.add(stud.getUniqueID());
+            deviceIDs.add(stud.getUniqueDeviceID());
         }
         if (deviceIDs.size() > 0) {
-            if (!deviceIDs.contains(student.getUniqueID())) {
+            if (!deviceIDs.contains(student.getUniqueDeviceID())) {
                 return false;
             } else {
                 return true;
@@ -335,11 +334,11 @@ public class Classroom {
         Boolean questionsReached = true;
         for (Student student : students_vector) {
             if (student.getConnected()) {
-                ArrayList<Integer> deviceQuestions = new ArrayList<>();
+                ArrayList<String> deviceQuestions = new ArrayList<>();
 
                 //convert question ids string to int
                 for (String id : student.getDeviceQuestions()) {
-                    deviceQuestions.add(Integer.valueOf(id));
+                    deviceQuestions.add(id);
                 }
 
                 //check if the questions on the device contain the active questions
@@ -370,13 +369,13 @@ public class Classroom {
 
         if (studentsToMerge.size() > 0) {
             if (studentToMerge.getInetAddress() != null && studentToMerge.getInetAddress().toString().length() > 0 && !studentToMerge.getName().contentEquals("no name")
-                    && !studentToMerge.getUniqueID().contentEquals("no identifier")) {
+                    && !studentToMerge.getUniqueDeviceID().contentEquals("no identifier")) {
                 for (Student student : studentsToMerge) {
                     students_vector.remove(student);
                 }
                 students_vector.add(studentToMerge);
             } else if (studentsToMerge.get(0).getInetAddress() != null
-                    && !studentsToMerge.get(0).getUniqueID().contentEquals("no identifier")
+                    && !studentsToMerge.get(0).getUniqueDeviceID().contentEquals("no identifier")
                     && !studentsToMerge.get(0).getName().contentEquals("no name")) {
                 System.out.println("mergeStudentsOnNameOrIP: the present student is probably more complete. we do nothing.");
             } else if (!studentToMerge.getName().contentEquals("no name") && !studentsToMerge.get(0).getName().contentEquals("no name")
@@ -385,7 +384,7 @@ public class Classroom {
                 students_vector.add(studentToMerge);
             } else if  (studentsToMerge.get(0).getInetAddress() == null && studentToMerge.getInetAddress() == null &&
                     studentsToMerge.get(0).getName().contentEquals(studentToMerge.getName()) &&
-                    studentsToMerge.get(0).getUniqueID().contentEquals(studentToMerge.getUniqueID()) &&
+                    studentsToMerge.get(0).getUniqueDeviceID().contentEquals(studentToMerge.getUniqueDeviceID()) &&
                     studentsToMerge.get(0).getStudentID().equals(studentToMerge.getStudentID())) {
                 System.out.println("mergeStudentsOnNameOrIP: merging probably equal objects. we do nothing");
             } else {

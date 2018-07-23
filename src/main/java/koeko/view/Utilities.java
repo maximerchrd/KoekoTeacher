@@ -23,4 +23,13 @@ public class Utilities {
         String sdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
         return Timestamp.valueOf(sdt);
     }
+
+    public static String localUniqueID() {
+        Long time = System.nanoTime();
+        String uniqueId = String.valueOf(time);
+        if (uniqueId.length() > 14) {
+            uniqueId = uniqueId.substring(0, 14);
+        }
+        return uniqueId;
+    }
 }

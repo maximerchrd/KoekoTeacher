@@ -39,22 +39,22 @@ public class DbTableRelationQuestionQuestionTest {
 
     @Test
     public void testBeginnerQuestionQuestionRelation() {
-        assertEquals("1;;;3:::;;;2:::EVALUATION<60|||2|||3|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest2*$@"));
+        assertEquals("1;;;3::::::END:::;;;2:::EVALUATION<60:::END:::|||2|||3|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest2*$@"));
     }
 
     @Test
     public void testEasyQuestionQuestionRelation() {
-        assertEquals("1;;;2:::EVALUATION<60;;;4:::EVALUATION<60|||2;;;3:::EVALUATION<60;;;4:::|||3|||4|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest3*$@"));
+        assertEquals("1;;;2:::EVALUATION<60:::END:::;;;4:::EVALUATION<60:::END:::|||2;;;3:::EVALUATION<60:::END:::;;;4::::::END:::|||3|||4|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest3*$@"));
     }
 
     @Test
     public void testOneQuestionQuestionRelation() {
-        assertEquals("1;;;2:::EVALUATION<60;;;3:::;;;7:::EVALUATION<60|||2;;;7:::|||7|||3;;;4:::EVALUATION<60|||4;;;5:::EVALUATION<60;;;6:::EVALUATION<60|||5;;;6:::|||6|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest*$@"));
+        assertEquals("1;;;2:::EVALUATION<60:::END:::;;;3::::::END:::;;;7:::EVALUATION<60:::END:::|||2;;;7::::::END:::|||7|||3;;;4:::EVALUATION<60:::END:::|||4;;;5:::EVALUATION<60:::END:::;;;6:::EVALUATION<60:::END:::|||5;;;6::::::END:::|||6|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTest*$@"));
     }
 
     @Test
     public void testTwoQuestionQuestionRelation() {
-        assertEquals("1;;;2:::EVALUATION<60;;;4:::|||2;;;3:::EVALUATION<60|||3|||4|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTestTwo*$@"));
+        assertEquals("1;;;2:::EVALUATION<60:::END:::;;;4::::::END:::|||2;;;3:::EVALUATION<60:::END:::|||3|||4|||",DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest("testForTestTwo*$@"));
     }
 
     @After

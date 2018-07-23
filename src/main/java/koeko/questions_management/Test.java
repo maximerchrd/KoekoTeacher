@@ -7,8 +7,8 @@ import java.util.ArrayList;
  */
 public class Test {
     private String testName;
-    private int idTest;
-    private ArrayList<Integer> idsQuestions;
+    private String idTest;
+    private ArrayList<String> idsQuestions;
     private ArrayList<QuestionGeneric> genericQuestions;
     private ArrayList<Double> questionsEvaluations;
     private ArrayList<String> objectives;
@@ -19,8 +19,8 @@ public class Test {
 
     public Test() {
         this.testName = "";
-        this.idTest = -1;
-        this.idsQuestions = new ArrayList<Integer>();
+        this.idTest = "-1";
+        this.idsQuestions = new ArrayList<String>();
         this.genericQuestions = new ArrayList<QuestionGeneric>();
         this.questionsEvaluations = new ArrayList<>();
         this.isSynchroneousQuestionsTest = false;
@@ -37,11 +37,11 @@ public class Test {
         return testName;
     }
 
-    public int getIdTest() {
+    public String getIdTest() {
         return idTest;
     }
 
-    public ArrayList<Integer> getIdsQuestions() {
+    public ArrayList<String> getIdsQuestions() {
         return idsQuestions;
     }
 
@@ -86,11 +86,11 @@ public class Test {
         this.testName = testName;
     }
 
-    public void setIdTest(int idTest) {
+    public void setIdTest(String idTest) {
         this.idTest = idTest;
     }
 
-    public void setIdsQuestions(ArrayList<Integer> idsQuestions) {
+    public void setIdsQuestions(ArrayList<String> idsQuestions) {
         this.idsQuestions = idsQuestions;
     }
 

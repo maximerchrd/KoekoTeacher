@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class QuestionShortAnswer {
-	private int ID;
+	private String ID;
 	private String SUBJECT;
 	private String LEVEL;
 	private String QUESTION;
@@ -14,7 +14,7 @@ public class QuestionShortAnswer {
 	private Vector<String> objectives;
 	public QuestionShortAnswer()
 	{
-		ID=0;
+		ID="0";
 		SUBJECT="";
 		LEVEL="";
 		QUESTION="";
@@ -28,7 +28,7 @@ public class QuestionShortAnswer {
 		QUESTION = qUESTION;
 		IMAGE = iMAGE;
 	}
-	public int getID()
+	public String getID()
 	{
 		return ID;
 	}
@@ -54,7 +54,7 @@ public class QuestionShortAnswer {
 		return objectives;
 	}
 
-	public void setID(int id)
+	public void setID(String id)
 	{
 		ID=id;
 	}

@@ -41,9 +41,9 @@ public class DbTableTests {
             while (rs.next()) {
                 Test newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
-                newTest.setIdTest(Integer.parseInt(rs.getString("ID_TEST_GLOBAL")));
+                newTest.setIdTest(rs.getString("ID_TEST_GLOBAL"));
                 newTest.setTestMode(rs.getInt("TEST_MODE"));
-                ArrayList<Integer> newQuestionIDsList = DbTableRelationQuestionTest.getQuestionIdsFromTestName(String.valueOf(newTest.getIdTest()));
+                ArrayList<String> newQuestionIDsList = DbTableRelationQuestionTest.getQuestionIdsFromTestName(String.valueOf(newTest.getIdTest()));
                 ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
                 for (int i = 0; i < newQuestionIDsList.size(); i++) {
                     QuestionGeneric newQuestionGeneric = new QuestionGeneric();
@@ -80,7 +80,7 @@ public class DbTableTests {
             while (rs.next()) {
                 newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
-                newTest.setIdTest(Integer.parseInt(rs.getString("ID_TEST_GLOBAL")));
+                newTest.setIdTest(rs.getString("ID_TEST_GLOBAL"));
             }
             stmt.close();
             c.commit();
@@ -99,10 +99,10 @@ public class DbTableTests {
      * @param testID
      * @return
      */
-    static public Test getTestWithID(Integer testID) {
+    static public Test getTestWithID(String testID) {
         Test newTest = new Test();
-        if (testID < 0) {
-            testID = -testID;
+        if (Long.valueOf(testID) < 0) {
+            testID = String.valueOf(Long.valueOf(testID));
         }
         newTest.setIdTest(testID);
         Connection c = null;
@@ -150,7 +150,8 @@ public class DbTableTests {
                     2000000 + "','" +
                     newTest.getTestName() + "','" + newTest.getTestMode() + "','-1');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
+            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST, MODIF_DATE = '" + DBUtils.UniversalTimestampAsString()
+                    + "' WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);
             sql = "SELECT ID_TEST_GLOBAL FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
             ResultSet rs = stmt.executeQuery(sql);
@@ -206,7 +207,7 @@ public class DbTableTests {
             System.exit(0);
         }
     }
-    static public void renameTest(int global_id, String newName) {
+    static public void renameTest(String global_id, String newName) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -215,8 +216,8 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET NAME = '" + newName + "' " +
-                    "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
+            String sql = "UPDATE tests SET NAME = '" + newName + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+                    "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -226,7 +227,7 @@ public class DbTableTests {
             System.exit(0);
         }
     }
-    static public void changeTestMode(int global_id, Integer testMode) {
+    static public void changeTestMode(String global_id, Integer testMode) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -235,8 +236,8 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "' " +
-                    "WHERE ID_TEST_GLOBAL = '" + global_id + "';";
+            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+                    "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

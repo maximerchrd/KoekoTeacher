@@ -19,13 +19,13 @@ public class LearningTrackerController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
-    public void addQuestion(String question, Integer id, Integer group) {
+    public void addQuestion(String question, String id, Integer group) {
         ClassroomActivityTabController.addQuestion(question,id, group);
     }
     public void addUser(Student UserStudent, Boolean connection) {
         ClassroomActivityTabController.addUser(UserStudent,connection);
     }
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, Integer questionId, Integer groupIndex) {
+    public void addAnswerForUser(Student student, String answer, String question, double evaluation, String questionId, Integer groupIndex) {
         ClassroomActivityTabController.addAnswerForUser(student,answer,question,evaluation,questionId, groupIndex);
     }
     public void removeQuestion(int index) {
