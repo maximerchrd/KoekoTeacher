@@ -78,7 +78,7 @@ public class DbTableQuestionShortAnswer {
             stmt = c.createStatement();
             String sql = "UPDATE short_answer_questions " +
                     "SET QUESTION='" + quest.getQUESTION() + "', " +
-                    "IMAGE_PATH='" + quest.getIMAGE() + "' " +
+                    "IMAGE_PATH='" + quest.getIMAGE() + "', " +
                     "MODIF_DATE='" + Utilities.TimestampForNowAsString() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
@@ -180,7 +180,7 @@ public class DbTableQuestionShortAnswer {
     static public Vector<QuestionMultipleChoiceView> getQuestionViews() {
         Vector<QuestionMultipleChoiceView> questionViews = new Vector<>();
 
-        String sql = "SELECT * FROM short_answer_questions";
+        String sql = "SELECT * FROM short_answer_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
