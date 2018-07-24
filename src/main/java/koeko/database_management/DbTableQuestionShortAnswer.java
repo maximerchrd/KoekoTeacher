@@ -2,6 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class DbTableQuestionShortAnswer {
                     quest.getQUESTION() + "','" +
                     0 + "','" +
                     quest.getIMAGE() + "','" +
-                    DBUtils.UniversalTimestampAsString() + "');";
+                    Utilities.TimestampForNowAsString() + "');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -78,7 +79,7 @@ public class DbTableQuestionShortAnswer {
             String sql = "UPDATE short_answer_questions " +
                     "SET QUESTION='" + quest.getQUESTION() + "', " +
                     "IMAGE_PATH='" + quest.getIMAGE() + "' " +
-                    "MODIF_DATE='" + DBUtils.UniversalTimestampAsString() + "' " +
+                    "MODIF_DATE='" + Utilities.TimestampForNowAsString() + "' " +
                     "WHERE ID_GLOBAL='" + quest.getID() + "';";
             stmt.executeUpdate(sql);
             stmt.close();

@@ -3,13 +3,7 @@ package koeko.controllers;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.database_management.DbTableProfessor;
@@ -24,6 +18,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import koeko.view.Professor;
+import koeko.view.Utilities;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -83,7 +78,8 @@ public class SettingsController implements Initializable {
     }
 
     public void setLanguage() {
-        DbTableProfessor.setProfessorLanguage(teacherName.getText(),languageCombobox.getSelectionModel().getSelectedItem().toString());
+        String language = languageCombobox.getSelectionModel().getSelectedItem().toString();
+        DbTableProfessor.setProfessorLanguage(teacherName.getText(),language);
     }
 
     public void syncWithServer() {
@@ -175,7 +171,10 @@ public class SettingsController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         correctionMode = DbTableSettings.getCorrectionMode();
-        ObservableList<String> data = FXCollections.observableArrayList("English", "Français", "Deutsch");
+
+        Utilities.initCodeToLanguageMap();
+        Utilities.initLanguageToCodeMap();
+        ObservableList<String> data = FXCollections.observableArrayList(Utilities.codeToLanguageMap.values());
         languageCombobox.setItems(data);
         Professor professor = DbTableProfessor.getProfessor();
         if (professor == null) {
@@ -183,7 +182,7 @@ public class SettingsController implements Initializable {
         } else {
             teacherName.setText(professor.get_alias());
             if (professor.get_language() != null) {
-                languageCombobox.getSelectionModel().select(professor.get_language());
+                languageCombobox.getSelectionModel().select(Utilities.codeToLanguageMap.get(professor.get_language()));
             }
         }
 

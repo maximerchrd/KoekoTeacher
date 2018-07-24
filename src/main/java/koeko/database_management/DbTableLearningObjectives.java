@@ -1,5 +1,7 @@
 package koeko.database_management;
 
+import koeko.view.Utilities;
+
 import java.sql.*;
 import java.util.Vector;
 
@@ -39,7 +41,7 @@ public class DbTableLearningObjectives {
                     objective.replace("'","''") + "','" +
                     level_cognitive_ability +"');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE, MODIF_DATE = '" + DBUtils.UniversalTimestampAsString()
+            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE, MODIF_DATE = '" + Utilities.TimestampForNowAsString()
                     + "' WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
             stmt.executeUpdate(sql);
             stmt.close();

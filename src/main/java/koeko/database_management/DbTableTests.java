@@ -2,6 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class DbTableTests {
                     2000000 + "','" +
                     newTest.getTestName() + "','" + newTest.getTestMode() + "','-1');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST, MODIF_DATE = '" + DBUtils.UniversalTimestampAsString()
+            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST, MODIF_DATE = '" + Utilities.TimestampForNowAsString()
                     + "' WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
             stmt.executeUpdate(sql);
             sql = "SELECT ID_TEST_GLOBAL FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
@@ -216,7 +217,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET NAME = '" + newName + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+            String sql = "UPDATE tests SET NAME = '" + newName + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
                     "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -236,7 +237,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + DBUtils.UniversalTimestampAsString() +
+            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
                     "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();

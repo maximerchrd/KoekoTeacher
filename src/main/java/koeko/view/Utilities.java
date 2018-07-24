@@ -4,8 +4,25 @@ import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Utilities {
+    static public Map<String, String> codeToLanguageMap = new LinkedHashMap<>();
+    static public Map<String, String> languageToCodeMap = new LinkedHashMap<>();
+
+    public static void initCodeToLanguageMap() {
+        Utilities.codeToLanguageMap.put("eng", "English");
+        Utilities.codeToLanguageMap.put("deu", "Deutsch");
+        Utilities.codeToLanguageMap.put("fra", "Français");
+    }
+
+    public static void initLanguageToCodeMap() {
+        Utilities.languageToCodeMap.put("English", "eng");
+        Utilities.languageToCodeMap.put("Deutsch", "deu");
+        Utilities.languageToCodeMap.put("Français", "fra");
+    }
+
 
     // Prepare string for the insert in database
     public static String StringToSQL(String sData) {
@@ -15,12 +32,12 @@ public class Utilities {
 
     public static String TimestampForNowAsString() {
         ZonedDateTime zdt = ZonedDateTime.ofInstant(ZonedDateTime.now().toInstant(), ZoneId.of("UTC"));
-        return zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
+        return zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
     }
 
     public static Timestamp TimestampForNow() {
         ZonedDateTime zdt = ZonedDateTime.ofInstant(ZonedDateTime.now().toInstant(), ZoneId.of("UTC"));
-        String sdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSSSS"));
+        String sdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
         return Timestamp.valueOf(sdt);
     }
 

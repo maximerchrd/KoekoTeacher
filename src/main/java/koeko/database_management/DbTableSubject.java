@@ -1,5 +1,6 @@
 package koeko.database_management;
 import koeko.view.Subject;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class DbTableSubject {
                     2000000 + "','" +
                     subject +"');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE subjects SET MODIF_DATE='" + DBUtils.UniversalTimestamp() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+            sql = "UPDATE subjects SET MODIF_DATE='" + Utilities.TimestampForNow() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -99,7 +100,7 @@ public class DbTableSubject {
                     2000000 + "','" +
                     sbj.get_subjectName() + "','" + sbj.get_subjectMUID() + "');";
             stmt.executeUpdate(sql);
-            sql = "UPDATE subjects SET MODIF_DATE='" + DBUtils.UniversalTimestamp() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
+            sql = "UPDATE subjects SET MODIF_DATE='" + Utilities.TimestampForNow() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -117,7 +118,7 @@ public class DbTableSubject {
 
             // set the corresponding param
             pstmt.setString(1, newSubject);
-            pstmt.setString(2, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(2, Utilities.TimestampForNowAsString());
             pstmt.setString(3, oldSubject);
             // update
             pstmt.executeUpdate();

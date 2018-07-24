@@ -1,6 +1,7 @@
 package koeko.database_management;
 
 import koeko.view.Professor;
+import koeko.view.Utilities;
 
 import java.sql.*;
 
@@ -102,13 +103,7 @@ public class DbTableProfessor {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            if (language.contentEquals("English")) {
-                language = "eng";
-            } else if (language.contentEquals("Français")) {
-                language = "fra";
-            } else if (language.contentEquals("Deutsch")) {
-                language = "deu";
-            }
+            language = Utilities.languageToCodeMap.get(language);
             pstmt.setString(1, language);
             pstmt.setString(2, alias);
 
@@ -184,7 +179,7 @@ public class DbTableProfessor {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(1, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(1, Utilities.TimestampForNowAsString());
             pstmt.setString(2, alias);
 
             pstmt.executeUpdate();
@@ -201,7 +196,7 @@ public class DbTableProfessor {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(1, DBUtils.UniversalTimestampAsString());
+            pstmt.setString(1, Utilities.TimestampForNowAsString());
             pstmt.setString(2, idProf);
 
             pstmt.executeUpdate();
