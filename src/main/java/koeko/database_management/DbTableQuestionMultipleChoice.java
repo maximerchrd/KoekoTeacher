@@ -339,7 +339,10 @@ public class DbTableQuestionMultipleChoice {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = 	"UPDATE multiple_choice_questions SET IDENTIFIER='" + muid +
-                    "' WHERE ID_QUESTION=" + idQMC + ";";
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = 	"UPDATE short_answer_questions SET IDENTIFIER='" + muid +
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
