@@ -1,15 +1,18 @@
 package koeko;
 
 import javafx.application.Platform;
+import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.Networking.NetworkCommunication;
-import koeko.database_management.DbTableQuestionMultipleChoice;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.students_management.Student;
+import koeko.view.Professor;
 import koeko.view.Utilities;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.sql.*;
 import java.util.*;
 
@@ -24,59 +27,105 @@ public class functionalTesting {
     static public Map<String, Integer> studentsNbEvalSent = new LinkedHashMap<>();
     static public Boolean testMode = false;
 
-    static public void mainTesting() {
+    static public void mainTesting(int testCode) {
         testMode = true;
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size() < functionalTesting.numberStudents) {
+                if (testCode == 0) {
+                    while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size() < functionalTesting.numberStudents) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
+                        studentsNbEvalSent.put(student.getName(), 0);
+                    }
+
+                    originalStream = System.out;
+                    dummyStream = new PrintStream(new OutputStream() {
+                        public void write(int b) {
+                            // NO-OP
+                        }
+                    });
+
+                    System.out.println("***** START FUNCTIONAL TESTING *****");
+                    System.setOut(dummyStream);
+
+                    createQuestionsPack(0, functionalTesting.numberOfQuestions, "subject 1", "objective 1");
+
+                    System.setOut(originalStream);
+                    System.out.println("** Sending questions");
+                    System.setOut(dummyStream);
+
+                    sendQuestionsPack();
+
+                    System.setOut(originalStream);
+                    System.out.println("** Activating questions");
+                    System.setOut(dummyStream);
+
+                    activateQuestionsPack();
+
+                    deleteQuestionsPack();
+
+                    System.setOut(originalStream);
+                    System.out.println("*** RESULTS ***");
+
+                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
+                        System.out.println(student.getName() + " was sent \t \t " + studentsNbEvalSent.get(student.getName()) + " evaluations.");
+                    }
+
+                    System.out.println("***** END FUNCTIONAL TESTING *****");
+                } else if (testCode == 1) {
+                    DbTableProfessor.addProfessor("","","test teacher");
+                    DbTableProfessor.setProfessorLanguage("test teacher", "eng");
+                    insertQuestion("test QMC 1 version 1","test subject 1");
+                    insertQuestion("test QMC 2 version 1", "test subject 2");
+                    insertQuestion("test QMC 3 version 1", "test subject 3");
+                    //Sync
                     try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
+                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+                    //clean up the db
+                    //deleteQuestion("1000", "test subject 1");
+                    //deleteQuestion("1001","test subject 2");
                 }
-
-                for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
-                    studentsNbEvalSent.put(student.getName(), 0);
-                }
-
-                originalStream = System.out;
-                dummyStream = new PrintStream(new OutputStream(){
-                    public void write(int b) {
-                        // NO-OP
-                    }
-                });
-
-                System.out.println("***** START FUNCTIONAL TESTING *****");
-                System.setOut(dummyStream);
-
-                createQuestionsPack(0,functionalTesting.numberOfQuestions, "subject 1", "objective 1");
-
-                System.setOut(originalStream);
-                System.out.println("** Sending questions");
-                System.setOut(dummyStream);
-
-                sendQuestionsPack();
-
-                System.setOut(originalStream);
-                System.out.println("** Activating questions");
-                System.setOut(dummyStream);
-
-                activateQuestionsPack();
-
-                deleteQuestionsPack();
-
-                System.setOut(originalStream);
-                System.out.println("*** RESULTS ***");
-
-                for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
-                    System.out.println(student.getName() + " was sent \t \t " + studentsNbEvalSent.get(student.getName()) + " evaluations.");
-                }
-
-                System.out.println("***** END FUNCTIONAL TESTING *****");
             }
         });
+    }
+
+    private static void deleteQuestion(String id, String subject) {
+        try {
+            DbTableQuestionMultipleChoice.removeMultipleChoiceQuestionWithID(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        DbTableSubject.deleteSubject(subject);
+        DbTableRelationQuestionSubject.removeRelationSubjectQuestion(subject, id);
+    }
+
+    private static void insertQuestion(String question, String subject) {
+        //Setup the db before syncing
+        try {
+            QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
+            questionMultipleChoice.setQUESTION(question);
+            questionMultipleChoice.setLEVEL("0");
+            String id = DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
+            DbTableSubject.addSubject(subject + "a");
+            DbTableSubject.addSubject(subject + "b");
+            DbTableSubject.addSubject(subject + "c");
+            DbTableRelationQuestionSubject.addRelationQuestionSubject(id,subject+ "a");
+            DbTableRelationQuestionSubject.addRelationQuestionSubject(id,subject+ "b");
+            DbTableRelationQuestionSubject.addRelationQuestionSubject(id,subject+ "c");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void activateQuestionsPack() {
