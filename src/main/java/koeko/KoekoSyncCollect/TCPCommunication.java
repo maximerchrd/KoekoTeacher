@@ -221,6 +221,9 @@ public class TCPCommunication {
 
     // Send a file coping with all the exchanges and synchronisation
     public boolean SendFile(String filename) throws IOException {
+        // dirty fix because the folder "pictures" is also stored in the filename
+        filename = filename.substring(filename.indexOf("/") + 1);
+
         boolean bOK = false;
         SendCommande(cstrUploadFIle);
         if (IsAcknowledged()) {

@@ -323,10 +323,19 @@ public class DbTableRelationQuestionSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
-                    "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
-                    "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
-                    "where multiple_choice_questions.ID_GLOBAL=" + questionId + ";";
+            Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionId);
+            String query;
+            if (questionType == 0) {
+                query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
+                        "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
+                        "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
+                        "where multiple_choice_questions.ID_GLOBAL=" + questionId + ";";
+            } else {
+                query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
+                        "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
+                        "INNER JOIN short_answer_questions ON short_answer_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
+                        "where short_answer_questions.ID_GLOBAL=" + questionId + ";";
+            }
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 String sbjMUID = rs.getString("IDENTIFIER");
