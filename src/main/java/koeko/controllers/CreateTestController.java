@@ -89,10 +89,10 @@ public class CreateTestController extends Window implements Initializable {
             } else {
                 newTest.setTestMode(1);
             }
-            Integer testID = DbTableTests.addTest(newTest);
+            String testID = DbTableTests.addTest(newTest).toString();
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
-            test.setGlobalID("-" + testID);
+            test.setGlobalID(QuestionGeneric.changeIdSign(testID));
             test.setQuestion(testName.getText());
 
             //set the type of resource (formative/certificative test)

@@ -130,7 +130,7 @@ public class EditTestController extends Window implements Initializable {
             }
 
             treeView.refresh();
-            DbTableTests.renameTest("-" + testTreeItem.getValue().getGlobalID(),testName.getText());
+            DbTableTests.renameTest(QuestionGeneric.changeIdSign(testTreeItem.getValue().getGlobalID()),testName.getText());
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();

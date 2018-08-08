@@ -6,6 +6,7 @@ import koeko.controllers.QuestionSendingController;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
+import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.questions_management.Test;
@@ -110,7 +111,7 @@ public class NetworkCommunication {
                                                 sendMultipleChoiceWithID(activeID, student);
                                                 sendShortAnswerQuestionWithID(activeID, student);
                                             } else {
-                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID("-" + activeID, student);
+                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
                                             }
                                         }
                                         System.out.println("address: " + student.getInetAddress());
@@ -137,6 +138,11 @@ public class NetworkCommunication {
     }
 
     public void SendQuestionID(String QuestID, Vector<Student> students) {
+        //if question ID is negative (=test), change its sign
+        if (Long.valueOf(QuestID) < 0) {
+            QuestionGeneric.changeIdSign(QuestID);
+        }
+
         for (int i = 0; i < students.size(); i++) {
             students.set(i, aClass.getStudentWithName(students.get(i).getName()));
         }
@@ -356,6 +362,14 @@ public class NetworkCommunication {
             writeToOutputStream(student, bytesArray);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        //if the student is connecting (student!=null) then add the id to the deviceQuestions
+        if (student != null) {
+            if (Long.valueOf(testID) > 0) {
+                testID = QuestionGeneric.changeIdSign(testID);
+            }
+            student.getDeviceQuestions().add(testID);
         }
 
         return testToSend.getIdsQuestions();

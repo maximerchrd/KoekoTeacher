@@ -331,27 +331,25 @@ public class Classroom {
     }
 
     public Boolean allQuestionsOnDevices() {
+        //make all active ids positive by removing the - character
+        /*for (int i = 0; i < activeIDs.size(); i++) {
+            activeIDs.set(i, activeIDs.get(i).replace("-", ""));
+        }*/
+
         Boolean questionsReached = true;
         for (Student student : students_vector) {
             if (student.getConnected()) {
-                ArrayList<String> deviceQuestions = new ArrayList<>();
-
-                //convert question ids string to int
-                for (String id : student.getDeviceQuestions()) {
-                    deviceQuestions.add(id);
-                }
-
                 //check if the questions on the device contain the active questions
-                if (!deviceQuestions.containsAll(activeIDs)) {
+                if (!student.getDeviceQuestions().containsAll(activeIDs)) {
                     questionsReached = false;
                     System.out.println("check if all questions on device: " + questionsReached);
                     System.out.println("activeIDs: " + activeIDs);
-                    System.out.println("device IDs: " + deviceQuestions);
+                    System.out.println("device IDs: " + student.getDeviceQuestions());
                     break;
                 }
                 System.out.println("check if all questions on device: " + questionsReached);
                 System.out.println("activeIDs: " + activeIDs);
-                System.out.println("device IDs: " + deviceQuestions);
+                System.out.println("device IDs: " + student.getDeviceQuestions());
             }
         }
         return  questionsReached;

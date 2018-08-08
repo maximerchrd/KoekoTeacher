@@ -94,7 +94,7 @@ public class QuestionSendingController extends Window implements Initializable {
         testsList = DbTableTests.getAllTests();
         for (Test test : testsList) {
             QuestionGeneric testGeneric = new QuestionGeneric();
-            testGeneric.setGlobalID("-" + test.getIdTest());
+            testGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
             testGeneric.setQuestion(test.getTestName());
             if (test.getTestMode() == 0) {
                 testGeneric.setTypeOfQuestion("TECE");
@@ -196,7 +196,6 @@ public class QuestionSendingController extends Window implements Initializable {
                 treeCell.setOnDragDropped(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
                         /* data dropped */
-                        /* if there is a string data on dragboard, read it and use it */
                         if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) < 0) {
                             if (treeCell.getTreeItem().getValue().getTypeOfQuestion().contentEquals("TEFO")) {
 
@@ -527,7 +526,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
                     //if the id corresponds to a test, also add the questions linked to it
                     if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
-                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTests.getTestWithID("-" + questionGeneric.getGlobalID()).getTestName());
+                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTests.getTestWithID(QuestionGeneric.changeIdSign(questionGeneric.getGlobalID())).getTestName());
                         for (String question : questions) {
                             questionIds.add(question);
                         }
@@ -842,7 +841,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 testNames.add(test.getTestName());
             }
             ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(questionGeneric.getQuestion());
-            controller.initParameters(allQuestionsTree, testNames, String.valueOf("-" + questionGeneric.getGlobalID()), objectives);
+            controller.initParameters(allQuestionsTree, testNames, QuestionGeneric.changeIdSign(questionGeneric.getGlobalID()), objectives);
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
@@ -1086,7 +1085,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 Test test = DbTableTests.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
                 QuestionGeneric questionGeneric = new QuestionGeneric();
                 questionGeneric.setQuestion(test.getTestName());
-                questionGeneric.setGlobalID("-" + test.getIdTest());
+                questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
                 readyQuestionsList.getItems().add(questionGeneric);
             }
         }
@@ -1158,7 +1157,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     Test test = DbTableTests.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(test.getTestName());
-                    questionGeneric.setGlobalID("-" + test.getIdTest());
+                    questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
                     sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
                 }
             }
@@ -1203,7 +1202,7 @@ public class QuestionSendingController extends Window implements Initializable {
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(globalID)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(globalID);
             }
-            questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID("-" + globalID, null);
+            questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(globalID), null);
         } else {
             //if the test isn't in the ready questions list (like when loading new class) add it. Otherwise, show the popup for questions collision
             Boolean testInList = false;
@@ -1216,9 +1215,13 @@ public class QuestionSendingController extends Window implements Initializable {
                 popUpIfQuestionCollision();
             } else {
                 readyQuestionsList.getItems().add(questionGeneric);
-                questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID("-" + globalID, null); //do I need that?
+                questionIDs = NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(globalID), null); //do I need that?
 
             }
+        }
+        //add the id to the stored questions on devices for all students
+        for (Student student : Koeko.studentGroupsAndClass.get(0).getStudents_vector()) {
+            student.getDeviceQuestions().add(globalID);
         }
 
         //send questions linked to the test

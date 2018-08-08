@@ -30,6 +30,7 @@ public class QuestionGeneric {
         globalID = GlobalID;
     }
     public String getGlobalID() {
+        globalID = globalID.replace("--", "");
         return globalID;
     }
     public void setGlobalID(String globalID) {
@@ -100,5 +101,16 @@ public class QuestionGeneric {
     @Override
     public String toString()  {
         return this.question;
+    }
+
+    static public String changeIdSign(String id) {
+        if (id.contains("--")){
+            id = id.replace("--","-");
+        } else if (id.contains("-")) {
+            id = id.replace("-", "");
+        } else {
+            id = "-" + id;
+        }
+        return id;
     }
 }
