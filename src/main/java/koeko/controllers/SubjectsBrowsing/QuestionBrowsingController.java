@@ -25,7 +25,10 @@ import koeko.view.Subject;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -49,12 +52,33 @@ public class QuestionBrowsingController extends Window implements Initializable 
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionBrowsingControllerSingleton = this;
 
-        final String[] ip_address = {""};
+        final ArrayList<String> ip_address = new ArrayList<>();
         Task<Void> getIPTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                ip_address[0] = InetAddress.getLocalHost().getHostAddress();
-                Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address[0]));
+                Enumeration e = NetworkInterface.getNetworkInterfaces();
+                while(e.hasMoreElements())
+                {
+                    NetworkInterface n = (NetworkInterface) e.nextElement();
+                    Enumeration ee = n.getInetAddresses();
+                    while (ee.hasMoreElements())
+                    {
+                        InetAddress i = (InetAddress) ee.nextElement();
+                        if (n.getName().contains("wlan") && !i.getHostAddress().contains(":")) {
+                            ip_address.add(i.getHostAddress());
+                        }
+                    }
+                }
+                if (ip_address.size() == 0) {
+                    ip_address.add(InetAddress.getLocalHost().getHostAddress());
+                }
+                if (ip_address.size() == 1) {
+                    Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address.get(0)));
+                } else if (ip_address.size() == 2) {
+                    Platform.runLater(() -> labelIP.setText("students should connect \nto the following addresses: " + ip_address.get(0) +
+                        " and " + ip_address.get(1)));
+                }
+
                 return null;
             }
         };
