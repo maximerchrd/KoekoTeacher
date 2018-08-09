@@ -446,7 +446,12 @@ public class QuestionSendingController extends Window implements Initializable {
             sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true, false);
         } else if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
             // send test infos and linked objectives
-            sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+            if (allQuestionsTree.getSelectionModel().getSelectedItem().getChildren().size() < 2) {
+                Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Add more questions to your test " +
+                        "before sending it.", "Preparing Test");
+            } else {
+                sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+            }
         } else {
             System.out.println("Trying to broadcast question or test but ID == 0.");
         }
