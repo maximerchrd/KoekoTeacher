@@ -92,10 +92,13 @@ public class DbTableRelationQuestionQuestion {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "SELECT ID_GLOBAL_2 FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "' AND TEST='" + test + "';";
+            String sql = "SELECT ID_GLOBAL_2, CONDITION FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "' AND TEST='" + test + "';";
             ResultSet rs = stmt.executeQuery( sql );
             while ( rs.next() ) {
-                questionIDs.add(rs.getString("ID_GLOBAL_2"));
+                //We test that the condition is not "" to avoid branching "brother questions"
+                if (rs.getString("CONDITION").length() > 0) {
+                    questionIDs.add(rs.getString("ID_GLOBAL_2"));
+                }
             }
             stmt.close();
             c.commit();
