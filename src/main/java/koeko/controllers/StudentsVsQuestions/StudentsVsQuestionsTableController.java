@@ -112,16 +112,26 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         removeQuestion(index, 0);
     }
     public void removeQuestion(int index, Integer group) {
-        if (tableViewArrayList.get(group).getItems().size() > 0 && tableViewArrayList.get(group).getItems().get(0).getAnswers().size() > index) {
-            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-                tableViewArrayList.get(group).getItems().get(i).getAnswers().remove(index);
+        //in case there are some tests in the ready question list, the index is not right, so we need to fix it first
+        int indexCorrected = 0;
+        if (index >= 0) {
+            for (int i = 0; i < index && i < Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size(); i++) {
+                if (!Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(i).getGlobalID().contains("-")) {
+                    indexCorrected++;
+                }
             }
-            tableViewArrayList.get(group).getColumns().remove(index + 3);
-            //questions.remove(index);
-            Koeko.studentGroupsAndClass.get(group).getActiveQuestions().remove(index);
-            //questionsIDs.remove(index);
+        }
 
-            for (int i = 3 + index; i < tableViewArrayList.get(group).getColumns().size(); i++) {
+        if (tableViewArrayList.get(group).getItems().size() > 0 && tableViewArrayList.get(group).getItems().get(0).getAnswers().size() > indexCorrected) {
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+                tableViewArrayList.get(group).getItems().get(i).getAnswers().remove(indexCorrected);
+            }
+            tableViewArrayList.get(group).getColumns().remove(indexCorrected + 3);
+            //questions.remove(indexCorrected);
+            Koeko.studentGroupsAndClass.get(group).getActiveQuestions().remove(indexCorrected);
+            //questionsIDs.remove(indexCorrected);
+
+            for (int i = 3 + indexCorrected; i < tableViewArrayList.get(group).getColumns().size(); i++) {
                 TableColumn column = tableViewArrayList.get(group).getColumns().get(i);
                 final int questionIndex = i - 3;
                 column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
@@ -155,11 +165,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
 
         //remove corresponding evaluations
-        if (Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().size() > index) {
-            Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().remove(index);
+        if (Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().size() > indexCorrected) {
+            Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().remove(indexCorrected);
             Integer nbSutdents = Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size();
-            for (int i = 0; i < nbSutdents && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > index; i++) {
-                Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).remove(index);
+            for (int i = 0; i < nbSutdents && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > indexCorrected; i++) {
+                Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).remove(indexCorrected);
             }
         }
     }
