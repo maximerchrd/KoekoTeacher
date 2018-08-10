@@ -473,8 +473,8 @@ public class QuestionSendingController extends Window implements Initializable {
         if (students.size() == 0) {
             //if there is no class selected
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
-        } else {
-            //if a class is selected, make sure that all students connected get the question
+        } else if (groupsCombobox.getSelectionModel().getSelectedIndex() == 0) {
+            //if a class (and not a group!) is selected, make sure that all students connected get the question
             Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().clone();
             for (int i = 0; i < tableStudents.size(); i++) {
                 for (int j = 0; j < students.size(); j++) {
