@@ -3,6 +3,8 @@ package koeko.database_management;
 import koeko.controllers.controllers_tools.SingleResultForTable;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
+import koeko.students_management.Student;
+import koeko.view.Utilities;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -410,6 +412,80 @@ public class DbTableIndividualQuestionForStudentResult {
             e.printStackTrace();
         }
         return resultsArray;
+    }
+
+    /**
+     * Method that returns a histogram of the number of hits vs the answer options for a certain question
+     * @param questionID
+     * @param className (set to "" if you want the result for all classes)
+     * @return an array of 2 arrays containing the answer options (first array) and the number of students who chose
+     * this option (second array)
+     * IF THE QUESTION ID CORRESPONDS TO A SHRTAQ, RETURNS NULL
+     */
+    static public ArrayList<ArrayList> getAnswersHistogramForQuestion(String questionID, String className) {
+        ArrayList<ArrayList> arraysToReturn = new ArrayList<>();
+        ArrayList<String> answers = new ArrayList<>();
+        ArrayList<Integer> histogram = new ArrayList<>();
+
+        ArrayList<String> studentAnswers = new ArrayList<>();
+        ArrayList<String> studentsID = new ArrayList<>();
+
+        //extract the students from the class if a class name is given
+        Vector<Student> studentsFromClass = new Vector<>();
+        ArrayList<String> studentsFromClassID = new ArrayList<>();
+        if (className.length() > 0) {
+            studentsFromClass = DbTableClasses.getStudentsInClass(className);
+            for (Student student : studentsFromClass) {
+                studentsFromClassID.add(student.getStudentID());
+            }
+        }
+
+        QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
+        answers.addAll(questionMultipleChoice.getAnswers());
+
+        //initialize histogram to 0
+        for (String answer : answers) {
+            histogram.add(0);
+        }
+
+        if (questionMultipleChoice.getQUESTION().length() == 0) {
+            arraysToReturn = null;
+        } else {
+            String sql = "SELECT ANSWERS,ID_STUDENT_GLOBAL FROM individual_question_for_student_result WHERE ID_GLOBAL = ?";
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                // set the corresponding param
+                pstmt.setString(1, questionID);
+
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    studentAnswers.add(rs.getString("ANSWERS"));
+                    studentsID.add(rs.getString("ID_STUDENT_GLOBAL"));
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+
+            //extract nb of hits from student answers
+            for (int j = 0; j < studentAnswers.size(); j++) {
+                if (className.length() == 0 || studentsFromClassID.contains(studentsID.get(j))) {
+                    String[] singleAnswers = studentAnswers.get(j).split("\\|\\|\\|");
+                    for (int i = 0; i < singleAnswers.length; i++) {
+                        int index = answers.indexOf(singleAnswers[i]);
+                        if (index >= 0) {
+                            histogram.set(index, histogram.get(index) + 1);
+                        } else {
+                            System.out.println("Problem in getAnswersHistogramForQuestion: answer in indiv results doesn't " +
+                                    "correspond to the one of QuestionMultipleChoice");
+                        }
+                    }
+                }
+            }
+
+            arraysToReturn.add(answers);
+            arraysToReturn.add(histogram);
+        }
+        return arraysToReturn;
     }
 
     static public void setEvalForQuestionAndStudentIDs(Double eval, String identifier) {
