@@ -2,7 +2,7 @@ package koeko.controllers;
 
 
 import koeko.ResultsManagement.Result;
-import koeko.database_management.DbTableStudents;
+import koeko.database_management.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -11,10 +11,12 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import koeko.questions_management.QuestionMultipleChoice;
 
 
 import java.awt.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -23,6 +25,11 @@ import java.util.Vector;
  */
 public class DisplayStatsController implements Initializable {
     private Vector<String> studentsVector;
+    private ArrayList<QuestionMultipleChoice> questionMultipleChoices;
+    private String chartType1 = "Evaluation vs subject";
+    private String chartType2 = "Evaluation vs objective";
+    private String chartType3 = "Histogram for Questions";
+    private TreeItem<String> rootItem;
 
     @FXML private ComboBox chart_type;
     @FXML private ComboBox time_step;
@@ -38,12 +45,22 @@ public class DisplayStatsController implements Initializable {
 
     public void initialize(URL location, ResourceBundle resources) {
         //combobox with types of values to consider for the chart
-        chart_type.getItems().addAll("Evaluation vs objective", "Evaluation vs subject");
-        chart_type.getSelectionModel().select("Evaluation vs objective");
+        chart_type.getItems().addAll(chartType1, chartType2, chartType3);
+        chart_type.getSelectionModel().select(chartType2);
+
+        //get all the multiple choice questions for the nb of hits for answers histogram
+        Vector<String> allIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
+        questionMultipleChoices = new ArrayList<>();
+        for (int j = 0; j < allIds.size(); j++) {
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(allIds.get(j));
+            if( questionMultipleChoice.getQUESTION().length() > 0) {
+                questionMultipleChoices.add(questionMultipleChoice);
+            }
+        }
 
         //tree with studentGroupsAndClass
         studentsVector = DbTableStudents.getStudentNames();
-        TreeItem<String> rootItem = new TreeItem<String> ("Inbox");
+        rootItem = new TreeItem<String> ("Root");
         rootItem.setExpanded(true);
         for (int i = 0; i < studentsVector.size(); i++) {
             TreeItem<String> item = new TreeItem<String> (studentsVector.get(i));
@@ -66,36 +83,79 @@ public class DisplayStatsController implements Initializable {
 
     public void displayChartButtonClicked() {
         TreeItem selectedItem = (TreeItem)students_tree.getSelectionModel().getSelectedItem();
-        int timeStep = time_step.getSelectionModel().getSelectedIndex();
-        drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString(),
-                timeStep);
+        drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString());
     }
 
     public void eraseChartButtonClicked() {
         bar_chart.getData().remove(0, bar_chart.getData().size());
     }
 
-    private void drawChart(String valuesType, String student, int timeStep) {
+    public void chartTypeChanged() {
+        if (chart_type.getSelectionModel().getSelectedItem().toString().contentEquals(chartType3)) {
+            rootItem.getChildren().removeAll(rootItem.getChildren());
+            for (int i = 0; i < questionMultipleChoices.size(); i++) {
+                TreeItem<String> item = new TreeItem<String>(questionMultipleChoices.get(i).getQUESTION());
+                rootItem.getChildren().add(item);
+            }
 
+            //combobox with classes
+            time_step.getItems().removeAll(time_step.getItems());
+            ArrayList<String> classes = (ArrayList<String>) DbTableClasses.getAllClasses();
+            time_step.getItems().addAll(classes);
+        } else {
+            rootItem.getChildren().removeAll(rootItem.getChildren());
+            for (int i = 0; i < studentsVector.size(); i++) {
+                TreeItem<String> item = new TreeItem<String>(studentsVector.get(i));
+                rootItem.getChildren().add(item);
+            }
+
+            //combobox with time span
+            time_step.getItems().removeAll(time_step.getItems());
+            time_step.getItems().addAll("All", "Week", "Month");
+            time_step.getSelectionModel().select("All");
+        }
+    }
+
+    private void drawChart(String valuesType, String student) {
+        int timeStep = time_step.getSelectionModel().getSelectedIndex();
         XYChart.Series series1 = new XYChart.Series();
-        if (valuesType.contentEquals("Evaluation vs subject")) {
+        if (valuesType.contentEquals(chartType1)) {
             categoryXAxis.setLabel("Subjects");
             numberYAxis.setLabel("Evaluation [%]");
             Result studentResultsPerSubject = DbTableStudents.getStudentResultsPerSubjectPerTimeStep(student.toString(), timeStep);
             Vector<String> subjects = studentResultsPerSubject.getXaxisValues();
             putResultsIntoSeries(student, timeStep, series1, studentResultsPerSubject, subjects);
-        } else if (valuesType.contentEquals("Evaluation vs objective")) {
+        } else if (valuesType.contentEquals(chartType2)) {
             categoryXAxis.setLabel("Learning objectives");
             numberYAxis.setLabel("Evaluation [%]");
             Result studentResultsPerObjective = DbTableStudents.getStudentResultsPerObjectivePerTimeStep(student.toString(), timeStep);
             Vector<String> objectives = studentResultsPerObjective.getXaxisValues();
             putResultsIntoSeries(student, timeStep, series1, studentResultsPerObjective, objectives);
+        } else if (valuesType.contentEquals(chartType3)) {
+            categoryXAxis.setLabel("Answers");
+            numberYAxis.setLabel("# of time the answer was chosen");
+            int treeindex = students_tree.getSelectionModel().getSelectedIndex();
+            ArrayList<ArrayList> answersAndHistogram = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(
+                    questionMultipleChoices.get(students_tree.getSelectionModel().getSelectedIndex()).getID(),
+                    time_step.getSelectionModel().getSelectedItem().toString());
+            ArrayList<String> answers = answersAndHistogram.get(0);
+            ArrayList<Integer> histogram = answersAndHistogram.get(1);
+            setupQuestionHistogram(answers, histogram, series1,
+                    questionMultipleChoices.get(students_tree.getSelectionModel().getSelectedIndex()).getQUESTION());
         }
 
 
         bar_chart.setPrefWidth(chartScrollPane.getWidth());
         bar_chart.setPrefHeight(chartScrollPane.getHeight());
         bar_chart.setAnimated(false);
+    }
+
+    private void setupQuestionHistogram(ArrayList<String> answers, ArrayList<Integer> nbAnswers, XYChart.Series series1, String question) {
+        series1.setName(question);
+        for (int i = 0; i < answers.size(); i++) {
+            series1.getData().add(new XYChart.Data(answers.get(i), nbAnswers.get(i)));
+        }
+        bar_chart.getData().addAll(series1);
     }
 
     private void putResultsIntoSeries(String student, int timeStep, XYChart.Series series1, Result studentResultsPerXValue, Vector<String> xValue) {
