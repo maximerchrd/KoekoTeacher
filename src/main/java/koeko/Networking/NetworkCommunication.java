@@ -723,11 +723,11 @@ public class NetworkCommunication {
                     stringBroadcastAddress = stringBroadcastAddress + "255";
                     InetAddress address = InetAddress.getByName(stringBroadcastAddress);
 
-                    String message = "IPADDRESS///" + stringAddress;
+                    String message = "IPADDRESS///" + stringAddress + "///";
                     byte[] buffer = message.getBytes();
 
                     DatagramPacket packet
-                            = new DatagramPacket(buffer, buffer.length, address, 9722);
+                            = new DatagramPacket(buffer, buffer.length, address, 9346 );
                     socket.send(packet);
                     socket.close();
                 }
