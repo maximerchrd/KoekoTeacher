@@ -1,5 +1,6 @@
 package koeko.Networking;
 
+import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.controllers.LearningTrackerController;
 import koeko.controllers.QuestionSendingController;
@@ -68,7 +69,17 @@ public class NetworkCommunication {
     public void startServer() throws IOException {
 
         if (network_solution == 0) {
-            // First we create a server socket and bind it to port 9090.
+            //Send the ip of the computer to everyone on the subnet
+            Task<Void> sendIPTask = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    sendIpAddress();
+                    return null;
+                }
+            };
+            new Thread(sendIPTask).start();
+
+            // we create a server socket and bind it to port 9090.
             ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
 
             //Wait for client connection
@@ -696,5 +707,37 @@ public class NetworkCommunication {
                 dialog.show();
             }
         });
+    }
+
+    private void sendIpAddress() throws IOException {
+        while(true) {
+            if (Koeko.questionBrowsingControllerSingleton != null &&
+                    Koeko.questionBrowsingControllerSingleton.ipAddresses != null &&
+                    Koeko.questionBrowsingControllerSingleton.ipAddresses.size() > 0) {
+                for (int i = 0; i < Koeko.questionBrowsingControllerSingleton.ipAddresses.size(); i++) {
+                    DatagramSocket socket = new DatagramSocket();
+                    socket.setBroadcast(true);
+
+                    String stringAddress = Koeko.questionBrowsingControllerSingleton.ipAddresses.get(i);
+                    String stringBroadcastAddress = stringAddress.substring(0,stringAddress.lastIndexOf(".") + 1);
+                    stringBroadcastAddress = stringBroadcastAddress + "255";
+                    InetAddress address = InetAddress.getByName(stringBroadcastAddress);
+
+                    String message = "IPADDRESS///" + stringAddress;
+                    byte[] buffer = message.getBytes();
+
+                    DatagramPacket packet
+                            = new DatagramPacket(buffer, buffer.length, address, 9722);
+                    socket.send(packet);
+                    socket.close();
+                }
+            }
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

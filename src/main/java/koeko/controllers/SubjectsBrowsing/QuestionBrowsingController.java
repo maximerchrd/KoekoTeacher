@@ -35,6 +35,7 @@ import java.util.Vector;
  */
 public class QuestionBrowsingController extends Window implements Initializable {
     static public TreeItem<Subject> rootSubjectSingleton;
+    public ArrayList<String> ipAddresses;
     private Subject draggedSubject;
     private TreeItem<Subject> draggedItem;
 
@@ -49,6 +50,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionBrowsingControllerSingleton = this;
+        ipAddresses = new ArrayList<>();
 
         Task<Void> getIPTask = new Task<Void>() {
             @Override
@@ -180,7 +182,6 @@ public class QuestionBrowsingController extends Window implements Initializable 
     }
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
-        ArrayList<String> ip_address = new ArrayList<>();
         Enumeration e = NetworkInterface.getNetworkInterfaces();
         while(e.hasMoreElements())
         {
@@ -190,18 +191,18 @@ public class QuestionBrowsingController extends Window implements Initializable 
             {
                 InetAddress i = (InetAddress) ee.nextElement();
                 if (n.getName().contains("wlan") && !i.getHostAddress().contains(":")) {
-                    ip_address.add(i.getHostAddress());
+                    ipAddresses.add(i.getHostAddress());
                 }
             }
         }
-        if (ip_address.size() == 0) {
-            ip_address.add(InetAddress.getLocalHost().getHostAddress());
+        if (ipAddresses.size() == 0) {
+            ipAddresses.add(InetAddress.getLocalHost().getHostAddress());
         }
-        if (ip_address.size() == 1) {
-            Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ip_address.get(0)));
-        } else if (ip_address.size() == 2) {
-            Platform.runLater(() -> labelIP.setText("students should connect \nto the following addresses: " + ip_address.get(0) +
-                " and " + ip_address.get(1)));
+        if (ipAddresses.size() == 1) {
+            Platform.runLater(() -> labelIP.setText("students should connect \nto the following address: " + ipAddresses.get(0)));
+        } else if (ipAddresses.size() == 2) {
+            Platform.runLater(() -> labelIP.setText("students should connect \nto the following addresses: " + ipAddresses.get(0) +
+                " and " + ipAddresses.get(1)));
         }
     }
 
