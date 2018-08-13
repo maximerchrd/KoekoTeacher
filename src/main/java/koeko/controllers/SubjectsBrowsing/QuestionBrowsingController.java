@@ -182,6 +182,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
     }
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
+        ipAddresses.removeAll(ipAddresses);
         Enumeration e = NetworkInterface.getNetworkInterfaces();
         while(e.hasMoreElements())
         {
