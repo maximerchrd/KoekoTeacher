@@ -149,6 +149,7 @@ public class NetworkCommunication {
     }
 
     public void SendQuestionID(String QuestID, Vector<Student> students) {
+        System.out.println("Sending question to " + students.size() + " students");
         //if question ID is negative (=test), change its sign
         if (Long.valueOf(QuestID) < 0) {
             QuestionGeneric.changeIdSign(QuestID);
@@ -181,7 +182,7 @@ public class NetworkCommunication {
                 System.out.println("sending question: " + new String(bytearraystring) + " to single student");
                 writeToOutputStream(student, bytearraystring);
             } else {
-                System.out.println("Problem sending ID: probably didnt receive acknowledgment of receipt on time");
+                System.out.println("Problem sending ID: outputstream is null; probably didnt receive acknowledgment of receipt on time");
             }
         }
     }

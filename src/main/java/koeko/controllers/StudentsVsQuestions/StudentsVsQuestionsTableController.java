@@ -406,7 +406,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
             tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
             Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
-            if (Koeko.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex) {
+            if (Koeko.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex &&
+                    studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(studentIndex).getName())) {
                 Koeko.studentGroupsAndClass.get(group).getStudents_vector().remove(studentIndex);
             }
         }
