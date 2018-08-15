@@ -665,7 +665,7 @@ public class NetworkCommunication {
             public void run() {
                 if (student == null) {
                     for (Student singleStudent : aClass.getStudents_vector()) {
-                        //if (!singleStudent.getUniqueDeviceID().contains("no identifier")) {
+                        if (singleStudent.getOutputStream() != null) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -674,7 +674,7 @@ public class NetworkCommunication {
                             } catch (IOException ex2) {
                                 ex2.printStackTrace();
                             }
-                        //}
+                        }
                     }
                 } else {
                     //if (!student.getUniqueDeviceID().contains("no identifier")) {

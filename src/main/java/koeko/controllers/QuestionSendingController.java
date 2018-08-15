@@ -581,16 +581,19 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.show();
     }
 
-    public void removeQuestion() {
+    public void deactivateQuestion() {
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         if (group < 1) {
             group = 0;
         }
-        int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
+
         //remove question from table
+        int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
         if (readyQuestionsList.getSelectionModel().getSelectedItem() != null && Long.valueOf(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID()) > 0) {
-            NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
+            Koeko.studentsVsQuestionsTableControllerSingleton.removeQuestion(index,group);
         }
+
+        //remove question from database
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             //remove question - class/group relation
             DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
@@ -858,7 +861,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void removeTest() {
+    public void removeQuestionOrTest() {
         TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
         if (Long.valueOf(((QuestionGeneric) selectedItem.getValue()).getGlobalID()) < 0) {
             DbTableTests.removeTestWithName(((QuestionGeneric) selectedItem.getValue()).getQuestion());
@@ -1047,7 +1050,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
         ArrayList<String> questionIds = Koeko.studentGroupsAndClass.get(group).getActiveIDs();
         //for (int i = 0; i < IDsFromBroadcastedQuestionsSize; i++) {
-        //    removeQuestion(0);
+        //    deactivateQuestion(0);
         //}
         //Koeko.studentGroupsAndClass.get(group).getActiveIDs().clear();
         if (Koeko.studentGroupsAndClass.get(group).getActiveIDs().size() == 0 && groupsCombobox.getSelectionModel().getSelectedItem() != null) {
