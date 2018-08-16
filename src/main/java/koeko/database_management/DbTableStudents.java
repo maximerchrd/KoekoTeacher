@@ -81,7 +81,7 @@ public class DbTableStudents {
                 while (rs.next()) {
                     macAddress = rs.getString("MAC_ADDRESS");
                 }
-                if (!macAddress.contentEquals(address)) {
+                if (!macAddress.contentEquals(address) && !macAddress.contentEquals("not initialized")) {
                     sql = "UPDATE students SET MAC_ADDRESS = '" + address + "' WHERE ID_STUDENT_GLOBAL = '" + studentID + "';";
                     stmt.executeUpdate(sql);
                     studentID = "-2";

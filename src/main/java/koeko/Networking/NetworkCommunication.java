@@ -703,7 +703,7 @@ public class NetworkCommunication {
                 VBox dialogVbox = new VBox(20);
                 dialogVbox.getChildren().add(new Text(studentName + " is trying to connect but has a different " +
                         "device identifier \n than the student with the same name already registered."));
-                Scene dialogScene = new Scene(dialogVbox, 400, 40);
+                Scene dialogScene = new Scene(dialogVbox, 450, 40);
                 dialog.setScene(dialogScene);
                 dialog.show();
             }

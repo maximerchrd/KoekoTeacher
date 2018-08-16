@@ -358,6 +358,28 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
+    public void addNewStudentToClass() {
+        if (chooseClassComboBox.getSelectionModel().getSelectedIndex() >= 0) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateStudent.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            CreateStudentController controller = fxmlLoader.<CreateStudentController>getController();
+            controller.initClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+            Stage stage = new Stage();
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Edit Evaluation");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } else {
+            Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("No class is currently selected", "No Class");
+        }
+    }
+
     public void createClass() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
         Parent root1 = null;
