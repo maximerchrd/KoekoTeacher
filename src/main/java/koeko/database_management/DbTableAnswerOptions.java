@@ -1,8 +1,8 @@
 package koeko.database_management;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import koeko.view.Utilities;
+
+import java.sql.*;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -26,33 +26,21 @@ public class DbTableAnswerOptions {
     }
 
     static public void addAnswerOption(String questionID, String option) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO answer_options (ID_ANSWEROPTION_GLOBAL,OPTION) " +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    option +"');";
-            int rowsAffected = stmt.executeUpdate(sql);
-            if (rowsAffected > 0) {
-                sql = "UPDATE answer_options SET ID_ANSWEROPTION_GLOBAL = ID_ANSWEROPTION_GLOBAL + ID_ANSWEROPTION WHERE ID_ANSWEROPTION = (SELECT MAX(ID_ANSWEROPTION) FROM answer_options)";
-                stmt.executeUpdate(sql);
-                System.out.println(option + " added");
-            } else {
-                System.out.println(option + " not added");
-            }
-            stmt.close();
-            c.commit();
-            c.close();
+        String sql = 	"INSERT OR IGNORE INTO answer_options (ID_ANSWEROPTION_GLOBAL,OPTION) " +
+                "VALUES (?,?);";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, Utilities.TimestampForNowAsString());
+            pstmt.setString(2, option);
+            // update
+            pstmt.executeUpdate();
+
             DbTableRelationQuestionAnserOption.addRelationQuestionAnserOption(questionID, option);
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 
