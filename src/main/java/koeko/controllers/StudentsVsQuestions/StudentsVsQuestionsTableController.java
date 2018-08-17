@@ -2,6 +2,10 @@ package koeko.controllers.StudentsVsQuestions;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.CreateClassController;
@@ -31,6 +35,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.database_management.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -52,6 +57,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML private ComboBox chooseTestCombo;
     @FXML public Button editEvalButton;
     @FXML public Accordion tableAccordion;
+
+    //context menu for right click on row
+    ContextMenu contextMenu = new ContextMenu();
 
 
     public void addQuestion(String question, String ID, Integer group) {
@@ -230,7 +238,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 }
                 if (indexStudent >= 0) {
                     SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
-                    singleStudentAnswersLine.setStatus("connected");
+                    if (singleStudentAnswersLine.getStatus().contains("Disconnected")) {
+                        singleStudentAnswersLine.setStatus("connected&red");
+                    } else {
+                        singleStudentAnswersLine.setStatus("connected");
+                    }
                     tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
                 }
             }
@@ -315,8 +327,19 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         System.out.println("user disconnected: " + student.getName() + "; index in table: " + indexStudent);
         if (indexStudent >= 0) {
             SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
-            singleStudentAnswersLine.setStatus("disconnected");
-            tableViewArrayList.get(group).getItems().set(indexStudent,singleStudentAnswersLine);
+
+            if (!singleStudentAnswersLine.getStatus().contains("Disconnected")) {
+                //&red is used to color the cell in red
+                singleStudentAnswersLine.setStatus("Disconnected&red");
+                tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
+
+                //play sound
+                String musicFile = "src/main/resources/sounds/bell.mp3";
+
+                Media sound = new Media(new File(musicFile).toURI().toString());
+                MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                mediaPlayer.play();
+            }
         }
     }
 
@@ -669,6 +692,29 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         columnStatus.setPrefWidth(100);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
         studentsQuestionsTable.getColumns().add(columnStatus);
+
+        //set red color if student disconnected
+        columnStatus.setCellFactory(new Callback<TableColumn, TableCell>() {
+            public TableCell call(TableColumn param) {
+                return new TableCell<SingleStudentAnswersLine, String>() {
+
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!isEmpty()) {
+                            if(item.contains("&red")) {
+                                this.setTextFill(Color.RED);
+                                item = item.replace("&red", "");
+                            } else {
+                                this.setTextFill(Color.BLACK);
+                            }
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
         TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("Evaluation");
         columnEvaluation.setPrefWidth(100);
         columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("Evaluation"));
@@ -691,6 +737,27 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         List<String> classes = DbTableClasses.getAllClasses();
         ObservableList<String> observableList = FXCollections.observableList(classes);
         chooseClassComboBox.setItems(observableList);
+
+        //setup contextmenu for right click on row
+        MenuItem menuItem = new MenuItem("Mark as Connected");
+        contextMenu.getItems().add(menuItem);
+        menuItem.setOnAction(event -> {
+            int indexStudent = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
+            SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
+            singleStudentAnswersLine2.setStatus("connected");
+            tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
+        });
+
+        tableViewArrayList.get(0).addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+            @Override
+            public void handle(MouseEvent t) {
+                if(tableViewArrayList.get(0).getSelectionModel().getSelectedIndex() != tableViewArrayList.get(0).getItems().size() - 1
+                        && t.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(tableViewArrayList.get(0), t.getScreenX(), t.getScreenY());
+                }
+            }
+        });
     }
 
     private Integer indexOfStudent(Vector<Student> studentsVector, Student singleStudent) {
