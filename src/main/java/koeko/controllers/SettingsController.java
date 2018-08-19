@@ -19,14 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import koeko.view.Professor;
 import koeko.view.Utilities;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -35,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
-
-import static org.apache.http.HttpHeaders.USER_AGENT;
 
 public class SettingsController implements Initializable {
 
@@ -105,67 +95,6 @@ public class SettingsController implements Initializable {
                 }
             }
         });
-    }
-
-    public void sendToWebsite() {
-        try {
-            String url = "http://localhost:8080/post-mcq";
-
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(url);
-
-            // add header
-            post.setHeader("User-Agent", USER_AGENT);
-
-            ArrayList<QuestionGeneric> questionGenericArrayList = DbTableQuestionGeneric.getAllGenericQuestions();
-
-            for (QuestionGeneric questionGeneric : questionGenericArrayList) {
-                postQuestionMultipleChoice(questionGeneric, client, post);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void postQuestionMultipleChoice(QuestionGeneric questionGeneric, HttpClient client, HttpPost post) throws Exception {
-        List<NameValuePair> urlParameters = new ArrayList<>();
-        if (questionGeneric.getIntTypeOfQuestion() == 0) {
-            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionGeneric.getGlobalID());
-            urlParameters.add(new BasicNameValuePair("question_text", questionMultipleChoice.getQUESTION()));
-            Vector<String> answers = questionMultipleChoice.getAnswers();
-            for (String answer : answers) {
-                urlParameters.add(new BasicNameValuePair("question_answer", answer));
-            }
-            urlParameters.add(new BasicNameValuePair("question_type", "question multiple choice"));
-
-
-            File file = new File(questionMultipleChoice.getIMAGE());
-            FileInputStream fileInputStreamReader = new FileInputStream(file);
-            byte[] bytes = new byte[(int)file.length()];
-            fileInputStreamReader.read(bytes);
-            String encodedImage = new String(Base64.encodeBase64(bytes), "UTF-8");
-            urlParameters.add(new BasicNameValuePair("question_image", encodedImage));
-            urlParameters.add(new BasicNameValuePair("question_image_name", questionMultipleChoice.getIMAGE().split("/")[1]));
-        }
-
-        post.setEntity(new UrlEncodedFormEntity(urlParameters));
-
-
-        HttpResponse response = client.execute(post);
-
-        System.out.println("Response Code : "
-                + response.getStatusLine().getStatusCode());
-        BufferedReader rd = new BufferedReader(
-                new InputStreamReader(response.getEntity().getContent()));
-
-        StringBuffer result = new StringBuffer();
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            result.append(line);
-        }
     }
 
     @Override

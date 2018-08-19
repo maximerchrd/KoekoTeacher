@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -63,6 +64,7 @@ public class DbTableIndividualQuestionForStudentResult {
             if (answerType.contains("ANSW0")) {
                 // correcting the answers and evaluate the multiple choice question in %
                 String[] student_answers_array = answers.split("\\|\\|\\|");
+                ArrayList<Integer> codedStudentAnswers = new ArrayList<>();
                 int number_answers = 0;
                 String query = "SELECT OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS FROM multiple_choice_questions WHERE ID_GLOBAL = " + id_global + ";";
                 ResultSet rs = stmt.executeQuery(query);
@@ -80,6 +82,16 @@ public class DbTableIndividualQuestionForStudentResult {
                     for (int i = 0; i < rs.getInt(11); i++) {
                         right_answers_array[i] = rs.getString(i + 1);
                     }
+
+                    //code the student answers
+                    List<String> studentAnswers = Arrays.asList(student_answers_array);
+                    for (int i = 0; i < all_options_vector.size(); i++) {
+                        if (studentAnswers.contains(all_options_vector.get(i))) {
+                            codedStudentAnswers.add(i + 1);
+                        }
+                    }
+
+                    //evaluate the answer according to the correction mode
                     int number_rignt_checked_answers_from_student = 0;
                     for (int i = 0; i < right_answers_array.length; i++) {
                         if (Arrays.asList(student_answers_array).contains(right_answers_array[i])) {
@@ -92,10 +104,17 @@ public class DbTableIndividualQuestionForStudentResult {
                             number_right_unchecked_answers_from_student++;
                         }
                     }
-                    quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
 
-                    if (quantitative_evaluation < 100) {
-                        quantitative_evaluation = 0;
+                    String correctionMode = DbTableQuestionMultipleChoice.getCorrectionMode(id_global);
+                    if (correctionMode.contentEquals("AllOrNothing") || correctionMode.contentEquals("")) {
+                        quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
+                        if (quantitative_evaluation < 100) {
+                            quantitative_evaluation = 0;
+                        }
+                    } else if (correctionMode.contentEquals("PercentCorrectDecisions")) {
+                        quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
+                    } else if (correctionMode.contains("Custom")) {
+                        quantitative_evaluation = DbTableIndividualQuestionForStudentResult.getCustomEvaluationForQMC(correctionMode.replace("Custom#", ""), codedStudentAnswers);
                     }
                 } else {
                     System.out.println("problem writing result: probably no corresponding question ID");
@@ -512,6 +531,78 @@ public class DbTableIndividualQuestionForStudentResult {
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * studentAnswers: coded checked answers
+     *
+     * negative:allow           (to allow negative evaluation)
+     *
+     * 1,2,3,4,etc are the answer options in the order they are stored in the db
+     * 1:5/-1   means that if the option 1 is checked, 5 "points" are added to the score for the question,
+     * and if option 1 is not checked, -1 "point" is subtracted to the score.
+     * In the end, the score is divided by the max possible score.
+     *
+     * If no "/" is detected on the line, the instruction is assumed to make a combination of checked/unchecked options
+     * to a certain evaluation:
+     * 2,4,5:80     (means that if the options, 2,4 and 5 are checked and the other options are unchecked, the eval will be 80
+     */
+    static private Double getCustomEvaluationForQMC(String customEvaluationCode, ArrayList<Integer> studentAnswers) {
+        String[] evalInstructions = customEvaluationCode.split("\n");
+        List<String> evalInstructionsList = Arrays.asList(evalInstructions);
+
+        //parse negative allowed
+        Boolean negativeAllowed = false;
+        if (evalInstructionsList.contains("negative:allowed")) {
+            negativeAllowed = true;
+            evalInstructionsList.remove("negative:allowed");
+        }
+
+        Integer maxScore = 0;
+        Integer score = 0;
+
+
+        for (String instruction : evalInstructionsList) {
+            //parse instructions with "/"
+            if (instruction.contains("/")) {
+                Integer answer = Integer.valueOf(instruction.split(":")[0]);
+                Integer scorechecked = Integer.valueOf(instruction.split(":")[1].split("/")[0]);
+                Integer scoreunchecked = Integer.valueOf(instruction.split(":")[1].split("/")[1]);
+
+                if (scorechecked > scoreunchecked) {
+                    maxScore += scorechecked;
+                } else {
+                    maxScore += scoreunchecked;
+                }
+
+                if (studentAnswers.contains(answer)) {
+                    score += scorechecked;
+                } else {
+                    score += scoreunchecked;
+                }
+            } else {
+                String[] checkedQuestions = instruction.split(":")[0].split(",");
+                ArrayList<Integer> answers = new ArrayList<>();
+
+                for (int i = 0; i < checkedQuestions.length; i++) {
+                    answers.add(Integer.valueOf(checkedQuestions[i]));
+                }
+
+                if (studentAnswers.containsAll(answers) && answers.containsAll(studentAnswers)) {
+                    return Double.parseDouble(instruction.split(":")[1]);
+                }
+            }
+        }
+
+        Double finalScore = 100 * score.doubleValue() / maxScore.doubleValue();
+
+        if (finalScore < 0 && negativeAllowed) {
+            return finalScore;
+        } else if (finalScore < 0 && !negativeAllowed) {
+            return 0.0;
+        } else {
+            return finalScore;
         }
     }
 }

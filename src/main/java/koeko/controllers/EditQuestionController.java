@@ -50,6 +50,8 @@ public class EditQuestionController implements Initializable {
     @FXML private ComboBox typeOfQuestion;
     @FXML private TextArea questionText;
     @FXML private TextField imagePath;
+    @FXML private ComboBox correctionComboBox;
+    @FXML private TextArea customCorrection;
 
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree,
                               QuestionGeneric questionGeneric, TreeItem treeItem, TreeView treeView) {
@@ -142,10 +144,30 @@ public class EditQuestionController implements Initializable {
             for (int i = 0; i < hBoxArrayList.size(); i++) {
                 hBoxArrayList.get(i).getChildren().get(0).setVisible(false);
             }
+
+            //fill the correction mode combobox
+            ObservableList<String> correctionModes =
+                    FXCollections.observableArrayList("Cannot change Correction Mode");
+            correctionComboBox.setItems(correctionModes);
+            correctionComboBox.getSelectionModel().select(0);
         } else {
             for (int i = 0; i < hBoxArrayList.size(); i++) {
                 hBoxArrayList.get(i).getChildren().get(0).setVisible(true);
             }
+
+            //fill the correction mode combobox
+            ObservableList<String> correctionModes =
+                    FXCollections.observableArrayList("All or Nothing", "Proportion of Right Decisions", "Custom Correction");
+            correctionComboBox.setItems(correctionModes);
+            correctionComboBox.getSelectionModel().select(0);
+        }
+    }
+
+    public void correctionModeChanged() {
+        if (correctionComboBox.getSelectionModel().getSelectedItem().toString().contains("Custom")) {
+            customCorrection.setVisible(true);
+        } else {
+            customCorrection.setVisible(false);
         }
     }
 
@@ -318,6 +340,15 @@ public class EditQuestionController implements Initializable {
                     e1.printStackTrace();
                 }
             }
+
+            //set the correction type
+            if (correctionComboBox.getSelectionModel().getSelectedIndex() == 0) {
+                DbTableQuestionMultipleChoice.setCorrectionMode("AllOrNothing", questionGeneric.getGlobalID());
+            } else if (correctionComboBox.getSelectionModel().getSelectedIndex() == 1) {
+                DbTableQuestionMultipleChoice.setCorrectionMode("PercentCorrectDecisions", questionGeneric.getGlobalID());
+            } else if (correctionComboBox.getSelectionModel().getSelectedIndex() == 2) {
+                DbTableQuestionMultipleChoice.setCorrectionMode("Custom#" + customCorrection.getText(), questionGeneric.getGlobalID());
+            }
         } else {
             System.out.println("Problem saving question: question type not supported");
         }
@@ -351,6 +382,21 @@ public class EditQuestionController implements Initializable {
             for (int i = 0; i < questionMultipleChoice.getObjectives().size(); i++) {
                 addObjective(questionMultipleChoice.getObjectives().get(i));
             }
+
+            //fill the correction mode combobox
+            ObservableList<String> correctionModes =
+                    FXCollections.observableArrayList("All or Nothing", "Proportion of Right Decisions", "Custom Correction");
+            correctionComboBox.setItems(correctionModes);
+            String questionCorrectionMode = DbTableQuestionMultipleChoice.getCorrectionMode(questionMultipleChoice.getID());
+            if (questionCorrectionMode.contentEquals("AllOrNothing") || questionCorrectionMode.contentEquals("")) {
+                correctionComboBox.getSelectionModel().select(0);
+            } else if (questionCorrectionMode.contentEquals("PercentCorrectDecisions")) {
+                correctionComboBox.getSelectionModel().select(1);
+            } else if (questionCorrectionMode.contains("Custom")) {
+                correctionComboBox.getSelectionModel().select(2);
+                customCorrection.setVisible(true);
+                customCorrection.setText(DbTableQuestionMultipleChoice.getCorrectionMode(questionGeneric.getGlobalID()).replace("Custom#", ""));
+            }
         } else {
             typeOfQuestion.getSelectionModel().select(1);
             QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionGeneric.getGlobalID());
@@ -365,6 +411,12 @@ public class EditQuestionController implements Initializable {
             for (int i = 0; i < questionShortAnswer.getObjectives().size(); i++) {
                 addObjective(questionShortAnswer.getObjectives().get(i));
             }
+
+            //fill the correction mode combobox
+            ObservableList<String> correctionModes =
+                    FXCollections.observableArrayList("Cannot change Correction Mode");
+            correctionComboBox.setItems(correctionModes);
+            correctionComboBox.getSelectionModel().select(0);
         }
     }
 
