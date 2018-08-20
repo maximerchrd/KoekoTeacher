@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class DataConversion {
     static public byte[] testToBytesArray(Test test) {
         String testString = "";
-        testString += Integer.valueOf(test.getIdTest()) + "///";
+        testString += test.getIdTest() + "///";
         testString += test.getTestName() + "///";
         String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
         testString += testMap;
