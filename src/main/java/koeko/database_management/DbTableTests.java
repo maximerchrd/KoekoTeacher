@@ -136,36 +136,27 @@ public class DbTableTests {
 
         return newTest;
     }
-    static public Integer addTest(Test newTest) {
-        Integer testID = 0;
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO tests (ID_TEST_GLOBAL,NAME,TEST_MODE,QUANTITATIVE_EVAL)" +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    newTest.getTestName() + "','" + newTest.getTestMode() + "','-1');";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE tests SET ID_TEST_GLOBAL = 2000000 + ID_TEST, MODIF_DATE = '" + Utilities.TimestampForNowAsString()
-                    + "' WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests)";
-            stmt.executeUpdate(sql);
-            sql = "SELECT ID_TEST_GLOBAL FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                testID = rs.getInt("ID_TEST_GLOBAL");
-            }
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
+    static public String addTest(Test newTest) {
+        String testID = "";
+
+        String sql = 	"INSERT INTO tests (ID_TEST_GLOBAL, NAME, TEST_MODE, QUANTITATIVE_EVAL, MODIF_DATE)" +
+                "VALUES (?,?,?,?,?)";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            testID = Utilities.localUniqueID();
+            pstmt.setString(1, testID);
+            pstmt.setString(2, newTest.getTestName());
+            pstmt.setString(3, String.valueOf(newTest.getTestMode()));
+            pstmt.setString(4, "-1");
+            pstmt.setString(5, Utilities.TimestampForNowAsString());
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
+
         return testID;
     }
     static public void removeTestWithID(String ID) {
@@ -207,6 +198,8 @@ public class DbTableTests {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
+
+        DbTableRelationQuestionQuestion.removeRelationsWithTest(testName);
     }
     static public void renameTest(String global_id, String newName) {
         Connection c = null;

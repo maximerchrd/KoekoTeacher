@@ -89,7 +89,7 @@ public class CreateTestController extends Window implements Initializable {
             } else {
                 newTest.setTestMode(1);
             }
-            String testID = DbTableTests.addTest(newTest).toString();
+            String testID = DbTableTests.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
             test.setGlobalID(QuestionGeneric.changeIdSign(testID));
