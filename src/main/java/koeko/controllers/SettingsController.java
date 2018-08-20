@@ -62,6 +62,8 @@ public class SettingsController implements Initializable {
         Professor professor = DbTableProfessor.getProfessor();
         if (professor == null) {
             DbTableProfessor.addProfessor(teacherName.getText(),teacherName.getText(),teacherName.getText());
+        } else if(professor.get_alias().contentEquals(teacherName.getText())) {
+            //Do nothing
         } else {
             DbTableProfessor.setProfessorAlias("1", teacherName.getText());
         }
@@ -77,6 +79,8 @@ public class SettingsController implements Initializable {
             @Override
             public void run() {
                 if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
+                    setUserName();
+                    setLanguage();
                     Boolean success = true;
                     DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
                     try {

@@ -10,6 +10,7 @@ public class Subject implements Serializable {
         this._subjectName = "";
         this._subjectId = 0;
         this._subjectMUID = "";
+        this._subjectLanguage = "";
         this._sbjUpdDts = Timestamp.valueOf(LocalDateTime.now());
     }
 
@@ -17,12 +18,22 @@ public class Subject implements Serializable {
         this._subjectName = _subjectName;
         this._subjectId = _subjectId;
         this._subjectMUID = _subjectMUID;
+        this._subjectLanguage = "";
+        this._sbjUpdDts = _sbjUpdDts;
+    }
+
+    public Subject(String _subjectName, int _subjectId, String _subjectMUID, String _subjectLanguage, Timestamp _sbjUpdDts) {
+        this._subjectName = _subjectName;
+        this._subjectId = _subjectId;
+        this._subjectMUID = _subjectMUID;
+        this._subjectLanguage = _subjectLanguage;
         this._sbjUpdDts = _sbjUpdDts;
     }
 
     private String _subjectName;
     private int _subjectId;
     private String _subjectMUID;
+    private String _subjectLanguage;
     private Timestamp _sbjUpdDts;
 
     public Timestamp get_sbjUpdDts() {
@@ -47,6 +58,14 @@ public class Subject implements Serializable {
 
     public void set_subjectId(int _subjectId) {
         this._subjectId = _subjectId;
+    }
+
+    public String get_subjectLanguage() {
+        return _subjectLanguage;
+    }
+
+    public void set_subjectLanguage(String _subjectLanguage) {
+        this._subjectLanguage = _subjectLanguage;
     }
 
     public String get_subjectMUID() {

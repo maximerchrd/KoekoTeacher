@@ -53,6 +53,11 @@ public class SyncOperations {
             // Second step, upload data to koeko
 
             Vector<Subject> sbjVector = DbTableSubject.getSubjects();
+            //add language to subjects
+            for (Subject subject : sbjVector) {
+                subject.set_subjectLanguage(professor.get_language());
+            }
+
             Enumeration en = sbjVector.elements();
             while (en.hasMoreElements()) {
                 Subject sbj = (Subject) en.nextElement();
