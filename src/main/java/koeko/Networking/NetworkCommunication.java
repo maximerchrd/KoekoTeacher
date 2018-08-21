@@ -41,6 +41,7 @@ public class NetworkCommunication {
     private int number_of_clients = 0;
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
+    private Vector<String> disconnectiongStudents;
 
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
@@ -51,6 +52,7 @@ public class NetworkCommunication {
         networkCommunicationSingleton = this;
         questionIdsForGroups = new ArrayList<>();
         studentNamesForGroups = new ArrayList<>();
+        disconnectiongStudents = new Vector<>();
     }
 
     public NetworkCommunication() {
@@ -508,8 +510,9 @@ public class NetworkCommunication {
                                 student.setUniqueDeviceID(answerString.split("///")[1]);
                                 student.setName(answerString.split("///")[2]);
                                 student.setConnected(false);
-                                learningTrackerController.userDisconnected(student);
                                 if (answerString.contains("close-connection")) {
+                                    learningTrackerController.userDisconnected(student);
+
                                     System.out.println("Student device really disconnecting. We should close the connection");
                                     arg_student.getOutputStream().flush();
                                     arg_student.getOutputStream().close();
@@ -517,6 +520,24 @@ public class NetworkCommunication {
                                     arg_student.getInputStream().close();
                                     arg_student.setInputStream(null);
                                     ableToRead = false;
+                                } else if (answerString.contains("locked")) {
+                                    disconnectiongStudents.remove(student.getUniqueDeviceID());
+                                } else {
+                                    disconnectiongStudents.add(student.getUniqueDeviceID());
+                                    Thread studentDisconnectionQThread = new Thread() {
+                                        public void run() {
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if (disconnectiongStudents.contains(student.getUniqueDeviceID())) {
+                                                learningTrackerController.userDisconnected(student);
+                                                disconnectiongStudents.remove(student.getUniqueDeviceID());
+                                            }
+                                        }
+                                    };
+                                    studentDisconnectionQThread.start();
                                 }
                             }
                         } else {
