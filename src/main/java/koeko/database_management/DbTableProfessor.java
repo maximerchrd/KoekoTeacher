@@ -4,6 +4,9 @@ import koeko.view.Professor;
 import koeko.view.Utilities;
 
 import java.sql.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Created by alainrichard on 25.04.18
@@ -155,10 +158,13 @@ public class DbTableProfessor {
                 String muid = rs.getString("PROF_MUID");
                 String language = rs.getString("LANGUAGE");
                 String sync_key = rs.getString("SYNC_KEY");
+                String modifDateString = rs.getString("MODIF_DATE");
+                Timestamp modifTimestamp = Timestamp.valueOf(modifDateString);
 
                 professor = Professor.createProfessor(id, alias, muid);
                 professor.set_language(language);
                 professor.set_synchronizationKey(sync_key);
+                professor.set_timestamp(modifTimestamp);
             }
             stmt.close();
             c.commit();

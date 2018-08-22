@@ -70,8 +70,11 @@ public class SettingsController implements Initializable {
     }
 
     public void setLanguage() {
+        Professor professor = DbTableProfessor.getProfessor();
         String language = languageCombobox.getSelectionModel().getSelectedItem().toString();
-        DbTableProfessor.setProfessorLanguage(teacherName.getText(),language);
+        if (!professor.get_language().contentEquals(language)) {
+            DbTableProfessor.setProfessorLanguage(teacherName.getText(), language);
+        }
     }
 
     public void syncWithServer() {
@@ -82,7 +85,9 @@ public class SettingsController implements Initializable {
                     setUserName();
                     setLanguage();
                     Boolean success = true;
-                    DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+                    if (synchronizationKeyTextField.getText().length() == 20) {
+                        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+                    }
                     try {
                         SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
                     } catch (Exception e) {
