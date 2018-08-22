@@ -44,13 +44,14 @@ public class DbTableQuestionShortAnswer {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
-                    "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,MODIF_DATE) " +
+                    "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE) " +
                     "VALUES ('" +
                     idGlobal + "','" +
                     quest.getLEVEL() + "','" +
                     quest.getQUESTION() + "','" +
                     0 + "','" +
                     quest.getIMAGE() + "','" +
+                    quest.getUID() + "','" +
                     Utilities.TimestampForNowAsString() + "');";
             stmt.executeUpdate(sql);
             stmt.close();

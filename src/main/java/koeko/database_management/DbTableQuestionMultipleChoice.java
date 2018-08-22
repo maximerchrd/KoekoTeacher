@@ -1,11 +1,14 @@
 package koeko.database_management;
 
 import koeko.questions_management.QuestionMultipleChoice;
+import koeko.questions_management.QuestionShortAnswer;
 import koeko.view.QuestionMultipleChoiceView;
 import koeko.view.Utilities;
 
 import java.sql.*;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -36,14 +39,15 @@ public class DbTableQuestionMultipleChoice {
                     " MODIF_DATE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }
 
     /**
      * method for inserting new question into table multiple_choice_question
+     *
      * @param quest
      * @throws Exception
      */
@@ -57,7 +61,7 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
 
-            String sql = 	"INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
+            String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -83,17 +87,17 @@ public class DbTableQuestionMultipleChoice {
             preparedStatement.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         return globalID;
     }
 
 
-
     /**
      * method for inserting new question into table multiple_choice_question
+     *
      * @param quest
      * @throws Exception
      */
@@ -108,7 +112,12 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+            String sql = "";
+            if (quest.getTYPE() == 0) {
+                sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+            } else {
+                sql = "SELECT  COUNT(1) FROM short_answer_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+            }
             ResultSet result_query = stmt.executeQuery(sql);
             bExists = (Integer.parseInt(result_query.getString(1)) > 0);
             stmt.close();
@@ -124,6 +133,7 @@ public class DbTableQuestionMultipleChoice {
 
     /**
      * method for inserting new question into table multiple_choice_question
+     *
      * @param quest
      * @throws Exception
      */
@@ -133,49 +143,59 @@ public class DbTableQuestionMultipleChoice {
             return;
 
         String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
-        Connection c = null;
-        PreparedStatement preparedStatement = null;
-        preparedStatement = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
 
-            String sql = 	"INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
+        if (quest.getTYPE() == 0) {
+            String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-            preparedStatement = c.prepareStatement(sql);
-            preparedStatement.setString(1, quest.getLEVEL());
-            preparedStatement.setString(2, quest.getQUESTION());
-            preparedStatement.setString(3, quest.getOPT0());
-            preparedStatement.setString(4, quest.getOPT1());
-            preparedStatement.setString(5, quest.getOPT2());
-            preparedStatement.setString(6, quest.getOPT3());
-            preparedStatement.setString(7, quest.getOPT4());
-            preparedStatement.setString(8, quest.getOPT5());
-            preparedStatement.setString(9, quest.getOPT6());
-            preparedStatement.setString(10, quest.getOPT7());
-            preparedStatement.setString(11, quest.getOPT8());
-            preparedStatement.setString(12, quest.getOPT9());
-            preparedStatement.setString(13, String.valueOf(quest.getNB_CORRECT_ANS()));
-            preparedStatement.setString(14, quest.getIMAGE());
-            preparedStatement.setString(15, globalID);
-            preparedStatement.setString(16, quest.getQCM_MUID());
-            preparedStatement.setString(17, quest.getQCM_UPD_TMS().toString());
-            preparedStatement.executeUpdate();
+            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+                 PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+                preparedStatement.setString(1, quest.getLEVEL());
+                preparedStatement.setString(2, quest.getQUESTION());
+                preparedStatement.setString(3, quest.getOPT0());
+                preparedStatement.setString(4, quest.getOPT1());
+                preparedStatement.setString(5, quest.getOPT2());
+                preparedStatement.setString(6, quest.getOPT3());
+                preparedStatement.setString(7, quest.getOPT4());
+                preparedStatement.setString(8, quest.getOPT5());
+                preparedStatement.setString(9, quest.getOPT6());
+                preparedStatement.setString(10, quest.getOPT7());
+                preparedStatement.setString(11, quest.getOPT8());
+                preparedStatement.setString(12, quest.getOPT9());
+                preparedStatement.setString(13, String.valueOf(quest.getNB_CORRECT_ANS()));
+                preparedStatement.setString(14, quest.getIMAGE());
+                preparedStatement.setString(15, globalID);
+                preparedStatement.setString(16, quest.getQCM_MUID());
+                preparedStatement.setString(17, quest.getQCM_UPD_TMS().toString());
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
+            questionShortAnswer.setID(globalID);
+            questionShortAnswer.setQUESTION(quest.getQUESTION());
+            questionShortAnswer.setIMAGE(quest.getIMAGE());
+            questionShortAnswer.getANSWER().add(quest.getOPT0());
+            questionShortAnswer.getANSWER().add(quest.getOPT1());
+            questionShortAnswer.getANSWER().add(quest.getOPT2());
+            questionShortAnswer.getANSWER().add(quest.getOPT3());
+            questionShortAnswer.getANSWER().add(quest.getOPT4());
+            questionShortAnswer.getANSWER().add(quest.getOPT5());
+            questionShortAnswer.getANSWER().add(quest.getOPT6());
+            questionShortAnswer.getANSWER().add(quest.getOPT7());
+            questionShortAnswer.getANSWER().add(quest.getOPT8());
+            questionShortAnswer.getANSWER().addAll(new ArrayList<>(Arrays.asList(quest.getOPT9().split("///"))));
+            questionShortAnswer.setUID(quest.getQCM_MUID());
 
-            preparedStatement.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
+            DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
         }
     }
 
     /**
      * method for inserting new question into table multiple_choice_question
+     *
      * @param quest
      * @throws Exception
      */
@@ -208,13 +228,15 @@ public class DbTableQuestionMultipleChoice {
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }
+
     /**
      * method for getting question from the ID
+     *
      * @param questionID
      * @throws Exception
      */
@@ -229,7 +251,7 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = 	"SELECT LEVEL,QUESTION,OPTION0," +
+            String query = "SELECT LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                     "NB_CORRECT_ANS,IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
 
@@ -253,14 +275,15 @@ public class DbTableQuestionMultipleChoice {
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(questionID));
         questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(questionID));
         return questionMultipleChoice;
     }
+
     static public String getLastIDGlobal() throws Exception {
         Connection c = null;
         Statement stmt = null;
@@ -271,14 +294,14 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
+            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
             ResultSet result_query = stmt.executeQuery(sql);
             last_id_global = result_query.getString(1);
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
         return last_id_global;
@@ -365,8 +388,8 @@ public class DbTableQuestionMultipleChoice {
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
 
@@ -383,17 +406,17 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"UPDATE multiple_choice_questions SET IDENTIFIER='" + muid +
+            String sql = "UPDATE multiple_choice_questions SET IDENTIFIER='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
-            sql = 	"UPDATE short_answer_questions SET IDENTIFIER='" + muid +
+            sql = "UPDATE short_answer_questions SET IDENTIFIER='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }
@@ -408,13 +431,13 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"DELETE FROM multiple_choice_questions WHERE ID_GLOBAL = '" + ID + "';";
+            String sql = "DELETE FROM multiple_choice_questions WHERE ID_GLOBAL = '" + ID + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
     }

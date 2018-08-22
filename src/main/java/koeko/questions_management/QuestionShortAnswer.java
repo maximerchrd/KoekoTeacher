@@ -12,6 +12,7 @@ public class QuestionShortAnswer {
 	private String IMAGE;
 	private Vector<String> subjects;
 	private Vector<String> objectives;
+	private String UID;
 	public QuestionShortAnswer()
 	{
 		ID="0";
@@ -20,6 +21,8 @@ public class QuestionShortAnswer {
 		QUESTION="";
 		ANSWERS = null;
 		IMAGE="none";
+		UID="";
+		ANSWERS = new ArrayList<>();
 	}
 	public QuestionShortAnswer(String sUBJECT, String lEVEL, String qUESTION, String iMAGE) {
 		
@@ -27,6 +30,8 @@ public class QuestionShortAnswer {
 		LEVEL = lEVEL;
 		QUESTION = qUESTION;
 		IMAGE = iMAGE;
+		UID="";
+		ANSWERS = new ArrayList<>();
 	}
 	public String getID()
 	{
@@ -53,6 +58,9 @@ public class QuestionShortAnswer {
 	public Vector<String> getObjectives() {
 		return objectives;
 	}
+	public String getUID() {
+		return UID;
+	}
 
 	public void setID(String id)
 	{
@@ -78,5 +86,8 @@ public class QuestionShortAnswer {
 	}
 	public void setObjectives(Vector<String> objectives) {
 		this.objectives = objectives;
+	}
+	public void setUID(String UID) {
+		this.UID = UID;
 	}
 }
