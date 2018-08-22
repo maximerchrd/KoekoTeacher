@@ -3,6 +3,7 @@ package koeko.controllers;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.scene.control.MenuItem;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
@@ -32,7 +33,9 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.database_management.*;
+import koeko.view.QuestionMultipleChoiceView;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.InetAddress;
@@ -40,6 +43,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.*;
 import java.lang.*;
+import java.util.List;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -438,6 +442,13 @@ public class QuestionSendingController extends Window implements Initializable {
 
     //BUTTONS
     public void broadcastQuestionForStudents() {
+        QuestionGeneric testquest = new QuestionGeneric();
+        testquest.setTypeOfQuestion("0");
+        testquest.setQuestion("test quest");
+        testquest.setImagePath("none");
+        testquest.setGlobalID("329748");
+        allQuestionsTree.getRoot().getChildren().add(new TreeItem<>(testquest));
+
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
@@ -1265,6 +1276,29 @@ public class QuestionSendingController extends Window implements Initializable {
         } else {
             broadcastQuestionShortAnswer(DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(globalID), actualSending);
         }
+    }
+
+    public void insertQuestionView(QuestionMultipleChoiceView questionMultipleChoiceView) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                QuestionGeneric questionGeneric = new QuestionGeneric();
+                questionGeneric.setGlobalID(questionMultipleChoiceView.getID());
+                questionGeneric.setQuestion(questionMultipleChoiceView.getQUESTION());
+                questionGeneric.setImagePath(questionMultipleChoiceView.getIMAGE());
+                questionGeneric.setTypeOfQuestion(String.valueOf(questionMultipleChoiceView.getTYPE()));
+                genericQuestionsList.add(questionGeneric);
+                Node questionImage = null;
+                questionImage = new ImageView(new Image("file:" + questionMultipleChoiceView.getIMAGE(), 20, 20, true, false));
+                TreeItem<QuestionGeneric> itemChild;
+                if (questionMultipleChoiceView.getIMAGE().length() < 1) {
+                    itemChild = new TreeItem<>(questionGeneric);
+                } else {
+                    itemChild = new TreeItem<>(questionGeneric, questionImage);
+                }
+                allQuestionsTree.getRoot().getChildren().add(itemChild);
+            }
+        });
     }
 
     private void insertQuestionMultipleChoice(String[] question) {

@@ -1,8 +1,15 @@
 package koeko.KoekoSyncCollect;
 
+import javafx.scene.Node;
+import javafx.scene.control.TreeItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import koeko.Koeko;
 import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableRelationQuestionSubject;
 import koeko.database_management.DbTableSubject;
+import koeko.questions_management.QuestionGeneric;
+import koeko.view.QuestionMultipleChoiceView;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -328,8 +335,11 @@ public class TCPCommunication {
                     if (rcv.getClass().getName().equals("koeko.view.QuestionMultipleChoiceView")) {
                         koeko.view.QuestionMultipleChoiceView qcm = (koeko.view.QuestionMultipleChoiceView)rcv;
                         DbTableQuestionMultipleChoice.addIfNeededMultipleChoiceQuestionFromView(qcm);
-                        if (!qcm.getIMAGE().equals("none"))
+                        if (!qcm.getIMAGE().equals("none")) {
                             ReceiveBinaryFile(qcm.getIMAGE());
+                        }
+                        Koeko.questionSendingControllerSingleton.insertQuestionView(qcm);
+                        System.out.println("Received question: " + qcm.getQUESTION());
                     }
                     cnt++;
                 }

@@ -41,7 +41,7 @@ public class DbTableQuestionGeneric {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             questID = Utilities.localUniqueID();
-            String sql = 	"INSERT INTO generic_questions (ID_GLOBAL,REMOVED_STATE,QUESTION_TYPE) " +
+            String sql = 	"REPLACE INTO generic_questions (ID_GLOBAL,REMOVED_STATE,QUESTION_TYPE) " +
                     "VALUES ('" +
                     questID + "','" +
                     0 + "','" +
