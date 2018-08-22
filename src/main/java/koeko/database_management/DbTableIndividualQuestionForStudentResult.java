@@ -452,7 +452,7 @@ public class DbTableIndividualQuestionForStudentResult {
         //extract the students from the class if a class name is given
         Vector<Student> studentsFromClass = new Vector<>();
         ArrayList<String> studentsFromClassID = new ArrayList<>();
-        if (className.length() > 0) {
+        if (!className.contentEquals("All classes")) {
             studentsFromClass = DbTableClasses.getStudentsInClass(className);
             for (Student student : studentsFromClass) {
                 studentsFromClassID.add(student.getStudentID());
@@ -487,7 +487,7 @@ public class DbTableIndividualQuestionForStudentResult {
 
             //extract nb of hits from student answers
             for (int j = 0; j < studentAnswers.size(); j++) {
-                if (className.length() == 0 || studentsFromClassID.contains(studentsID.get(j))) {
+                if (className.contentEquals("All classes") || studentsFromClassID.contains(studentsID.get(j))) {
                     String[] singleAnswers = studentAnswers.get(j).split("\\|\\|\\|");
                     for (int i = 0; i < singleAnswers.length; i++) {
                         int index = answers.indexOf(singleAnswers[i]);

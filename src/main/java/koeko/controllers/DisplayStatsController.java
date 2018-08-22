@@ -101,7 +101,9 @@ public class DisplayStatsController implements Initializable {
             //combobox with classes
             time_step.getItems().removeAll(time_step.getItems());
             ArrayList<String> classes = (ArrayList<String>) DbTableClasses.getAllClasses();
+            classes.add(0, "All classes");
             time_step.getItems().addAll(classes);
+            time_step.getSelectionModel().select(0);
         } else {
             rootItem.getChildren().removeAll(rootItem.getChildren());
             for (int i = 0; i < studentsVector.size(); i++) {

@@ -2,15 +2,10 @@ package koeko.database_management;
 
 import koeko.ResultsManagement.Result;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -121,6 +116,24 @@ public class DbTableStudents {
         }
 
         return student_names;
+    }
+
+    static public ArrayList<String> getStudentsIDs() {
+        ArrayList<String> studentsIDs = new ArrayList<>();
+
+        String sql = 	"SELECT ID_SUBJECT_GLOBAL,IDENTIFIER FROM subjects WHERE SUBJECT = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String globalID = rs.getString("ID_SUBJECT_GLOBAL");
+                studentsIDs.add(globalID);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return studentsIDs;
     }
 
     static public String getStudentNameWithID(int studentID) {

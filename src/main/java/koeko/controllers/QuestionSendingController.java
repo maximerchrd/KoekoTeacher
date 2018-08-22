@@ -442,13 +442,6 @@ public class QuestionSendingController extends Window implements Initializable {
 
     //BUTTONS
     public void broadcastQuestionForStudents() {
-        QuestionGeneric testquest = new QuestionGeneric();
-        testquest.setTypeOfQuestion("0");
-        testquest.setQuestion("test quest");
-        testquest.setImagePath("none");
-        testquest.setGlobalID("329748");
-        allQuestionsTree.getRoot().getChildren().add(new TreeItem<>(testquest));
-
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
