@@ -72,14 +72,19 @@ public class NetworkCommunication {
 
         if (network_solution == 0) {
             //Send the ip of the computer to everyone on the subnet
-            Task<Void> sendIPTask = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    sendIpAddress();
-                    return null;
+            Thread sendIPthread = new Thread() {
+                public void run() {
+                    while (true) {
+                        try {
+                            sendIpAddress();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             };
-            new Thread(sendIPTask).start();
+            sendIPthread.start();
+
 
             // we create a server socket and bind it to port 9090.
             ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
@@ -404,10 +409,10 @@ public class NetworkCommunication {
                 for (int i = 0; i < bytesPrefixString.length; i++) {
                     bytesPrefix[i] = bytesPrefixString[i];
                 }
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 outputStream.write(bytesPrefix);
                 outputStream.write(bytesArray);
-                byte wholeBytesArray[] = outputStream.toByteArray( );
+                byte wholeBytesArray[] = outputStream.toByteArray();
                 writeToOutputStream(student, wholeBytesArray);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -699,14 +704,14 @@ public class NetworkCommunication {
                     }
                 } else {
                     //if (!student.getUniqueDeviceID().contains("no identifier")) {
-                        try {
-                            synchronized (student.getOutputStream()) {
-                                student.getOutputStream().write(bytearray, 0, bytearray.length);
-                                student.getOutputStream().flush();
-                            }
-                        } catch (IOException ex2) {
-                            ex2.printStackTrace();
+                    try {
+                        synchronized (student.getOutputStream()) {
+                            student.getOutputStream().write(bytearray, 0, bytearray.length);
+                            student.getOutputStream().flush();
                         }
+                    } catch (IOException ex2) {
+                        ex2.printStackTrace();
+                    }
                     //}
                 }
             }
@@ -732,34 +737,38 @@ public class NetworkCommunication {
     }
 
     private void sendIpAddress() throws IOException {
-        while(true) {
-            if (Koeko.questionBrowsingControllerSingleton != null &&
-                    Koeko.questionBrowsingControllerSingleton.ipAddresses != null &&
-                    Koeko.questionBrowsingControllerSingleton.ipAddresses.size() > 0) {
-                for (int i = 0; i < Koeko.questionBrowsingControllerSingleton.ipAddresses.size(); i++) {
-                    DatagramSocket socket = new DatagramSocket();
-                    socket.setBroadcast(true);
+        if (Koeko.questionBrowsingControllerSingleton != null &&
+                Koeko.questionBrowsingControllerSingleton.ipAddresses != null &&
+                Koeko.questionBrowsingControllerSingleton.ipAddresses.size() > 0) {
+            for (int i = 0; i < Koeko.questionBrowsingControllerSingleton.ipAddresses.size(); i++) {
+                DatagramSocket socket = new DatagramSocket();
+                socket.setBroadcast(true);
 
-                    String stringAddress = Koeko.questionBrowsingControllerSingleton.ipAddresses.get(i);
-                    String stringBroadcastAddress = stringAddress.substring(0,stringAddress.lastIndexOf(".") + 1);
-                    stringBroadcastAddress = stringBroadcastAddress + "255";
-                    InetAddress address = InetAddress.getByName(stringBroadcastAddress);
+                String stringAddress = Koeko.questionBrowsingControllerSingleton.ipAddresses.get(i);
+                String stringBroadcastAddress = stringAddress.substring(0, stringAddress.lastIndexOf(".") + 1);
+                stringBroadcastAddress = stringBroadcastAddress + "255";
+                InetAddress address = InetAddress.getByName(stringBroadcastAddress);
 
-                    String message = "IPADDRESS///" + stringAddress + "///";
-                    byte[] buffer = message.getBytes();
+                String message = "IPADDRESS///" + stringAddress + "///";
+                byte[] buffer = message.getBytes();
 
-                    DatagramPacket packet
-                            = new DatagramPacket(buffer, buffer.length, address, 9346 );
+                DatagramPacket packet
+                        = new DatagramPacket(buffer, buffer.length, address, 9346);
+                try {
                     socket.send(packet);
-                    socket.close();
+                } catch (IOException e) {
+                    if (!e.toString().contains("is unreachable")) {
+                        e.printStackTrace();
+                    }
                 }
+                socket.close();
             }
+        }
 
-            try {
-                Thread.sleep(700);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(700);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
