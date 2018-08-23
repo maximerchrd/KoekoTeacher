@@ -93,9 +93,9 @@ public class DbTableRelationQuestionSubject {
      * @param rqs
      * @throws Exception
      */
-    static public int getSubjectId(RelationQuestionSubject rqs) throws Exception {
+    static public String getSubjectId(RelationQuestionSubject rqs) throws Exception {
         // Check if the relation question/subject exists already
-        int sbj_id = 0;
+        String sbj_id = "0";
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -107,7 +107,7 @@ public class DbTableRelationQuestionSubject {
             String sql = "SELECT  ID_SUBJECT_GLOBAL FROM subjects " +
                     "WHERE IDENTIFIER='" + rqs.get_subjectMUID() + "';";
             ResultSet result_query = stmt.executeQuery(sql);
-            sbj_id = Integer.parseInt(result_query.getString(1));
+            sbj_id = result_query.getString(1);
             stmt.close();
             c.commit();
             c.close();
@@ -123,9 +123,9 @@ public class DbTableRelationQuestionSubject {
      * @param rqs
      * @throws Exception
      */
-    static public int getQUestionId(RelationQuestionSubject rqs) throws Exception {
+    static public String getQUestionId(RelationQuestionSubject rqs) throws Exception {
         // Check if the relation question/subject exists already
-        int rec_id = 0;
+        String rec_id = "0";
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -137,7 +137,7 @@ public class DbTableRelationQuestionSubject {
             String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions " +
                     "WHERE IDENTIFIER='" + rqs.get_questionMUID() + "';";
             ResultSet result_query = stmt.executeQuery(sql);
-            rec_id = Integer.parseInt(result_query.getString(1));
+            rec_id = result_query.getString(1);
             stmt.close();
             c.commit();
             c.close();
@@ -160,8 +160,8 @@ public class DbTableRelationQuestionSubject {
         if (checkIfExists(rqs))
             return;
 
-        int sbj_id = getSubjectId(rqs);
-        int mcq_id = getQUestionId(rqs);
+        String sbj_id = getSubjectId(rqs);
+        String mcq_id = getQUestionId(rqs);
         // insert the relation
         Connection c = null;
         Statement stmt = null;
