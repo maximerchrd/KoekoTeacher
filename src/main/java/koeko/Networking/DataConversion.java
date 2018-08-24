@@ -35,6 +35,7 @@ public class DataConversion {
         }
         testString += "///";
         testString += test.getTestMode() + "///";
+        testString += test.getMedalsInstructions() + "///";
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);

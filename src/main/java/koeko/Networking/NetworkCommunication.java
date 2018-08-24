@@ -377,6 +377,7 @@ public class NetworkCommunication {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTests.getTestWithID(testID);
+            testToSend.setMedalsInstructions(DbTableTests.getMedals(testToSend.getTestName()));
             byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
             writeToOutputStream(student, bytesArray);
         } catch (Exception e) {

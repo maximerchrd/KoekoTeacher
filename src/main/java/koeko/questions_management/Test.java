@@ -16,6 +16,7 @@ public class Test {
     private Double testEvaluation;
     private Boolean isSynchroneousQuestionsTest;
     private Integer testMode;   //0: certificative test; 1: formative test
+    private String medalsInstructions;
 
     public Test() {
         this.testName = "";
@@ -25,6 +26,7 @@ public class Test {
         this.questionsEvaluations = new ArrayList<>();
         this.isSynchroneousQuestionsTest = false;
         this.testMode = 1;
+        this.medalsInstructions = "";
     }
 
     public void addGenericQuestion(QuestionGeneric questionGeneric) {
@@ -73,6 +75,10 @@ public class Test {
         return testMode;
     }
 
+    public String getMedalsInstructions() {
+        return medalsInstructions;
+    }
+
     //setter
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
@@ -112,5 +118,9 @@ public class Test {
 
     public void setTestMode(Integer testMode) {
         this.testMode = testMode;
+    }
+
+    public void setMedalsInstructions(String medalsInstructions) {
+        this.medalsInstructions = medalsInstructions;
     }
 }

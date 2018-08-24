@@ -20,6 +20,7 @@ public class DbTableTests {
                     " NAME      TEXT     NOT NULL, " +
                     " TEST_MODE           INT    NOT NULL," +
                     " QUANTITATIVE_EVAL           TEXT    NOT NULL," +
+                    " MEDALS       TEXT, " +
                     " MODIF_DATE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
@@ -159,6 +160,38 @@ public class DbTableTests {
 
         return testID;
     }
+
+    static public void setMedals(String name, String medals) {
+        String sql = "UPDATE tests SET MEDALS = ? WHERE NAME = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            PreparedStatement pstmt = c.prepareStatement(sql)) {
+
+            pstmt.setString(1, medals);
+            pstmt.setString(2, name);
+            pstmt.executeUpdate();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+    }
+
+    static public String getMedals(String name) {
+        String medals = "";
+        String sql = "SELECT MEDALS FROM tests WHERE NAME = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+
+            pstmt.setString(1, name);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                medals = rs.getString("MEDALS");
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+
+        return medals;
+    }
+
     static public void removeTestWithID(String ID) {
         Connection c = null;
         Statement stmt = null;

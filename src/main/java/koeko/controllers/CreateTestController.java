@@ -35,6 +35,13 @@ public class CreateTestController extends Window implements Initializable {
     @FXML private VBox vBoxObjectives;
     @FXML private CheckBox certificativeCheckBox;
     @FXML private Button addObjectiveButton;
+    @FXML private TextField goldMedalTime;
+    @FXML private TextField goldMedalScore;
+    @FXML private TextField silverMedalTime;
+    @FXML private TextField silverMedalScore;
+    @FXML private TextField bronzeMedalTime;
+    @FXML private TextField bronzeMedalScore;
+    @FXML private CheckBox medalsCheckbox;
 
     public void initParameters(TreeItem<QuestionGeneric> root, ArrayList<String> testNames) {
         this.root = root;
@@ -42,6 +49,12 @@ public class CreateTestController extends Window implements Initializable {
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
         testMode = 1;
+        goldMedalTime.setEditable(false);
+        goldMedalScore.setEditable(false);
+        silverMedalTime.setEditable(false);
+        silverMedalScore.setEditable(false);
+        bronzeMedalTime.setEditable(false);
+        bronzeMedalScore.setEditable(false);
     }
 
     public void addObjective() {
@@ -77,6 +90,24 @@ public class CreateTestController extends Window implements Initializable {
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
                 comboBox.setDisable(false);
             }
+        }
+    }
+
+    public void togglingMedals() {
+        if (medalsCheckbox.isSelected()) {
+            goldMedalTime.setEditable(true);
+            goldMedalScore.setEditable(true);
+            silverMedalTime.setEditable(true);
+            silverMedalScore.setEditable(true);
+            bronzeMedalTime.setEditable(true);
+            bronzeMedalScore.setEditable(true);
+        } else {
+            goldMedalTime.setEditable(false);
+            goldMedalScore.setEditable(false);
+            silverMedalTime.setEditable(false);
+            silverMedalScore.setEditable(false);
+            bronzeMedalTime.setEditable(false);
+            bronzeMedalScore.setEditable(false);
         }
     }
 
@@ -116,6 +147,16 @@ public class CreateTestController extends Window implements Initializable {
                     }
                 }
             }
+
+            //add medals to test
+            if (medalsCheckbox.isSelected()) {
+                String medals = "";
+                medals += "bronze:" + bronzeMedalTime.getText() + "/" + bronzeMedalScore.getText() + ";";
+                medals += "silver:" + silverMedalTime.getText() + "/" + silverMedalScore.getText() + ";";
+                medals += "gold:" + goldMedalTime.getText() + "/" + goldMedalScore.getText() + ";";
+                DbTableTests.setMedals(testName.getText(), medals);
+            }
+
             Stage stage = (Stage) testName.getScene().getWindow();
             stage.close();
         } else {
