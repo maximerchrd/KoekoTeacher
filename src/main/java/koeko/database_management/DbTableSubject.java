@@ -54,7 +54,7 @@ public class DbTableSubject {
 
 
     /**
-     * method for inserting new question into table subject
+     * method for checking the existence of a subject inside a table
      * @param sbj
      * @throws Exception
      */
@@ -69,7 +69,7 @@ public class DbTableSubject {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + sbj.get_subjectMUID() + "';";
+            String sql = "SELECT  COUNT(1) FROM subjects WHERE IDENTIFIER = '" + sbj.get_subjectMUID() + "';";
             ResultSet result_query = stmt.executeQuery(sql);
             bExists = (Integer.parseInt(result_query.getString(1)) > 0);
             stmt.close();

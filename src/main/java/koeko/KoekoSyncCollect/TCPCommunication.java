@@ -5,9 +5,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import koeko.Koeko;
-import koeko.database_management.DbTableQuestionMultipleChoice;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableSubject;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.view.QuestionMultipleChoiceView;
 
@@ -26,6 +24,7 @@ public class TCPCommunication {
     String cstrDownldFIle = "DESC";
     String cstrGetSeleWeb = "GSWE";
     String cstrDelRelQSub = "DRQS";
+    String cstrDelRelQObj = "DRQO";
     String cstrSynCol2Web = "SC2W";
     String cstrByeByeDude = "BYEB";
     String cstrDescStep00 = "DSC0";
@@ -292,6 +291,23 @@ public class TCPCommunication {
         return bOK;
     }
 
+    public boolean RemoveObjectiveRelation(String qcmMuid) {
+        boolean bOK = false;
+        try {
+            SendCommande(cstrDelRelQObj);
+            if (IsAcknowledged()) {
+                SendMUID(qcmMuid);
+                if (IsAcknowledged()) {
+                    bOK = true;
+                }
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
     public boolean SyncCollect2WEB() {
         boolean bOK = false;
         try {
@@ -360,6 +376,26 @@ public class TCPCommunication {
                     if (rcv.getClass().getName().equals("koeko.view.RelationQuestionSubject")) {
                         koeko.view.RelationQuestionSubject rqs = (koeko.view.RelationQuestionSubject)rcv;
                         DbTableRelationQuestionSubject.addIfNeededRelationQuestionSubject(rqs);
+                    }
+                    cnt++;
+                }
+
+                cnt = 0;
+                while (cnt < gtl.get_nbObjectives()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.Objective")) {
+                        koeko.view.Objective obj = (koeko.view.Objective)rcv;
+                        DbTableLearningObjectives.addObjective(obj);
+                    }
+                    cnt++;
+                }
+
+                cnt = 0;
+                while (cnt < gtl.get_nbRelationsQcmObj()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.RelationQuestionObjective")) {
+                        koeko.view.RelationQuestionObjective roq = (koeko.view.RelationQuestionObjective)rcv;
+                        DbTableRelationQuestionObjective.addRelationQuestionObjective(roq);
                     }
                     cnt++;
                 }

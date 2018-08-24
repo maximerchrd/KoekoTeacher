@@ -1,5 +1,7 @@
 package koeko.view;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -10,6 +12,18 @@ import java.util.Map;
 public class Utilities {
     static public Map<String, String> codeToLanguageMap = new LinkedHashMap<>();
     static public Map<String, String> languageToCodeMap = new LinkedHashMap<>();
+
+    private static Connection connection;
+
+    public static Connection getDbConnection() throws Exception {
+        if(connection == null){
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        } else if (connection.isClosed()) {
+            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        }
+        return connection;
+    }
 
     public static void initCodeToLanguageMap() {
         Utilities.codeToLanguageMap.put("eng", "English");

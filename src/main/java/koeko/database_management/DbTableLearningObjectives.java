@@ -1,5 +1,6 @@
 package koeko.database_management;
 
+import koeko.view.Objective;
 import koeko.view.Utilities;
 
 import java.sql.*;
@@ -52,6 +53,49 @@ public class DbTableLearningObjectives {
             System.exit(0);
         }
     }
+    static public void addObjective(Objective objective) throws Exception {
+
+        String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY,IDENTIFIER)" +
+                " VALUES(?,?,?,?)";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, Utilities.localUniqueID());
+            pstmt.setString(2, objective.get_objectiveName());
+            pstmt.setInt(3, objective.get_objectiveLevel());
+            pstmt.setString(4, objective.get_objectiveMUID());
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static public Objective getObjectiveFromIdentifier(String identifier) {
+        Objective objective = new Objective();
+        String sql = 	"SELECT * FROM learning_objectives WHERE IDENTIFIER = ?";
+        try (Connection conn = Utilities.getDbConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, identifier);
+
+            // update
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                objective.set_objectiveName(rs.getString("OBJECTIVE"));
+                objective.set_sbjUpdDts(rs.getTimestamp("MODIF_DATE"));
+                objective.set_objectiveLevel(rs.getInt("LEVEL_COGNITIVE_ABILITY"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return objective;
+    }
+
     static public Vector<String> getObjectiveForQuestionID(String questionID) {
         Vector<String> objectives = new Vector<>();
         Connection c = null;
@@ -107,6 +151,29 @@ public class DbTableLearningObjectives {
         return objectives;
     }
 
+    static public Vector<Objective> getObjectives(String language) {
+        Vector<Objective> objectives = new Vector<>();
+        String sql = 	"SELECT * FROM learning_objectives";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Objective newObj = new Objective();
+                newObj.set_objectiveMUID(rs.getString("IDENTIFIER"));
+                newObj.set_objectiveName(rs.getString("OBJECTIVE"));
+                newObj.set_objectiveLevel(rs.getInt("LEVEL_COGNITIVE_ABILITY"));
+                newObj.set_objectiveLanguage(language);
+                objectives.add(newObj);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return objectives;
+    }
+
     static public String getObjectiveIdFromName(String objective) {
         String idObjective = "";
 
@@ -130,5 +197,20 @@ public class DbTableLearningObjectives {
         }
 
         return idObjective;
+    }
+
+    static public void setObjectiveUID(String objectiveName, String objectiveUID) {
+        String sql = "UPDATE learning_objectives SET IDENTIFIER=? WHERE OBJECTIVE = ?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, String.valueOf(objectiveUID));
+            pstmt.setString(2, String.valueOf(objectiveName));
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

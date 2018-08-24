@@ -53,9 +53,7 @@ public class DbTableRelationSubjectSubject {
         }
         //END remove the old question-subject relations
 
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
+
         String sql = 	"DELETE FROM subject_subject_relation WHERE ID_SUBJECT_GLOBAL_CHILD = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = ?)";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

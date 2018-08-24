@@ -6,6 +6,8 @@ public class GlobalToLocal implements Serializable {
     private int _nbQuestionMultipleChoice;
     private int _nbSubject;
     private int _nbRelationQcmSbj;
+    private int _nbObjectives;
+    private int _nbRelationsQcmObj;
 
     public GlobalToLocal() {}
 
@@ -31,5 +33,21 @@ public class GlobalToLocal implements Serializable {
 
     public void set_nbRelationQcmSbj(int _nbRelationQcmSbj) {
         this._nbRelationQcmSbj = _nbRelationQcmSbj;
+    }
+
+    public int get_nbObjectives() {
+        return _nbObjectives;
+    }
+
+    public void set_nbObjectives(int _nbObjectives) {
+        this._nbObjectives = _nbObjectives;
+    }
+
+    public int get_nbRelationsQcmObj() {
+        return _nbRelationsQcmObj;
+    }
+
+    public void set_nbRelationsQcmObj(int _nbRelationsQcmObj) {
+        this._nbRelationsQcmObj = _nbRelationsQcmObj;
     }
 }

@@ -178,6 +178,31 @@ public class DbTableQuestionShortAnswer {
         return questionShortAnswer;
     }
 
+    static public String getShortAnswerQuestionIDWithUID(String identifier) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT ID_GLOBAL FROM short_answer_questions WHERE IDENTIFIER='" + identifier + "';";
+
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                return rs.getString("ID_GLOBAL");
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return "";
+    }
+
     static public Vector<QuestionMultipleChoiceView> getQuestionViews() {
         Vector<QuestionMultipleChoiceView> questionViews = new Vector<>();
 

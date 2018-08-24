@@ -3,11 +3,7 @@ package koeko.KoekoSyncCollect;
 import koeko.IniFile;
 import koeko.Koeko;
 import koeko.database_management.*;
-import koeko.view.Professor;
-import koeko.view.Subject;
-import koeko.view.Utilities;
-import koeko.view.RelationQuestionSubject;
-import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -47,11 +43,12 @@ public class SyncOperations {
         } else {
             CreateOrUpdateProfessor(professor);
 
-            // First step, launch sp to copy selection from web to koeko
+            // FIRST STEP, launch sp to copy selection from web to koeko
             boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid());
 
-            // Second step, upload data to koeko
+            // SECOND STEP, upload data to koeko
 
+            //Send the subjects
             Vector<Subject> sbjVector = DbTableSubject.getSubjects();
             //add language to subjects
             for (Subject subject : sbjVector) {
@@ -64,6 +61,14 @@ public class SyncOperations {
                 CreateOrUpdateSubject(sbj);
             }
 
+            //Send the objectives
+            Vector<Objective> objectives = DbTableLearningObjectives.getObjectives(professor.get_language());
+            en = objectives.elements();
+            while (en.hasMoreElements()) {
+                Objective objective = (Objective) en.nextElement();
+                CreateOrUpdateObjective(objective);
+            }
+
             Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
             qcmVector.addAll(DbTableQuestionShortAnswer.getQuestionViews());
             en = qcmVector.elements();
@@ -74,8 +79,14 @@ public class SyncOperations {
 
                 // Get the subjects linked to the question
                 Vector<RelationQuestionSubject> subjectsLinked = DbTableRelationQuestionSubject.getSubjectsForQuestion(qcm.getID());
-                if (!subjectsLinked.isEmpty())
+                if (!subjectsLinked.isEmpty()) {
                     UpdateSubjectQuestionRelation(qcm.getQCM_MUID(), subjectsLinked);
+                }
+
+                Vector<RelationQuestionObjective> objectivesLinked = DbTableRelationQuestionObjective.getObjectivesLinkedToQuestion(qcm.getID());
+                if (!objectivesLinked.isEmpty()) {
+                    UpdateObjectiveQuestionRelation(qcm.getQCM_MUID(), objectivesLinked);
+                }
             }
 
             // Third step, launch sp to update web with new data
@@ -176,7 +187,35 @@ public class SyncOperations {
                 System.exit(0);
             }
         }
-
     }
 
+    static private void CreateOrUpdateObjective(Objective objective) {
+        try {
+            String muid = _tcpcom.SendSerializableObject(objective);
+            if (muid != null) {
+                objective.set_objectiveMUID(muid);
+                DbTableLearningObjectives.setObjectiveUID(objective.get_objectiveName(), muid);
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+    static private void UpdateObjectiveQuestionRelation(String questionMUID, Vector<RelationQuestionObjective> objectivesLinked) {
+        boolean bOK = _tcpcom.RemoveObjectiveRelation(questionMUID);
+        if (bOK) {
+            try {
+                Enumeration en = objectivesLinked.elements();
+                while(en.hasMoreElements()) {
+                    RelationQuestionObjective rqo = (RelationQuestionObjective) en.nextElement();
+                    rqo.set_questionMUID(questionMUID);
+                    String muid = _tcpcom.SendSerializableObject(rqo);
+                }
+            } catch ( Exception e ) {
+                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+                System.exit(0);
+            }
+        }
+    }
 }

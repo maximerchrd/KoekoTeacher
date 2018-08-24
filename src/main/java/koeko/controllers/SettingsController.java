@@ -62,6 +62,7 @@ public class SettingsController implements Initializable {
         Professor professor = DbTableProfessor.getProfessor();
         if (professor == null) {
             DbTableProfessor.addProfessor(teacherName.getText(),teacherName.getText(),teacherName.getText());
+            DbTableProfessor.setProfessorLanguage(teacherName.getText(), "no language");
         } else if(professor.get_alias().contentEquals(teacherName.getText())) {
             //Do nothing
         } else {
@@ -72,7 +73,7 @@ public class SettingsController implements Initializable {
     public void setLanguage() {
         Professor professor = DbTableProfessor.getProfessor();
         String language = languageCombobox.getSelectionModel().getSelectedItem().toString();
-        if (!professor.get_language().contentEquals(language)) {
+        if (professor.get_language() == null || !professor.get_language().contentEquals(language)) {
             DbTableProfessor.setProfessorLanguage(teacherName.getText(), language);
         }
     }
@@ -129,6 +130,10 @@ public class SettingsController implements Initializable {
         } else if (correctionMode == 1) {
             correctionModeButton.setText("ON");
             correctionModeButton.setSelected(true);
+        }
+
+        if (DbTableProfessor.getProfessor() == null) {
+            DbTableProfessor.addProfessor(teacherName.getText(), teacherName.getText(), teacherName.getText());
         }
     }
 }

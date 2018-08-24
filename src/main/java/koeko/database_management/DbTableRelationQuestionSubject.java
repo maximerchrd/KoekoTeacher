@@ -57,7 +57,7 @@ public class DbTableRelationQuestionSubject {
 
 
     /**
-     * method to check if it is neede to insert a relation question/subject
+     * method to check if it is needed to insert a relation question/subject
      * @param rqs
      * @throws Exception
      */
@@ -73,11 +73,19 @@ public class DbTableRelationQuestionSubject {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "SELECT  COUNT(1) FROM question_subject_relation qsr " +
-                    "JOIN subjects sbj ON sbj.ID_SUBJECT_GLOBAL = qsr.ID_SUBJECT_GLOBAL " +
-                    "JOIN multiple_choice_questions mcq ON mcq.ID_GLOBAL=qsr.ID_GLOBAL " +
-                    "WHERE mcq.IDENTIFIER='" + rqs.get_questionMUID() + "'and sbj.IDENTIFIER='" + rqs.get_subjectMUID() + "';";
+                        "JOIN subjects sbj ON sbj.ID_SUBJECT_GLOBAL = qsr.ID_SUBJECT_GLOBAL " +
+                        "JOIN multiple_choice_questions mcq ON mcq.ID_GLOBAL=qsr.ID_GLOBAL " +
+                        "WHERE mcq.IDENTIFIER='" + rqs.get_questionMUID() + "'and sbj.IDENTIFIER='" + rqs.get_subjectMUID() + "';";
             ResultSet result_query = stmt.executeQuery(sql);
             bExists = (Integer.parseInt(result_query.getString(1)) > 0);
+            if (!bExists) {
+                sql = "SELECT  COUNT(1) FROM question_subject_relation qsr " +
+                        "JOIN subjects sbj ON sbj.ID_SUBJECT_GLOBAL = qsr.ID_SUBJECT_GLOBAL " +
+                        "JOIN short_answer_questions shrtaq ON shrtaq.ID_GLOBAL=qsr.ID_GLOBAL " +
+                        "WHERE shrtaq.IDENTIFIER='" + rqs.get_questionMUID() + "'and sbj.IDENTIFIER='" + rqs.get_subjectMUID() + "';";
+                result_query = stmt.executeQuery(sql);
+                bExists = (Integer.parseInt(result_query.getString(1)) > 0);
+            }
             stmt.close();
             c.commit();
             c.close();

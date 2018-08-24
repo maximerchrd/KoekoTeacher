@@ -284,6 +284,22 @@ public class DbTableQuestionMultipleChoice {
         return questionMultipleChoice;
     }
 
+    static public String getMultipleChoiceQuestionIDWithUID(String identifier) {
+        String query = "SELECT ID_GLOBAL FROM multiple_choice_questions WHERE IDENTIFIER=?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            PreparedStatement pstmt = c.prepareStatement(query)){
+            pstmt.setString(1, identifier);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                return rs.getString("ID_GLOBAL");
+            }
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        return "";
+    }
+
     static public String getLastIDGlobal() throws Exception {
         Connection c = null;
         Statement stmt = null;
