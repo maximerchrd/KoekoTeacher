@@ -1,5 +1,6 @@
 package koeko.Networking;
 
+import com.sun.tools.javac.util.StringUtils;
 import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.controllers.LearningTrackerController;
@@ -545,6 +546,12 @@ public class NetworkCommunication {
                                     };
                                     studentDisconnectionQThread.start();
                                 }
+                            } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
+                                int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
+                                functionalTesting.nbAccuseReception += nbAccuses;
+                                if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
+                                    functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
+                                }
                             }
                         } else {
 
@@ -699,7 +706,11 @@ public class NetworkCommunication {
                                     singleStudent.getOutputStream().flush();
                                 }
                             } catch (IOException ex2) {
-                                ex2.printStackTrace();
+                                if (ex2.toString().contains("Broken pipe")) {
+                                    System.out.println("Broken pipe with student: " + singleStudent.getName() + " (student was null)");
+                                } else {
+                                    ex2.printStackTrace();
+                                }
                             }
                         }
                     }
@@ -711,7 +722,11 @@ public class NetworkCommunication {
                             student.getOutputStream().flush();
                         }
                     } catch (IOException ex2) {
-                        ex2.printStackTrace();
+                        if (ex2.toString().contains("Broken pipe")) {
+                            System.out.println("Broken pipe with student: " + student.getName());
+                        } else {
+                            ex2.printStackTrace();
+                        }
                     }
                     //}
                 }

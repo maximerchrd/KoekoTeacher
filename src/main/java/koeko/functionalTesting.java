@@ -20,22 +20,26 @@ public class functionalTesting {
     static PrintStream originalStream;
     static PrintStream dummyStream;
     static int idOffset = 1000;
-    static int numberStudents = 1;
-    static int numberOfQuestions = 20;
+    static public int numberStudents = 1;
+    static public int numberOfQuestions = 200;
     static ArrayList<String> questionPack = new ArrayList<>();
 
     static public Map<String, Integer> studentsNbEvalSent = new LinkedHashMap<>();
     static public Boolean testMode = false;
+    static public Long startTimeQuestionSending = 0L;
+    static public Long endTimeQuestionSending = 0L;
+    static public Integer nbAccuseReception = 0;
+
 
     static public void mainTesting(int testCode) {
         testMode = true;
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                if (testCode == 0) {
+                if (testCode == 0 || testCode == 2) {
                     while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size() < functionalTesting.numberStudents) {
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -55,7 +59,7 @@ public class functionalTesting {
                     System.out.println("***** START FUNCTIONAL TESTING *****");
                     System.setOut(dummyStream);
 
-                    createQuestionsPack(0, functionalTesting.numberOfQuestions, "subject 1", "objective 1");
+                    createQuestionsPack(0, functionalTesting.numberOfQuestions, "subject 1", "objective 1", testCode);
 
                     System.setOut(originalStream);
                     System.out.println("** Sending questions");
@@ -64,6 +68,16 @@ public class functionalTesting {
                     sendQuestionsPack();
 
                     System.setOut(originalStream);
+                    while (functionalTesting.endTimeQuestionSending == 0L) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Long sendingTime = functionalTesting.endTimeQuestionSending - functionalTesting.startTimeQuestionSending;
+                    sendingTime = sendingTime / 1000;
+                    System.out.println("Questions sent in: " + sendingTime + " seconds");
                     System.out.println("** Activating questions");
                     System.setOut(dummyStream);
 
@@ -134,7 +148,7 @@ public class functionalTesting {
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(id, students);
             //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -146,6 +160,7 @@ public class functionalTesting {
     }
 
     private static void sendQuestionsPack() {
+        functionalTesting.startTimeQuestionSending = System.currentTimeMillis();
         Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
         for (int i = 0; i < students.size(); i++) {
             for (String id : questionPack) {
@@ -159,10 +174,10 @@ public class functionalTesting {
         }
     }
 
-    private static void createQuestionsPack(int startingIndex, int endingIndex, String subject, String objective) {
+    private static void createQuestionsPack(int startingIndex, int endingIndex, String subject, String objective, int testCode) {
         for (int i = startingIndex; i < endingIndex; i++) {
             QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
-            questionMultipleChoice.setQUESTION("question " + (i + 1) + "^^.-_$£, +\"*ç%&/()=?'^");
+            questionMultipleChoice.setQUESTION("question " + (i + 1) + "^^.-_$£, +\"*ç%&/()=?'^" + "7492qJfzdDSB");
             questionMultipleChoice.setOPT0((i + 1) + "A OK not so harsh for the special characters, but still, this needs to be solved somehow later, but still, this needs to be solved somehow later, but still, this needs to be solved somehow later, but still, this needs to be solved somehow later.");
             questionMultipleChoice.setOPT1((i + 1) + "B \"^^.-_$£, +\\\"*ç%&/()=?'^");
             questionMultipleChoice.setOPT2((i + 1) + "C \"^^.-_$£, +\\\"*ç%&/()=?'^");
@@ -174,7 +189,11 @@ public class functionalTesting {
             questionMultipleChoice.setOPT8((i + 1) + "I \"^^.-_$£, +\\\"*ç%&/()=?'^");
             questionMultipleChoice.setOPT9((i + 1) + "J \"^^.-_$£, +\\\"*ç%&/()=?'^");
             questionMultipleChoice.setNB_CORRECT_ANS(1);
-            questionMultipleChoice.setIMAGE("pictures/image_" + i % 4 + ".jpg");
+            if (testCode == 0) {
+                questionMultipleChoice.setIMAGE("pictures/image_" + i % 4 + ".jpg");
+            } else {
+                questionMultipleChoice.setIMAGE("none");
+            }
             try {
                 questionPack.add(DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice));
             } catch (Exception e) {
