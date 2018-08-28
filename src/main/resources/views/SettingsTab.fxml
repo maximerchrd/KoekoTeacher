@@ -10,6 +10,16 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
          <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="381.0" text="Give the results to students when they answer the question:" />
+                  <ToggleButton fx:id="correctionModeButton" mnemonicParsing="false" onAction="#correctionModeChanged" text="ToggleButton">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ToggleButton>
+               </children>
+            </HBox>
             <HBox prefHeight="50.0" prefWidth="855.0">
                <children>
                   <Label text="User Name:" />
@@ -30,16 +40,6 @@
                   </ComboBox>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <Label prefHeight="29.0" prefWidth="381.0" text="Give the results to students when they answer the question:" />
-                  <ToggleButton fx:id="correctionModeButton" mnemonicParsing="false" onAction="#correctionModeChanged" text="ToggleButton">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </ToggleButton>
-               </children>
-            </HBox>
             <HBox prefHeight="50.0" prefWidth="200.0">
                <children>
                   <Label text="Synchronization key: " />
@@ -49,6 +49,11 @@
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Button mnemonicParsing="false" onAction="#syncWithServer" text="Synchronize with Web Server" />
+                  <Button mnemonicParsing="false" onAction="#resetAndSync" text="Reset and Synchronize with Web Server">
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin>
+                  </Button>
                </children>
             </HBox>
          </children></VBox>

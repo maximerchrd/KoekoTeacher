@@ -549,6 +549,7 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
                                 int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
                                 functionalTesting.nbAccuseReception += nbAccuses;
+                                System.out.println(functionalTesting.nbAccuseReception);
                                 if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
                                     functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
                                 }

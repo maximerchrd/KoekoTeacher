@@ -20,7 +20,7 @@ public class functionalTesting {
     static PrintStream originalStream;
     static PrintStream dummyStream;
     static int idOffset = 1000;
-    static public int numberStudents = 1;
+    static public int numberStudents = 3;
     static public int numberOfQuestions = 200;
     static ArrayList<String> questionPack = new ArrayList<>();
 
@@ -36,7 +36,7 @@ public class functionalTesting {
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                if (testCode == 0 || testCode == 2) {
+                if (testCode == 0 || testCode == 2 || testCode == 3) {
                     while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size() < functionalTesting.numberStudents) {
                         try {
                             Thread.sleep(1000);
@@ -191,8 +191,10 @@ public class functionalTesting {
             questionMultipleChoice.setNB_CORRECT_ANS(1);
             if (testCode == 0) {
                 questionMultipleChoice.setIMAGE("pictures/image_" + i % 4 + ".jpg");
-            } else {
+            } else if (testCode == 2){
                 questionMultipleChoice.setIMAGE("none");
+            } else if (testCode == 3) {
+                questionMultipleChoice.setIMAGE("pictures/iphone-screen-shot.jpg");
             }
             try {
                 questionPack.add(DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice));
