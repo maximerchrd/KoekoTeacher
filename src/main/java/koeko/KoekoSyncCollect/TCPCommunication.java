@@ -23,6 +23,7 @@ public class TCPCommunication {
     String cstrUploadObjt = "SOBJ";
     String cstrDownldFIle = "DESC";
     String cstrGetSeleWeb = "GSWE";
+    String cstrReGetSeleWeb = "RGSW";
     String cstrDelRelQSub = "DRQS";
     String cstrDelRelQObj = "DRQO";
     String cstrSynCol2Web = "SC2W";
@@ -257,10 +258,14 @@ public class TCPCommunication {
         return bOK;
     }
 
-    public boolean GetSelectionFromWEB(String profMuid) {
+    public boolean GetSelectionFromWEB(String profMuid, Boolean reDownload) {
         boolean bOK = false;
         try {
-            SendCommande(cstrGetSeleWeb);
+            if (reDownload) {
+                SendCommande(cstrReGetSeleWeb);
+            } else {
+                SendCommande(cstrGetSeleWeb);
+            }
             if (IsAcknowledged()) {
                 SendMUID(profMuid);
                 if (IsAcknowledged()) {

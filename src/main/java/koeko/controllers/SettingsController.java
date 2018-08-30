@@ -7,11 +7,7 @@ import javafx.scene.control.ComboBox;
 import koeko.Koeko;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.database_management.DbTableProfessor;
-import koeko.database_management.DbTableQuestionGeneric;
-import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableSettings;
-import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.QuestionMultipleChoice;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
@@ -20,13 +16,9 @@ import javafx.scene.control.ToggleButton;
 import koeko.view.Professor;
 import koeko.view.Utilities;
 
-import java.io.*;
 import java.net.InetAddress;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 public class SettingsController implements Initializable {
 
@@ -44,6 +36,9 @@ public class SettingsController implements Initializable {
     private ComboBox languageCombobox;
     @FXML
     private TextField synchronizationKeyTextField;
+
+    private String serverAddress = "127.0.0.1";
+    private int serverPort = 50507;
 
 
     public void correctionModeChanged() {
@@ -90,7 +85,7 @@ public class SettingsController implements Initializable {
                         DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
                     }
                     try {
-                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
+                        SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, false);
                     } catch (Exception e) {
                         success = false;
                         e.printStackTrace();
@@ -101,7 +96,36 @@ public class SettingsController implements Initializable {
                         Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization failed", "Synchronization");
                     }
                 } else {
-                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Chose a language before synchronizing", "Language");
+                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Choose a language before synchronizing", "Language");
+                }
+            }
+        });
+    }
+
+    public void resetAndSync() {
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
+                    setUserName();
+                    setLanguage();
+                    Boolean success = true;
+                    if (synchronizationKeyTextField.getText().length() == 20) {
+                        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
+                    }
+                    try {
+                        SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, true);
+                    } catch (Exception e) {
+                        success = false;
+                        e.printStackTrace();
+                    }
+                    if (success) {
+                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                    } else {
+                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization failed", "Synchronization");
+                    }
+                } else {
+                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Choose a language before synchronizing", "Language");
                 }
             }
         });

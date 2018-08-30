@@ -61,7 +61,7 @@ public class TestTransfert {
             System.out.println("Welcome professor " + professor.get_alias());
         }
 
-        SyncOperations.SyncAll(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
+        SyncOperations.SyncAll(InetAddress.getByName(args[0]), Integer.parseInt(args[1]), false);
 
     }
 

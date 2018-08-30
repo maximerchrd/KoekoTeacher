@@ -101,7 +101,7 @@ public class functionalTesting {
                     insertQuestion("test QMC 3 version 1", "test subject 3");
                     //Sync
                     try {
-                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507);
+                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507, false);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

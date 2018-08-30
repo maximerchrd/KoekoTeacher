@@ -32,7 +32,7 @@ public class SyncOperations {
         _tcpcom = new TCPCommunication(socket, imagePath);
     }
 
-    static public void SyncAll(InetAddress serverAddress, int serverPort) throws Exception {
+    static public void SyncAll(InetAddress serverAddress, int serverPort, Boolean reDownload) throws Exception {
         // Create the connection to the server for synchronisation
         InitializeTransfer(serverAddress, serverPort);
 
@@ -44,7 +44,7 @@ public class SyncOperations {
             CreateOrUpdateProfessor(professor);
 
             // FIRST STEP, launch sp to copy selection from web to koeko
-            boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid());
+            boolean bOK = _tcpcom.GetSelectionFromWEB(professor.get_muid(), reDownload);
 
             // SECOND STEP, upload data to koeko
 
