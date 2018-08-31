@@ -19,11 +19,14 @@ import javafx.stage.Stage;
 import koeko.database_management.*;
 import org.controlsfx.control.textfield.TextFields;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -160,13 +163,22 @@ public class CreateQuestionController implements Initializable {
         File source_file = fileChooser.showOpenDialog(stage);
         String directory = "pictures/";
         File dest_file = new File(directory + source_file.getName());
+        File hashedFileName = new File(directory + source_file.getName());
         try {
             Files.copy(source_file.toPath(), dest_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = Files.readAllBytes(dest_file.toPath());
+            messageDigest.update(hashedBytes);
+            String encryptedString = DatatypeConverter.printHexBinary(messageDigest.digest());
+            hashedFileName = new File(directory + encryptedString);
+            Files.move(dest_file.toPath(), hashedFileName.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
-        imagePath.setText(dest_file.getPath());
+        imagePath.setText(hashedFileName.getPath());
         imagePath.setEditable(false);
     }
 
