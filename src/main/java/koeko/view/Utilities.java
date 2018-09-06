@@ -26,15 +26,15 @@ public class Utilities {
     }
 
     public static void initCodeToLanguageMap() {
-        Utilities.codeToLanguageMap.put("eng", "English");
-        Utilities.codeToLanguageMap.put("deu", "Deutsch");
-        Utilities.codeToLanguageMap.put("fra", "Français");
+        Utilities.codeToLanguageMap.put("en", "English");
+        Utilities.codeToLanguageMap.put("de", "Deutsch");
+        Utilities.codeToLanguageMap.put("fr", "Français");
     }
 
     public static void initLanguageToCodeMap() {
-        Utilities.languageToCodeMap.put("English", "eng");
-        Utilities.languageToCodeMap.put("Deutsch", "deu");
-        Utilities.languageToCodeMap.put("Français", "fra");
+        Utilities.languageToCodeMap.put("English", "en");
+        Utilities.languageToCodeMap.put("Deutsch", "de");
+        Utilities.languageToCodeMap.put("Français", "fr");
     }
 
 
