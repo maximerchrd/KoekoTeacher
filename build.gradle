@@ -6,6 +6,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -14,4 +15,5 @@ dependencies {
     compile 'org.apache.httpcomponents:httpcore:4.4.1'
     compile 'mysql:mysql-connector-java:5.1.23'
     runtime 'mysql:mysql-connector-java:5.1.23'
+    compile 'com.github.kenglxn.QRGen:javase:2.5.0'
 }

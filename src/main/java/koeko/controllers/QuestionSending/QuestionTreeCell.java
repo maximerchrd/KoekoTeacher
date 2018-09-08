@@ -1,5 +1,6 @@
 package koeko.controllers.QuestionSending;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -8,9 +9,19 @@ import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import koeko.database_management.DbTableRelationQuestionQuestion;
-import koeko.database_management.DbTableRelationQuestionTest;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
+import koeko.view.Utilities;
+import net.glxn.qrgen.javase.QRCode;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
     private double imageSize = 60;
@@ -30,6 +41,29 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
 
             VBox buttonsBox2 = new VBox(3);
             Button buttonQRCode = new Button("QR");
+            buttonQRCode.setOnAction((event) -> {
+                String identifier = "0";
+                if (item.getIntTypeOfQuestion() == 0) {
+                    identifier = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(item.getGlobalID()).getQCM_MUID();
+                } else if (item.getIntTypeOfQuestion() == 1) {
+                    identifier = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(item.getGlobalID()).getUID();
+                } else if (item.getIntTypeOfQuestion() == 2) {
+                    identifier = DbTableTests.getTestWithID(item.getGlobalID()).getIdTest();
+                }
+                Stage stage = (Stage) buttonDelete.getScene().getWindow();
+                System.out.println(item.getGlobalID());
+                File file = QRCode.from(item.getGlobalID() + ":" + identifier + ":" + DbTableSettings.getCorrectionMode() + ":").file();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Save file");
+                File dest = fileChooser.showSaveDialog(stage);
+                if (dest != null) {
+                    try {
+                        Files.move(file.toPath(), dest.toPath(), REPLACE_EXISTING);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
             buttonsBox2.getChildren().addAll(buttonQRCode);
 
 
