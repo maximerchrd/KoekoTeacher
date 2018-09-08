@@ -422,10 +422,28 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE multiple_choice_questions SET IDENTIFIER='" + muid +
+            String sql = "UPDATE multiple_choice_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
-            sql = "UPDATE short_answer_questions SET IDENTIFIER='" + muid +
+            sql = "UPDATE short_answer_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_answeroption_relation SET ID_GLOBAL='" + muid +
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_objective_relation SET ID_GLOBAL='" + muid +
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_question_relation SET ID_GLOBAL_1='" + muid +
+                    "' WHERE ID_GLOBAL_1=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_question_relation SET ID_GLOBAL_2='" + muid +
+                    "' WHERE ID_GLOBAL_2=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_subject_relation SET ID_GLOBAL='" + muid +
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_test_relation SET ID_GLOBAL='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
             stmt.close();
