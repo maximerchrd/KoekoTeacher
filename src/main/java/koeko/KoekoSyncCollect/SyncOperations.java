@@ -5,10 +5,12 @@ import koeko.Koeko;
 import koeko.database_management.*;
 import koeko.view.*;
 
+import javax.management.relation.Relation;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
@@ -89,11 +91,21 @@ public class SyncOperations {
                 }
             }
 
-            // Third step, launch sp to update web with new data
+            //Send tests
+            ArrayList<TestView> testViews = DbTableTests.getAllTestViews();
+            for (TestView testView : testViews) {
+                testView.setLanguage(professor.get_language());
+                CreateOrUpdateTest(testView);
+                ArrayList<RelationQuestionTest> relationsQuestionTest =
+                        DbTableRelationQuestionTest.getRelationQuestionTest(testView.getIdTest(), testView.getTestName());
+                UpdateQuestionTestRelation(testView.getIdTest(), relationsQuestionTest);
+            }
+
+            // THIRD STEP, launch sp to update web with new data
             _tcpcom.SyncCollect2WEB();
             System.out.println("WEB synchronized");
 
-            // Fourth step, download selected items to local DB
+            // FOURTH STEP, download selected items to local DB
             _tcpcom.DownloadSelection();
             System.out.println("Selection downloaded");
 
@@ -159,6 +171,19 @@ public class SyncOperations {
         }
     }
 
+    static private void CreateOrUpdateTest(TestView test) {
+        try {
+            String muid = _tcpcom.SendSerializableObject(test);
+            if (muid != null) {
+                test.setIdTest(muid);
+                DbTableTests.setIdentifier(test.getTestName(), test.getIdTest());
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
     static private void CreateOrUpdateSubject(Subject sbj) {
         try {
             String muid = _tcpcom.SendSerializableObject(sbj);
@@ -211,6 +236,20 @@ public class SyncOperations {
                     RelationQuestionObjective rqo = (RelationQuestionObjective) en.nextElement();
                     rqo.set_questionMUID(questionMUID);
                     String muid = _tcpcom.SendSerializableObject(rqo);
+                }
+            } catch ( Exception e ) {
+                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+                System.exit(0);
+            }
+        }
+    }
+
+    static private void UpdateQuestionTestRelation(String testUID, ArrayList<RelationQuestionTest> relationQuestionTests) {
+        boolean bOK = _tcpcom.RemoveTestRelation(testUID);
+        if (bOK) {
+            try {
+                for (RelationQuestionTest relationQuestionTest : relationQuestionTests) {
+                    _tcpcom.SendSerializableObject(relationQuestionTest);
                 }
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );

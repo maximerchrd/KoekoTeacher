@@ -26,6 +26,7 @@ public class TCPCommunication {
     String cstrReGetSeleWeb = "RGSW";
     String cstrDelRelQSub = "DRQS";
     String cstrDelRelQObj = "DRQO";
+    String cstrDelRelQuTe = "DRQT";
     String cstrSynCol2Web = "SC2W";
     String cstrByeByeDude = "BYEB";
     String cstrDescStep00 = "DSC0";
@@ -302,6 +303,23 @@ public class TCPCommunication {
             SendCommande(cstrDelRelQObj);
             if (IsAcknowledged()) {
                 SendMUID(qcmMuid);
+                if (IsAcknowledged()) {
+                    bOK = true;
+                }
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        return bOK;
+    }
+
+    public boolean RemoveTestRelation(String testMuid) {
+        boolean bOK = false;
+        try {
+            SendCommande(cstrDelRelQuTe);
+            if (IsAcknowledged()) {
+                SendMUID(testMuid);
                 if (IsAcknowledged()) {
                     bOK = true;
                 }

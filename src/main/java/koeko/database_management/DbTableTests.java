@@ -2,10 +2,12 @@ package koeko.database_management;
 
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
+import koeko.view.TestView;
 import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -67,6 +69,31 @@ public class DbTableTests {
 
         return tests;
     }
+
+    static public ArrayList<TestView> getAllTestViews() {
+        ArrayList<TestView> testViews = new ArrayList<>();
+
+        String sql = 	"SELECT * FROM tests";
+        try (Connection conn = Utilities.getDbConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                TestView testView = new TestView();
+                testView.setIdTest(rs.getString("IDENTIFIER"));
+                testView.setTestName(rs.getString("NAME"));
+                String modifDate = rs.getString("MODIF_DATE");
+                testView.setQCM_UPD_TMS(Utilities.StringToTimestamp(modifDate));
+                testViews.add(testView);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return testViews;
+    }
+
     static public Test getLastTests() {
         Test newTest = null;
         Connection c = null;
@@ -172,6 +199,20 @@ public class DbTableTests {
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
+    }
+
+    static public void setIdentifier(String name, String identifier) {
+        String sql = "UPDATE tests SET IDENTIFIER = ? WHERE NAME = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+
+            pstmt.setString(1, identifier);
+            pstmt.setString(2, name);
+            pstmt.executeUpdate();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        DbTableRelationQuestionTest.setIdentifier(name, identifier);
     }
 
     static public String getMedals(String name) {
