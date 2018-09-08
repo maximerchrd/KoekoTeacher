@@ -1,6 +1,5 @@
 package koeko.Networking;
 
-import com.sun.tools.javac.util.StringUtils;
 import javafx.concurrent.Task;
 import koeko.Koeko;
 import koeko.controllers.LearningTrackerController;

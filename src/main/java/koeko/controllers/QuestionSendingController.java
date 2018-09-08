@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 import javafx.scene.control.MenuItem;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.QuestionSending.QuestionTreeCell;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
@@ -123,27 +124,7 @@ public class QuestionSendingController extends Window implements Initializable {
         allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
             @Override
             public TreeCell<QuestionGeneric> call(TreeView<QuestionGeneric> stringTreeView) {
-                TreeCell<QuestionGeneric> treeCell = new TreeCell<QuestionGeneric>() {
-                    @Override
-                    protected void updateItem(QuestionGeneric item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!empty && item != null) {
-                            setText(item.getQuestion());
-                            if (Long.valueOf(item.getGlobalID()) > 0) {
-                                setGraphic(getTreeItem().getGraphic());
-                            } else {
-                                if (item.getTypeOfQuestion().contentEquals("TEFO")) {
-                                    setGraphic(new ImageView(new Image("/drawable/test.png", 30, 30, true, true)));
-                                } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
-                                    setGraphic(new ImageView(new Image("/drawable/test_certificative.png", 30, 30, true, true)));
-                                }
-                            }
-                        } else {
-                            setText(null);
-                            setGraphic(null);
-                        }
-                    }
-                };
+                QuestionTreeCell treeCell = new QuestionTreeCell();
 
                 treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
                     @Override
