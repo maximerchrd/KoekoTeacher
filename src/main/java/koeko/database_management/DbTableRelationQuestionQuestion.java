@@ -1,9 +1,10 @@
 package koeko.database_management;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import koeko.view.RelationQuestionQuestion;
+import koeko.view.RelationQuestionTest;
+import koeko.view.Utilities;
+
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -17,6 +18,7 @@ public class DbTableRelationQuestionQuestion {
                     "(ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_GLOBAL_1      TEXT     NOT NULL, " +
                     " ID_GLOBAL_2      TEXT     NOT NULL, " +
+                    " TEST_ID      TEXT, " +
                     " TEST      TEXT     NOT NULL, " +
                     " CONDITION      TEXT     NOT NULL, " +
                     " CONSTRAINT unq UNIQUE (ID_GLOBAL_1, ID_GLOBAL_2, TEST)) ";
@@ -27,14 +29,21 @@ public class DbTableRelationQuestionQuestion {
         }
     }
 
+    static public void addRelationQuestionQuestion(String idGlobal1, String idGlobal2, String test, String condition) {
+        addRelationQuestionQuestion(idGlobal1, idGlobal2, test, "0", condition);
+    }
     /**
      * adds a relation between 2 questions. If the condition is empty, adds a horizontal relation.
      * @param idGlobal1
      * @param idGlobal2
      * @param test
+     * @param testid
      * @param condition
      */
-    static public void addRelationQuestionQuestion(String idGlobal1, String idGlobal2, String test, String condition) {
+    static public void addRelationQuestionQuestion(String idGlobal1, String idGlobal2, String test, String testid, String condition) {
+        if (testid.substring(0,1).contentEquals("-")) {
+            testid = testid.substring(1);
+        }
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -43,8 +52,8 @@ public class DbTableRelationQuestionQuestion {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO question_question_relation (ID_GLOBAL_1, ID_GLOBAL_2, TEST, CONDITION) " +
-                    "VALUES ('" + idGlobal1 + "','" + idGlobal2 + "','" + test + "','" + condition + "');";
+            String sql = 	"INSERT OR IGNORE INTO question_question_relation (ID_GLOBAL_1, ID_GLOBAL_2, TEST_ID, TEST, CONDITION) " +
+                    "VALUES ('" + idGlobal1 + "','" + idGlobal2 + "','" + testid + "','" + test + "','" + condition + "');";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -110,6 +119,35 @@ public class DbTableRelationQuestionQuestion {
 
         return questionIDs;
     }
+
+    static public ArrayList<RelationQuestionQuestion> getQuestionsRelationsLinkedToTest(String testId) {
+        ArrayList<RelationQuestionQuestion> relationQuestionQuestions = new ArrayList<>();
+
+        String sql = "SELECT * FROM question_question_relation WHERE TEST_ID=?";
+        try (Connection connection = Utilities.getDbConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql);) {
+
+            pstmt.setString(1, testId);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                RelationQuestionQuestion relationQuestionQuestion = new RelationQuestionQuestion();
+                relationQuestionQuestion.setTestId(testId);
+                relationQuestionQuestion.setIdGlobal1(rs.getString("ID_GLOBAL_1"));
+                relationQuestionQuestion.setIdGlobal2(rs.getString("ID_GLOBAL_2"));
+                relationQuestionQuestion.setCondition(rs.getString("CONDITION"));
+                relationQuestionQuestions.add(relationQuestionQuestion);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return relationQuestionQuestions;
+    }
+
+
 
     static public String getFormattedQuestionsLinkedToTest(String test) {
         Vector<String> testMap = new Vector<>();

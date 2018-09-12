@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 public class QuestionMultipleChoiceView implements Serializable {
     private String ID;
-    private int TYPE;   //0: QMC; 1: SHRTAQ
+    private int TYPE;   //0: QMC; 1: SHRTAQ; 2: TEST
     private String SUBJECT;
     private String LEVEL;
     private String QUESTION;

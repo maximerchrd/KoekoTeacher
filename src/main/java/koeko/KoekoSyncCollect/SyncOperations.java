@@ -5,8 +5,6 @@ import koeko.Koeko;
 import koeko.database_management.*;
 import koeko.view.*;
 
-import javax.management.relation.Relation;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.*;
@@ -73,11 +71,18 @@ public class SyncOperations {
 
             Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
             qcmVector.addAll(DbTableQuestionShortAnswer.getQuestionViews());
+            qcmVector.addAll(DbTableTests.getAllTestViews());
             en = qcmVector.elements();
             while (en.hasMoreElements()) {
                 QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
                 qcm.setLANGUAGE(professor.get_language());
                 CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
+
+                //Get the question relations if we are uploading a test
+                ArrayList<RelationQuestionQuestion> relationQuestionQuestions = DbTableRelationQuestionQuestion.getQuestionsRelationsLinkedToTest(qcm.getQCM_MUID());
+                if (!relationQuestionQuestions.isEmpty()) {
+                    UpdateQuestionQuestionRelation(qcm.getQCM_MUID(), relationQuestionQuestions);
+                }
 
                 // Get the subjects linked to the question
                 Vector<RelationQuestionSubject> subjectsLinked = DbTableRelationQuestionSubject.getSubjectsForQuestion(qcm.getID());
@@ -92,14 +97,14 @@ public class SyncOperations {
             }
 
             //Send tests
-            ArrayList<TestView> testViews = DbTableTests.getAllTestViews();
+            /*ArrayList<TestView> testViews = DbTableTests.getAllTestViews();
             for (TestView testView : testViews) {
                 testView.setLanguage(professor.get_language());
                 CreateOrUpdateTest(testView);
                 ArrayList<RelationQuestionTest> relationsQuestionTest =
                         DbTableRelationQuestionTest.getRelationQuestionTest(testView.getIdTest(), testView.getTestName());
                 UpdateQuestionTestRelation(testView.getIdTest(), relationsQuestionTest);
-            }
+            }*/
 
             // THIRD STEP, launch sp to update web with new data
             _tcpcom.SyncCollect2WEB();
@@ -163,7 +168,7 @@ public class SyncOperations {
             String muid = _tcpcom.SendSerializableObject(qcm);
             if (muid != null) {
                 qcm.setQCM_MUID(muid);
-                DbTableQuestionMultipleChoice.setQuestionMultipleChoiceMUID(qcm.getID(), muid);
+                DbTableQuestionMultipleChoice.setResourceMUID(qcm.getID(), muid);
             }
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -236,6 +241,20 @@ public class SyncOperations {
                     RelationQuestionObjective rqo = (RelationQuestionObjective) en.nextElement();
                     rqo.set_questionMUID(questionMUID);
                     String muid = _tcpcom.SendSerializableObject(rqo);
+                }
+            } catch ( Exception e ) {
+                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+                System.exit(0);
+            }
+        }
+    }
+
+    static private void UpdateQuestionQuestionRelation(String testUID, ArrayList<RelationQuestionQuestion> relationQuestionQuestions) {
+        boolean bOK = _tcpcom.RemoveTestRelation(testUID);
+        if (bOK) {
+            try {
+                for (RelationQuestionQuestion relationQuestionQuestion : relationQuestionQuestions) {
+                    _tcpcom.SendSerializableObject(relationQuestionQuestion);
                 }
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );

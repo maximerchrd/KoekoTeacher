@@ -413,7 +413,7 @@ public class DbTableQuestionMultipleChoice {
     }
 
 
-    static public void setQuestionMultipleChoiceMUID(String idQMC, String muid) {
+    static public void setResourceMUID(String idQMC, String muid) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -434,11 +434,17 @@ public class DbTableQuestionMultipleChoice {
             sql = "UPDATE question_objective_relation SET ID_GLOBAL='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
+            sql = "UPDATE tests SET ID_TEST_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
+                    "' WHERE ID_TEST_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
             sql = "UPDATE question_question_relation SET ID_GLOBAL_1='" + muid +
                     "' WHERE ID_GLOBAL_1=" + idQMC + ";";
             stmt.executeUpdate(sql);
             sql = "UPDATE question_question_relation SET ID_GLOBAL_2='" + muid +
                     "' WHERE ID_GLOBAL_2=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE question_question_relation SET TEST_ID='" + muid +
+                    "' WHERE TEST_ID=" + idQMC + ";";
             stmt.executeUpdate(sql);
             sql = "UPDATE question_subject_relation SET ID_GLOBAL='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";

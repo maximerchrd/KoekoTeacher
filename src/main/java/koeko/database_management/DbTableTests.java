@@ -2,6 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
+import koeko.view.QuestionMultipleChoiceView;
 import koeko.view.TestView;
 import koeko.view.Utilities;
 
@@ -70,17 +71,19 @@ public class DbTableTests {
         return tests;
     }
 
-    static public ArrayList<TestView> getAllTestViews() {
-        ArrayList<TestView> testViews = new ArrayList<>();
+    static public ArrayList<QuestionMultipleChoiceView> getAllTestViews() {
+        ArrayList<QuestionMultipleChoiceView> testViews = new ArrayList<>();
 
         String sql = 	"SELECT * FROM tests";
         try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                TestView testView = new TestView();
-                testView.setIdTest(rs.getString("IDENTIFIER"));
-                testView.setTestName(rs.getString("NAME"));
+                QuestionMultipleChoiceView testView = new QuestionMultipleChoiceView();
+                testView.setTYPE(2);
+                testView.setID(rs.getString("ID_TEST_GLOBAL"));
+                testView.setQCM_MUID(rs.getString("IDENTIFIER"));
+                testView.setQUESTION(rs.getString("NAME"));
                 String modifDate = rs.getString("MODIF_DATE");
                 testView.setQCM_UPD_TMS(Utilities.StringToTimestamp(modifDate));
                 testViews.add(testView);

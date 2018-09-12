@@ -192,7 +192,8 @@ public class QuestionSendingController extends Window implements Initializable {
                                 }
                                 if (questionBefore != null) {
                                     DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                            String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(), "");
+                                            String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(),
+                                            treeCell.getTreeItem().getValue().getGlobalID(), "");
                                 }
 
                                 //add the node to the tree
@@ -218,13 +219,15 @@ public class QuestionSendingController extends Window implements Initializable {
                                 }
                                 if (questionBefore != null) {
                                     DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                            String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "");
+                                            String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
+                                            treeItemTest.getValue().getGlobalID(), "");
                                 }
 
                                 //add the node to the tree and set the vertical relation
                                 treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
-                                        String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(), "EVALUATION<60");
+                                        String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
+                                        treeItemTest.getValue().getGlobalID(), "EVALUATION<60");
                                 event.setDropCompleted(true);
                                 treeCell.getTreeItem().setExpanded(true);
                                 event.consume();
