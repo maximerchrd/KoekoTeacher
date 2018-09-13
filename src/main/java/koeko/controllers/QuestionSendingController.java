@@ -58,15 +58,15 @@ public class QuestionSendingController extends Window implements Initializable {
     private QuestionMultipleChoice questionMultChoiceSelectedNodeTreeFrom;
     private QuestionShortAnswer questionShortAnswerSelectedNodeTreeFrom;
     private Test testSelectedNodeTreeFrom;
-    private List<Test> testsList = new ArrayList<Test>();
-    private List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
-    private List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
     private String activeClass = "";
     private ContextMenu studentsContextMenu;
+    public List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
+    public List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
+    public List<Test> testsList = new ArrayList<Test>();
     static public Boolean readyToActivate = true;
 
     @FXML
-    private TreeView<QuestionGeneric> allQuestionsTree;
+    public TreeView<QuestionGeneric> allQuestionsTree;
 
     //questions ready for activation (right panel)
     static public Vector<String> IDsFromBroadcastedQuestions = new Vector<>();
@@ -121,6 +121,7 @@ public class QuestionSendingController extends Window implements Initializable {
         };
         new Thread(loadQuestions).start();
         allQuestionsTree.setRoot(root);
+        allQuestionsTree.getStylesheets().add("/style/treeview.css");
         allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
             @Override
             public TreeCell<QuestionGeneric> call(TreeView<QuestionGeneric> stringTreeView) {
@@ -549,26 +550,6 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.show();
     }
 
-    public void editQuestion() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditQuestion.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        EditQuestionController controller = fxmlLoader.getController();
-        QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        controller.initVariables(genericQuestionsList, allQuestionsTree, questionGeneric, selectedItem, allQuestionsTree);
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Edit Question");
-        stage.setScene(new Scene(root1));
-        stage.show();
-    }
-
     public void deactivateQuestion() {
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         if (group < 1) {
@@ -818,56 +799,6 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.setTitle("Create a New Test");
         stage.setScene(new Scene(root1));
         stage.show();
-    }
-
-    public void editTest() {
-        QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditTest.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            EditTestController controller = fxmlLoader.getController();
-            ArrayList<String> testNames = new ArrayList<>();
-            testsList = DbTableTests.getAllTests();
-            for (Test test : testsList) {
-                testNames.add(test.getTestName());
-            }
-            ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(questionGeneric.getQuestion());
-            controller.initParameters(allQuestionsTree, testNames, QuestionGeneric.changeIdSign(questionGeneric.getGlobalID()), objectives);
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Create a New Test");
-            stage.setScene(new Scene(root1));
-            stage.show();
-        } else {
-            System.out.println("Cannot edit test: no test selected");
-        }
-    }
-
-    public void removeQuestionOrTest() {
-        TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        if (Long.valueOf(((QuestionGeneric) selectedItem.getValue()).getGlobalID()) < 0) {
-            DbTableTests.removeTestWithName(((QuestionGeneric) selectedItem.getValue()).getQuestion());
-        } else {
-            //only sets a flag for the question generic, leave the whole question inside database and doesn't delete image
-            DbTableQuestionGeneric.removeQuestion(((QuestionGeneric) selectedItem.getValue()).getGlobalID());
-        }
-        testsNodeList.remove(selectedItem.getValue());
-        selectedItem.getParent().getChildren().remove(selectedItem);
-    }
-
-    public void removeQuestionFromTest() {
-        TreeItem selectedItem = allQuestionsTree.getSelectionModel().getSelectedItem();
-        QuestionGeneric parentTest = (QuestionGeneric) selectedItem.getParent().getValue();
-        QuestionGeneric questionGeneric = (QuestionGeneric) selectedItem.getValue();
-        DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(), questionGeneric.getGlobalID());
-        testsNodeList.remove(selectedItem.getValue());
-        selectedItem.getParent().getChildren().remove(selectedItem);
     }
 
     public void createGroup() {

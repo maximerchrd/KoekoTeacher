@@ -9,8 +9,6 @@
    <children>
       <Button layoutX="375.0" layoutY="270.0" mnemonicParsing="false" onAction="#deactivateQuestion" prefHeight="27.0" prefWidth="170.0" text="Deactivate question" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="350.0" />
       <Button layoutX="375.0" layoutY="234.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="27.0" prefWidth="170.0" text="Activate question/test" AnchorPane.bottomAnchor="70.0" AnchorPane.rightAnchor="350.0" />
-      <Button layoutX="193.0" layoutY="270.0" mnemonicParsing="false" onAction="#removeQuestionOrTest" prefHeight="27.0" prefWidth="170.0" text="Delete question/test" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="535.0" />
-      <Button layoutX="14.0" layoutY="270.0" mnemonicParsing="false" onAction="#editQuestion" prefHeight="27.0" prefWidth="170.0" text="Edit the question" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="718.0" />
       <Button layoutX="14.0" layoutY="234.0" mnemonicParsing="false" onAction="#createQuestion" prefHeight="27.0" prefWidth="170.0" text="Create a question" AnchorPane.bottomAnchor="70.0" AnchorPane.rightAnchor="718.0" />
       <SplitPane dividerPositions="0.4774774774774775" layoutX="83.0" layoutY="25.0" AnchorPane.bottomAnchor="105.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="5.0">
         <items>
@@ -34,8 +32,6 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Button layoutX="6.0" layoutY="40.0" mnemonicParsing="false" onAction="#createTest" prefHeight="27.0" prefWidth="185.0" text="Create a test/quiz" />
-                        <Button layoutX="6.0" layoutY="77.0" mnemonicParsing="false" onAction="#editTest" prefHeight="27.0" prefWidth="185.0" text="Edit test/quiz" />
-                        <Button layoutX="6.0" layoutY="115.0" mnemonicParsing="false" onAction="#removeQuestionFromTest" prefHeight="27.0" prefWidth="185.0" text="Remove question from test" />
                      </children>
                   </AnchorPane>
             </content>

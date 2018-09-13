@@ -287,7 +287,9 @@ public class DbTableRelationQuestionQuestion {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL1='" + questionID + "';";
+            String sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "';";
+            stmt.executeUpdate(sql);
+            sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_2='" + questionID + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
