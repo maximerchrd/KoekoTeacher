@@ -422,7 +422,10 @@ public class DbTableQuestionMultipleChoice {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE multiple_choice_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
+            String sql = "UPDATE generic_questions SET ID_GLOBAL='" + muid + 
+                    "' WHERE ID_GLOBAL=" + idQMC + ";";
+            stmt.executeUpdate(sql);
+            sql = "UPDATE multiple_choice_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
             sql = "UPDATE short_answer_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +

@@ -176,19 +176,6 @@ public class SyncOperations {
         }
     }
 
-    static private void CreateOrUpdateTest(TestView test) {
-        try {
-            String muid = _tcpcom.SendSerializableObject(test);
-            if (muid != null) {
-                test.setIdTest(muid);
-                DbTableTests.setIdentifier(test.getTestName(), test.getIdTest());
-            }
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-        }
-    }
-
     static private void CreateOrUpdateSubject(Subject sbj) {
         try {
             String muid = _tcpcom.SendSerializableObject(sbj);
