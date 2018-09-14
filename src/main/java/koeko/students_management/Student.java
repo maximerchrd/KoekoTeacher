@@ -17,6 +17,7 @@ public class Student {
     private String uniqueDeviceID = "no identifier";
     private String studentID = "-1";
     private InetAddress mInetAddress = null;
+    private String port = "";
     private String mName = "no name";
     private OutputStream mOutputStream = null;
     private InputStream mInputStream = null;
@@ -77,6 +78,9 @@ public class Student {
     public void setInetAddress(InetAddress arg_inetaddress) {
         mInetAddress = arg_inetaddress;
     }
+    public void setPort(String port) {
+        this.port = port;
+    }
     public void setUniqueDeviceID(String arg_MacAddress) {
         uniqueDeviceID = arg_MacAddress;
     }
@@ -123,6 +127,9 @@ public class Student {
     }
     public InetAddress getInetAddress() {
         return mInetAddress;
+    }
+    public String getPort() {
+        return port;
     }
     public String getUniqueDeviceID() {
         return uniqueDeviceID;

@@ -180,7 +180,7 @@ public class Classroom {
         students_addresses.clear();
         for (int i = 0; i < students_vector.size(); i++) {
             if (students_vector.get(i).getInetAddress() != null) {
-                students_addresses.add(students_vector.get(i).getInetAddress().toString());
+                students_addresses.add(students_vector.get(i).getInetAddress().toString() + ":" + students_vector.get(i).getPort());
             } else {
                 students_addresses.add("");
             }
@@ -214,7 +214,7 @@ public class Classroom {
         int students_addresses_size = readStudents_addresses();
         System.out.println("studentGroupsAndClass addresses size: "+ students_addresses_size);
         if (students_addresses_size > 0) {
-            if (!students_addresses.contains(student.getInetAddress().toString())) {
+            if (!students_addresses.contains(student.getInetAddress().toString() + ":" + student.getPort())) {
                 System.out.println("studentGroupsAndClass addresses content: " + students_addresses.get(0) + " student address: " + student.getUniqueDeviceID());
                 students_vector.add(student);
             } else {

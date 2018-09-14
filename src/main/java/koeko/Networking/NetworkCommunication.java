@@ -102,6 +102,7 @@ public class NetworkCommunication {
                             Socket skt = myServerSocket.accept();
                             Student student = new Student();
                             student.setInetAddress(skt.getInetAddress());
+                            student.setPort(String.valueOf(skt.getPort()));
                             System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
 
                             try {
