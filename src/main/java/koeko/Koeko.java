@@ -82,7 +82,10 @@ public class Koeko extends Application {
             }
         });
 
-        //functionalTesting.mainTesting(3);
+
+        /*for (Long i = 0L; i < 3; i++) {
+            functionalTesting.mainTesting(3, 2, 10, 4000 - i * 100);
+        }*/
     }
 
 }

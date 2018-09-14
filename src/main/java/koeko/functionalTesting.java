@@ -20,8 +20,9 @@ public class functionalTesting {
     static PrintStream originalStream;
     static PrintStream dummyStream;
     static int idOffset = 1000;
-    static public int numberStudents = 3;
-    static public int numberOfQuestions = 200;
+    static public int numberStudents = 2;
+    static public int numberOfQuestions = 10;
+    static public Long msDelay = 3000L;
     static ArrayList<String> questionPack = new ArrayList<>();
 
     static public Map<String, Integer> studentsNbEvalSent = new LinkedHashMap<>();
@@ -31,8 +32,11 @@ public class functionalTesting {
     static public Integer nbAccuseReception = 0;
 
 
-    static public void mainTesting(int testCode) {
+    static public void mainTesting(int testCode, int nbStudents, int nbQuestions, Long msDelay) {
         testMode = true;
+        numberStudents = nbStudents;
+        numberOfQuestions = nbQuestions;
+        functionalTesting.msDelay = msDelay;
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
@@ -67,7 +71,6 @@ public class functionalTesting {
 
                     sendQuestionsPack();
 
-                    System.setOut(originalStream);
                     while (functionalTesting.endTimeQuestionSending == 0L) {
                         try {
                             Thread.sleep(200);
@@ -75,6 +78,7 @@ public class functionalTesting {
                             e.printStackTrace();
                         }
                     }
+                    System.setOut(originalStream);
                     Long sendingTime = functionalTesting.endTimeQuestionSending - functionalTesting.startTimeQuestionSending;
                     sendingTime = sendingTime / 1000;
                     System.out.println("Questions sent in: " + sendingTime + " seconds");
@@ -148,7 +152,7 @@ public class functionalTesting {
             NetworkCommunication.networkCommunicationSingleton.SendQuestionID(id, students);
             //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
             try {
-                Thread.sleep(3000);
+                Thread.sleep(msDelay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -175,6 +179,7 @@ public class functionalTesting {
     }
 
     private static void createQuestionsPack(int startingIndex, int endingIndex, String subject, String objective, int testCode) {
+        questionPack.removeAll(questionPack);
         for (int i = startingIndex; i < endingIndex; i++) {
             QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
             questionMultipleChoice.setQUESTION("question " + (i + 1) + "^^.-_$£, +\"*ç%&/()=?'^" + "7492qJfzdDSB");
@@ -194,7 +199,7 @@ public class functionalTesting {
             } else if (testCode == 2){
                 questionMultipleChoice.setIMAGE("none");
             } else if (testCode == 3) {
-                questionMultipleChoice.setIMAGE("pictures/iphone-screen-shot.jpg");
+                questionMultipleChoice.setIMAGE("pictures/cell.jpg");
             }
             try {
                 questionPack.add(DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice));
