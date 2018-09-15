@@ -21,6 +21,7 @@ public class DbTableTests {
                     "(ID_TEST       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_TEST_GLOBAL      INT     NOT NULL, " +
                     " NAME      TEXT     NOT NULL, " +
+                    " MEDIA_FILE      TEXT, " +
                     " TEST_MODE           INT    NOT NULL," +
                     " QUANTITATIVE_EVAL           TEXT    NOT NULL," +
                     " MEDALS       TEXT, " +
@@ -198,6 +199,19 @@ public class DbTableTests {
 
             pstmt.setString(1, medals);
             pstmt.setString(2, name);
+            pstmt.executeUpdate();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+    }
+
+    static public void setMediaFile(String mediaFile, String testName) {
+        String sql = "UPDATE tests SET MEDIA_FILE = ? WHERE NAME = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+
+            pstmt.setString(1, mediaFile);
+            pstmt.setString(2, testName);
             pstmt.executeUpdate();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );

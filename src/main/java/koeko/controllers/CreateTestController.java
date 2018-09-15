@@ -1,6 +1,7 @@
 package koeko.controllers;
 
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import koeko.database_management.DbTableLearningObjectives;
 import koeko.database_management.DbTableRelationObjectiveTest;
 import koeko.database_management.DbTableTests;
@@ -19,7 +20,14 @@ import javafx.stage.Window;
 import koeko.questions_management.Test;
 import org.controlsfx.control.textfield.TextFields;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -42,6 +50,7 @@ public class CreateTestController extends Window implements Initializable {
     @FXML private TextField bronzeMedalTime;
     @FXML private TextField bronzeMedalScore;
     @FXML private CheckBox medalsCheckbox;
+    @FXML private TextField mediaPath;
 
     public void initParameters(TreeItem<QuestionGeneric> root, ArrayList<String> testNames) {
         this.root = root;
@@ -111,6 +120,53 @@ public class CreateTestController extends Window implements Initializable {
         }
     }
 
+    public void addMediaFile() {
+        String dirName = "media";
+        File theDir = new File(dirName);
+        // if the directory does not exist, create it
+        if (!theDir.exists()) {
+            System.out.println("creating directory: " + theDir.getName());
+            boolean result = false;
+
+            try{
+                theDir.mkdir();
+                result = true;
+            }
+            catch(SecurityException se){
+                //handle it
+            }
+            if(result) {
+                System.out.println("DIR created");
+            }
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Music or Video Files",
+                "*.mp3", "*.wav", "*.mp4", "*.avi");
+        fileChooser.getExtensionFilters().add(extFilter);
+        fileChooser.setTitle("Select Media file");
+        Stage stage = (Stage) mediaPath.getScene().getWindow();
+        File source_file = fileChooser.showOpenDialog(stage);
+        String directory = dirName + "/";
+        File dest_file = new File(directory + source_file.getName());
+        File hashedFileName = new File(directory + source_file.getName());
+        try {
+            Files.copy(source_file.toPath(), dest_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = Files.readAllBytes(dest_file.toPath());
+            messageDigest.update(hashedBytes);
+            String encryptedString = DatatypeConverter.printHexBinary(messageDigest.digest());
+            hashedFileName = new File(directory + encryptedString);
+            Files.move(dest_file.toPath(), hashedFileName.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        mediaPath.setText(hashedFileName.getName());
+        mediaPath.setEditable(false);
+    }
+
     public void saveTest() {
         if (!testNames.contains(testName.getText())) {
             Test newTest = new Test();
@@ -155,6 +211,11 @@ public class CreateTestController extends Window implements Initializable {
                 medals += "silver:" + silverMedalTime.getText() + "/" + silverMedalScore.getText() + ";";
                 medals += "gold:" + goldMedalTime.getText() + "/" + goldMedalScore.getText() + ";";
                 DbTableTests.setMedals(testName.getText(), medals);
+            }
+
+            //add media file name
+            if (!mediaPath.getText().contentEquals("none")) {
+                DbTableTests.setMediaFile(mediaPath.getText(), testName.getText());
             }
 
             Stage stage = (Stage) testName.getScene().getWindow();
