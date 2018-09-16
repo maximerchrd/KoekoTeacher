@@ -39,10 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by maximerichard on 12.03.18.
@@ -52,6 +49,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     //private ArrayList<String> questions;
     //private ArrayList<Integer> questionsIDs;
     private ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
+    private Map<String,Integer> studentIdToStatusReceptionMap;
+
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
     @FXML private ComboBox chooseTestCombo;
@@ -189,6 +188,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
     public void addUser(Student UserStudent, Boolean connection, Integer group) {
+        //add user to the studentToReceptionStatus map
+        studentIdToStatusReceptionMap.put(UserStudent.getUniqueDeviceID(), 0);
+
         System.out.println("adding user with connection:" + connection + "; ip: " + UserStudent.getInetAddress().toString());
         if (connection) {
             System.out.println("Student connection in addUser");
@@ -204,9 +206,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected / WAITING FOR SYNC", "0");
             } else {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected / WAITING FOR SYNC", "0");
             }
             for (int i = 0; i < tableViewArrayList.get(group).getItems().get(0).getAnswers().size(); i++) {
                 singleStudentAnswersLine.addAnswer();
@@ -683,13 +685,14 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         Koeko.studentsVsQuestionsTableControllerSingleton = this;
         //initialize table
         tableViewArrayList = new ArrayList<>();
+        studentIdToStatusReceptionMap = Collections.synchronizedMap(new LinkedHashMap<>());
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
         TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>("Student");
         columnStudent.setPrefWidth(180);
         columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
         studentsQuestionsTable.getColumns().add(columnStudent);
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
-        columnStatus.setPrefWidth(100);
+        columnStatus.setPrefWidth(160);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
         studentsQuestionsTable.getColumns().add(columnStatus);
 
@@ -744,7 +747,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         menuItem.setOnAction(event -> {
             int indexStudent = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
             SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
-            singleStudentAnswersLine2.setStatus("connected");
+            if (singleStudentAnswersLine2.getStatus().split("/").length > 1) {
+                singleStudentAnswersLine2.setStatus("connected /" + singleStudentAnswersLine2.getStatus().split("/")[1]);
+            }
             tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
         });
 
@@ -767,5 +772,39 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
         }
         return -1;
+    }
+
+    public void setStatusQuestionsReceived(Student student, Integer statusQuestionsReceived) {
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                Integer status = studentIdToStatusReceptionMap.get(student.getUniqueDeviceID());
+                if (status == 0 && statusQuestionsReceived == 1) {
+                    int indexStudent = -1;
+                    for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                        if (tableViewArrayList.get(0).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                            indexStudent = i;
+                        }
+                    }
+                    if ( indexStudent != -1) {
+                        SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
+                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ Sync OK");
+                        tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
+                    }
+                } else if (status == 1 && statusQuestionsReceived == 0) {
+                    int indexStudent = -1;
+                    for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                        if (tableViewArrayList.get(0).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                            indexStudent = i;
+                        }
+                    }
+                    if ( indexStudent != -1) {
+                        SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
+                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ WAITING FOR SYNC");
+                        tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
+                    }
+                }
+                studentIdToStatusReceptionMap.put(student.getUniqueDeviceID(), statusQuestionsReceived);
+            }
+        });
     }
 }

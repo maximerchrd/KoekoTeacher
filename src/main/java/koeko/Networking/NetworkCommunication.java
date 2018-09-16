@@ -21,6 +21,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -42,7 +43,8 @@ public class NetworkCommunication {
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
-
+    private Map<String, ArrayList<String>> studentsToQuestionidsMap;
+    private volatile ArrayList<String> sentQuestionIds;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
 
@@ -53,10 +55,8 @@ public class NetworkCommunication {
         questionIdsForGroups = new ArrayList<>();
         studentNamesForGroups = new ArrayList<>();
         disconnectiongStudents = new Vector<>();
-    }
-
-    public NetworkCommunication() {
-        networkCommunicationSingleton = this;
+        studentsToQuestionidsMap = Collections.synchronizedMap(new LinkedHashMap<>());
+        sentQuestionIds = new ArrayList<>();
     }
 
     public LearningTrackerController getLearningTrackerController() {
@@ -281,6 +281,7 @@ public class NetworkCommunication {
                 student.getDeviceQuestions().add(String.valueOf(questionMultipleChoice.getID()));
             }
             QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
+            sentQuestionIds.add(questionID);
         }
     }
 
@@ -371,6 +372,7 @@ public class NetworkCommunication {
                 student.getDeviceQuestions().add(String.valueOf(questionShortAnswer.getID()));
             }
             QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
+            sentQuestionIds.add(questionID);
         }
     }
 
@@ -438,11 +440,10 @@ public class NetworkCommunication {
                     try {
                         byte[] in_bytearray = new byte[1000];
                         bytesread = answerInStream.read(in_bytearray);
-                        System.out.println(bytesread + " bytes read");
-                        if (bytesread >= 1000) System.out.println("Answer too large for bytearray");
+                        if (bytesread >= 1000) System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
                         if (bytesread >= 0) {
                             String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
-                            System.out.println("received answer: " + answerString);
+                            System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + "bytes:" + answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
                                 //arg_student.setName(answerString.split("///")[2]);
                                 double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
@@ -508,7 +509,7 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
-                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
+                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass, studentsToQuestionidsMap);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
@@ -545,6 +546,22 @@ public class NetworkCommunication {
                                         }
                                     };
                                     studentDisconnectionQThread.start();
+                                }
+                            } else if (answerString.split("///")[0].contains("OK")) {
+                                ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
+                                for (String receivedString : receptionArray) {
+                                    if (receivedString.matches("[0-9]+")) {
+                                        if (!arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
+                                            studentsToQuestionidsMap.get(arg_student.getUniqueDeviceID()).add(receivedString);
+                                            if (studentsToQuestionidsMap.get(arg_student.getUniqueDeviceID()).containsAll(sentQuestionIds)) {
+                                                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(arg_student, 1);
+                                            } else {
+                                                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(arg_student, 0);
+                                            }
+                                        } else {
+                                            System.out.println("WARNING: received OK but arg_student UniqueDeviceID was not initialized");
+                                        }
+                                    }
                                 }
                             } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
                                 int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
@@ -711,6 +728,7 @@ public class NetworkCommunication {
                                     System.out.println("Broken pipe with student: " + singleStudent.getName() + " (student was null)");
                                 } else {
                                     ex2.printStackTrace();
+                                    System.out.println("Exception occured with: " + student.getName());
                                 }
                             }
                         }

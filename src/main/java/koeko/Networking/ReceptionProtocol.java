@@ -6,11 +6,12 @@ import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Vector;
 
 public class ReceptionProtocol {
 
-    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass) {
+    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass, Map<String, ArrayList<String>> studentsToQuestionidsMap) {
         Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
         student.setConnected(true);
         student.setUniqueDeviceID(answerString.split("///")[1]);
@@ -22,7 +23,7 @@ public class ReceptionProtocol {
         student.setStudentID(studentID);
 
         //update the tracking of questions on device
-
+        studentsToQuestionidsMap.put(student.getUniqueDeviceID(), new ArrayList<>());
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
