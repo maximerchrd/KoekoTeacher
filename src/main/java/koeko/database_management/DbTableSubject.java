@@ -2,6 +2,7 @@ package koeko.database_management;
 import koeko.view.Subject;
 import koeko.view.Utilities;
 
+import javax.rmi.CORBA.Util;
 import java.sql.*;
 import java.util.Date;
 import java.util.Vector;
@@ -27,27 +28,16 @@ public class DbTableSubject {
         }
     }
     static public void addSubject(String subject) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT) " +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    subject +"');";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE subjects SET MODIF_DATE='" + Utilities.TimestampForNow() + "', ID_SUBJECT_GLOBAL = 2000000 + ID_SUBJECT WHERE ID_SUBJECT = (SELECT MAX(ID_SUBJECT) FROM subjects);";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
+        String sql = 	"INSERT OR IGNORE INTO subjects (ID_SUBJECT_GLOBAL,SUBJECT,MODIF_DATE) " +
+                "VALUES (?,?,?);";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, Utilities.localUniqueID());
+            stmt.setString(2, subject);
+            stmt.setString(3, Utilities.TimestampForNowAsString());
+            stmt.executeUpdate();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
     }
 

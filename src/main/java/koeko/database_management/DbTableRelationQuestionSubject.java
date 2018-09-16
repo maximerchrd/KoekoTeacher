@@ -1,6 +1,7 @@
 package koeko.database_management;
 
 import koeko.view.RelationQuestionSubject;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.Vector;
@@ -31,27 +32,16 @@ public class DbTableRelationQuestionSubject {
      * @param subject
      * @throws Exception
      */
-    static public void addRelationQuestionSubject(String subject) throws Exception {
-        //first get the list of all subjects linked to the question
-
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) SELECT t1.ID_GLOBAL,t2.ID_SUBJECT_GLOBAL," +
-                    "'1' FROM generic_questions t1, subjects t2 WHERE t1.ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions) " +
-                    "AND t2.SUBJECT='" + subject + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
+    static public void addRelationQuestionSubject(String subject) {
+        String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) SELECT t1.ID_GLOBAL,t2.ID_SUBJECT_GLOBAL," +
+                "'1' FROM generic_questions t1, subjects t2 WHERE t1.ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions) " +
+                "AND t2.SUBJECT=?;";
+        try ( Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, subject);
+            stmt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
         }
     }
 

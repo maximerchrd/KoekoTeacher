@@ -183,27 +183,29 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void saveQuestion() {
+        ArrayList<String> subjects = new ArrayList<>();
+        ArrayList<String> objectives = new ArrayList<>();
+        QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
+        QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
+        int questionType = -1;
+
         for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
-            try {
-                DbTableSubject.addSubject(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"));
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+            subjects.add(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
         }
+
         for (int i = 0; i < objectivesComboBoxArrayList.size(); i++) {
             try {
-                DbTableLearningObjectives.addObjective(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"),1);
+                objectives.add(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
 
-        //add question to database according to question type
         if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
-            QuestionShortAnswer new_questshortanswer = new QuestionShortAnswer();
-            new_questshortanswer.setQUESTION(questionText.getText().replace("'","''"));
+            questionType = 1;
+            questionShortAnswer.setQUESTION(questionText.getText().replace("'","''"));
             if (imagePath.getText().length() > 0) {
-                new_questshortanswer.setIMAGE(imagePath.getText());
+                questionShortAnswer.setIMAGE(imagePath.getText());
             }
             ArrayList<String> answerOptions = new ArrayList<String>();
             for (int i = 0; i < hBoxArrayList.size(); i++) {
@@ -213,46 +215,10 @@ public class CreateQuestionController implements Initializable {
                     answerOptions.add(answerOption.replace("'","''"));
                 }
             }
-            new_questshortanswer.setANSWER(answerOptions);
-            String idGlobal = "-1";
-            try {
-                idGlobal = DbTableQuestionShortAnswer.addShortAnswerQuestion(new_questshortanswer);
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-            new_questshortanswer.setID(idGlobal);
-
-            //put the question in the treeView
-            QuestionGeneric questionGeneric = new QuestionGeneric(1, new_questshortanswer.getID());
-            questionGeneric.setQuestion(new_questshortanswer.getQUESTION());
-            questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
-            questionGeneric.setTypeOfQuestion("1");
-            genericQuestionsList.add(questionGeneric);
-            Node questionImage = null;
-            questionImage = new ImageView(new Image("file:" + new_questshortanswer.getIMAGE(), 20, 20, true, false));
-            TreeItem<QuestionGeneric> itemChild;
-            if (new_questshortanswer.getIMAGE().length() < 1) {
-                itemChild = new TreeItem<>(questionGeneric);
-            } else {
-                itemChild = new TreeItem<>(questionGeneric, questionImage);
-            }
-            allQuestionsTree.getRoot().getChildren().add(itemChild);
-
-            for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
-                try {
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-            }
-            for (int i = 0; i < objectivesComboBoxArrayList.size(); i++) {
-                try {
-                    DbTableRelationQuestionObjective.addRelationQuestionObjective(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-            }
+            questionShortAnswer.setANSWER(answerOptions);
         } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question Multiple Choice")) {
+            questionType = 0;
+
             Vector<String> options_vector = new Vector<String>();
             for (int i = 0; i < 10; i++) options_vector.add(" ");
             for (int i = 0; i < 10 && i < hBoxArrayList.size() && !((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText().contentEquals(" "); i++) {
@@ -269,48 +235,86 @@ public class CreateQuestionController implements Initializable {
                     number_correct_answers++;
                 }
             }
-            QuestionMultipleChoice new_questmultchoice = new QuestionMultipleChoice("1", questionText.getText().replace("'","''"), options_vector.get(0).replace("'","''"),
+            questionMultipleChoice = new QuestionMultipleChoice("1", questionText.getText().replace("'","''"), options_vector.get(0).replace("'","''"),
                     options_vector.get(1).replace("'","''"), options_vector.get(2).replace("'","''"), options_vector.get(3).replace("'","''"), options_vector.get(4).replace("'","''"),
                     options_vector.get(5).replace("'","''"), options_vector.get(6).replace("'","''"), options_vector.get(7).replace("'","''"), options_vector.get(8).replace("'","''"),
                     options_vector.get(9).replace("'","''"), imagePath.getText().replace("'","''"));
-            new_questmultchoice.setNB_CORRECT_ANS(number_correct_answers);
-            try {
-                DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(new_questmultchoice);
-                new_questmultchoice.setID(DbTableQuestionMultipleChoice.getLastIDGlobal());
+            questionMultipleChoice.setNB_CORRECT_ANS(number_correct_answers);
+        }
 
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+        saveQuestion(subjects, objectives, questionType, questionMultipleChoice, questionShortAnswer);
+    }
 
-            //insert question in tree view
-            QuestionGeneric questionGeneric = new QuestionGeneric(0, new_questmultchoice.getID());
-            questionGeneric.setQuestion(new_questmultchoice.getQUESTION());
-            questionGeneric.setImagePath(new_questmultchoice.getIMAGE());
-            questionGeneric.setTypeOfQuestion("0");
+    public void saveQuestion(ArrayList<String> subjects, ArrayList<String> objectives, int questionType, QuestionMultipleChoice questionMultipleChoice,
+                             QuestionShortAnswer questionShortAnswer) {
+
+
+        for (String subject : subjects) {
+            DbTableSubject.addSubject(subject);
+        }
+
+        for (String objective : objectives) {
+            DbTableLearningObjectives.addObjective(objective, -1);
+        }
+
+        //add question to database according to question type
+        if (questionType == 1) {
+            String idGlobal = "-1";
+            idGlobal = DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
+            questionShortAnswer.setID(idGlobal);
+
+            //put the question in the treeView
+            QuestionGeneric questionGeneric = new QuestionGeneric(1, questionShortAnswer.getID());
+            questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
+            questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
+            questionGeneric.setTypeOfQuestion("1");
             genericQuestionsList.add(questionGeneric);
             Node questionImage = null;
-            questionImage = new ImageView(new Image("file:" + new_questmultchoice.getIMAGE(), 20, 20, true, false));
+            questionImage = new ImageView(new Image("file:" + questionShortAnswer.getIMAGE(), 20, 20, true, false));
             TreeItem<QuestionGeneric> itemChild;
-            if (new_questmultchoice.getIMAGE().length() < 1) {
+            if (questionShortAnswer.getIMAGE().length() < 1) {
                 itemChild = new TreeItem<>(questionGeneric);
             } else {
                 itemChild = new TreeItem<>(questionGeneric, questionImage);
             }
             allQuestionsTree.getRoot().getChildren().add(itemChild);
 
-            for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
-                try {
-                    DbTableRelationQuestionSubject.addRelationQuestionSubject(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
+            for (String subject : subjects) {
+                DbTableRelationQuestionSubject.addRelationQuestionSubject(subject);
             }
-            for (int i = 0; i < objectivesComboBoxArrayList.size(); i++) {
-                try {
-                    DbTableRelationQuestionObjective.addRelationQuestionObjective(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString().replace("'","''"));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
+            for (String objective : objectives) {
+                DbTableRelationQuestionObjective.addRelationQuestionObjective(objective);
+            }
+        } else if (questionType == 0) {
+            try {
+                DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice);
+                questionMultipleChoice.setID(DbTableQuestionMultipleChoice.getLastIDGlobal());
+
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+
+            //insert question in tree view
+            QuestionGeneric questionGeneric = new QuestionGeneric(0, questionMultipleChoice.getID());
+            questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
+            questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
+            questionGeneric.setTypeOfQuestion("0");
+            genericQuestionsList.add(questionGeneric);
+            Node questionImage = null;
+            questionImage = new ImageView(new Image("file:" + questionMultipleChoice.getIMAGE(), 20, 20, true, false));
+            TreeItem<QuestionGeneric> itemChild;
+            if (questionMultipleChoice.getIMAGE().length() < 1) {
+                itemChild = new TreeItem<>(questionGeneric);
+            } else {
+                itemChild = new TreeItem<>(questionGeneric, questionImage);
+            }
+            allQuestionsTree.getRoot().getChildren().add(itemChild);
+
+            for (String subject : subjects) {
+                DbTableRelationQuestionSubject.addRelationQuestionSubject(subject);
+            }
+            for (String objective : objectives) {
+                DbTableRelationQuestionObjective.addRelationQuestionObjective(objective);
             }
         } else {
             System.out.println("Problem saving question: question type not supported");

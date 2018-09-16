@@ -27,30 +27,18 @@ public class DbTableLearningObjectives {
             System.exit(0);
         }
     }
-    static public void addObjective(String objective, int level_cognitive_ability) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY) " +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    objective.replace("'","''") + "','" +
-                    level_cognitive_ability +"');";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE learning_objectives SET ID_OBJECTIVE_GLOBAL = 2000000 + ID_OBJECTIVE, MODIF_DATE = '" + Utilities.TimestampForNowAsString()
-                    + "' WHERE ID_OBJECTIVE = (SELECT MAX(ID_OBJECTIVE) FROM learning_objectives)";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
+    static public void addObjective(String objective, int level_cognitive_ability) {
+        String sql = "INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY,MODIF_DATE) " +
+                "VALUES (?,?,?,?);";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, Utilities.localUniqueID());
+            stmt.setString(2, objective);
+            stmt.setInt(3, level_cognitive_ability);
+            stmt.setString(4, Utilities.TimestampForNowAsString());
+            stmt.executeUpdate();
+        }  catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
         }
     }
     static public void addObjective(Objective objective) throws Exception {

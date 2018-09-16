@@ -32,27 +32,23 @@ public class DbTableQuestionShortAnswer {
         }
     }
 
-    static public String addShortAnswerQuestion(QuestionShortAnswer quest) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
+    static public String addShortAnswerQuestion(QuestionShortAnswer quest) {
         String idGlobal = "-1";
+        String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
+                "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE) " +
+                "VALUES (?,?,?,?,?,?,?);";
         try {
             idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            Connection c = Utilities.getDbConnection();
             c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
-                    "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE) " +
-                    "VALUES ('" +
-                    idGlobal + "','" +
-                    quest.getLEVEL() + "','" +
-                    quest.getQUESTION() + "','" +
-                    0 + "','" +
-                    quest.getIMAGE() + "','" +
-                    quest.getUID() + "','" +
-                    Utilities.TimestampForNowAsString() + "');";
+            PreparedStatement stmt = c.prepareStatement(sql);
+            stmt.setString(1, idGlobal);
+            stmt.setString(2, quest.getLEVEL());
+            stmt.setString(3, quest.getQUESTION());
+            stmt.setInt(4, -1);
+            stmt.setString(5, quest.getIMAGE());
+            stmt.setString(6, quest.getUID());
+            stmt.setString(7, Utilities.TimestampForNowAsString());
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -63,7 +59,6 @@ public class DbTableQuestionShortAnswer {
             }
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
         }
         return idGlobal;
     }
