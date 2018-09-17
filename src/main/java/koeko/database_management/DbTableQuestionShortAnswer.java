@@ -49,7 +49,7 @@ public class DbTableQuestionShortAnswer {
             stmt.setString(5, quest.getIMAGE());
             stmt.setString(6, quest.getUID());
             stmt.setString(7, Utilities.TimestampForNowAsString());
-            stmt.executeUpdate(sql);
+            stmt.executeUpdate();
             stmt.close();
             c.commit();
             c.close();

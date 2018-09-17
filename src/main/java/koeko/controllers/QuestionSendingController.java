@@ -112,14 +112,8 @@ public class QuestionSendingController extends Window implements Initializable {
         root = new TreeItem<>(new QuestionGeneric());
         root.setExpanded(true);
         allQuestionsTree.setShowRoot(false);
-        Task<Void> loadQuestions = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                populateTree(null);
-                return null;
-            }
-        };
-        new Thread(loadQuestions).start();
+        //populate the tree with tests and questions on the javafx thread
+        Platform.runLater(() -> populateTree(null));
         allQuestionsTree.setRoot(root);
         allQuestionsTree.getStylesheets().add("/style/treeview.css");
         allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
@@ -134,7 +128,7 @@ public class QuestionSendingController extends Window implements Initializable {
                             draggedQuestion = treeCell.getTreeItem().getValue();
                             Dragboard db = allQuestionsTree.startDragAndDrop(TransferMode.ANY);
 
-                            /* Put a string on a dragboard */
+                            // Put a string on a dragboard
                             ClipboardContent content = new ClipboardContent();
                             content.putString(treeCell.getText());
                             db.setContent(content);
@@ -146,12 +140,11 @@ public class QuestionSendingController extends Window implements Initializable {
 
                 treeCell.setOnDragOver(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
-                        /* data is dragged over the target */
-                        /* accept it only if it is not dragged from the same node
-                         * and if it has a string data */
+                        // data is dragged over the target
+                        // accept it only if it is not dragged from the same node
+                        // and if it has a string data
                         if (event.getGestureSource() != treeCell &&
                                 event.getDragboard().hasString()) {
-                            /* allow for both copying and moving, whatever user chooses */
                             event.acceptTransferModes(TransferMode.COPY);
                         }
 
@@ -161,8 +154,8 @@ public class QuestionSendingController extends Window implements Initializable {
 
                 treeCell.setOnDragEntered(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
-                        /* the drag-and-drop gesture entered the target */
-                        /* show to the user that it is an actual gesture target */
+                        // the drag-and-drop gesture entered the target
+                        // show to the user that it is an actual gesture target
                         if (event.getGestureSource() != treeCell &&
                                 event.getDragboard().hasString()) {
                             treeCell.setTextFill(Color.LIGHTGREEN);
@@ -172,7 +165,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 });
                 treeCell.setOnDragExited(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
-                        /* mouse moved away, remove the graphical cues */
+                        // mouse moved away, remove the graphical cues
                         treeCell.setTextFill(Color.BLACK);
                         event.consume();
                     }
@@ -181,7 +174,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
                 treeCell.setOnDragDropped(new EventHandler<DragEvent>() {
                     public void handle(DragEvent event) {
-                        /* data dropped */
+                        // data dropped
                         if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) < 0) {
                             if (treeCell.getTreeItem().getValue().getTypeOfQuestion().contentEquals("TEFO")) {
 
@@ -366,7 +359,6 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         //then add the questions
-
         for (int i = 0; i < genericQuestionsList.size(); i++) {
             try {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(genericQuestionsList.get(i).getGlobalID());
