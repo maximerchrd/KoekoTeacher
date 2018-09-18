@@ -198,11 +198,7 @@ public class NetworkCommunication {
 
     public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
         QuestionMultipleChoice questionMultipleChoice = null;
-        try {
-            questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
         if (questionMultipleChoice.getQUESTION().length() > 0) {
             String question_text = questionMultipleChoice.getQUESTION() + "///";
             question_text += questionMultipleChoice.getOPT0() + "///";
@@ -277,11 +273,7 @@ public class NetworkCommunication {
 
     public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
         QuestionShortAnswer questionShortAnswer = null;
-        try {
-            questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
         if (questionShortAnswer.getQUESTION().length() > 0) {
             String question_text = questionShortAnswer.getQUESTION() + "///";
             question_text += questionShortAnswer.getID() + "///";
@@ -553,9 +545,17 @@ public class NetworkCommunication {
                         } else {
 
                         }
+                    } catch (SocketException sockex) {
+                        if (sockex.toString().contains("timed out")) {
+                            System.out.println("Socket exception: read timed out");
+                        } else if (sockex.toString().contains("Connection reset")) {
+                            System.out.println("Socket exception: connection reset");
+                        } else {
+                            System.out.println("Other Socket exception");
+                        }
+                        bytesread = -1;
                     } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                        System.out.println("Some other IOException occured");
                         if (e1.toString().contains("Connection reset")) {
                             bytesread = -1;
                         }
@@ -720,13 +720,17 @@ public class NetworkCommunication {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
                                     singleStudent.getOutputStream().flush();
                                 }
+                            } catch (SocketException sockex) {
+                                System.out.println("SocketException (socket closed by client?)");
                             } catch (IOException ex2) {
                                 if (ex2.toString().contains("Broken pipe")) {
-                                    System.out.println("Broken pipe with student: " + singleStudent.getName() + " (student was null)");
+                                    System.out.println("Broken pipe with a student (student was null)");
                                 } else {
+                                    System.out.println("Other IOException occured");
                                     ex2.printStackTrace();
-                                    System.out.println("Exception occured with: " + student.getName());
                                 }
+                            } catch (NullPointerException nulex) {
+                                System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
                             }
                         }
                     }
@@ -736,17 +740,26 @@ public class NetworkCommunication {
                             student.getOutputStream().write(bytearray, 0, bytearray.length);
                             student.getOutputStream().flush();
                         }
+                    } catch (SocketException sockex) {
+                        System.out.println("SocketException (socket closed by client?)");
                     } catch (IOException ex2) {
                         if (ex2.toString().contains("Broken pipe")) {
-                            System.out.println("Broken pipe with student: " + student.getName());
+                            System.out.println("Broken pipe with a student (student was null)");
                         } else {
+                            System.out.println("Other IOException occured");
                             ex2.printStackTrace();
                         }
+                    } catch (NullPointerException nulex) {
+                        System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
                     }
                 }
             }
         };
         writingThread.start();
+    }
+
+    private void writeToStreamAndCatchExceptions(OutputStream outputStream) {
+
     }
 
     public void popUpIfStudentIdentifierCollision(String studentName) {
