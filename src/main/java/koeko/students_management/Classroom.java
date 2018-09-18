@@ -330,31 +330,6 @@ public class Classroom {
         }
     }
 
-    public Boolean allQuestionsOnDevices() {
-        //make all active ids positive by removing the - character
-        /*for (int i = 0; i < activeIDs.size(); i++) {
-            activeIDs.set(i, activeIDs.get(i).replace("-", ""));
-        }*/
-
-        Boolean questionsReached = true;
-        for (Student student : students_vector) {
-            if (student.getConnected()) {
-                //check if the questions on the device contain the active questions
-                if (!student.getDeviceQuestions().containsAll(activeIDs)) {
-                    questionsReached = false;
-                    System.out.println("check if all questions on device: " + questionsReached);
-                    System.out.println("activeIDs: " + activeIDs);
-                    System.out.println("device IDs: " + student.getDeviceQuestions());
-                    break;
-                }
-                System.out.println("check if all questions on device: " + questionsReached);
-                System.out.println("activeIDs: " + activeIDs);
-                System.out.println("device IDs: " + student.getDeviceQuestions());
-            }
-        }
-        return  questionsReached;
-    }
-
     public void mergeStudentsOnNameOrIP(Student studentToMerge) {
         ArrayList<Student> studentsToMerge = new ArrayList<>();
         for (int i = 0; i < students_vector.size(); i++) {

@@ -25,6 +25,8 @@ import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by maximerichard on 03/02/17.
@@ -43,8 +45,8 @@ public class NetworkCommunication {
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
-    private Map<String, ArrayList<String>> studentsToQuestionidsMap;
-    private volatile ArrayList<String> sentQuestionIds;
+    private Map<String, CopyOnWriteArrayList<String>> studentsToQuestionidsMap;
+    public List<String> sentQuestionIds;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
 
@@ -56,7 +58,7 @@ public class NetworkCommunication {
         studentNamesForGroups = new ArrayList<>();
         disconnectiongStudents = new Vector<>();
         studentsToQuestionidsMap = Collections.synchronizedMap(new LinkedHashMap<>());
-        sentQuestionIds = new ArrayList<>();
+        sentQuestionIds = new CopyOnWriteArrayList<>();
     }
 
     public LearningTrackerController getLearningTrackerController() {
@@ -122,7 +124,6 @@ public class NetworkCommunication {
 
                                 //send the active questions
                                 ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                //activeIDs.removeIf(integer -> integer < 0);
                                 if (activeIDs.size() > 0) {
                                     try {
                                         for (String activeID : activeIDs) {
@@ -268,19 +269,8 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            //set not ready just before sending the question
-            QuestionSendingController.readyToActivate = false;
             writeToOutputStream(student, bytearray);
 
-            //add the question ID to the students personal questions and test if all questions have been sent
-            if (student == null) {
-                for (Student singleStudent : aClass.getStudents_vector()) {
-                    singleStudent.getDeviceQuestions().add(String.valueOf(questionMultipleChoice.getID()));
-                }
-            } else {
-                student.getDeviceQuestions().add(String.valueOf(questionMultipleChoice.getID()));
-            }
-            QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
             sentQuestionIds.add(questionID);
         }
     }
@@ -359,19 +349,8 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            //set not ready just before sending the question
-            QuestionSendingController.readyToActivate = false;
             writeToOutputStream(student, bytearray);
 
-            //add the question ID to the students personal questions and test if all questions have been sent
-            if (student == null) {
-                for (Student singleStudent : aClass.getStudents_vector()) {
-                    singleStudent.getDeviceQuestions().add(String.valueOf(questionShortAnswer.getID()));
-                }
-            } else {
-                student.getDeviceQuestions().add(String.valueOf(questionShortAnswer.getID()));
-            }
-            QuestionSendingController.readyToActivate = aClass.allQuestionsOnDevices();
             sentQuestionIds.add(questionID);
         }
     }
@@ -585,7 +564,6 @@ public class NetworkCommunication {
             }
         };
         listeningthread.start();
-        //}
     }
 
     public void SendEvaluation(double evaluation, String questionID, Student student) {
@@ -672,6 +650,25 @@ public class NetworkCommunication {
         learningTrackerController.addQuestion(question, ID, group);
     }
 
+    public Boolean checkIfQuestionsOnDevices() {
+        Boolean questionsOnDevices = true;
+        for (Map.Entry<String, CopyOnWriteArrayList<String>> entry : studentsToQuestionidsMap.entrySet()) {
+            CopyOnWriteArrayList<String> questions = entry.getValue();
+            if (!questions.containsAll(sentQuestionIds)) {
+                questionsOnDevices = false;
+                break;
+            }
+
+            //for debug
+            System.out.println("Student device: " + entry.getKey());
+            for (String question : questions) {
+                System.out.println("question: " + question);
+            }
+        }
+
+        return questionsOnDevices;
+    }
+
     public void activateTestForGroup(ArrayList<String> questionIds, ArrayList<String> students, String testID) {
 
         //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
@@ -734,7 +731,6 @@ public class NetworkCommunication {
                         }
                     }
                 } else {
-                    //if (!student.getUniqueDeviceID().contains("no identifier")) {
                     try {
                         synchronized (student.getOutputStream()) {
                             student.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -747,7 +743,6 @@ public class NetworkCommunication {
                             ex2.printStackTrace();
                         }
                     }
-                    //}
                 }
             }
         };

@@ -8,10 +8,11 @@ import koeko.students_management.Student;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReceptionProtocol {
 
-    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass, Map<String, ArrayList<String>> studentsToQuestionidsMap) {
+    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass, Map<String, CopyOnWriteArrayList<String>> studentsToQuestionidsMap) {
         Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
         student.setConnected(true);
         student.setUniqueDeviceID(answerString.split("///")[1]);
@@ -23,7 +24,7 @@ public class ReceptionProtocol {
         student.setStudentID(studentID);
 
         //update the tracking of questions on device
-        studentsToQuestionidsMap.put(student.getUniqueDeviceID(), new ArrayList<>());
+        studentsToQuestionidsMap.put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 

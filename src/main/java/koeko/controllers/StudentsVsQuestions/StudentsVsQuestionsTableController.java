@@ -206,9 +206,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected / WAITING FOR SYNC", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected / Sync : No", "0");
             } else {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected / WAITING FOR SYNC", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected / Sync : No", "0");
             }
             for (int i = 0; i < tableViewArrayList.get(group).getItems().get(0).getAnswers().size(); i++) {
                 singleStudentAnswersLine.addAnswer();
@@ -241,9 +241,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 if (indexStudent >= 0) {
                     SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexStudent);
                     if (singleStudentAnswersLine.getStatus().contains("Disconnected")) {
-                        singleStudentAnswersLine.setStatus("connected&red");
+                        singleStudentAnswersLine.setStatus("connected / Sync : No&red");
                     } else {
-                        singleStudentAnswersLine.setStatus("connected");
+                        singleStudentAnswersLine.setStatus("connected / Sync : No");
                     }
                     tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
                 }
@@ -332,7 +332,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
             if (!singleStudentAnswersLine.getStatus().contains("Disconnected")) {
                 //&red is used to color the cell in red
-                singleStudentAnswersLine.setStatus("Disconnected&red");
+                singleStudentAnswersLine.setStatus("Disconnected / Sync : No&red");
                 tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
 
                 //play sound
@@ -787,7 +787,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                     }
                     if ( indexStudent != -1) {
                         SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
-                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ Sync OK");
+                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ Sync : OK");
                         tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
                     }
                 } else if (status == 1 && statusQuestionsReceived == 0) {
@@ -799,7 +799,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                     }
                     if ( indexStudent != -1) {
                         SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
-                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ WAITING FOR SYNC");
+                        singleStudentAnswersLine2.setStatus(singleStudentAnswersLine2.getStatus().split("/")[0] + "/ Sync : No");
                         tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
                     }
                 }

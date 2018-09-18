@@ -63,7 +63,6 @@ public class QuestionSendingController extends Window implements Initializable {
     public List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
     public List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
     public List<Test> testsList = new ArrayList<Test>();
-    static public Boolean readyToActivate = true;
 
     @FXML
     public TreeView<QuestionGeneric> allQuestionsTree;
@@ -471,9 +470,7 @@ public class QuestionSendingController extends Window implements Initializable {
         //get the selected questions
         QuestionGeneric questionGeneric = readyQuestionsList.getSelectionModel().getSelectedItem();
 
-        QuestionSendingController.readyToActivate = NetworkCommunication.networkCommunicationSingleton.aClass.allQuestionsOnDevices();
-        System.out.println("ready? " + QuestionSendingController.readyToActivate);
-        if (!QuestionSendingController.readyToActivate) {
+        if (!NetworkCommunication.networkCommunicationSingleton.checkIfQuestionsOnDevices()) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/QuestionsNotReadyPopUp.fxml"));
             Parent root1 = null;
             try {
@@ -547,6 +544,10 @@ public class QuestionSendingController extends Window implements Initializable {
         if (group < 1) {
             group = 0;
         }
+
+        //remove question from sentQuestions
+        NetworkCommunication.networkCommunicationSingleton.sentQuestionIds.remove(readyQuestionsList.
+                getSelectionModel().getSelectedItem().getGlobalID());
 
         //remove question from table
         int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
