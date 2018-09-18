@@ -3,8 +3,11 @@ package koeko;
 import javafx.application.Platform;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.CreateQuestionController;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionMultipleChoice;
+import koeko.questions_management.QuestionShortAnswer;
+import koeko.questions_management.Test;
 import koeko.students_management.Student;
 import koeko.view.Professor;
 import koeko.view.Utilities;
@@ -16,6 +19,13 @@ import java.net.InetAddress;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * TestCode
+ * 0:
+ * 1:
+ * 2:
+ * 3: create questions with 1 picture and send them
+ */
 public class functionalTesting {
     static PrintStream originalStream;
     static PrintStream dummyStream;
@@ -25,18 +35,24 @@ public class functionalTesting {
     static public Long msDelay = 3000L;
     static ArrayList<String> questionPack = new ArrayList<>();
 
-    static public Map<String, Integer> studentsNbEvalSent = new LinkedHashMap<>();
+    static public Map<String, Integer> studentsNbEvalSent = new  LinkedHashMap<>();
     static public Boolean testMode = false;
     static public Long startTimeQuestionSending = 0L;
     static public Long endTimeQuestionSending = 0L;
     static public Integer nbAccuseReception = 0;
+    static public int testCodeGlobal = -1;
+    static public int nbCopiesGlobal = 0;
 
-
-    static public void mainTesting(int testCode, int nbStudents, int nbQuestions, Long msDelay) {
+    static public void mainTesting(int testCode, int nbStudents, int nbQuestions, Long msDelay, int nbCopies) {
+        functionalTesting.testCodeGlobal = testCode;
+        functionalTesting.nbCopiesGlobal = nbCopies;
         testMode = true;
         numberStudents = nbStudents;
         numberOfQuestions = nbQuestions;
         functionalTesting.msDelay = msDelay;
+        startTimeQuestionSending = 0L;
+        endTimeQuestionSending = 0L;
+        nbAccuseReception = 0;
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
@@ -67,6 +83,7 @@ public class functionalTesting {
 
                     System.setOut(originalStream);
                     System.out.println("** Sending questions");
+                    System.out.println(NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size());
                     System.setOut(dummyStream);
 
                     sendQuestionsPack();
@@ -113,9 +130,25 @@ public class functionalTesting {
                     //clean up the db
                     //deleteQuestion("1000", "test subject 1");
                     //deleteQuestion("1001","test subject 2");
+                } else if (testCode == 4) {
+                    createTest(nbCopies);
                 }
             }
         });
+    }
+
+    private static void createTest(int nbOfCopies) {
+        Vector<String> questionids = DbTableQuestionGeneric.getAllGenericQuestionsIds();
+        Test test = new Test();
+        test.setTestMode(1);
+        test.setTestName("fctTesting test");
+        DbTableTests.addTest(test);
+        for (int i = 0; i < questionids.size(); i++) {
+            if (i > 0) {
+                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(questionids.get(i - 1), questionids.get(i),test.getTestName(), "");
+            }
+            DbTableRelationQuestionTest.addRelationQuestionTest(questionids.get(i), test.getTestName());
+        }
     }
 
     private static void deleteQuestion(String id, String subject) {

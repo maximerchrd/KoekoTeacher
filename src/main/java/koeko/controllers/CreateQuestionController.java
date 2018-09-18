@@ -1,6 +1,7 @@
 package koeko.controllers;
 
 
+import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
@@ -183,66 +184,85 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void saveQuestion() {
-        ArrayList<String> subjects = new ArrayList<>();
-        ArrayList<String> objectives = new ArrayList<>();
-        QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
-        QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
-        int questionType = -1;
+        if (functionalTesting.testMode == false) {
+            ArrayList<String> subjects = new ArrayList<>();
+            ArrayList<String> objectives = new ArrayList<>();
+            QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
+            QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
+            int questionType = -1;
 
-        for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
-            subjects.add(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
-        }
-
-        for (int i = 0; i < objectivesComboBoxArrayList.size(); i++) {
-            try {
-                objectives.add(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
+                subjects.add(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
             }
-        }
 
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
-            questionType = 1;
-            questionShortAnswer.setQUESTION(questionText.getText().replace("'","''"));
-            if (imagePath.getText().length() > 0) {
-                questionShortAnswer.setIMAGE(imagePath.getText());
-            }
-            ArrayList<String> answerOptions = new ArrayList<String>();
-            for (int i = 0; i < hBoxArrayList.size(); i++) {
-                TextField textField = (TextField)  hBoxArrayList.get(i).getChildren().get(1);
-                String answerOption = textField.getText();
-                if (answerOption.length() > 0) {
-                    answerOptions.add(answerOption.replace("'","''"));
+            for (int i = 0; i < objectivesComboBoxArrayList.size(); i++) {
+                try {
+                    objectives.add(objectivesComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
+                } catch (Exception e1) {
+                    e1.printStackTrace();
                 }
             }
-            questionShortAnswer.setANSWER(answerOptions);
-        } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question Multiple Choice")) {
-            questionType = 0;
 
-            Vector<String> options_vector = new Vector<String>();
-            for (int i = 0; i < 10; i++) options_vector.add(" ");
-            for (int i = 0; i < 10 && i < hBoxArrayList.size() && !((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText().contentEquals(" "); i++) {
-                options_vector.set(i,((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText());
+            if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
+                questionType = 1;
+                questionShortAnswer.setQUESTION(questionText.getText().replace("'", "''"));
+                if (imagePath.getText().length() > 0) {
+                    questionShortAnswer.setIMAGE(imagePath.getText());
+                }
+                ArrayList<String> answerOptions = new ArrayList<String>();
+                for (int i = 0; i < hBoxArrayList.size(); i++) {
+                    TextField textField = (TextField) hBoxArrayList.get(i).getChildren().get(1);
+                    String answerOption = textField.getText();
+                    if (answerOption.length() > 0) {
+                        answerOptions.add(answerOption.replace("'", "''"));
+                    }
+                }
+                questionShortAnswer.setANSWER(answerOptions);
+            } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question Multiple Choice")) {
+                questionType = 0;
+
+                Vector<String> options_vector = new Vector<String>();
+                for (int i = 0; i < 10; i++) options_vector.add(" ");
+                for (int i = 0; i < 10 && i < hBoxArrayList.size() && !((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText().contentEquals(" "); i++) {
+                    options_vector.set(i, ((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText());
+                }
+                int number_correct_answers = 0;
+                String temp_option;
+                for (int i = 0; i < hBoxArrayList.size(); i++) {
+                    CheckBox checkBox = (CheckBox) hBoxArrayList.get(i).getChildren().get(0);
+                    if (checkBox.isSelected()) {
+                        temp_option = options_vector.get(number_correct_answers);
+                        options_vector.set(number_correct_answers, options_vector.get(i));
+                        options_vector.set(i, temp_option);
+                        number_correct_answers++;
+                    }
+                }
+                questionMultipleChoice = new QuestionMultipleChoice("1", questionText.getText().replace("'", "''"), options_vector.get(0).replace("'", "''"),
+                        options_vector.get(1).replace("'", "''"), options_vector.get(2).replace("'", "''"), options_vector.get(3).replace("'", "''"), options_vector.get(4).replace("'", "''"),
+                        options_vector.get(5).replace("'", "''"), options_vector.get(6).replace("'", "''"), options_vector.get(7).replace("'", "''"), options_vector.get(8).replace("'", "''"),
+                        options_vector.get(9).replace("'", "''"), imagePath.getText().replace("'", "''"));
+                questionMultipleChoice.setNB_CORRECT_ANS(number_correct_answers);
             }
-            int number_correct_answers = 0;
-            String temp_option;
-            for (int i = 0; i < hBoxArrayList.size(); i++) {
-                CheckBox checkBox = (CheckBox) hBoxArrayList.get(i).getChildren().get(0);
-                if (checkBox.isSelected()) {
-                    temp_option = options_vector.get(number_correct_answers);
-                    options_vector.set(number_correct_answers,options_vector.get(i));
-                    options_vector.set(i,temp_option);
-                    number_correct_answers++;
+
+            saveQuestion(subjects, objectives, questionType, questionMultipleChoice, questionShortAnswer);
+
+        } else if (functionalTesting.testMode && functionalTesting.testCodeGlobal == 5) {
+            Vector<String> questionids = DbTableQuestionGeneric.getAllGenericQuestionsIds();
+            for (int i = 0; i < functionalTesting.nbCopiesGlobal; i++) {
+                for (String questionId : questionids) {
+                    QuestionMultipleChoice questionMultipleChoicetest = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
+                    QuestionShortAnswer questionShortAnswertest = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
+                    int questionTypetest = 0;
+                    if (!questionShortAnswertest.getQUESTION().contentEquals("")) {
+                        questionTypetest = 1;
+                        questionShortAnswertest.setQUESTION("Copy " + i + " " + questionShortAnswertest.getQUESTION());
+                    } else {
+                        questionMultipleChoicetest.setQUESTION("Copy " + i + " " + questionMultipleChoicetest.getQUESTION());
+                    }
+                    saveQuestion(new ArrayList<String>(), new ArrayList<String>(),questionTypetest,questionMultipleChoicetest,questionShortAnswertest);
                 }
             }
-            questionMultipleChoice = new QuestionMultipleChoice("1", questionText.getText().replace("'","''"), options_vector.get(0).replace("'","''"),
-                    options_vector.get(1).replace("'","''"), options_vector.get(2).replace("'","''"), options_vector.get(3).replace("'","''"), options_vector.get(4).replace("'","''"),
-                    options_vector.get(5).replace("'","''"), options_vector.get(6).replace("'","''"), options_vector.get(7).replace("'","''"), options_vector.get(8).replace("'","''"),
-                    options_vector.get(9).replace("'","''"), imagePath.getText().replace("'","''"));
-            questionMultipleChoice.setNB_CORRECT_ANS(number_correct_answers);
         }
-
-        saveQuestion(subjects, objectives, questionType, questionMultipleChoice, questionShortAnswer);
     }
 
     public void saveQuestion(ArrayList<String> subjects, ArrayList<String> objectives, int questionType, QuestionMultipleChoice questionMultipleChoice,
