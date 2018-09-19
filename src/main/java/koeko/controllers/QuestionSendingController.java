@@ -55,14 +55,13 @@ public class QuestionSendingController extends Window implements Initializable {
     //all questions tree (left panel)
     private QuestionGeneric draggedQuestion = null;
     private TreeItem<QuestionGeneric> root;
-    private QuestionMultipleChoice questionMultChoiceSelectedNodeTreeFrom;
-    private QuestionShortAnswer questionShortAnswerSelectedNodeTreeFrom;
-    private Test testSelectedNodeTreeFrom;
     private String activeClass = "";
     private ContextMenu studentsContextMenu;
-    public List<QuestionGeneric> testsNodeList = new ArrayList<QuestionGeneric>();
-    public List<QuestionGeneric> genericQuestionsList = new ArrayList<QuestionGeneric>();
-    public List<Test> testsList = new ArrayList<Test>();
+    public ArrayList<String> questionsForTest = new ArrayList<>();
+    public List<QuestionGeneric> testsNodeList = new ArrayList<>();
+    public List<QuestionGeneric> genericQuestionsList = new ArrayList<>();
+    public List<Test> testsList = new ArrayList<>();
+    public TreeItem<QuestionGeneric> editedTestItem = null;
 
     @FXML
     public TreeView<QuestionGeneric> allQuestionsTree;
@@ -232,6 +231,15 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 });
 
+                treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                    if (editedTestItem != null && Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) > 0
+                            && treeCell.getTreeItem().getParent().getParent() == null && event.getClickCount() == 2) {
+                        questionsForTest.add(treeCell.getTreeItem().getValue().getGlobalID());
+                        addQuestionToTest(treeCell.getTreeItem().getValue());
+                        allQuestionsTree.refresh();
+                    }
+                });
+
 
                 return treeCell;
             }
@@ -240,7 +248,7 @@ public class QuestionSendingController extends Window implements Initializable {
         allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2) {
+                if (mouseEvent.getClickCount() == 2 && editedTestItem == null) {
                     broadcastQuestionForStudents();
                 }
             }
@@ -265,6 +273,26 @@ public class QuestionSendingController extends Window implements Initializable {
 
         studentsContextMenu = new ContextMenu();
         readyQuestionsList.setContextMenu(studentsContextMenu);
+    }
+
+    private void addQuestionToTest(QuestionGeneric questionToAdd) {
+        //add a horizontal relation with the question before in the list
+        int bigBrotherIndex = editedTestItem.getChildren().size() - 1;
+        TreeItem<QuestionGeneric> questionBefore = null;
+        if (bigBrotherIndex >= 0) {
+            questionBefore = editedTestItem.getChildren().get(bigBrotherIndex);
+        }
+        if (questionBefore != null) {
+            DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
+                    String.valueOf(questionToAdd.getGlobalID()), editedTestItem.getValue().getQuestion(),
+                    editedTestItem.getValue().getGlobalID(), "");
+        }
+
+        //add the node to the tree
+        editedTestItem.getChildren().add(new TreeItem<>(questionToAdd));
+        DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(questionToAdd.getGlobalID()),
+                editedTestItem.getValue().getQuestion());
+        editedTestItem.setExpanded(true);
     }
 
     public void addSudentToContextMenu(Student student) {

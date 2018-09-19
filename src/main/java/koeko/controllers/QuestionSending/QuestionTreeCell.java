@@ -19,6 +19,7 @@ import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.EditQuestionController;
 import koeko.controllers.EditTestController;
+import koeko.controllers.controllers_tools.Toast;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
@@ -41,6 +42,14 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
     protected void updateItem(QuestionGeneric item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty && item != null) {
+            if (Koeko.questionSendingControllerSingleton.editedTestItem != null
+                    && Long.valueOf(item.getGlobalID()) > 0 && this.getTreeItem().getParent().getParent() == null
+                    && Koeko.questionSendingControllerSingleton.questionsForTest.contains(item.getGlobalID())) {
+                this.setStyle("-fx-background-color: #ff8080;");
+            } else {
+                this.setStyle("");
+            }
+
             HBox hbox = new HBox(10);
 
             VBox buttonsBox = new VBox(3);
@@ -60,7 +69,21 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             buttonQRCode.setOnAction((event) -> {
                 saveQRCode(item, buttonDelete);
             });
-            buttonsBox2.getChildren().addAll(buttonQRCode);
+            Button buttonBuildTest = new Button("+Q");
+            if (this.getTreeItem() == Koeko.questionSendingControllerSingleton.editedTestItem) {
+                buttonBuildTest.setStyle("-fx-background-color: #ff8080;");
+            } else {
+                buttonBuildTest.setStyle("");
+            }
+            buttonBuildTest.setOnAction((event) -> {
+                toggleTestEditMode(this.getTreeItem(), buttonBuildTest);
+            });
+
+            if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+                buttonsBox2.getChildren().addAll(buttonQRCode, buttonBuildTest);
+            } else {
+                buttonsBox2.getChildren().addAll(buttonQRCode);
+            }
 
 
 
@@ -178,6 +201,21 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+    }
+
+    private void toggleTestEditMode(TreeItem<QuestionGeneric> item, Button button) {
+        if (Koeko.questionSendingControllerSingleton.editedTestItem != null) {
+            Koeko.questionSendingControllerSingleton.editedTestItem = null;
+            button.setStyle("");
+        } else {
+            Koeko.questionSendingControllerSingleton.editedTestItem = item;
+            button.setStyle("-fx-background-color: #ff8080;");
+            String toastMsg = "Double click on a question to add it to this test";
+            int toastMsgTime = 2500; //3.5 seconds
+            int fadeInTime = 500; //0.5 seconds
+            int fadeOutTime= 500; //0.5 seconds
+            Toast.makeText((Stage) button.getScene().getWindow(), toastMsg, toastMsgTime, fadeInTime, fadeOutTime);
         }
     }
 }
