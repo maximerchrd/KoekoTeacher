@@ -55,10 +55,16 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             VBox buttonsBox = new VBox(3);
 
             Button buttonEdit = new Button("Ed");
+            buttonEdit.setTooltip(
+                    new Tooltip("Edit question")
+            );
             buttonEdit.setOnAction((event) -> {
                 editItem(item);
             });
             Button buttonDelete = new Button("X");
+            buttonDelete.setTooltip(
+                    new Tooltip("Delete question")
+            );
             buttonDelete.setOnAction((event) -> {
                 deleteItem(item);
             });
@@ -66,10 +72,16 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
 
             VBox buttonsBox2 = new VBox(3);
             Button buttonQRCode = new Button("QR");
+            buttonQRCode.setTooltip(
+                    new Tooltip("Download image of QR code corresponding to the question")
+            );
             buttonQRCode.setOnAction((event) -> {
                 saveQRCode(item, buttonDelete);
             });
             Button buttonBuildTest = new Button("+Q");
+            buttonBuildTest.setTooltip(
+                    new Tooltip("Add questions to the test")
+            );
             if (this.getTreeItem() == Koeko.questionSendingControllerSingleton.editedTestItem) {
                 buttonBuildTest.setStyle("-fx-background-color: #ff8080;");
             } else {
