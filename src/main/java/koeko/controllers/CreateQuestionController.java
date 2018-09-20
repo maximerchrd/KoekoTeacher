@@ -205,7 +205,7 @@ public class CreateQuestionController implements Initializable {
 
             if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
                 questionType = 1;
-                questionShortAnswer.setQUESTION(questionText.getText().replace("'", "''"));
+                questionShortAnswer.setQUESTION(questionText.getText());
                 if (imagePath.getText().length() > 0) {
                     questionShortAnswer.setIMAGE(imagePath.getText());
                 }
@@ -214,7 +214,7 @@ public class CreateQuestionController implements Initializable {
                     TextField textField = (TextField) hBoxArrayList.get(i).getChildren().get(1);
                     String answerOption = textField.getText();
                     if (answerOption.length() > 0) {
-                        answerOptions.add(answerOption.replace("'", "''"));
+                        answerOptions.add(answerOption);
                     }
                 }
                 questionShortAnswer.setANSWER(answerOptions);
@@ -237,10 +237,10 @@ public class CreateQuestionController implements Initializable {
                         number_correct_answers++;
                     }
                 }
-                questionMultipleChoice = new QuestionMultipleChoice("1", questionText.getText().replace("'", "''"), options_vector.get(0).replace("'", "''"),
-                        options_vector.get(1).replace("'", "''"), options_vector.get(2).replace("'", "''"), options_vector.get(3).replace("'", "''"), options_vector.get(4).replace("'", "''"),
-                        options_vector.get(5).replace("'", "''"), options_vector.get(6).replace("'", "''"), options_vector.get(7).replace("'", "''"), options_vector.get(8).replace("'", "''"),
-                        options_vector.get(9).replace("'", "''"), imagePath.getText().replace("'", "''"));
+                questionMultipleChoice = new QuestionMultipleChoice("1", questionText.getText(), options_vector.get(0),
+                        options_vector.get(1), options_vector.get(2), options_vector.get(3), options_vector.get(4),
+                        options_vector.get(5), options_vector.get(6), options_vector.get(7), options_vector.get(8),
+                        options_vector.get(9), imagePath.getText());
                 questionMultipleChoice.setNB_CORRECT_ANS(number_correct_answers);
             }
 

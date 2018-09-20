@@ -44,7 +44,7 @@ public class DbTableIndividualQuestionForStudentResult {
 
     static public double addIndividualQuestionForStudentResult(String id_global, String student_name, String answers, String answerType) {
         double quantitative_evaluation = -1;
-        answers = answers.replace("'", "''");
+        answers = answers;
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -182,7 +182,7 @@ public class DbTableIndividualQuestionForStudentResult {
 
     static public double addIndividualTestEval(String id_global, String student_name, Double testEvaluation) {
         double quantitative_evaluation = -1;
-        student_name = student_name.replace("'", "''");
+        student_name = student_name;
         Connection c = null;
         Statement stmt = null;
         stmt = null;

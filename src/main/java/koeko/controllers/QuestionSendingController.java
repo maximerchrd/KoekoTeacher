@@ -621,7 +621,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 String[] subjects = question[5].split("///");
                 for (int j = 0; j < subjects.length; j++) {
                     try {
-                        DbTableSubject.addSubject(subjects[j].replace("'", "''"));
+                        DbTableSubject.addSubject(subjects[j]);
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -631,7 +631,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 String[] objectives = question[6].split("///");
                 for (int j = 0; j < objectives.length; j++) {
                     try {
-                        DbTableLearningObjectives.addObjective(objectives[j].replace("'", "''"), 1);
+                        DbTableLearningObjectives.addObjective(objectives[j], 1);
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -1240,10 +1240,10 @@ public class QuestionSendingController extends Window implements Initializable {
             options_vector.set(i, allOptions[i]);
         }
         int number_correct_answers = rightAnswers.length;
-        QuestionMultipleChoice new_questmultchoice = new QuestionMultipleChoice("1", question[1].replace("'", "''"), options_vector.get(0).replace("'", "''"),
-                options_vector.get(1).replace("'", "''"), options_vector.get(2).replace("'", "''"), options_vector.get(3).replace("'", "''"), options_vector.get(4).replace("'", "''"),
-                options_vector.get(5).replace("'", "''"), options_vector.get(6).replace("'", "''"), options_vector.get(7).replace("'", "''"), options_vector.get(8).replace("'", "''"),
-                options_vector.get(9).replace("'", "''"), question[4].replace("'", "''"));
+        QuestionMultipleChoice new_questmultchoice = new QuestionMultipleChoice("1", question[1], options_vector.get(0),
+                options_vector.get(1), options_vector.get(2), options_vector.get(3), options_vector.get(4),
+                options_vector.get(5), options_vector.get(6), options_vector.get(7), options_vector.get(8),
+                options_vector.get(9), question[4]);
         new_questmultchoice.setNB_CORRECT_ANS(number_correct_answers);
 
         //copy image file to correct directory
@@ -1291,7 +1291,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String[] subjects = question[5].split("///");
         for (int i = 0; i < subjects.length; i++) {
             try {
-                DbTableRelationQuestionSubject.addRelationQuestionSubject(subjects[i].replace("'", "''"));
+                DbTableRelationQuestionSubject.addRelationQuestionSubject(subjects[i]);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -1301,7 +1301,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String[] objectives = question[6].split("///");
         for (int i = 0; i < objectives.length; i++) {
             try {
-                DbTableRelationQuestionObjective.addRelationQuestionObjective(objectives[i].replace("'", "''"));
+                DbTableRelationQuestionObjective.addRelationQuestionObjective(objectives[i]);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -1310,7 +1310,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
     private void insertQuestionShortAnswer(String[] question) {
         QuestionShortAnswer new_questshortanswer = new QuestionShortAnswer();
-        new_questshortanswer.setQUESTION(question[1].replace("'", "''"));
+        new_questshortanswer.setQUESTION(question[1]);
         if (question[4].length() > 0) {
             new_questshortanswer.setIMAGE(question[4]);
         }
@@ -1319,7 +1319,7 @@ public class QuestionSendingController extends Window implements Initializable {
         for (int i = 0; i < rightAnswers.length; i++) {
             String answerOption = rightAnswers[i];
             if (answerOption.length() > 0) {
-                answerOptions.add(answerOption.replace("'", "''"));
+                answerOptions.add(answerOption);
             }
         }
         new_questshortanswer.setANSWER(answerOptions);
@@ -1370,7 +1370,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String[] subjects = question[5].split("///");
         for (int i = 0; i < subjects.length; i++) {
             try {
-                DbTableRelationQuestionSubject.addRelationQuestionSubject(subjects[i].replace("'", "''"));
+                DbTableRelationQuestionSubject.addRelationQuestionSubject(subjects[i]);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -1380,7 +1380,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String[] objectives = question[6].split("///");
         for (int i = 0; i < objectives.length; i++) {
             try {
-                DbTableRelationQuestionObjective.addRelationQuestionObjective(objectives[i].replace("'", "''"));
+                DbTableRelationQuestionObjective.addRelationQuestionObjective(objectives[i]);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
