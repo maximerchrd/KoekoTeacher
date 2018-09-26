@@ -7,36 +7,63 @@
 
 <AnchorPane fx:id="QuestionSending" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.SubjectsBrowsing.QuestionBrowsingController">
    <children>
-      <HBox prefHeight="50.0" prefWidth="483.0">
+      <VBox prefWidth="205.0">
          <children>
-            <Label fx:id="labelIP" prefWidth="326.0" text="Label IP">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </Label>
-            <Button mnemonicParsing="false" onAction="#refreshIP" text="Refresh IP address">
-               <HBox.margin>
+            <Label fx:id="labelIP" style="-fx-text-fill: white; -fx-font-family: Tahoma; -fx-font-size: 11pt;" text="Label IP">
+               <VBox.margin>
                   <Insets left="5.0" />
-               </HBox.margin>
+               </VBox.margin>
+            </Label>
+            <Button mnemonicParsing="false" onAction="#refreshIP" prefWidth="193.0" text="Refresh IP address">
+               <VBox.margin>
+                  <Insets left="5.0" top="5.0" />
+               </VBox.margin>
             </Button>
+            <Accordion fx:id="browseSubjectsAccordion" prefWidth="205.0" visible="false">
+              <panes>
+                <TitledPane animated="false" text="Browse Subjects">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                           <children>
+                              <VBox>
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <TreeView fx:id="subjectsTree" VBox.vgrow="ALWAYS">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </TreeView>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </TitledPane>
+              </panes>
+               <VBox.margin>
+                  <Insets left="5.0" top="20.0" />
+               </VBox.margin>
+            </Accordion>
          </children>
-      </HBox>
-      <Accordion fx:id="browseSubjectsAccordion" prefHeight="208.0" prefWidth="483.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="50.0">
-        <panes>
-          <TitledPane animated="false" text="Browse Subjects">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Button layoutX="14.0" layoutY="63.0" mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject" />
-                        <TreeView fx:id="subjectsTree" layoutX="219.0" layoutY="14.0" AnchorPane.bottomAnchor="15.800000000000011" AnchorPane.topAnchor="14.0" />
-                        <Button layoutX="14.0" layoutY="140.0" mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject" />
-                        <Button layoutX="14.0" layoutY="90.0" mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject" AnchorPane.topAnchor="90.0" />
-                        <Button layoutX="14.0" layoutY="24.0" mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-        </panes>
-      </Accordion>
+      </VBox>
    </children>
 </AnchorPane>

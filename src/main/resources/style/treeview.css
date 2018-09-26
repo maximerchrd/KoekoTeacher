@@ -2,5 +2,8 @@
     -fx-indent: 50px;
 }
 .tree-cell:selected {
-    -fx-background-color: #6699ff
+    -fx-background-color: #1a88ff
+}
+.tree-cell:hover{
+    -fx-background-color: #66b0ff
 }

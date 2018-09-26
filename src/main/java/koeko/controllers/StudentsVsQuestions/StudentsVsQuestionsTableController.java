@@ -56,6 +56,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @FXML private ComboBox chooseTestCombo;
     @FXML public Button editEvalButton;
     @FXML public Accordion tableAccordion;
+    @FXML public ScrollPane tablesScrollPane;
 
     //context menu for right click on row
     ContextMenu contextMenu = new ContextMenu();

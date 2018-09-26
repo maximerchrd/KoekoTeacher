@@ -1,0 +1,22 @@
+.tab .tab-label
+{
+    -fx-text-fill: white;
+}
+
+.tab:top
+{
+    -fx-background-color: #0063cc;
+}
+
+.tab:top:hover
+{
+    -fx-background-color: #66b0ff;
+}
+.tab:selected
+{
+    -fx-background-color: #007bff;
+}
+.tab-pane *.tab-header-background
+{
+    -fx-background-color: #000000;
+}

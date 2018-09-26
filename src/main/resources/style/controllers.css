@@ -1,0 +1,45 @@
+.button{
+    -fx-background-color: #005cb3;
+    -fx-text-fill: white;
+    -fx-font-family: Tahoma;
+    -fx-font-size: 12pt;
+}
+.button:hover{
+    -fx-background-color: #0077e6;
+}
+.titled-pane {
+    -fx-text-fill: white;
+    -fx-font-family: Tahoma;
+    -fx-font-size: 11pt;
+}
+.titled-pane > .title{
+    -fx-background-color: #005cb3;
+}
+.titled-pane > .title:hover{
+    -fx-background-color: #0077e6;
+}
+
+.titled-pane > .title > .arrow-button .arrow
+{
+    -fx-background-color: white;
+}
+
+.combo-box{
+    -fx-background-color: #005cb3;
+}
+.combo-box:hover{
+    -fx-background-color: #0077e6;
+}
+.combo-box .cell{
+    -fx-background-color: #005cb3;
+    -fx-text-fill: white;
+    -fx-font-family: Tahoma;
+    -fx-font-size: 11pt;
+}
+.combo-box .cell:hover{
+    -fx-background-color: #4da9ff;
+}
+.combo-box > .arrow-button .arrow
+{
+    -fx-background-color: white;
+}

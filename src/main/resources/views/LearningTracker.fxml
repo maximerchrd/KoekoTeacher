@@ -8,25 +8,30 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.LearningTrackerController">
+<TabPane minHeight="0.0" minWidth="0.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.LearningTrackerController">
   <tabs>
     <Tab id="classroom_activity_tab" fx:id="classroom_activity_tab" closable="false" text="Classroom Activity">
       <content>
-          <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+          <AnchorPane />
           <fx:include fx:id="ClassroomActivityTab" source="ClassroomActivityTab.fxml" />
       </content>
     </Tab>
     <Tab closable="false" text="Results Overview">
          <content>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+            <AnchorPane />
              <fx:include source="ResultsOverviewTab.fxml" />
          </content>
     </Tab>
       <Tab closable="false" text="Settings">
          <content>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+            <AnchorPane />
             <fx:include source="SettingsTab.fxml" />
          </content>
       </Tab>
   </tabs>
+   <stylesheets>
+      <URL value="@../style/controllers.css" />
+      <URL value="@../style/tabs.css" />
+      <URL value="@../style/table.css" />
+   </stylesheets>
 </TabPane>
