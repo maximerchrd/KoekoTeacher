@@ -38,7 +38,13 @@ public class DbTableQuestionShortAnswer {
                 "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE) " +
                 "VALUES (?,?,?,?,?,?,?);";
         try {
-            idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
+            if (quest.getUID().length() < 15) {
+                idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
+            } else {
+                DbTableQuestionGeneric.addGenericQuestion(1, quest.getUID());
+                idGlobal = quest.getUID();
+            }
+
             Connection c = Utilities.getDbConnection();
             c.setAutoCommit(false);
             PreparedStatement stmt = c.prepareStatement(sql);

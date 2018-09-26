@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 import koeko.Koeko;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
+import koeko.questions_management.Test;
 import koeko.view.QuestionMultipleChoiceView;
 
 import java.io.*;
@@ -419,6 +420,18 @@ public class TCPCommunication {
                     if (rcv.getClass().getName().equals("koeko.view.RelationQuestionObjective")) {
                         koeko.view.RelationQuestionObjective roq = (koeko.view.RelationQuestionObjective)rcv;
                         DbTableRelationQuestionObjective.addRelationQuestionObjective(roq);
+                    }
+                    cnt++;
+                }
+
+                cnt = 0;
+                while (cnt < gtl.get_nbRelationsQtoQ()) {
+                    Object rcv = GetObject();
+                    if (rcv.getClass().getName().equals("koeko.view.RelationQuestionQuestion")) {
+                        koeko.view.RelationQuestionQuestion rqq = (koeko.view.RelationQuestionQuestion) rcv;
+                        Test test = DbTableTests.getTestWithID(rqq.getTestId());
+                        DbTableRelationQuestionQuestion.addRelationQuestionQuestion(rqq.getIdGlobal1(), rqq.getIdGlobal2(),
+                                test.getTestName(), rqq.getTestId(), rqq.getCondition());
                     }
                     cnt++;
                 }

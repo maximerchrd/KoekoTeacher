@@ -2,6 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
+import koeko.questions_management.Test;
 import koeko.view.QuestionMultipleChoiceView;
 import koeko.view.Utilities;
 
@@ -142,9 +143,8 @@ public class DbTableQuestionMultipleChoice {
         if (checkIfExists(quest))
             return;
 
-        String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
-
         if (quest.getTYPE() == 0) {
+            DbTableQuestionGeneric.addGenericQuestion(0, quest.getQCM_MUID());
             String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
@@ -165,16 +165,16 @@ public class DbTableQuestionMultipleChoice {
                 preparedStatement.setString(12, quest.getOPT9());
                 preparedStatement.setString(13, String.valueOf(quest.getNB_CORRECT_ANS()));
                 preparedStatement.setString(14, quest.getIMAGE());
-                preparedStatement.setString(15, globalID);
+                preparedStatement.setString(15, quest.getQCM_MUID());
                 preparedStatement.setString(16, quest.getQCM_MUID());
                 preparedStatement.setString(17, quest.getQCM_UPD_TMS().toString());
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
-        } else {
+        } else if (quest.getTYPE() == 1) {
             QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
-            questionShortAnswer.setID(globalID);
+            questionShortAnswer.setID(quest.getQCM_MUID());
             questionShortAnswer.setQUESTION(quest.getQUESTION());
             questionShortAnswer.setIMAGE(quest.getIMAGE());
             questionShortAnswer.getANSWER().add(quest.getOPT0());
@@ -190,6 +190,12 @@ public class DbTableQuestionMultipleChoice {
             questionShortAnswer.setUID(quest.getQCM_MUID());
 
             DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
+        } else if (quest.getTYPE() == 2) {
+            Test test = new Test();
+            test.setIdTest(quest.getQCM_MUID());
+            test.setTestName(quest.getQUESTION());
+
+            DbTableTests.addTest(test);
         }
     }
 

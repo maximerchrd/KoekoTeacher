@@ -8,6 +8,7 @@ public class GlobalToLocal implements Serializable {
     private int _nbRelationQcmSbj;
     private int _nbObjectives;
     private int _nbRelationsQcmObj;
+    private int _nbRelationsQtoQ;
 
     public GlobalToLocal() {}
 
@@ -50,4 +51,13 @@ public class GlobalToLocal implements Serializable {
     public void set_nbRelationsQcmObj(int _nbRelationsQcmObj) {
         this._nbRelationsQcmObj = _nbRelationsQcmObj;
     }
+
+    public int get_nbRelationsQtoQ() {
+        return _nbRelationsQtoQ;
+    }
+
+    public void set_nbRelationsQtoQ(int _nbRelationsQtoQ) {
+        this._nbRelationsQtoQ = _nbRelationsQtoQ;
+    }
+
 }

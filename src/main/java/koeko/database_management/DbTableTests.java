@@ -171,13 +171,17 @@ public class DbTableTests {
     static public String addTest(Test newTest) {
         String testID = "";
 
-        String sql = 	"INSERT INTO tests (ID_TEST_GLOBAL, NAME, TEST_MODE, QUANTITATIVE_EVAL, MODIF_DATE)" +
+        String sql = 	"REPLACE INTO tests (ID_TEST_GLOBAL, NAME, TEST_MODE, QUANTITATIVE_EVAL, MODIF_DATE)" +
                 "VALUES (?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            testID = Utilities.localUniqueID();
+            if (newTest.getIdTest().length() < 15) {
+                testID = Utilities.localUniqueID();
+            } else {
+                testID = newTest.getIdTest();
+            }
             pstmt.setString(1, testID);
             pstmt.setString(2, newTest.getTestName());
             pstmt.setString(3, String.valueOf(newTest.getTestMode()));

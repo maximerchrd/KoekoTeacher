@@ -96,16 +96,6 @@ public class SyncOperations {
                 }
             }
 
-            //Send tests
-            /*ArrayList<TestView> testViews = DbTableTests.getAllTestViews();
-            for (TestView testView : testViews) {
-                testView.setLanguage(professor.get_language());
-                CreateOrUpdateTest(testView);
-                ArrayList<RelationQuestionTest> relationsQuestionTest =
-                        DbTableRelationQuestionTest.getRelationQuestionTest(testView.getIdTest(), testView.getTestName());
-                UpdateQuestionTestRelation(testView.getIdTest(), relationsQuestionTest);
-            }*/
-
             // THIRD STEP, launch sp to update web with new data
             _tcpcom.SyncCollect2WEB();
             System.out.println("WEB synchronized");

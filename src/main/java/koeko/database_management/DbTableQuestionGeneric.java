@@ -47,8 +47,6 @@ public class DbTableQuestionGeneric {
                     0 + "','" +
                     questionType +"');";
             stmt.executeUpdate(sql);
-            //sql = "UPDATE generic_questions SET ID_GLOBAL = ID_GLOBAL + ID_QUESTION WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM generic_questions)";
-            //stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
@@ -57,6 +55,30 @@ public class DbTableQuestionGeneric {
             System.exit(0);
         }
         return questID;
+    }
+
+    static public void addGenericQuestion(int questionType, String globalID) throws Exception {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = 	"REPLACE INTO generic_questions (ID_GLOBAL,REMOVED_STATE,QUESTION_TYPE) " +
+                    "VALUES ('" +
+                    globalID + "','" +
+                    0 + "','" +
+                    questionType +"');";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
     }
 
     static public ArrayList<QuestionGeneric> getAllGenericQuestions() throws Exception{

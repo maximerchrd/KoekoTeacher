@@ -801,7 +801,11 @@ public class NetworkCommunication {
                     socket.send(packet);
                 } catch (IOException e) {
                     if (!e.toString().contains("is unreachable")) {
-                        e.printStackTrace();
+                        if (e.toString().contains("Network is down")) {
+                            System.out.println("Trying to send ip through udp: Network is down");
+                        } else {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 socket.close();
