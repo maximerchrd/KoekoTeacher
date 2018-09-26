@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.HBox;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.QuestionSending.QuestionTreeCell;
@@ -37,6 +38,7 @@ import koeko.database_management.*;
 import koeko.view.QuestionMultipleChoiceView;
 
 import java.awt.*;
+import java.awt.Button;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.net.InetAddress;
@@ -258,15 +260,25 @@ public class QuestionSendingController extends Window implements Initializable {
         readyQuestionsList.setCellFactory(param -> new ListCell<QuestionGeneric>() {
             private ImageView imageView = new ImageView();
 
+
             public void updateItem(QuestionGeneric questionGeneric, boolean empty) {
                 super.updateItem(questionGeneric, empty);
                 if (empty) {
                     setText(null);
                     setGraphic(null);
                 } else {
+                    HBox hBox = new HBox();
+                    javafx.scene.control.Button buttonDelete = new javafx.scene.control.Button("X");
+                    buttonDelete.setTooltip(
+                            new Tooltip("Deactivate question")
+                    );
+                    buttonDelete.setOnAction((event) -> {
+                        deactivateQuestion(this);
+                    });
                     imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
+                    hBox.getChildren().addAll(buttonDelete, imageView);
                     setText(questionGeneric.getQuestion());
-                    setGraphic(imageView);
+                    setGraphic(hBox);
                 }
             }
         });
@@ -567,19 +579,18 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.show();
     }
 
-    public void deactivateQuestion() {
+    public void deactivateQuestion(ListCell<QuestionGeneric> questionCell) {
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         if (group < 1) {
             group = 0;
         }
 
         //remove question from sentQuestions
-        NetworkCommunication.networkCommunicationSingleton.sentQuestionIds.remove(readyQuestionsList.
-                getSelectionModel().getSelectedItem().getGlobalID());
+        NetworkCommunication.networkCommunicationSingleton.sentQuestionIds.remove(questionCell.getItem().getGlobalID());
 
         //remove question from table
-        int index = readyQuestionsList.getSelectionModel().getSelectedIndex();
-        if (readyQuestionsList.getSelectionModel().getSelectedItem() != null && Long.valueOf(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID()) > 0) {
+        int index = questionCell.getIndex();
+        if (Long.valueOf(questionCell.getItem().getGlobalID()) > 0) {
             Koeko.studentsVsQuestionsTableControllerSingleton.removeQuestion(index,group);
         }
 
