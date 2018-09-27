@@ -91,6 +91,28 @@ public class DbTableRelationQuestionQuestion {
         return questionIDs;
     }
 
+    static public ArrayList<String> getFirstLayerQuestionIdsFromTestName(String testName) {
+        Set<String> questionIDsSet = new LinkedHashSet<>();
+        String query = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST=? AND CONDITION=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement preparedStatement = c.prepareStatement(query)) {
+            preparedStatement.setString(1, testName);
+            preparedStatement.setString(2, "");
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                questionIDsSet.add(rs.getString("ID_GLOBAL_1"));
+                questionIDsSet.add(rs.getString("ID_GLOBAL_2"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ArrayList<String> questionIds = new ArrayList<>(questionIDsSet);
+        return questionIds;
+    }
+
     static public Vector<String> getQuestionsLinkedToQuestion(String questionID, String test) {
         Connection c = null;
         Statement stmt = null;

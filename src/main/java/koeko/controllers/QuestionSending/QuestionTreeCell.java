@@ -186,7 +186,6 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             QuestionGeneric parentTest = this.getTreeItem().getParent().getValue();
             QuestionGeneric questionGeneric = item;
             DbTableRelationQuestionQuestion.removeRelationsWithQuestion(item.getGlobalID());
-            DbTableRelationQuestionTest.removeQuestionFromTest(parentTest.getQuestion(), questionGeneric.getGlobalID());
         }
         Koeko.questionSendingControllerSingleton.testsNodeList.remove(item);
         this.getTreeItem().getParent().getChildren().remove(this.getTreeItem());

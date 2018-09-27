@@ -45,7 +45,6 @@ public class DBManager {
 		DbTableIndividualQuestionForStudentResult.createTableDirectEvaluationOfObjective(c,stmt);
 		DbTableRelationClassObjective.createTableSubject(c,stmt);
 		DbTableRelationClassTest.createTableSubject(c,stmt);
-		DbTableRelationQuestionTest.createTableRelationQuestionTest(c,stmt);
 		DbTableRelationQuestionSubject.createTableSubject(c,stmt);
 		DbTableRelationQuestionObjective.createTableRelationQuestionObjective(c,stmt);
 		DbTableRelationStudentObjective.createTableSubject(c,stmt);

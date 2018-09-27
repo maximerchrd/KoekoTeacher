@@ -20,7 +20,6 @@ import org.controlsfx.control.textfield.TextFields;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.Vector;
 
 public class EditTestController extends Window implements Initializable {
@@ -60,7 +59,7 @@ public class EditTestController extends Window implements Initializable {
         }
         testName.setText(presentName);
 
-        ArrayList<String> questionsOfTest = DbTableRelationQuestionTest.getQuestionIdsFromTestName(test.getTestName());
+        ArrayList<String> questionsOfTest = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(test.getTestName());
         if (questionsOfTest.size() == 0) {
             warningLabel.setText("");
         } else {

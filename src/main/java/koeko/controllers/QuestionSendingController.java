@@ -2,13 +2,11 @@ package koeko.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.QuestionSending.QuestionTreeCell;
-import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
@@ -38,10 +36,8 @@ import koeko.database_management.*;
 import koeko.view.QuestionMultipleChoiceView;
 
 import java.awt.*;
-import java.awt.Button;
 import java.io.*;
 import java.lang.reflect.Array;
-import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.*;
@@ -192,8 +188,6 @@ public class QuestionSendingController extends Window implements Initializable {
 
                                 //add the node to the tree
                                 treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
-                                DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(draggedQuestion.getGlobalID()),
-                                        treeCell.getTreeItem().getValue().getQuestion());
                                 event.setDropCompleted(true);
                                 treeCell.getTreeItem().setExpanded(true);
                                 event.consume();
@@ -302,8 +296,6 @@ public class QuestionSendingController extends Window implements Initializable {
 
         //add the node to the tree
         editedTestItem.getChildren().add(new TreeItem<>(questionToAdd));
-        DbTableRelationQuestionTest.addRelationQuestionTest(String.valueOf(questionToAdd.getGlobalID()),
-                editedTestItem.getValue().getQuestion());
         editedTestItem.setExpanded(true);
     }
 
@@ -364,7 +356,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
         //first add the tests
         for (QuestionGeneric testGeneric : testsNodeList) {
-            ArrayList<String> questionIDs = DbTableRelationQuestionTest.getQuestionIdsFromTestName(testGeneric.getQuestion());
+            ArrayList<String> questionIDs = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(testGeneric.getQuestion());
 
             //apply subject filter
             Boolean addTest = false;

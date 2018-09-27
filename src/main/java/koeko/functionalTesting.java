@@ -147,7 +147,6 @@ public class functionalTesting {
             if (i > 0) {
                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(questionids.get(i - 1), questionids.get(i),test.getTestName(), "");
             }
-            DbTableRelationQuestionTest.addRelationQuestionTest(questionids.get(i), test.getTestName());
         }
     }
 

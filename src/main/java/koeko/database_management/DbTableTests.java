@@ -3,12 +3,10 @@ package koeko.database_management;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
 import koeko.view.QuestionMultipleChoiceView;
-import koeko.view.TestView;
 import koeko.view.Utilities;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -49,7 +47,7 @@ public class DbTableTests {
                 newTest.setTestName(rs.getString("NAME"));
                 newTest.setIdTest(rs.getString("ID_TEST_GLOBAL"));
                 newTest.setTestMode(rs.getInt("TEST_MODE"));
-                ArrayList<String> newQuestionIDsList = DbTableRelationQuestionTest.getQuestionIdsFromTestName(String.valueOf(newTest.getIdTest()));
+                ArrayList<String> newQuestionIDsList = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(String.valueOf(newTest.getTestName()));
                 ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
                 for (int i = 0; i < newQuestionIDsList.size(); i++) {
                     QuestionGeneric newQuestionGeneric = new QuestionGeneric();
@@ -222,20 +220,6 @@ public class DbTableTests {
         }
     }
 
-    static public void setIdentifier(String name, String identifier) {
-        String sql = "UPDATE tests SET IDENTIFIER = ? WHERE NAME = ?";
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-             PreparedStatement pstmt = c.prepareStatement(sql)) {
-
-            pstmt.setString(1, identifier);
-            pstmt.setString(2, name);
-            pstmt.executeUpdate();
-        } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-        }
-        DbTableRelationQuestionTest.setIdentifier(name, identifier);
-    }
-
     static public String getMedals(String name) {
         String medals = "";
         String sql = "SELECT MEDALS FROM tests WHERE NAME = ?";
@@ -283,8 +267,6 @@ public class DbTableTests {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "DELETE FROM tests WHERE NAME = '" + testName + "';";
-            stmt.executeUpdate(sql);
-            sql = "DELETE FROM question_test_relation WHERE TEST_NAME='" + testName + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

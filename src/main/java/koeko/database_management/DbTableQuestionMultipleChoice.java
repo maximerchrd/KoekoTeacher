@@ -458,9 +458,6 @@ public class DbTableQuestionMultipleChoice {
             sql = "UPDATE question_subject_relation SET ID_GLOBAL='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
-            sql = "UPDATE question_test_relation SET ID_GLOBAL='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
             c.close();
