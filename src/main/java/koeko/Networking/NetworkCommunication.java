@@ -803,6 +803,8 @@ public class NetworkCommunication {
                     if (!e.toString().contains("is unreachable")) {
                         if (e.toString().contains("Network is down")) {
                             System.out.println("Trying to send ip through udp: Network is down");
+                        } else if (e.toString().contains("Host is down")) {
+                            System.out.println("Trying to send ip through udp: Host is down");
                         } else {
                             e.printStackTrace();
                         }

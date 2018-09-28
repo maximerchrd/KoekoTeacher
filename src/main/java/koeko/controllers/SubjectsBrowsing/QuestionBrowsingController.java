@@ -183,6 +183,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
         ipAddresses.removeAll(ipAddresses);
+        ArrayList<String> potentialIpAddresses = new ArrayList<>();
         Enumeration e = NetworkInterface.getNetworkInterfaces();
         while(e.hasMoreElements())
         {
@@ -193,11 +194,17 @@ public class QuestionBrowsingController extends Window implements Initializable 
                 InetAddress i = (InetAddress) ee.nextElement();
                 if (n.getName().contains("wlan") && !i.getHostAddress().contains(":")) {
                     ipAddresses.add(i.getHostAddress());
+                } else if (!i.getHostAddress().contains(":") && i.getHostAddress().contains("192.168.")) {
+                    potentialIpAddresses.add(i.getHostAddress());
                 }
             }
         }
         if (ipAddresses.size() == 0) {
-            ipAddresses.add(InetAddress.getLocalHost().getHostAddress());
+            if (potentialIpAddresses.size() == 1) {
+                ipAddresses.addAll(potentialIpAddresses);
+            } else {
+                ipAddresses.add(InetAddress.getLocalHost().getHostAddress());
+            }
         }
         if (ipAddresses.size() == 1) {
             Platform.runLater(() -> labelIP.setText("students should connect \nto the following address:\n" + ipAddresses.get(0)));
