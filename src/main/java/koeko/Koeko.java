@@ -1,9 +1,14 @@
 package koeko;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javafx.scene.Parent;
+import javafx.stage.*;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.GenericPopUpController;
+import koeko.controllers.InstallAssistantController;
 import koeko.controllers.LearningTrackerController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
@@ -17,9 +22,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class Koeko extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
@@ -28,19 +30,22 @@ public class Koeko extends Application {
     static public ArrayList<Classroom> studentGroupsAndClass;
 
     public static void main(String[] args) throws Exception {
+        Application.launch(args);
+    }
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Boolean firstAppLaunch = false;
+        File f = new File(DBManager.databaseName);
+        if(!f.exists()) {
+            firstAppLaunch = true;
+        }
 
         //does db stuffs
         DBManager dao = new DBManager();
         dao.createDBIfNotExists();
         dao.createTablesIfNotExists();
 
-        Application.launch(args);
-
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Koeko");
 
         Scene scene = new Scene(new StackPane());
@@ -82,6 +87,21 @@ public class Koeko extends Application {
             }
         });
 
+        if (!firstAppLaunch) {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/InstallAssistant.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Starting Assistant");
+            stage.setScene(new Scene(root1));
+            stage.show();
+        }
 
         //for (Long i = 0L; i < 3; i++) {
             //functionalTesting.mainTesting(4, 3, 5, 5000L, 30);

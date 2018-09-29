@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 
 public class DBManager {
-
+	static public String databaseName = "learning_tracker.db";
 	public void createDBIfNotExists() throws Exception {
 		// connects to db and create it if necessary
 		// closes db afterwards

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.InstallAssistantController">
+   <children>
+      <Label fx:id="instructionsLabel" layoutX="106.0" layoutY="81.0" prefHeight="171.0" prefWidth="375.0" text="Label" textAlignment="JUSTIFY" wrapText="true" />
+      <Button fx:id="option1Button" layoutX="155.0" layoutY="265.0" mnemonicParsing="false" text="Option 1" />
+      <Button fx:id="option2Button" layoutX="351.0" layoutY="265.0" mnemonicParsing="false" text="Option 2" />
+   </children>
+</AnchorPane>
