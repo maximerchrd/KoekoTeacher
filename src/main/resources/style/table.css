@@ -4,7 +4,9 @@
     -fx-background-color: #8cb3d9;
     -fx-border-width: 2pt;
     -fx-table-cell-border-width: 2pt;
-    -fx-table-cell-border-color:white;}
+    -fx-table-cell-border-color:white;
+    -fx-background-insets: 0.5, 1 1 1 1;
+}
 
 .table-view .column-header {
     -fx-background-color: #204060;

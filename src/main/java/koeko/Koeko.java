@@ -87,7 +87,7 @@ public class Koeko extends Application {
             }
         });
 
-        if (!firstAppLaunch) {
+        if (firstAppLaunch) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/InstallAssistant.fxml"));
             Parent root1 = null;
             try {

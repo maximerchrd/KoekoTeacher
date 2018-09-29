@@ -101,10 +101,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                         public void updateItem(String item, boolean empty) {
                             super.updateItem(item, empty);
                             if (!isEmpty()) {
-                                this.setTextFill(Color.RED);
+                                this.setStyle("-fx-text-fill: red;");
                                 // Get fancy and change color based on data
                                 if (item.contains("#/#")) {
-                                    this.setTextFill(Color.GREEN);
+                                    this.setStyle("-fx-text-fill: green;");
                                 }
                                 setText(item.replace("#/#", ""));
                             }
@@ -157,10 +157,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                             public void updateItem(String item, boolean empty) {
                                 super.updateItem(item, empty);
                                 if (!isEmpty()) {
-                                    this.setTextFill(Color.RED);
+                                    this.setStyle("-fx-text-fill: red;");
                                     // Get fancy and change color based on data
                                     if(item.contains("#/#")) {
-                                        this.setTextFill(Color.GREEN);
+                                        this.setStyle("-fx-text-fill: green;");
                                     }
                                     setText(item.replace("#/#",""));
                                 }
@@ -229,7 +229,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
 
             //adapt table height
-            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight);
+            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight * 1.1);
         } else {
             //BEGIN change connection status to connected
             if (connection) {
@@ -440,7 +440,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void removeStudentFromClass(Integer group) {
         if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
             //adapt table height
-            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight);
+            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight * 1.1);
 
             String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
             if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
@@ -521,7 +521,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.getColumns().add(columnEvaluation);
 
         //add summary linestudentsQuestionsTable.setFixedCellSize(cellHeight);
-        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");studentsQuestionsTable.setPrefHeight(cellHeight * 4);
+        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");
+        studentsQuestionsTable.setPrefHeight(cellHeight * 4);
         studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
 
         Label groupNameLabel = new Label("Group: " + group);
@@ -693,7 +694,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
         studentsQuestionsTable.getColumns().add(columnStudent);
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
-        columnStatus.setPrefWidth(160);
+        columnStatus.setPrefWidth(180);
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("Status"));
         studentsQuestionsTable.getColumns().add(columnStatus);
 
@@ -707,10 +708,10 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                         super.updateItem(item, empty);
                         if (!isEmpty()) {
                             if(item.contains("&red")) {
-                                this.setTextFill(Color.RED);
+                                this.setStyle("-fx-text-fill: red;");
                                 item = item.replace("&red", "");
                             } else {
-                                this.setTextFill(Color.BLACK);
+                                this.setTextFill(Color.WHITE);
                             }
                             setText(item);
                         }
@@ -724,7 +725,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("Evaluation"));
         studentsQuestionsTable.getColumns().add(columnEvaluation);
         studentsQuestionsTable.setFixedCellSize(cellHeight);
-        studentsQuestionsTable.setPrefHeight(cellHeight * 2.5);
+        studentsQuestionsTable.setPrefHeight(cellHeight * 3.5);
         tableVBox.getChildren().add(studentsQuestionsTable);
         tableViewArrayList.add(studentsQuestionsTable);
 
