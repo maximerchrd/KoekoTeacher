@@ -8,6 +8,54 @@
 
 <AnchorPane fx:id="anchorPane" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.DisplayStatsController">
    <children>
+      <VBox prefHeight="200.0" prefWidth="268.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <ComboBox fx:id="chart_type" onAction="#chartTypeChanged" prefHeight="27.0" prefWidth="243.0">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </ComboBox>
+            <ComboBox fx:id="subject_filtering" onAction="#subjectChanged" prefHeight="27.0" prefWidth="243.0" promptText="Subject Filtering">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </ComboBox>
+            <TreeView fx:id="students_tree" prefHeight="179.0" prefWidth="243.0" VBox.vgrow="ALWAYS">
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </TreeView>
+            <Label text="Time span:">
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </Label>
+            <ComboBox fx:id="time_step" prefHeight="27.0" prefWidth="243.0">
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </ComboBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#displayChartButtonClicked" text="Display Chart" />
+                  <Button mnemonicParsing="false" onAction="#eraseChartButtonClicked" text="Erase Chart">
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="5.0" right="5.0" />
+         </padding>
+      </VBox>
       <ScrollPane fx:id="chartScrollPane" layoutX="269.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="269.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <content>
             <BarChart fx:id="bar_chart">
@@ -20,11 +68,5 @@
             </BarChart>
          </content>
       </ScrollPane>
-      <ComboBox fx:id="chart_type" layoutX="14.0" layoutY="14.0" onAction="#chartTypeChanged" prefHeight="27.0" prefWidth="243.0" AnchorPane.topAnchor="14.0" />
-      <ComboBox fx:id="time_step" layoutX="15.0" layoutY="157.0" prefHeight="27.0" prefWidth="243.0" AnchorPane.bottomAnchor="53.0" />
-      <Button layoutX="21.0" layoutY="310.0" mnemonicParsing="false" onAction="#displayChartButtonClicked" text="Display Chart" AnchorPane.bottomAnchor="8.0" />
-      <TreeView fx:id="students_tree" layoutX="12.0" layoutY="49.0" prefHeight="179.0" prefWidth="243.0" AnchorPane.bottomAnchor="117.0" AnchorPane.topAnchor="49.0" />
-      <Label layoutX="14.0" layoutY="242.0" text="Time span:" AnchorPane.bottomAnchor="80.0" />
-      <Button layoutX="154.0" layoutY="310.0" mnemonicParsing="false" onAction="#eraseChartButtonClicked" text="Erase Chart" AnchorPane.bottomAnchor="8.0" />
    </children>
 </AnchorPane>

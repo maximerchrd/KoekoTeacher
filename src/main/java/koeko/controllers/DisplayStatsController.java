@@ -12,6 +12,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import koeko.questions_management.QuestionMultipleChoice;
+import koeko.view.Subject;
 
 
 import java.awt.*;
@@ -39,6 +40,7 @@ public class DisplayStatsController implements Initializable {
     @FXML private CategoryAxis categoryXAxis;
     @FXML private javafx.scene.control.ScrollPane chartScrollPane;
     @FXML private AnchorPane anchorPane;
+    @FXML private ComboBox subject_filtering;
 
     DisplayStatsController displayStats_singleton;
 
@@ -47,6 +49,15 @@ public class DisplayStatsController implements Initializable {
         //combobox with types of values to consider for the chart
         chart_type.getItems().addAll(chartType1, chartType2, chartType3);
         chart_type.getSelectionModel().select(chartType2);
+
+        //setup and collapse subject filtering combobox
+        ArrayList<String> subjects = new ArrayList<>();
+        for (Subject subject : DbTableSubject.getSubjects()) {
+            subjects.add(subject.get_subjectName());
+        }
+        subject_filtering.getItems().addAll(subjects);
+        subject_filtering.managedProperty().bind(subject_filtering.visibleProperty());
+        subject_filtering.setVisible(false);
 
         //get all the multiple choice questions for the nb of hits for answers histogram
         Vector<String> allIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
@@ -104,6 +115,9 @@ public class DisplayStatsController implements Initializable {
             classes.add(0, "All classes");
             time_step.getItems().addAll(classes);
             time_step.getSelectionModel().select(0);
+
+            //setup subject filtering
+            subject_filtering.setVisible(true);
         } else {
             rootItem.getChildren().removeAll(rootItem.getChildren());
             for (int i = 0; i < studentsVector.size(); i++) {
@@ -115,6 +129,24 @@ public class DisplayStatsController implements Initializable {
             time_step.getItems().removeAll(time_step.getItems());
             time_step.getItems().addAll("All", "Week", "Month");
             time_step.getSelectionModel().select("All");
+
+            //toggle subject filtering combobox visibility
+            subject_filtering.setVisible(false);
+        }
+    }
+
+    public void subjectChanged() {
+        ArrayList<String> questionIds = new ArrayList<>(DbTableRelationQuestionSubject
+                .getQuestionsIdsForSubject(subject_filtering.getSelectionModel().getSelectedItem().toString()));
+        rootItem.getChildren().removeAll(rootItem.getChildren());
+        questionMultipleChoices.removeAll(questionMultipleChoices);
+        for (String questionId : questionIds) {
+            Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionId);
+            if (questionType == 0) {
+                questionMultipleChoices.add(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId));
+                rootItem.getChildren().add(new TreeItem<>(questionMultipleChoices
+                        .get(questionMultipleChoices.size() - 1).getQUESTION()));
+            }
         }
     }
 
