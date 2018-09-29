@@ -8,7 +8,7 @@
 
 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="548.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.SettingsController">
    <children>
-      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
@@ -22,28 +22,31 @@
             </HBox>
             <HBox prefHeight="50.0" prefWidth="855.0">
                <children>
-                  <Label text="User Name:" />
-                  <TextField fx:id="teacherName" onAction="#setUserName">
+                  <Label prefWidth="160.0" text="User Name:" />
+                  <TextField fx:id="teacherName" onAction="#setUserName" prefWidth="170.0">
                      <HBox.margin>
-                        <Insets left="10.0" />
+                        <Insets left="30.0" />
                      </HBox.margin>
                   </TextField>
                </children>
             </HBox>
             <HBox prefHeight="50.0" prefWidth="200.0">
                <children>
-                  <Label text="Language:" />
-                  <ComboBox fx:id="languageCombobox" onAction="#setLanguage" prefWidth="150.0" promptText="Select Language">
+                  <Label prefWidth="160.0" text="Language:" />
+                  <ComboBox fx:id="languageCombobox" onAction="#setLanguage" prefWidth="170.0" promptText="Select Language">
                      <HBox.margin>
-                        <Insets left="10.0" />
+                        <Insets left="30.0" />
                      </HBox.margin>
                   </ComboBox>
                </children>
             </HBox>
             <HBox prefHeight="50.0" prefWidth="200.0">
                <children>
-                  <Label text="Synchronization key: " />
-                  <TextField fx:id="synchronizationKeyTextField" />
+                  <Label prefWidth="160.0" text="Synchronization key: " />
+                  <TextField fx:id="synchronizationKeyTextField" prefWidth="170.0">
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin></TextField>
                </children>
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
