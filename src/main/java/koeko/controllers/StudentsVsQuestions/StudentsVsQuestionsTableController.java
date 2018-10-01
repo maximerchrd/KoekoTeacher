@@ -664,7 +664,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             ArrayList<Integer> objectivesIDs = DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
 
             for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
-
                 SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
                 for (int i = 0; i < objectivesIDs.size(); i++) {
                     String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),

@@ -94,7 +94,9 @@ public class DisplayStatsController implements Initializable {
 
     public void displayChartButtonClicked() {
         TreeItem selectedItem = (TreeItem)students_tree.getSelectionModel().getSelectedItem();
-        drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString());
+        if (selectedItem != null) {
+            drawChart(chart_type.getSelectionModel().getSelectedItem().toString(), selectedItem.getValue().toString());
+        }
     }
 
     public void eraseChartButtonClicked() {

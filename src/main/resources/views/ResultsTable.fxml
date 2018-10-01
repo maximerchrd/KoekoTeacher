@@ -4,14 +4,14 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.ResultsTableController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.ResultsTable.ResultsTableController">
    <children>
-      <ScrollPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="136.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <content>
-            <TableView id="resultsTable" fx:id="resultsTable" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="268.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TableView id="resultsTable" fx:id="resultsTable" minHeight="0.0" minWidth="0.0" VBox.vgrow="ALWAYS">
               <columns>
                 <TableColumn fx:id="Name" prefWidth="120.0" text="Name" />
-                <TableColumn fx:id="Date" text="Date" />
+                <TableColumn fx:id="Date" prefWidth="90.0" text="Date" />
                   <TableColumn fx:id="Question" prefWidth="180.0" text="Question" />
                   <TableColumn fx:id="Evaluation" prefWidth="75.0" text="Evaluation" />
                   <TableColumn fx:id="StudentsAnswer" prefWidth="180.0" text="Student's answer" />
@@ -21,8 +21,19 @@
                   <TableColumn fx:id="Objectives" prefWidth="150.0" text="Objectives" />
               </columns>
             </TableView>
-         </content>
-      </ScrollPane>
-      <Button layoutX="14.0" layoutY="14.0" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#exportResults" text="Export results" AnchorPane.leftAnchor="14.0" />
+            <TableView fx:id="tableIndicators" VBox.vgrow="ALWAYS">
+              <columns>
+                <TableColumn fx:id="name_indicators" prefWidth="120.0" text="Name" />
+                <TableColumn fx:id="short_perf_indicators" prefWidth="150.0" text="Short term Performance" />
+                  <TableColumn fx:id="long_perf_indicators" prefWidth="150.0" text="Long term Performance" />
+                  <TableColumn fx:id="strong_obj_indicators" prefWidth="200.0" text="Strong Learning Objectives" />
+                  <TableColumn fx:id="weak_obj_indicators" prefWidth="200.0" text="Weak Learning Objectives" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <Button layoutX="14.0" layoutY="139.0" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#exportResults" prefWidth="200.0" text="Export results" AnchorPane.leftAnchor="14.0" />
+      <ComboBox fx:id="tableTypeCombobox" layoutX="14.0" layoutY="30.0" onAction="#tableTypeChanged" prefHeight="27.0" prefWidth="200.0" />
+      <Button layoutX="14.0" layoutY="97.0" minHeight="0.0" minWidth="0.0" mnemonicParsing="false" onAction="#getTable" prefWidth="200.0" text="Print Table" />
    </children>
 </AnchorPane>

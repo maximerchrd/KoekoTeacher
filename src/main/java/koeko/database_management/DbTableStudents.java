@@ -118,22 +118,27 @@ public class DbTableStudents {
         return student_names;
     }
 
-    static public ArrayList<String> getStudentsIDs() {
+    static public ArrayList<ArrayList<String>> getStudentsIDsAndNames() {
+        ArrayList<ArrayList<String>> idsAndNames = new ArrayList<>();
         ArrayList<String> studentsIDs = new ArrayList<>();
+        ArrayList<String> studentsNames = new ArrayList<>();
 
-        String sql = 	"SELECT ID_SUBJECT_GLOBAL,IDENTIFIER FROM subjects WHERE SUBJECT = ?";
+        String sql = 	"SELECT ID_STUDENT_GLOBAL,FIRST_NAME FROM students";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                String globalID = rs.getString("ID_SUBJECT_GLOBAL");
-                studentsIDs.add(globalID);
+                studentsIDs.add(rs.getString("ID_STUDENT_GLOBAL"));
+                studentsNames.add(rs.getString("FIRST_NAME"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
-        return studentsIDs;
+        idsAndNames.add(studentsIDs);
+        idsAndNames.add(studentsNames);
+
+        return idsAndNames;
     }
 
     static public String getStudentNameWithID(int studentID) {

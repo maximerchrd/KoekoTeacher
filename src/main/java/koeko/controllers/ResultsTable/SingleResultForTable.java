@@ -1,4 +1,4 @@
-package koeko.controllers.controllers_tools;
+package koeko.controllers.ResultsTable;
 
 import javafx.beans.property.SimpleStringProperty;
 

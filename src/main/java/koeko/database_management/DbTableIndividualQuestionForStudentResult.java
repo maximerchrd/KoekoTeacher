@@ -1,6 +1,6 @@
 package koeko.database_management;
 
-import koeko.controllers.controllers_tools.SingleResultForTable;
+import koeko.controllers.ResultsTable.SingleResultForTable;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.students_management.Student;
@@ -9,10 +9,7 @@ import koeko.view.Utilities;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by maximerichard on 24.11.17.
@@ -207,10 +204,25 @@ public class DbTableIndividualQuestionForStudentResult {
         return quantitative_evaluation;
     }
 
+    /**
+     * Put the string "" as testName if you want the results independently from the test
+     * @param studentName
+     * @param objectiveID
+     * @param testName
+     * @return
+     */
     static public String getResultForStudentForObjectiveInTest(String studentName, String objectiveID, String testName) {
+        ArrayList<String> results = new ArrayList<>();
         String result = "";
-        String sql = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
-                "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = ? AND TEST_BELONGING = ?";
+        String sql = "";
+        if (testName.contentEquals("")) {
+            sql = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
+                    "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = " +
+                    "(SELECT ID_GLOBAL FROM question_objective_relation WHERE ID_OBJECTIVE_GLOBAL=?)";
+        } else {
+            sql = "SELECT QUANTITATIVE_EVAL FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL = " +
+                    "(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?) AND ID_GLOBAL = ? AND TEST_BELONGING = ?";
+        }
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -218,15 +230,23 @@ public class DbTableIndividualQuestionForStudentResult {
             // set the corresponding param
             pstmt.setString(1, studentName);
             pstmt.setString(2, objectiveID);
-            pstmt.setString(3, testName);
+            if (!testName.contentEquals("")) {
+                pstmt.setString(3, testName);
+            }
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                result = rs.getString("QUANTITATIVE_EVAL");
+                results.add(rs.getString("QUANTITATIVE_EVAL"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        Double resultDouble = 0.0;
+        for (String res : results) {
+            resultDouble += Double.valueOf(res);
+        }
+        result = String.valueOf(resultDouble / results.size());
 
         return result;
     }
@@ -328,6 +348,32 @@ public class DbTableIndividualQuestionForStudentResult {
             e.printStackTrace();
         }
         return evaluation + "///" + identifier;
+    }
+
+    static public ArrayList<ArrayList<String>> getEvalAndDateForStudentID(String globalStudentID) {
+        ArrayList<ArrayList<String>> evalAndDates = new ArrayList<>();
+        ArrayList<String> evaluations = new ArrayList<>();
+        ArrayList<String> dates = new ArrayList<>();
+
+        String query = "SELECT QUANTITATIVE_EVAL,DATE FROM individual_question_for_student_result " +
+                "WHERE ID_STUDENT_GLOBAL=?;";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement pstmt = c.prepareStatement(query)){
+            pstmt.setString(1, globalStudentID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                evaluations.add(rs.getString("QUANTITATIVE_EVAL"));
+                dates.add(rs.getString("DATE"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        evalAndDates.add(evaluations);
+        evalAndDates.add(dates);
+
+        return evalAndDates;
     }
 
     static public ArrayList<SingleResultForTable> getAllSingleResults() {
