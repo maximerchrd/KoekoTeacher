@@ -59,6 +59,7 @@ public class DBManager {
 		DbTableProfessor.createTableProfessor(c, stmt);
 		DbTableRelationQuestionQuestion.createTableRelationQuestionQuestion(c, stmt);
 		DBTableSyncOp.createTableSyncOp(c, stmt);
+		DbTableLogs.createTableClasses(c, stmt);
 		try {
 			stmt.close();
 			c.close();

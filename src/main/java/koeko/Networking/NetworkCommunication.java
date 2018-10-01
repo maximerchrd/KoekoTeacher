@@ -38,10 +38,6 @@ public class NetworkCommunication {
 
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
-    private OutputStream serverOutStream = null;
-    private ArrayList<OutputStream> outstream_list;
-    private ArrayList<InputStream> instream_list;
-    private int number_of_clients = 0;
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
@@ -93,8 +89,6 @@ public class NetworkCommunication {
 
             //Wait for client connection
             System.out.println("\nServer Started. Waiting for clients to connect...");
-            outstream_list = new ArrayList<OutputStream>();
-            instream_list = new ArrayList<InputStream>();
             aClass = Koeko.studentGroupsAndClass.get(0);
             Thread connectionthread = new Thread() {
                 public void run() {
@@ -109,7 +103,6 @@ public class NetworkCommunication {
 
                             try {
                                 //register student
-                                number_of_clients++;
                                 student.setInputStream(skt.getInputStream());
                                 student.setOutputStream(skt.getOutputStream());
                                 if (!aClass.studentAlreadyInClass(student)) {

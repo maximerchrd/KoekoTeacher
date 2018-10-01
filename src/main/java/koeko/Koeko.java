@@ -28,6 +28,7 @@ public class Koeko extends Application {
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
     static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
+    static public Boolean recordLogs = true;
 
     public static void main(String[] args) throws Exception {
         Application.launch(args);

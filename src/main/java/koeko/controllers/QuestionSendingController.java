@@ -551,6 +551,9 @@ public class QuestionSendingController extends Window implements Initializable {
                 }
             }
         }
+        if (Koeko.recordLogs) {
+            DbTableLogs.insertLog("NBSDTS", String.valueOf(students.size()));
+        }
     }
 
     public void createQuestion() {

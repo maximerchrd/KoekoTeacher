@@ -208,9 +208,15 @@ public class QuestionBrowsingController extends Window implements Initializable 
         }
         if (ipAddresses.size() == 1) {
             Platform.runLater(() -> labelIP.setText("students should connect \nto the following address:\n" + ipAddresses.get(0)));
+            if (Koeko.recordLogs) {
+                DbTableLogs.insertLog("IPs", ipAddresses.get(0));
+            }
         } else if (ipAddresses.size() == 2) {
             Platform.runLater(() -> labelIP.setText("students should connect \nto the following addresses:\n" + ipAddresses.get(0) +
                 "\nand " + ipAddresses.get(1)));
+            if (Koeko.recordLogs) {
+                DbTableLogs.insertLog("IPs", ipAddresses.get(0) + "/" + ipAddresses.get(1));
+            }
         }
     }
 
