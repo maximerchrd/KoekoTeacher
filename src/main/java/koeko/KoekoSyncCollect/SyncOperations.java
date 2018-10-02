@@ -96,6 +96,12 @@ public class SyncOperations {
                 }
             }
 
+            //Send the logs
+            ArrayList<Log> logsToSend = DbTableLogs.getLogs(0);
+            for (Log logToSend : logsToSend) {
+                SendLog(logToSend);
+            }
+
             // THIRD STEP, launch sp to update web with new data
             _tcpcom.SyncCollect2WEB();
             System.out.println("WEB synchronized");
@@ -240,17 +246,12 @@ public class SyncOperations {
         }
     }
 
-    static private void UpdateQuestionTestRelation(String testUID, ArrayList<RelationQuestionTest> relationQuestionTests) {
-        boolean bOK = _tcpcom.RemoveTestRelation(testUID);
-        if (bOK) {
-            try {
-                for (RelationQuestionTest relationQuestionTest : relationQuestionTests) {
-                    _tcpcom.SendSerializableObject(relationQuestionTest);
-                }
-            } catch ( Exception e ) {
-                System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-                System.exit(0);
-            }
+    private static void SendLog(Log logToSend) {
+        try {
+            String objectReceived = _tcpcom.SendSerializableObject(logToSend);
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
         }
     }
+
 }

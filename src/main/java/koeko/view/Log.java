@@ -1,6 +1,8 @@
 package koeko.view;
 
-public class Log {
+import java.io.Serializable;
+
+public class Log implements Serializable {
     private String id;
     private String uid;
     private String sessionId;

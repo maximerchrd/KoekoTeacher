@@ -84,15 +84,28 @@ public class DbTableLogs {
                 Log log = new Log();
                 log.setId(rs.getString("ID_LOG"));
                 log.setUid(rs.getString("UID"));
-                log.setSessionId("SESSION_ID");
-                log.setLogTag("LOG_TAG");
-                log.setLogMessage("LOG_MESSAGE");
+                log.setInsertTime(rs.getString("INSERT_TIME"));
+                log.setSessionId(rs.getString("SESSION_ID"));
+                log.setLogTag(rs.getString("LOG_TAG"));
+                log.setLogMessage(rs.getString("LOG_MESSAGE"));
                 logs.add(log);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        String sql = "UPDATE logs SET SYNCED=1 WHERE SYNCED=0";
+        if (checkIfTableExists != 1) {
+            try (Connection c = Utilities.getDbConnection();
+                 PreparedStatement stmt = c.prepareStatement(sql)) {
+                stmt.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return logs;

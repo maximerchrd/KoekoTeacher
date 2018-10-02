@@ -751,10 +751,6 @@ public class NetworkCommunication {
         writingThread.start();
     }
 
-    private void writeToStreamAndCatchExceptions(OutputStream outputStream) {
-
-    }
-
     public void popUpIfStudentIdentifierCollision(String studentName) {
         Platform.runLater(new Runnable() {
             @Override
