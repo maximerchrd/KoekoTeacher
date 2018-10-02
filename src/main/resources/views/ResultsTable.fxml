@@ -4,7 +4,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.ResultsTable.ResultsTableController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0" prefWidth="609.0" style="-fx-background-color: #001a33;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.ResultsTable.ResultsTableController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="268.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -24,10 +24,10 @@
             <TableView fx:id="tableIndicators" VBox.vgrow="ALWAYS">
               <columns>
                 <TableColumn fx:id="name_indicators" prefWidth="120.0" text="Name" />
-                <TableColumn fx:id="short_perf_indicators" prefWidth="150.0" text="Short term Performance" />
-                  <TableColumn fx:id="long_perf_indicators" prefWidth="150.0" text="Long term Performance" />
-                  <TableColumn fx:id="strong_obj_indicators" prefWidth="200.0" text="Strong Learning Objectives" />
-                  <TableColumn fx:id="weak_obj_indicators" prefWidth="200.0" text="Weak Learning Objectives" />
+                <TableColumn fx:id="short_perf_indicators" prefWidth="200.0" text="Short term Performance" />
+                  <TableColumn fx:id="long_perf_indicators" prefWidth="200.0" text="Long term Performance" />
+                  <TableColumn fx:id="strong_obj_indicators" prefWidth="250.0" text="Strong Learning Objectives" />
+                  <TableColumn fx:id="weak_obj_indicators" prefWidth="250.0" text="Weak Learning Objectives" />
               </columns>
             </TableView>
          </children>

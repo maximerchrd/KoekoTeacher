@@ -6,7 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="anchorPane" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.DisplayStatsController">
+<AnchorPane fx:id="anchorPane" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #001a33;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.DisplayStatsController">
    <children>
       <VBox prefHeight="200.0" prefWidth="268.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -28,7 +28,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </TreeView>
-            <Label text="Time span:">
+            <Label style="-fx-text-fill: white;" text="Time span:">
                <padding>
                   <Insets top="10.0" />
                </padding>
