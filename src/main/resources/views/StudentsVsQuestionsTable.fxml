@@ -27,11 +27,11 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <ComboBox fx:id="chooseClassComboBox" layoutX="4.0" layoutY="4.0" onAction="#loadClass" prefHeight="27.0" prefWidth="193.0" promptText="Choose Class" />
-                        <Button layoutX="4.0" layoutY="34.0" mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="Add new student to class" />
+                        <Button layoutX="4.0" layoutY="34.0" mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="Add student to Class" />
                         <Button layoutX="4.0" layoutY="64.0" mnemonicParsing="false" onAction="#createClass" prefHeight="27.0" prefWidth="193.0" text="Create a new class" />
                         <Button layoutX="4.0" layoutY="93.0" mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="Save students to class" />
                         <Button layoutX="4.0" layoutY="122.0" mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="193.0" text="Load groups" />
-                        <Button layoutX="4.0" layoutY="151.0" mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="Remove student from class" />
+                        <Button layoutX="4.0" layoutY="151.0" mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="Remove from class" />
                      </children>
                   </AnchorPane>
             </content>
@@ -40,9 +40,9 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ComboBox fx:id="chooseTestCombo" layoutX="12.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="176.0" promptText="Choose Certif. Test" />
+                        <ComboBox fx:id="chooseTestCombo" layoutX="12.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="176.0" promptText="Certificative Test" />
                         <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#sendObjectiveEvaluationToStudents" prefHeight="27.0" prefWidth="193.0" text="Send Eval. to Students" />
-                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="193.0" text="Assign Certif. Test to Class" />
+                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="193.0" text="Assign to Class" />
                      </children>
                   </AnchorPane>
             </content>

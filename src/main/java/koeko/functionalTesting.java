@@ -25,6 +25,8 @@ import java.util.*;
  * 1:
  * 2:
  * 3: create questions with 1 picture and send them
+ * 4: insert all question in a test
+ * 5: make copies of questions when creating a question
  */
 public class functionalTesting {
     static PrintStream originalStream;

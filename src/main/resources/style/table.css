@@ -8,6 +8,10 @@
     -fx-background-insets: 0.5, 1 1 1 1;
 }
 
+.table-row-cell:selected {
+    -fx-background-color: #80bfff;
+}
+
 .table-view .column-header {
     -fx-background-color: #204060;
     -fx-border-color: white;
