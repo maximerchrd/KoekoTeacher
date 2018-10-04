@@ -23,6 +23,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 
+import javax.swing.*;
+
 public class Koeko extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
@@ -31,6 +33,13 @@ public class Koeko extends Application {
     static public Boolean recordLogs = true;
 
     public static void main(String[] args) throws Exception {
+        if (System.getProperty("os.name").contains("OS X")) {
+            try {
+                com.apple.eawt.Application.getApplication().setDockIconImage(new ImageIcon("pictures/app-icon.png").getImage());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         Application.launch(args);
     }
 
