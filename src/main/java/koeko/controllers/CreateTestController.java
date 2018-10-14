@@ -207,9 +207,53 @@ public class CreateTestController extends Window implements Initializable {
             //add medals to test
             if (medalsCheckbox.isSelected()) {
                 String medals = "";
-                medals += "bronze:" + bronzeMedalTime.getText() + "/" + bronzeMedalScore.getText() + ";";
-                medals += "silver:" + silverMedalTime.getText() + "/" + silverMedalScore.getText() + ";";
-                medals += "gold:" + goldMedalTime.getText() + "/" + goldMedalScore.getText() + ";";
+                String bronzeTime;
+                String silverTime;
+                String goldTime;
+                try {
+                    Long time = Long.valueOf(bronzeMedalTime.getText());
+                    bronzeTime = String.valueOf(time);
+                } catch (NumberFormatException e) {
+                    bronzeTime = "0";
+                }
+                try {
+                    Long time = Long.valueOf(silverMedalTime.getText());
+                    silverTime = String.valueOf(time);
+                } catch (NumberFormatException e) {
+                    silverTime = "0";
+                }
+                try {
+                    Long time = Long.valueOf(goldMedalTime.getText());
+                    goldTime = String.valueOf(time);
+                } catch (NumberFormatException e) {
+                    goldTime = "0";
+                }
+
+                String bronzeScore;
+                String silverScore;
+                String goldScore;
+                try {
+                    Double score = Double.valueOf(bronzeMedalScore.getText());
+                    bronzeScore = String.valueOf(score);
+                } catch (NumberFormatException e) {
+                    bronzeScore = "100";
+                }
+                try {
+                    Double score = Double.valueOf(silverMedalScore.getText());
+                    silverScore = String.valueOf(score);
+                } catch (NumberFormatException e) {
+                    silverScore = "100";
+                }
+                try {
+                    Double score = Double.valueOf(goldMedalScore.getText());
+                    goldScore = String.valueOf(score);
+                } catch (NumberFormatException e) {
+                    goldScore = "100";
+                }
+
+                medals += "bronze:" + bronzeTime + "/" + bronzeScore + ";";
+                medals += "silver:" + silverTime + "/" + silverScore + ";";
+                medals += "gold:" + goldTime + "/" + goldScore + ";";
                 DbTableTests.setMedals(testName.getText(), medals);
             }
 
