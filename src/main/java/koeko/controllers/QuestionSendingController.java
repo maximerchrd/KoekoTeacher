@@ -2,6 +2,7 @@ package koeko.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import koeko.Koeko;
@@ -75,6 +76,11 @@ public class QuestionSendingController extends Window implements Initializable {
 
     @FXML private Accordion questionSendingAccordion;
 
+    @FXML private Button createQuestionButton;
+    @FXML private Button createTestButton;
+    @FXML private Button broadcastQuestionForStudentsButton;
+    @FXML private Button activateQuestionForStudentsButton;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
 
@@ -84,6 +90,16 @@ public class QuestionSendingController extends Window implements Initializable {
         );
         int uiMode = DbTableSettings.getUIMode();
         uiChoiceBox.getSelectionModel().select(uiMode);
+
+        //set tooltips for buttons
+        Tooltip tooltipcreateQuestion = new Tooltip("Create a new Question");
+        createQuestionButton.setTooltip(tooltipcreateQuestion);
+        Tooltip tooltipcreateTest = new Tooltip("Create a new Test");
+        createTestButton.setTooltip(tooltipcreateTest);
+        Tooltip tooltipbroadcastQuestion = new Tooltip("Synchronize selected Question or Test with students' devices");
+        broadcastQuestionForStudentsButton.setTooltip(tooltipbroadcastQuestion);
+        Tooltip tooltipactivateQuestion = new Tooltip("Activate selected Question or Test on students' devices");
+        activateQuestionForStudentsButton.setTooltip(tooltipactivateQuestion);
 
         //all questions tree (left panel)
         //retrieve data from db

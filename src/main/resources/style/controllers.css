@@ -43,3 +43,15 @@
 {
     -fx-background-color: white;
 }
+.button-add-image{
+    -fx-graphic: url('/drawable/addQuestionImage.png');
+}
+.button-add-test{
+    -fx-graphic: url('/drawable/addTestImage.png');
+}
+.button-sync{
+    -fx-graphic: url('/drawable/syncImage.png');
+}
+.button-send{
+    -fx-graphic: url('/drawable/sendImage.png');
+}

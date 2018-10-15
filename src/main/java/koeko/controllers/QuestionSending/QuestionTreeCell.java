@@ -54,14 +54,20 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
 
             VBox buttonsBox = new VBox(3);
 
-            Button buttonEdit = new Button("Ed");
+            double buttonImageSize = 20;
+            ImageView editImage = new ImageView(new Image("/drawable/editImage.png", buttonImageSize, buttonImageSize, true, true));
+            Button buttonEdit = new Button();
+            buttonEdit.setGraphic(editImage);
             buttonEdit.setTooltip(
                     new Tooltip("Edit question")
             );
             buttonEdit.setOnAction((event) -> {
                 editItem(item);
             });
-            Button buttonDelete = new Button("X");
+
+            ImageView deleteImage = new ImageView(new Image("/drawable/deleteImage.png", buttonImageSize, buttonImageSize, true, true));
+            Button buttonDelete = new Button();
+            buttonDelete.setGraphic(deleteImage);
             buttonDelete.setTooltip(
                     new Tooltip("Delete question")
             );
@@ -71,14 +77,20 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             buttonsBox.getChildren().addAll(buttonEdit, buttonDelete);
 
             VBox buttonsBox2 = new VBox(3);
-            Button buttonQRCode = new Button("QR");
+
+            ImageView qrImage = new ImageView(new Image("/drawable/qrImage.png", buttonImageSize, buttonImageSize, true, true));
+            Button buttonQRCode = new Button();
+            buttonQRCode.setGraphic(qrImage);
             buttonQRCode.setTooltip(
                     new Tooltip("Download image of QR code corresponding to the question")
             );
             buttonQRCode.setOnAction((event) -> {
                 saveQRCode(item, buttonDelete);
             });
-            Button buttonBuildTest = new Button("+Q");
+
+            ImageView linkImage = new ImageView(new Image("/drawable/linkImage.png", buttonImageSize, buttonImageSize, true, true));
+            Button buttonBuildTest = new Button();
+            buttonBuildTest.setGraphic(linkImage);
             buttonBuildTest.setTooltip(
                     new Tooltip("Add questions to the test")
             );
