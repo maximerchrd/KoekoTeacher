@@ -8,3 +8,5 @@ build
 out
 gradlew*
 TestTransfert/TestTransfert.iml
+
+*.pdf

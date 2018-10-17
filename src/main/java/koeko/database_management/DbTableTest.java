@@ -20,6 +20,7 @@ public class DbTableTest {
                     " ID_TEST_GLOBAL      INT     NOT NULL, " +
                     " NAME      TEXT     NOT NULL, " +
                     " MEDIA_FILE      TEXT, " +
+                    " SEND_MEDIA_FILE      INT, " +
                     " TEST_MODE           INT    NOT NULL," +
                     " QUANTITATIVE_EVAL           TEXT    NOT NULL," +
                     " MEDALS       TEXT, " +
@@ -144,12 +145,14 @@ public class DbTableTest {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT NAME,TEST_MODE FROM test WHERE ID_TEST_GLOBAL = '" + testID + "';";
+            String query = "SELECT NAME,TEST_MODE, MEDIA_FILE, SEND_MEDIA_FILE FROM test WHERE ID_TEST_GLOBAL = '" + testID + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 newTest = new Test();
                 newTest.setTestName(rs.getString("NAME"));
                 newTest.setTestMode(rs.getInt("TEST_MODE"));
+                newTest.setMediaFileName(rs.getString("MEDIA_FILE"));
+                newTest.setSendMediaFile(rs.getInt("SEND_MEDIA_FILE"));
                 newTest.setIdTest(testID);
             }
             stmt.close();
@@ -208,12 +211,13 @@ public class DbTableTest {
     }
 
     static public void setMediaFile(String mediaFile, String testName) {
-        String sql = "UPDATE test SET MEDIA_FILE = ? WHERE NAME = ?";
+        String sql = "UPDATE test SET MEDIA_FILE = ?, SEND_MEDIA_FILE = ? WHERE NAME = ?";
         try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = c.prepareStatement(sql)) {
 
             pstmt.setString(1, mediaFile);
-            pstmt.setString(2, testName);
+            pstmt.setInt(2, 1);
+            pstmt.setString(3, testName);
             pstmt.executeUpdate();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -221,9 +225,10 @@ public class DbTableTest {
     }
 
     static public String getMediaFileName(String idTest) {
+        Integer sendMediaFile = 0;
         idTest = Utilities.setPositiveIdSign(idTest);
         String mediaFile = "";
-        String sql = "SELECT MEDIA_FILE FROM test WHERE ID_TEST_GLOBAL = ?";
+        String sql = "SELECT MEDIA_FILE, SEND_MEDIA_FILE FROM test WHERE ID_TEST_GLOBAL = ?";
         try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = c.prepareStatement(sql)) {
 
@@ -231,9 +236,13 @@ public class DbTableTest {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 mediaFile = rs.getString("MEDIA_FILE");
+                sendMediaFile = rs.getInt("SEND_MEDIA_FILE");
             }
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        if (sendMediaFile != 1) {
+            mediaFile = "";
         }
         return mediaFile;
     }

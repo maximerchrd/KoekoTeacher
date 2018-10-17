@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class Test {
     private String testName;
     private String idTest;
+    private String mediaFileName;
+    private Integer sendMediaFile;
     private ArrayList<String> idsQuestions;
     private ArrayList<QuestionGeneric> genericQuestions;
     private ArrayList<Double> questionsEvaluations;
@@ -79,6 +81,14 @@ public class Test {
         return medalsInstructions;
     }
 
+    public String getMediaFileName() {
+        return mediaFileName;
+    }
+
+    public Integer getSendMediaFile() {
+        return sendMediaFile;
+    }
+
     //setter
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
@@ -123,4 +133,13 @@ public class Test {
     public void setMedalsInstructions(String medalsInstructions) {
         this.medalsInstructions = medalsInstructions;
     }
+
+    public void setMediaFileName(String mediaFileName) {
+        this.mediaFileName = mediaFileName;
+    }
+
+    public void setSendMediaFile(Integer sendMediaFile) {
+        this.sendMediaFile = sendMediaFile;
+    }
+
 }
