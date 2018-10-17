@@ -1,9 +1,8 @@
 package koeko.Networking;
 
-import javafx.concurrent.Task;
 import koeko.Koeko;
+import koeko.Tools.FilesHandler;
 import koeko.controllers.LearningTrackerController;
-import koeko.controllers.QuestionSendingController;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
@@ -21,12 +20,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
 
 /**
  * Created by maximerichard on 03/02/17.
@@ -343,8 +342,8 @@ public class NetworkCommunication {
     public ArrayList<String> sendTestWithID(String testID, Student student) {
         Test testToSend = new Test();
         try {
-            testToSend = DbTableTests.getTestWithID(testID);
-            testToSend.setMedalsInstructions(DbTableTests.getMedals(testToSend.getTestName()));
+            testToSend = DbTableTest.getTestWithID(testID);
+            testToSend.setMedalsInstructions(DbTableTest.getMedals(testToSend.getTestName()));
             byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
             writeToOutputStream(student, bytesArray);
         } catch (Exception e) {
@@ -365,7 +364,7 @@ public class NetworkCommunication {
     public void sendTestEvaluation(String studentName, String test, String objective, String evaluation) {
         Student student = aClass.getStudentWithName(studentName);
         if (student.getOutputStream() != null) {
-            String testId = DbTableTests.getTestIdWithName(test);
+            String testId = DbTableTest.getTestIdWithName(test);
             String objectiveId = DbTableLearningObjectives.getObjectiveIdFromName(objective);
             String toSend = testId + "///" + test + "///" + objectiveId + "///" + objective + "///" + evaluation + "///";
             System.out.println("Sending string: " + toSend);
@@ -557,6 +556,33 @@ public class NetworkCommunication {
             }
         };
         listeningthread.start();
+    }
+
+    public void SendMediaFile(File mediaFile, Student student) {
+        try {
+            byte[] fileData = Files.readAllBytes(mediaFile.toPath());
+
+            //build info prefix
+            String[] mediaPathElements = mediaFile.toString().split(File.separator);
+            String mediaName = mediaFile.toString();
+            if (mediaPathElements.length > 0) {
+                mediaName = mediaPathElements[mediaPathElements.length - 1];
+                if (mediaName.length() > 14) {
+                    mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
+                }
+            }
+
+            String infoString = "FILE///" + mediaName + "///" + fileData.length + "///";
+            byte[] infoPrefix = new byte[80];
+            for (int i = 0; i < infoPrefix.length && i < infoString.getBytes().length; i++) {
+                infoPrefix[i] = infoString.getBytes()[i];
+            }
+            byte[] allData = Arrays.copyOf(infoPrefix, infoPrefix.length + fileData.length);
+            System.arraycopy(fileData, 0, allData, infoPrefix.length, fileData.length);
+            writeToOutputStream(student, allData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void SendEvaluation(double evaluation, String questionID, Student student) {

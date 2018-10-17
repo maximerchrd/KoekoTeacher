@@ -5,12 +5,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import koeko.database_management.DbTableRelationClassTest;
-import koeko.database_management.DbTableTests;
-import koeko.questions_management.QuestionGeneric;
+import koeko.database_management.DbTableTest;
 import koeko.questions_management.Test;
 
 import java.net.URL;
@@ -26,7 +24,7 @@ public class ChooseTestController implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ArrayList<Test> tests = DbTableTests.getAllTests();
+        ArrayList<Test> tests = DbTableTest.getAllTests();
 
         for (Test test : tests) {
             if (test.getTestMode().equals(0)) {

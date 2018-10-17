@@ -78,4 +78,13 @@ public class Utilities {
         }
         return uniqueId;
     }
+
+    static public String setPositiveIdSign(String id) {
+        if (id.contains("--")){
+            id = id.replace("--","");
+        } else if (id.contains("-")) {
+            id = id.replace("-", "");
+        }
+        return id;
+    }
 }

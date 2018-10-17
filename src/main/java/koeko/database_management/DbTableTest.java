@@ -11,11 +11,11 @@ import java.util.ArrayList;
 /**
  * Created by maximerichard on 24.11.17.
  */
-public class DbTableTests {
+public class DbTableTest {
     static public void createTableTest(Connection connection, Statement statement) {
         try {
             statement = connection.createStatement();
-            String sql = "CREATE TABLE IF NOT EXISTS tests " +
+            String sql = "CREATE TABLE IF NOT EXISTS test " +
                     "(ID_TEST       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " ID_TEST_GLOBAL      INT     NOT NULL, " +
                     " NAME      TEXT     NOT NULL, " +
@@ -40,7 +40,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT ID_TEST_GLOBAL,NAME,TEST_MODE FROM tests;";
+            String query = "SELECT ID_TEST_GLOBAL,NAME,TEST_MODE FROM test;";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 Test newTest = new Test();
@@ -73,7 +73,7 @@ public class DbTableTests {
     static public ArrayList<QuestionMultipleChoiceView> getAllTestViews() {
         ArrayList<QuestionMultipleChoiceView> testViews = new ArrayList<>();
 
-        String sql = 	"SELECT * FROM tests";
+        String sql = 	"SELECT * FROM test";
         try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
@@ -106,7 +106,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT ID_TEST_GLOBAL,NAME FROM tests WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM tests);";
+            String query = "SELECT ID_TEST_GLOBAL,NAME FROM test WHERE ID_TEST = (SELECT MAX(ID_TEST) FROM test);";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 newTest = new Test();
@@ -144,7 +144,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT NAME,TEST_MODE FROM tests WHERE ID_TEST_GLOBAL = '" + testID + "';";
+            String query = "SELECT NAME,TEST_MODE FROM test WHERE ID_TEST_GLOBAL = '" + testID + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 newTest = new Test();
@@ -169,7 +169,7 @@ public class DbTableTests {
     static public String addTest(Test newTest) {
         String testID = "";
 
-        String sql = 	"REPLACE INTO tests (ID_TEST_GLOBAL, NAME, TEST_MODE, QUANTITATIVE_EVAL, MODIF_DATE)" +
+        String sql = 	"REPLACE INTO test (ID_TEST_GLOBAL, NAME, TEST_MODE, QUANTITATIVE_EVAL, MODIF_DATE)" +
                 "VALUES (?,?,?,?,?)";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -195,7 +195,7 @@ public class DbTableTests {
     }
 
     static public void setMedals(String name, String medals) {
-        String sql = "UPDATE tests SET MEDALS = ? WHERE NAME = ?";
+        String sql = "UPDATE test SET MEDALS = ? WHERE NAME = ?";
         try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             PreparedStatement pstmt = c.prepareStatement(sql)) {
 
@@ -208,7 +208,7 @@ public class DbTableTests {
     }
 
     static public void setMediaFile(String mediaFile, String testName) {
-        String sql = "UPDATE tests SET MEDIA_FILE = ? WHERE NAME = ?";
+        String sql = "UPDATE test SET MEDIA_FILE = ? WHERE NAME = ?";
         try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = c.prepareStatement(sql)) {
 
@@ -220,9 +220,27 @@ public class DbTableTests {
         }
     }
 
+    static public String getMediaFileName(String idTest) {
+        idTest = Utilities.setPositiveIdSign(idTest);
+        String mediaFile = "";
+        String sql = "SELECT MEDIA_FILE FROM test WHERE ID_TEST_GLOBAL = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+
+            pstmt.setString(1, idTest);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                mediaFile = rs.getString("MEDIA_FILE");
+            }
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+        return mediaFile;
+    }
+
     static public String getMedals(String name) {
         String medals = "";
-        String sql = "SELECT MEDALS FROM tests WHERE NAME = ?";
+        String sql = "SELECT MEDALS FROM test WHERE NAME = ?";
         try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = c.prepareStatement(sql)) {
 
@@ -247,7 +265,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "DELETE FROM tests WHERE ID_TEST_GLOBAL = '" + ID + "';";
+            String sql = "DELETE FROM test WHERE ID_TEST_GLOBAL = '" + ID + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -266,7 +284,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "DELETE FROM tests WHERE NAME = '" + testName + "';";
+            String sql = "DELETE FROM test WHERE NAME = '" + testName + "';";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();
@@ -287,7 +305,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET NAME = '" + newName + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
+            String sql = "UPDATE test SET NAME = '" + newName + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
                     "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -307,7 +325,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String sql = "UPDATE tests SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
+            String sql = "UPDATE test SET TEST_MODE = '" + testMode + "', MODIF_DATE = '" + Utilities.TimestampForNowAsString() +
                     "' WHERE ID_TEST_GLOBAL = '" + global_id + "';";
             stmt.executeUpdate(sql);
             stmt.close();
@@ -329,7 +347,7 @@ public class DbTableTests {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT ID_TEST_GLOBAL FROM tests WHERE NAME = '" + test + "';";
+            String query = "SELECT ID_TEST_GLOBAL FROM test WHERE NAME = '" + test + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 testId = rs.getString("ID_TEST_GLOBAL");

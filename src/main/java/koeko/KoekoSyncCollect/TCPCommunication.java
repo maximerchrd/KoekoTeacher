@@ -1,14 +1,8 @@
 package koeko.KoekoSyncCollect;
 
-import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import koeko.Koeko;
 import koeko.database_management.*;
-import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
-import koeko.view.QuestionMultipleChoiceView;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -429,7 +423,7 @@ public class TCPCommunication {
                     Object rcv = GetObject();
                     if (rcv.getClass().getName().equals("koeko.view.RelationQuestionQuestion")) {
                         koeko.view.RelationQuestionQuestion rqq = (koeko.view.RelationQuestionQuestion) rcv;
-                        Test test = DbTableTests.getTestWithID(rqq.getTestId());
+                        Test test = DbTableTest.getTestWithID(rqq.getTestId());
                         DbTableRelationQuestionQuestion.addRelationQuestionQuestion(rqq.getIdGlobal1(), rqq.getIdGlobal2(),
                                 test.getTestName(), rqq.getTestId(), rqq.getCondition());
                     }

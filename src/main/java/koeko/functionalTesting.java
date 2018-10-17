@@ -3,20 +3,15 @@ package koeko;
 import javafx.application.Platform;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.Networking.NetworkCommunication;
-import koeko.controllers.CreateQuestionController;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionMultipleChoice;
-import koeko.questions_management.QuestionShortAnswer;
 import koeko.questions_management.Test;
 import koeko.students_management.Student;
-import koeko.view.Professor;
-import koeko.view.Utilities;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
-import java.sql.*;
 import java.util.*;
 
 /**
@@ -144,7 +139,7 @@ public class functionalTesting {
         Test test = new Test();
         test.setTestMode(1);
         test.setTestName("fctTesting test");
-        DbTableTests.addTest(test);
+        DbTableTest.addTest(test);
         for (int i = 0; i < questionids.size(); i++) {
             if (i > 0) {
                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(questionids.get(i - 1), questionids.get(i),test.getTestName(), "");

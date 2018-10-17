@@ -7,6 +7,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.Tools.FilesHandler;
 import koeko.controllers.QuestionSending.QuestionTreeCell;
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
@@ -108,7 +109,7 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        testsList = DbTableTests.getAllTests();
+        testsList = DbTableTest.getAllTests();
         for (Test test : testsList) {
             QuestionGeneric testGeneric = new QuestionGeneric();
             testGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
@@ -557,7 +558,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
                     //if the id corresponds to a test, also add the questions linked to it
                     if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
-                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTests.getTestWithID(QuestionGeneric.changeIdSign(questionGeneric.getGlobalID())).getTestName());
+                        Set<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTest(DbTableTest.getTestWithID(QuestionGeneric.changeIdSign(questionGeneric.getGlobalID())).getTestName());
                         for (String question : questions) {
                             questionIds.add(question);
                         }
@@ -831,7 +832,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
         CreateTestController controller = fxmlLoader.getController();
         ArrayList<String> testNames = new ArrayList<>();
-        testsList = DbTableTests.getAllTests();
+        testsList = DbTableTest.getAllTests();
         for (Test test : testsList) {
             testNames.add(test.getTestName());
         }
@@ -1052,7 +1053,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 readyQuestionsList.getItems().add(questionGeneric);
             } else {
                 //it is a test
-                Test test = DbTableTests.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
+                Test test = DbTableTest.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
                 QuestionGeneric questionGeneric = new QuestionGeneric();
                 questionGeneric.setQuestion(test.getTestName());
                 questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
@@ -1124,7 +1125,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 } else {
                     //it is a test
-                    Test test = DbTableTests.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
+                    Test test = DbTableTest.getTestWithID(Koeko.studentGroupsAndClass.get(0).getActiveIDs().get(i));
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(test.getTestName());
                     questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
@@ -1211,6 +1212,13 @@ public class QuestionSendingController extends Window implements Initializable {
                 DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
                         String.valueOf(questionID));
             }
+        }
+
+        //send the media file linked to the test
+        String mediaFileName = DbTableTest.getMediaFileName(globalID);
+        if (mediaFileName.length() > 0) {
+            File mediaFile = FilesHandler.getMediaFile(mediaFileName);
+            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, null);
         }
     }
 
@@ -1449,7 +1457,6 @@ public class QuestionSendingController extends Window implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void broadcastQuestionShortAnswer(QuestionShortAnswer questionShortAnswer, Boolean actualSending) {

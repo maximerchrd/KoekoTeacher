@@ -41,7 +41,7 @@ public class DbTableRelationObjectiveTest {
             while (rs.next()) {
                 objectiveID = rs.getString("ID_OBJECTIVE_GLOBAL");
             }
-            query = "SELECT ID_TEST_GLOBAL FROM tests WHERE NAME = '" + testName + "';";
+            query = "SELECT ID_TEST_GLOBAL FROM test WHERE NAME = '" + testName + "';";
             ResultSet rs2 = stmt.executeQuery(query);
             while (rs2.next()) {
                 testID = rs2.getString("ID_TEST_GLOBAL");
@@ -76,7 +76,7 @@ public class DbTableRelationObjectiveTest {
             while (rs.next()) {
                 objectiveID = rs.getString("ID_OBJECTIVE_GLOBAL");
             }
-            query = "SELECT ID_TEST_GLOBAL FROM tests WHERE NAME = '" + testName + "';";
+            query = "SELECT ID_TEST_GLOBAL FROM test WHERE NAME = '" + testName + "';";
             ResultSet rs2 = stmt.executeQuery(query);
             while (rs2.next()) {
                 testID = rs2.getString("ID_TEST_GLOBAL");
@@ -105,8 +105,8 @@ public class DbTableRelationObjectiveTest {
             stmt = c.createStatement();
             String query = "SELECT OBJECTIVE FROM 'learning_objectives' " +
                     "INNER JOIN objective_test_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = objective_test_relation.ID_GLOBAL_OBJECTIVE " +
-                    "INNER JOIN tests ON objective_test_relation.ID_GLOBAL_TEST = tests.ID_TEST_GLOBAL " +
-                    "WHERE 'tests'.'NAME'='" + testName + "';";
+                    "INNER JOIN test ON objective_test_relation.ID_GLOBAL_TEST = test.ID_TEST_GLOBAL " +
+                    "WHERE 'test'.'NAME'='" + testName + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 objectives.add(rs.getString("OBJECTIVE"));
@@ -133,8 +133,8 @@ public class DbTableRelationObjectiveTest {
             stmt = c.createStatement();
             String query = "SELECT ID_OBJECTIVE_GLOBAL FROM 'learning_objectives' " +
                     "INNER JOIN objective_test_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = objective_test_relation.ID_GLOBAL_OBJECTIVE " +
-                    "INNER JOIN tests ON objective_test_relation.ID_GLOBAL_TEST = tests.ID_TEST_GLOBAL " +
-                    "WHERE 'tests'.'NAME'='" + testName + "';";
+                    "INNER JOIN test ON objective_test_relation.ID_GLOBAL_TEST = test.ID_TEST_GLOBAL " +
+                    "WHERE 'test'.'NAME'='" + testName + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 objectivesIDs.add(rs.getInt("ID_OBJECTIVE_GLOBAL"));

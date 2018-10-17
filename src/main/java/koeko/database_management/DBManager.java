@@ -40,7 +40,7 @@ public class DBManager {
 		DbTableClasses.createTableClasses(c,stmt);
 		DbTableSubject.createTableSubject(c,stmt);
 		DbTableStudents.createTableSubject(c,stmt);
-		DbTableTests.createTableTest(c,stmt);
+		DbTableTest.createTableTest(c,stmt);
 		DbTableIndividualObjectiveForStudentResult.createTableDirectEvaluationOfObjective(c,stmt);
 		DbTableIndividualQuestionForStudentResult.createTableDirectEvaluationOfObjective(c,stmt);
 		DbTableRelationClassObjective.createTableSubject(c,stmt);

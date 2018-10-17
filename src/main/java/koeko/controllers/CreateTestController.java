@@ -2,9 +2,10 @@ package koeko.controllers;
 
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import koeko.Tools.FilesHandler;
 import koeko.database_management.DbTableLearningObjectives;
 import koeko.database_management.DbTableRelationObjectiveTest;
-import koeko.database_management.DbTableTests;
+import koeko.database_management.DbTableTest;
 import koeko.questions_management.QuestionGeneric;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -121,49 +122,19 @@ public class CreateTestController extends Window implements Initializable {
     }
 
     public void addMediaFile() {
-        String dirName = "media";
-        File theDir = new File(dirName);
-        // if the directory does not exist, create it
-        if (!theDir.exists()) {
-            System.out.println("creating directory: " + theDir.getName());
-            boolean result = false;
-
-            try{
-                theDir.mkdir();
-                result = true;
-            }
-            catch(SecurityException se){
-                //handle it
-            }
-            if(result) {
-                System.out.println("DIR created");
-            }
-        }
+        FilesHandler.createMediaDirIfNotExists();
 
         FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Music or Video Files",
-                "*.mp3", "*.wav", "*.mp4", "*.avi");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Audio or Video Files",
+                FilesHandler.supportedMediaExtensions);
         fileChooser.getExtensionFilters().add(extFilter);
         fileChooser.setTitle("Select Media file");
         Stage stage = (Stage) mediaPath.getScene().getWindow();
         File source_file = fileChooser.showOpenDialog(stage);
-        String directory = dirName + "/";
-        File dest_file = new File(directory + source_file.getName());
-        File hashedFileName = new File(directory + source_file.getName());
-        try {
-            Files.copy(source_file.toPath(), dest_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = Files.readAllBytes(dest_file.toPath());
-            messageDigest.update(hashedBytes);
-            String encryptedString = DatatypeConverter.printHexBinary(messageDigest.digest());
-            hashedFileName = new File(directory + encryptedString);
-            Files.move(dest_file.toPath(), hashedFileName.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        mediaPath.setText(hashedFileName.getName());
+
+        File hashedFile = FilesHandler.saveMediaFile(source_file);
+
+        mediaPath.setText(hashedFile.getName());
         mediaPath.setEditable(false);
     }
 
@@ -176,7 +147,7 @@ public class CreateTestController extends Window implements Initializable {
             } else {
                 newTest.setTestMode(1);
             }
-            String testID = DbTableTests.addTest(newTest);
+            String testID = DbTableTest.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
             QuestionGeneric test = new QuestionGeneric();
             test.setGlobalID(QuestionGeneric.changeIdSign(testID));
@@ -254,12 +225,12 @@ public class CreateTestController extends Window implements Initializable {
                 medals += "bronze:" + bronzeTime + "/" + bronzeScore + ";";
                 medals += "silver:" + silverTime + "/" + silverScore + ";";
                 medals += "gold:" + goldTime + "/" + goldScore + ";";
-                DbTableTests.setMedals(testName.getText(), medals);
+                DbTableTest.setMedals(testName.getText(), medals);
             }
 
             //add media file name
             if (!mediaPath.getText().contentEquals("none")) {
-                DbTableTests.setMediaFile(mediaPath.getText(), testName.getText());
+                DbTableTest.setMediaFile(mediaPath.getText(), testName.getText());
             }
 
             Stage stage = (Stage) testName.getScene().getWindow();

@@ -46,7 +46,7 @@ public class EditTestController extends Window implements Initializable {
         for (String obj : objectives) {
             addObjective(obj);
         }
-        test = DbTableTests.getTestWithID(testID);
+        test = DbTableTest.getTestWithID(testID);
         this.presentName = test.getTestName();
         if (test.getTestMode() == 0) {
             certificativeCheckBox.setSelected(true);
@@ -113,9 +113,9 @@ public class EditTestController extends Window implements Initializable {
 
     public void saveTest() {
         if (certificativeCheckBox.isSelected()) {
-            DbTableTests.changeTestMode(test.getIdTest(),0);
+            DbTableTest.changeTestMode(test.getIdTest(),0);
         } else {
-            DbTableTests.changeTestMode(test.getIdTest(),1);
+            DbTableTest.changeTestMode(test.getIdTest(),1);
         }
         if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
             TreeItem<QuestionGeneric> testTreeItem = (TreeItem<QuestionGeneric>) treeView.getSelectionModel().getSelectedItem();
@@ -129,7 +129,7 @@ public class EditTestController extends Window implements Initializable {
             }
 
             treeView.refresh();
-            DbTableTests.renameTest(QuestionGeneric.changeIdSign(testTreeItem.getValue().getGlobalID()),testName.getText());
+            DbTableTest.renameTest(QuestionGeneric.changeIdSign(testTreeItem.getValue().getGlobalID()),testName.getText());
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();

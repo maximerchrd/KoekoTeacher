@@ -7,7 +7,6 @@ import koeko.view.QuestionMultipleChoiceView;
 import koeko.view.Utilities;
 
 import java.sql.*;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -195,7 +194,7 @@ public class DbTableQuestionMultipleChoice {
             test.setIdTest(quest.getQCM_MUID());
             test.setTestName(quest.getQUESTION());
 
-            DbTableTests.addTest(test);
+            DbTableTest.addTest(test);
         }
     }
 
@@ -443,7 +442,7 @@ public class DbTableQuestionMultipleChoice {
             sql = "UPDATE question_objective_relation SET ID_GLOBAL='" + muid +
                     "' WHERE ID_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
-            sql = "UPDATE tests SET ID_TEST_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
+            sql = "UPDATE test SET ID_TEST_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
                     "' WHERE ID_TEST_GLOBAL=" + idQMC + ";";
             stmt.executeUpdate(sql);
             sql = "UPDATE question_question_relation SET ID_GLOBAL_1='" + muid +

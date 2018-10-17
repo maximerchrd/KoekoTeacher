@@ -71,7 +71,7 @@ public class SyncOperations {
 
             Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
             qcmVector.addAll(DbTableQuestionShortAnswer.getQuestionViews());
-            qcmVector.addAll(DbTableTests.getAllTestViews());
+            qcmVector.addAll(DbTableTest.getAllTestViews());
             en = qcmVector.elements();
             while (en.hasMoreElements()) {
                 QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();

@@ -1,17 +1,13 @@
 package koeko.controllers.QuestionSending;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,12 +19,10 @@ import koeko.controllers.controllers_tools.Toast;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
-import koeko.view.Utilities;
 import net.glxn.qrgen.javase.QRCode;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
@@ -165,7 +159,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                 }
                 EditTestController controller = fxmlLoader.getController();
                 ArrayList<String> testNames = new ArrayList<>();
-                Koeko.questionSendingControllerSingleton.testsList = DbTableTests.getAllTests();
+                Koeko.questionSendingControllerSingleton.testsList = DbTableTest.getAllTests();
                 for (Test test : Koeko.questionSendingControllerSingleton.testsList) {
                     testNames.add(test.getTestName());
                 }
@@ -188,7 +182,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
         if (this.getTreeItem().getParent().getParent() == null) {
             //case if test or question not in test -> we delete the question/test itself
             if (Long.valueOf(item.getGlobalID()) < 0) {
-                DbTableTests.removeTestWithName(item.getQuestion());
+                DbTableTest.removeTestWithName(item.getQuestion());
             } else {
                 //only sets a flag for the question generic, leave the whole question inside database and doesn't delete image
                 DbTableQuestionGeneric.removeQuestion(item.getGlobalID());
@@ -210,7 +204,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
         } else if (item.getIntTypeOfQuestion() == 1) {
             identifier = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(item.getGlobalID()).getUID();
         } else if (item.getIntTypeOfQuestion() == 2) {
-            identifier = DbTableTests.getTestWithID(item.getGlobalID()).getIdTest();
+            identifier = DbTableTest.getTestWithID(item.getGlobalID()).getIdTest();
         }
         Stage stage = (Stage) buttonDelete.getScene().getWindow();
         System.out.println(item.getGlobalID());
