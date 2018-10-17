@@ -563,13 +563,9 @@ public class NetworkCommunication {
             byte[] fileData = Files.readAllBytes(mediaFile.toPath());
 
             //build info prefix
-            String[] mediaPathElements = mediaFile.toString().split(File.separator);
-            String mediaName = mediaFile.toString();
-            if (mediaPathElements.length > 0) {
-                mediaName = mediaPathElements[mediaPathElements.length - 1];
-                if (mediaName.length() > 14) {
-                    mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
-                }
+            String mediaName = mediaFile.getName();
+            if (mediaName.length() > 14) {
+                mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
             }
 
             String infoString = "FILE///" + mediaName + "///" + fileData.length + "///";
