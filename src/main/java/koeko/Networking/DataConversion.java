@@ -38,10 +38,10 @@ public class DataConversion {
         testString += test.getMedalsInstructions() + "///";
 
         //shorten media file name
-        if (test.getMediaFileName().length() > 14) {
+        if (test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
             test.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
+            testString += test.getMediaFileName() + "///";
         }
-        testString += test.getMediaFileName() + "///";
 
         byte[] bytearraytest = testString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
