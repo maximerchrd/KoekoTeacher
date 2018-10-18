@@ -224,6 +224,18 @@ public class DbTableTest {
         }
     }
 
+    static public void setSendMediaFile(int sendMedia, String testName) {
+        String sql = "UPDATE test SET SEND_MEDIA_FILE = ? WHERE NAME = ?";
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setInt(1, sendMedia);
+            pstmt.setString(2, testName);
+            pstmt.executeUpdate();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+        }
+    }
+
     static public String getMediaFileName(String idTest) {
         Integer sendMediaFile = 0;
         idTest = Utilities.setPositiveIdSign(idTest);

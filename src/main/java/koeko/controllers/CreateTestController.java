@@ -52,6 +52,7 @@ public class CreateTestController extends Window implements Initializable {
     @FXML private TextField bronzeMedalScore;
     @FXML private CheckBox medalsCheckbox;
     @FXML private TextField mediaPath;
+    @FXML private CheckBox sendMedia;
 
     public void initParameters(TreeItem<QuestionGeneric> root, ArrayList<String> testNames) {
         this.root = root;
@@ -231,6 +232,10 @@ public class CreateTestController extends Window implements Initializable {
             //add media file name
             if (!mediaPath.getText().contentEquals("none")) {
                 DbTableTest.setMediaFile(mediaPath.getText(), testName.getText());
+            }
+
+            if (!sendMedia.isSelected()) {
+                DbTableTest.setSendMediaFile(0, testName.getText());
             }
 
             Stage stage = (Stage) testName.getScene().getWindow();
