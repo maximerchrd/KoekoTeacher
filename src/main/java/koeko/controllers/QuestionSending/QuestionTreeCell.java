@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.EditQuestionController;
-import koeko.controllers.EditTestController;
+import koeko.controllers.TestControlling.EditTestController;
 import koeko.controllers.controllers_tools.Toast;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
@@ -127,6 +127,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
     }
 
     private void editItem(QuestionGeneric item) {
+        TreeItem selectedItem = this.getTreeItem();
         if (item.getIntTypeOfQuestion() == 0 || item.getIntTypeOfQuestion() == 1) {
             //case if we want to edit a question
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditQuestion.fxml"));
@@ -137,7 +138,6 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                 e.printStackTrace();
             }
             EditQuestionController controller = fxmlLoader.getController();
-            TreeItem selectedItem = this.getTreeItem();
             controller.initVariables(Koeko.questionSendingControllerSingleton.genericQuestionsList,
                     Koeko.questionSendingControllerSingleton.allQuestionsTree, item, selectedItem,
                     Koeko.questionSendingControllerSingleton.allQuestionsTree);
@@ -165,7 +165,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                 }
                 ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(item.getQuestion());
                 controller.initParameters(Koeko.questionSendingControllerSingleton.allQuestionsTree, testNames,
-                        QuestionGeneric.changeIdSign(item.getGlobalID()), objectives);
+                        QuestionGeneric.changeIdSign(item.getGlobalID()), objectives, item, selectedItem);
                 Stage stage = new Stage();
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.initStyle(StageStyle.DECORATED);

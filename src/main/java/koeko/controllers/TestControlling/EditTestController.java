@@ -1,5 +1,8 @@
-package koeko.controllers;
+package koeko.controllers.TestControlling;
 
+import javafx.stage.FileChooser;
+import koeko.ResultsManagement.MedalsInstructions;
+import koeko.Tools.FilesHandler;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import javafx.collections.FXCollections;
@@ -17,6 +20,7 @@ import javafx.stage.Window;
 import koeko.questions_management.Test;
 import org.controlsfx.control.textfield.TextFields;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -30,15 +34,31 @@ public class EditTestController extends Window implements Initializable {
     private String presentName;
     private ArrayList<String> objectives;
     private Test test;
+    private QuestionGeneric questionGeneric;
+    private TreeItem treeItem;
+
+    private String originalMediaFile = "";
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
     @FXML private CheckBox certificativeCheckBox;
     @FXML private Button addObjectiveButton;
     @FXML private Label warningLabel;
+    @FXML private TextField goldMedalTime;
+    @FXML private TextField goldMedalScore;
+    @FXML private TextField silverMedalTime;
+    @FXML private TextField silverMedalScore;
+    @FXML private TextField bronzeMedalTime;
+    @FXML private TextField bronzeMedalScore;
+    @FXML private CheckBox medalsCheckbox;
+    @FXML private TextField mediaPath;
+    @FXML private CheckBox sendMedia;
 
-    public void initParameters(TreeView treeView, ArrayList<String> testNames, String testID, ArrayList<String> objectives) {
+    public void initParameters(TreeView treeView, ArrayList<String> testNames, String testID, ArrayList<String> objectives,
+                               QuestionGeneric questionGeneric, TreeItem treeItem) {
         this.treeView = treeView;
+        this.questionGeneric = questionGeneric;
+        this.treeItem = treeItem;
         this.testNames = testNames;
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
@@ -47,6 +67,7 @@ public class EditTestController extends Window implements Initializable {
             addObjective(obj);
         }
         test = DbTableTest.getTestWithID(testID);
+        test.setMedalsInstructions(DbTableTest.getMedals(test.getTestName()));
         this.presentName = test.getTestName();
         if (test.getTestMode() == 0) {
             certificativeCheckBox.setSelected(true);
@@ -67,34 +88,36 @@ public class EditTestController extends Window implements Initializable {
             addObjectiveButton.setDisable(true);
             certificativeCheckBox.setDisable(true);
         }
+
+        //set media file
+        if (test.getMediaFileName() != null) {
+            mediaPath.setText(test.getMediaFileName());
+            originalMediaFile = test.getMediaFileName();
+            if (test.getSendMediaFile() == 1) {
+                sendMedia.setSelected(true);
+            }
+        }
+
+        //set medals
+        if (test.getMedalsInstructions() != null && test.getMedalsInstructions().length() > 0) {
+            medalsCheckbox.setSelected(true);
+            MedalsInstructions medalsInstructions = new MedalsInstructions();
+            medalsInstructions.parseInstructions(test.getMedalsInstructions());
+            bronzeMedalTime.setText(String.valueOf(medalsInstructions.getBronzeTime()));
+            bronzeMedalScore.setText(String.valueOf(medalsInstructions.getBronzeScore()));
+            silverMedalTime.setText(String.valueOf(medalsInstructions.getSilverTime()));
+            silverMedalScore.setText(String.valueOf(medalsInstructions.getSilverScore()));
+            goldMedalTime.setText(String.valueOf(medalsInstructions.getGoldTime()));
+            goldMedalScore.setText(String.valueOf(medalsInstructions.getGoldScore()));
+        }
     }
 
     public void addObjective() {
         addObjective("");
     }
     public void addObjective(String objective) {
-        Vector<String> objectivessVector = DbTableLearningObjectives.getAllObjectives();
-        String[] objectivesVector = objectivessVector.toArray(new String[objectivessVector.size()]);
-        ObservableList<String> options =
-                FXCollections.observableArrayList(objectivesVector);
-        ComboBox comboBox = new ComboBox(options);
-        comboBox.setEditable(true);
-        if (objective.length() > 0) {
-            comboBox.getEditor().setText(objective);
-        }
-        objectivesComboBoxArrayList.add(comboBox);
-
-        HBox hBox = new HBox();
-        //button for removing subject
-        Button removeButton = new Button("X");
-        removeButton.setOnAction(event -> {
-            objectivesComboBoxArrayList.remove(comboBox);
-            (( VBox)hBox.getParent()).getChildren().remove(hBox);
-        });
-        hBox.getChildren().add(comboBox);
-        hBox.getChildren().add(removeButton);
-        vBoxObjectives.getChildren().add(hBox);
-        TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
+        ComboBox comboBox = TestEditing.addObjectiveField(objectivesComboBoxArrayList, vBoxObjectives);
+        comboBox.getSelectionModel().select(objective);
     }
 
     public void certificativeCheckBoxAction() {
@@ -111,6 +134,15 @@ public class EditTestController extends Window implements Initializable {
         }
     }
 
+    public void addMediaFile() {
+        TestEditing.ShowMediaFileChoser(mediaPath);
+    }
+
+    public void togglingMedals() {
+        TestEditing.toggleMedals(medalsCheckbox, goldMedalTime, goldMedalScore, silverMedalTime, silverMedalScore,
+                bronzeMedalTime, bronzeMedalScore);
+    }
+
     public void saveTest() {
         if (certificativeCheckBox.isSelected()) {
             DbTableTest.changeTestMode(test.getIdTest(),0);
@@ -118,18 +150,19 @@ public class EditTestController extends Window implements Initializable {
             DbTableTest.changeTestMode(test.getIdTest(),1);
         }
         if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
-            TreeItem<QuestionGeneric> testTreeItem = (TreeItem<QuestionGeneric>) treeView.getSelectionModel().getSelectedItem();
-            testTreeItem.getValue().setQuestion(testName.getText());
+            questionGeneric.setQuestion(testName.getText());
 
             //set the type of resource (formative/certificative test)
             if (certificativeCheckBox.isSelected()) {
-                testTreeItem.getValue().setTypeOfQuestion("TECE");
+                questionGeneric.setTypeOfQuestion("TECE");
             } else {
-                testTreeItem.getValue().setTypeOfQuestion("TEFO");
+                questionGeneric.setTypeOfQuestion("TEFO");
             }
+            treeItem.setValue(questionGeneric);
 
             treeView.refresh();
-            DbTableTest.renameTest(QuestionGeneric.changeIdSign(testTreeItem.getValue().getGlobalID()),testName.getText());
+            DbTableTest.renameTest(QuestionGeneric.changeIdSign(questionGeneric.getGlobalID()),testName.getText());
+
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();
@@ -149,17 +182,19 @@ public class EditTestController extends Window implements Initializable {
                     DbTableRelationObjectiveTest.removeRelationObjectiveTest(obj, testName.getText());
                 }
             }
+
+            //add medals
+            DbTableTest.setMedals(testName.getText(), "");
+            TestEditing.addMedalsToTest(medalsCheckbox, bronzeMedalTime, bronzeMedalScore, silverMedalTime, silverMedalScore,
+                    goldMedalTime, goldMedalScore, testName);
+
+            //add media file
+            TestEditing.addMediaFile(mediaPath, sendMedia, testName);
+
             Stage stage = (Stage) testName.getScene().getWindow();
             stage.close();
         } else {
-            final Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(this);
-            VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().add(new Text("This test name already exists. Please choose an other name."));
-            Scene dialogScene = new Scene(dialogVbox, 400, 40);
-            dialog.setScene(dialogScene);
-            dialog.show();
+            TestEditing.nameCollisionWarning(this);
         }
     }
 

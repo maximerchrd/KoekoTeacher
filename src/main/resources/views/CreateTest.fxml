@@ -6,7 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="451.0" prefWidth="487.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.CreateTestController">
+<AnchorPane prefHeight="451.0" prefWidth="487.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.TestControlling.CreateTestController">
    <children>
       <Label layoutX="26.0" layoutY="50.0" text="Name of the Test:" />
       <TextField fx:id="testName" layoutX="153.0" layoutY="45.0" />
