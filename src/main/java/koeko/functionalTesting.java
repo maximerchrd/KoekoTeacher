@@ -24,6 +24,7 @@ import java.util.*;
  * 5: make copies of questions when creating a question
  */
 public class functionalTesting {
+    static public Boolean transferRateTesting = false;
     static PrintStream originalStream;
     static PrintStream dummyStream;
     static int idOffset = 1000;
