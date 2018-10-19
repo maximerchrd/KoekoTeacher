@@ -45,6 +45,10 @@ public class NetworkCommunication {
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
 
+    //For speed testing
+    static public Long sendingStartTime = 0L;
+    static public int fileLength = 0;
+
 
     public NetworkCommunication(LearningTrackerController learningTrackerController) {
         this.learningTrackerController = learningTrackerController;
@@ -238,6 +242,13 @@ public class NetworkCommunication {
             fileLength += ":" + String.valueOf(intfileLength);
             fileLength += ":" + String.valueOf(textbyteslength) + ":";
             System.out.println("fileLength: " + fileLength);
+
+            //for testing
+            if (functionalTesting.transferRateTesting) {
+                NetworkCommunication.fileLength = intfileLength;
+                NetworkCommunication.sendingStartTime = System.nanoTime();
+            }
+            
             byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
             for (int k = 0; k < bytearraystring.length; k++) {
                 bytearray[k] = bytearraystring[k];
@@ -525,6 +536,15 @@ public class NetworkCommunication {
                                             System.out.println("WARNING: received OK but arg_student UniqueDeviceID was not initialized");
                                         }
                                     }
+                                }
+
+                                //For sending speed testing, provided that we only send one question multiple choice
+                                if (functionalTesting.transferRateTesting) {
+                                    Long sendingTime = System.nanoTime() - NetworkCommunication.sendingStartTime;
+                                    Double sendingTimeDouble = sendingTime / 1000000000.0;
+                                    System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
+                                            "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
+                                            + "MB/s");
                                 }
                             } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
                                 int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
