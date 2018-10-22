@@ -248,7 +248,7 @@ public class NetworkCommunication {
                 NetworkCommunication.fileLength = intfileLength;
                 NetworkCommunication.sendingStartTime = System.nanoTime();
             }
-            
+
             byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
             for (int k = 0; k < bytearraystring.length; k++) {
                 bytearray[k] = bytearraystring[k];

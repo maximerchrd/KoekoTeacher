@@ -1,6 +1,8 @@
 package koeko.controllers.StudentsVsQuestions;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -50,6 +52,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     //private ArrayList<Integer> questionsIDs;
     private ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
     private Map<String,Integer> studentIdToStatusReceptionMap;
+    private String columnIdentifiers = "";
+    private MCQStats mcqStatsController;
 
     @FXML private ComboBox chooseClassComboBox;
     @FXML private VBox tableVBox;
@@ -66,8 +70,35 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         if (Long.valueOf(ID) > 0) {
             if (group < 1) group = 0;
             // Add extra columns if necessary:
-            TableColumn column = new TableColumn(question);
+            TableColumn column = new TableColumn();
             column.setPrefWidth(180);
+
+            VBox vBox = new VBox(new Label(question));
+            vBox.setAlignment(Pos.CENTER);
+            int index = tableViewArrayList.get(group).getColumns().size();
+            String columnIndex = group + "/" + index + "/" + question + "/" + ID;
+            vBox.getProperties().put("index", columnIndex);
+            column.setGraphic(vBox);
+            column.setText("");
+
+            //Add header onclick listener
+            EventHandler<? super MouseEvent> handlerClick = event -> {
+                if (!columnIdentifiers.contentEquals("")) {
+                    diplayQuestionStats(columnIdentifiers);
+                }
+            };
+            EventHandler<? super MouseEvent> handlerEnter = event -> {
+                columnIdentifiers = (String) ((Node) event.getTarget()).getProperties().get("index");
+            };
+            EventHandler<? super MouseEvent> handlerExit = event -> {
+                columnIdentifiers = "";
+            };
+            column.getGraphic().addEventFilter(MouseEvent.MOUSE_ENTERED, handlerEnter);
+            column.getGraphic().addEventFilter(MouseEvent.MOUSE_CLICKED, handlerClick);
+            column.getGraphic().addEventFilter(MouseEvent.MOUSE_EXITED, handlerExit);
+
+
+            column.setSortable(false);
             tableViewArrayList.get(group).getColumns().add(column);
 
             Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
@@ -114,6 +145,26 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 }
             });
         }
+    }
+
+    private void diplayQuestionStats(String groupColumnIndex) {
+        Integer groupIndex = Integer.valueOf(groupColumnIndex.split("/")[0]);
+        Integer columnIndex = Integer.valueOf(groupColumnIndex.split("/")[1]);
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/MCQStats.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mcqStatsController = fxmlLoader.getController();
+        mcqStatsController.initParameters(tableViewArrayList, groupIndex, columnIndex, groupColumnIndex.split("/")[3]);
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle(groupColumnIndex.split("/")[2]);
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     public void removeQuestion(int index) {
@@ -230,6 +281,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
             //adapt table height
             tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() + cellHeight * 1.1);
+
+            //pass information to mcqstats if open
+            if (mcqStatsController != null) {
+                mcqStatsController.addUser();
+            }
         } else {
             //BEGIN change connection status to connected
             if (connection) {
@@ -316,6 +372,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)), indexColumn);
             }
             tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
+
+            //update MCQStats
+            if (mcqStatsController != null) {
+                mcqStatsController.updateChart(answer, indexRow);
+            }
         }
     }
 
