@@ -48,7 +48,7 @@ public class TestEditing {
         FilesHandler.createMediaDirIfNotExists();
 
         FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Audio or Video Files",
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Web, Audio or Video Files",
                 FilesHandler.supportedMediaExtensions);
         fileChooser.getExtensionFilters().add(extFilter);
         fileChooser.setTitle("Select Media file");

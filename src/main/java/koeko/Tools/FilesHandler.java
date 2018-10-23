@@ -13,7 +13,7 @@ import java.util.List;
 
 public class FilesHandler {
     static private String mediaDirectory = "media/";
-    static public String[] supportedMediaExtensions = {"*.mp3", "*.wav", "*.mp4", "*.avi"};
+    static public String[] supportedMediaExtensions = {"*.mp3", "*.wav", "*.mp4", "*.avi", "*.html"};
 
     static public void createMediaDirIfNotExists() {
         File theDir = new File(mediaDirectory);
