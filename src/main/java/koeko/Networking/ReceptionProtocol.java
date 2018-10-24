@@ -1,10 +1,15 @@
 package koeko.Networking;
 
+import koeko.Koeko;
+import koeko.Tools.FilesHandler;
 import koeko.database_management.DbTableIndividualQuestionForStudentResult;
 import koeko.database_management.DbTableStudents;
+import koeko.database_management.DbTableTest;
+import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
@@ -34,6 +39,32 @@ public class ReceptionProtocol {
             aClass.updateStudentButNotStreams(student);
         } else {
             aClass.updateStudentButNotStreams(student);
+        }
+
+        //send the active questions
+        ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
+        if (activeIDs.size() > 0) {
+            try {
+                for (String activeID : activeIDs) {
+                    if (Long.valueOf(activeID) > 0) {
+                        NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(activeID, student);
+                        NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(activeID, student);
+                    } else {
+                        //send test object
+                        NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
+
+                        //send media file linked to test
+                        String mediaFileName = DbTableTest.getMediaFileName(activeID);
+                        if (mediaFileName.length() > 0) {
+                            File mediaFile = FilesHandler.getMediaFile(mediaFileName);
+                            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, student);
+                        }
+                    }
+                }
+                System.out.println("address: " + student.getInetAddress());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

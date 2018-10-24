@@ -118,25 +118,6 @@ public class NetworkCommunication {
                                     student = aClass.updateStudentStreams(student);
                                 }
 
-
-                                //send the active questions
-                                ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
-                                if (activeIDs.size() > 0) {
-                                    try {
-                                        for (String activeID : activeIDs) {
-                                            if (Long.valueOf(activeID) > 0) {
-                                                sendMultipleChoiceWithID(activeID, student);
-                                                sendShortAnswerQuestionWithID(activeID, student);
-                                            } else {
-                                                NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
-                                            }
-                                        }
-                                        System.out.println("address: " + student.getInetAddress());
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
                                 //start a new thread for listening to each student
                                 listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                             } catch (IOException e1) {
