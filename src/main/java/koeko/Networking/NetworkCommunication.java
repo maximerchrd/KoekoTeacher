@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
 
 /**
  * Created by maximerichard on 03/02/17.
@@ -40,10 +39,9 @@ public class NetworkCommunication {
     private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
-    private Map<String, CopyOnWriteArrayList<String>> studentsToQuestionidsMap;
-    public List<String> sentQuestionIds;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
+    private NetworkState networkStateSingleton;
 
     //For speed testing
     static public Long sendingStartTime = 0L;
@@ -56,12 +54,15 @@ public class NetworkCommunication {
         questionIdsForGroups = new ArrayList<>();
         studentNamesForGroups = new ArrayList<>();
         disconnectiongStudents = new Vector<>();
-        studentsToQuestionidsMap = Collections.synchronizedMap(new LinkedHashMap<>());
-        sentQuestionIds = new CopyOnWriteArrayList<>();
+        networkStateSingleton = new NetworkState();
     }
 
     public LearningTrackerController getLearningTrackerController() {
         return learningTrackerController;
+    }
+
+    public NetworkState getNetworkStateSingleton() {
+        return networkStateSingleton;
     }
 
     /**
@@ -145,7 +146,6 @@ public class NetworkCommunication {
                             // TODO Auto-generated catch block
                             e2.printStackTrace();
                         }
-
                     }
                 }
             };
@@ -270,7 +270,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + arraylength + " bytes in total");
             writeToOutputStream(student, bytearray);
 
-            sentQuestionIds.add(questionID);
+            networkStateSingleton.getSentQuestionIds().add(questionID);
         }
     }
 
@@ -346,7 +346,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + arraylength + " bytes in total");
             writeToOutputStream(student, bytearray);
 
-            sentQuestionIds.add(questionID);
+            networkStateSingleton.getSentQuestionIds().add(questionID);
         }
     }
 
@@ -483,7 +483,7 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contains("CONN")) {
-                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass, studentsToQuestionidsMap);
+                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass, networkStateSingleton);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
@@ -524,17 +524,13 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("OK")) {
                                 ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
                                 for (String receivedString : receptionArray) {
-                                    if (receivedString.matches("[0-9]+")) {
-                                        if (!arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
-                                            studentsToQuestionidsMap.get(arg_student.getUniqueDeviceID()).add(receivedString);
-                                            if (studentsToQuestionidsMap.get(arg_student.getUniqueDeviceID()).containsAll(sentQuestionIds)) {
-                                                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(arg_student, 1);
-                                            } else {
-                                                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(arg_student, 0);
-                                            }
-                                        } else {
-                                            System.out.println("WARNING: received OK but arg_student UniqueDeviceID was not initialized");
+                                    if (!arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
+                                        networkStateSingleton.getStudentsToIdsMap().get(arg_student.getUniqueDeviceID()).add(receivedString);
+                                        if (networkStateSingleton.getStudentsToIdsMap().get(arg_student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                                            networkStateSingleton.toggleSyncStateForStudent(arg_student, NetworkState.STUDENT_SYNCED);
                                         }
+                                    } else {
+                                        System.out.println("WARNING: received OK but arg_student UniqueDeviceID was not initialized");
                                     }
                                 }
 
@@ -587,6 +583,9 @@ public class NetworkCommunication {
             if (mediaName.length() > 14) {
                 mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
             }
+
+            //add the file to the sent objects (for sync check)
+            networkStateSingleton.getSentQuestionIds().add(mediaName);
 
             String infoString = "FILE///" + mediaName + "///" + fileData.length + "///";
             byte[] infoPrefix = new byte[80];
@@ -687,9 +686,9 @@ public class NetworkCommunication {
 
     public Boolean checkIfQuestionsOnDevices() {
         Boolean questionsOnDevices = true;
-        for (Map.Entry<String, CopyOnWriteArrayList<String>> entry : studentsToQuestionidsMap.entrySet()) {
+        for (Map.Entry<String, CopyOnWriteArrayList<String>> entry : networkStateSingleton.getStudentsToIdsMap().entrySet()) {
             CopyOnWriteArrayList<String> questions = entry.getValue();
-            if (!questions.containsAll(sentQuestionIds)) {
+            if (!questions.containsAll(networkStateSingleton.getSentQuestionIds())) {
                 questionsOnDevices = false;
                 break;
             }
@@ -748,6 +747,8 @@ public class NetworkCommunication {
         Thread writingThread = new Thread() {
             public void run() {
                 if (student == null) {
+                    //change if necessary sync status of student
+                    networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
                     for (Student singleStudent : aClass.getStudents_vector()) {
                         if (singleStudent.getOutputStream() != null) {
                             try {
@@ -770,6 +771,8 @@ public class NetworkCommunication {
                         }
                     }
                 } else {
+                    //change if necessary sync status of student
+                    networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
                     try {
                         synchronized (student.getOutputStream()) {
                             student.getOutputStream().write(bytearray, 0, bytearray.length);

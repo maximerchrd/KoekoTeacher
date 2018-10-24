@@ -599,7 +599,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         //remove question from sentQuestions
-        NetworkCommunication.networkCommunicationSingleton.sentQuestionIds.remove(questionCell.getItem().getGlobalID());
+        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSentQuestionIds().remove(questionCell.getItem().getGlobalID());
 
         //remove question from table
         int index = questionCell.getIndex();
