@@ -141,6 +141,9 @@ public class NetworkCommunication {
             QuestionGeneric.changeIdSign(QuestID);
         }
 
+        //set active id for network state
+        networkStateSingleton.setActiveID(QuestID);
+
         for (int i = 0; i < students.size(); i++) {
             students.set(i, aClass.getStudentWithName(students.get(i).getName()));
         }
@@ -493,6 +496,12 @@ public class NetworkCommunication {
                                     ableToRead = false;
                                 } else if (answerString.contains("locked")) {
                                     disconnectiongStudents.remove(student.getUniqueDeviceID());
+                                    arg_student.getOutputStream().flush();
+                                    arg_student.getOutputStream().close();
+                                    arg_student.setOutputStream(null);
+                                    arg_student.getInputStream().close();
+                                    arg_student.setInputStream(null);
+                                    ableToRead = false;
                                 } else {
                                     disconnectiongStudents.add(student.getUniqueDeviceID());
                                     Thread studentDisconnectionQThread = new Thread() {
@@ -537,6 +546,14 @@ public class NetworkCommunication {
                                 System.out.println(functionalTesting.nbAccuseReception);
                                 if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
                                     functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
+                                }
+                            } else if (answerString.split("///")[0].contains("ACTID")) {
+                                if (answerString.split("///").length >= 2) {
+                                    String activeID = answerString.split("///")[1];
+                                    if (Long.valueOf(activeID) < 0) {
+                                        activeID = QuestionGeneric.changeIdSign(activeID);
+                                    }
+                                    networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
                                 }
                             } else if (answerString.contains("ENDTRSM")) {
                                 sendActiveIds(arg_student);
@@ -759,6 +776,14 @@ public class NetworkCommunication {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        //activate the present question/test if it's not already done
+        if (!networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID())
+                .contentEquals(networkStateSingleton.getActiveID())) {
+            Vector<Student> singleStudent = new Vector<>();
+            singleStudent.add(student);
+            SendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
         }
     }
 

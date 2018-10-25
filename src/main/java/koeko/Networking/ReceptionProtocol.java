@@ -31,17 +31,15 @@ public class ReceptionProtocol {
         student.setStudentID(studentID);
 
         //update the tracking of questions on device
-
-        networkState.getStudentsToIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
-        networkState.getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
+        if (networkState.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
+            networkState.getStudentsToIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
+            networkState.getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
+            networkState.getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
+        }
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
-        if (aClass.studentDeviceIDAlreadyInClass(student)) {
-            aClass.updateStudentButNotStreams(student);
-        } else {
-            aClass.updateStudentButNotStreams(student);
-        }
+        aClass.updateStudentButNotStreams(student);
     }
 
     static public void receivedANSW(Student arg_student, String answerString, ArrayList<ArrayList<Integer>> questionIdsForGroups,

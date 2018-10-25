@@ -30,7 +30,7 @@ public class Koeko extends Application {
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
     static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
-    static public Boolean recordLogs = true;
+    static public Boolean recordLogs = false;
 
     public static void main(String[] args) throws Exception {
         if (System.getProperty("os.name").contains("OS X")) {

@@ -15,10 +15,15 @@ public class NetworkState {
     static public int STUDENT_SYNCED = 1;
     private Map<String, Integer> studentsToReadyMap;
 
+    private String activeID = "";
+    private Map<String, String> studentsToActiveIdMap;
+
+
     public NetworkState() {
         this.studentsToIdsMap = Collections.synchronizedMap(new LinkedHashMap<>());
         this.sentQuestionIds = new CopyOnWriteArrayList<>();
         this.studentsToReadyMap = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.studentsToActiveIdMap = Collections.synchronizedMap(new LinkedHashMap<>());
     }
 
     public void toggleSyncStateForStudent(Student student, Integer state) {
@@ -67,5 +72,21 @@ public class NetworkState {
 
     public void setStudentsToReadyMap(Map<String, Integer> studentsToReadyMap) {
         this.studentsToReadyMap = studentsToReadyMap;
+    }
+
+    public String getActiveID() {
+        return activeID;
+    }
+
+    public void setActiveID(String activeID) {
+        this.activeID = activeID;
+    }
+
+    public Map<String, String> getStudentsToActiveIdMap() {
+        return studentsToActiveIdMap;
+    }
+
+    public void setStudentsToActiveIdMap(Map<String, String> studentsToActiveIdMap) {
+        this.studentsToActiveIdMap = studentsToActiveIdMap;
     }
 }
