@@ -16,11 +16,13 @@ public class DbTableSettings {
                     "(ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " NEARBY_MODE      INT    NOT NULL, " +
                     " CORRECTION_MODE      INT    NOT NULL, " +
+                    " FORCE_SYNC      INT    NOT NULL, " +
                     " UI_MODE      INT NOT NULL," +
                     " TEACHER_NAME      TEXT     NOT NULL) ";
             statement.executeUpdate(sql);
-            sql = "INSERT INTO settings (NEARBY_MODE, CORRECTION_MODE, UI_MODE, TEACHER_NAME)" +
+            sql = "INSERT INTO settings (NEARBY_MODE, CORRECTION_MODE, FORCE_SYNC, UI_MODE, TEACHER_NAME)" +
                     "VALUES ('" +
+                    0 + "','" +
                     0 + "','" +
                     0 + "','" +
                     0 + "','" +
@@ -82,6 +84,32 @@ public class DbTableSettings {
         }
 
         return correctionMode;
+    }
+
+    static public Integer getForceSync() {
+        Integer forceSync = -1;
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT FORCE_SYNC FROM settings WHERE ID = 1;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                forceSync = Integer.parseInt(rs.getString("FORCE_SYNC"));
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+
+        return forceSync;
     }
 
     static public Integer getUIMode() {
@@ -186,6 +214,26 @@ public class DbTableSettings {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "UPDATE settings SET CORRECTION_MODE = " + correctionMode +" WHERE ID = 1";
+            stmt.executeUpdate(sql);
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+    }
+
+    static public void insertForceSync(Integer forceSync) {
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String sql = "UPDATE settings SET FORCE_SYNC = " + forceSync +" WHERE ID = 1";
             stmt.executeUpdate(sql);
             stmt.close();
             c.commit();

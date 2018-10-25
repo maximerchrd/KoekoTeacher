@@ -26,12 +26,16 @@ public class SettingsController implements Initializable {
      *  -1: not initialized; 0: OFF; 1: ON
      */
     static public Integer correctionMode = -1;
+
+    static public Integer forceSync = -1;
     @FXML
     private TextArea logTextArea;
     @FXML
     private TextField teacherName;
     @FXML
     private ToggleButton correctionModeButton;
+    @FXML
+    private ToggleButton forceSyncButton;
     @FXML
     private ComboBox languageCombobox;
     @FXML
@@ -50,6 +54,18 @@ public class SettingsController implements Initializable {
             correctionMode = 0;
             DbTableSettings.insertCorrectionMode(correctionMode);
             correctionModeButton.setText("OFF");
+        }
+    }
+
+    public void forceSyncChanged() {
+        if (forceSyncButton.isSelected()) {
+            forceSync = 1;
+            DbTableSettings.insertForceSync(forceSync);
+            forceSyncButton.setText("ON");
+        } else {
+            forceSync = 0;
+            DbTableSettings.insertForceSync(forceSync);
+            forceSyncButton.setText("OFF");
         }
     }
 
@@ -134,6 +150,7 @@ public class SettingsController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         correctionMode = DbTableSettings.getCorrectionMode();
+        forceSync = DbTableSettings.getForceSync();
 
         Utilities.initCodeToLanguageMap();
         Utilities.initLanguageToCodeMap();
@@ -154,6 +171,13 @@ public class SettingsController implements Initializable {
         } else if (correctionMode == 1) {
             correctionModeButton.setText("ON");
             correctionModeButton.setSelected(true);
+        }
+
+        if (forceSync == 0) {
+            forceSyncButton.setText("OFF");
+        } else if (forceSync == 1) {
+            forceSyncButton.setText("ON");
+            forceSyncButton.setSelected(true);
         }
 
         if (DbTableProfessor.getProfessor() == null) {

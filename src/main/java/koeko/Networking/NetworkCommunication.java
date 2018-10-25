@@ -249,7 +249,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, bytearray);
+            writeToOutputStream(student, questionID, bytearray);
 
             networkStateSingleton.getSentQuestionIds().add(questionID);
         }
@@ -325,7 +325,7 @@ public class NetworkCommunication {
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, bytearray);
+            writeToOutputStream(student, questionID, bytearray);
 
             networkStateSingleton.getSentQuestionIds().add(questionID);
         }
@@ -468,6 +468,14 @@ public class NetworkCommunication {
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
+
+                                //if RESIDS were merged with CONN
+                                if (answerString.contains("RESIDS")) {
+                                    String substring = answerString.substring(answerString.indexOf("RESIDS"));
+                                    ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
+                                }
+                            } else if (answerString.split("///")[0].contains("RESIDS")) {
+                                ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
                                 Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
                                 student.setUniqueDeviceID(answerString.split("///")[1]);
@@ -530,6 +538,8 @@ public class NetworkCommunication {
                                 if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
                                     functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
                                 }
+                            } else if (answerString.contains("ENDTRSM")) {
+                                sendActiveIds(arg_student);
                             }
                         } else {
 
@@ -575,7 +585,7 @@ public class NetworkCommunication {
             }
             byte[] allData = Arrays.copyOf(infoPrefix, infoPrefix.length + fileData.length);
             System.arraycopy(fileData, 0, allData, infoPrefix.length, fileData.length);
-            writeToOutputStream(student, allData);
+            writeToOutputStream(student, mediaName, allData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -724,14 +734,47 @@ public class NetworkCommunication {
         }
     }
 
+    public void sendActiveIds(Student student) {
+        //send the active questions
+        ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
+        if (activeIDs.size() > 0) {
+            try {
+                for (String activeID : activeIDs) {
+                    if (Long.valueOf(activeID) > 0) {
+                        NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(activeID, student);
+                        NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(activeID, student);
+                    } else {
+                        //send test object
+                        NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
+
+                        //send media file linked to test
+                        String mediaFileName = DbTableTest.getMediaFileName(activeID);
+                        if (mediaFileName.length() > 0) {
+                            File mediaFile = FilesHandler.getMediaFile(mediaFileName);
+                            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, student);
+                        }
+                    }
+                }
+                System.out.println("address: " + student.getInetAddress());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void writeToOutputStream(Student student, byte[] bytearray) {
+        writeToOutputStream(student, null, bytearray);
+    }
+
+    private void writeToOutputStream(Student student, String sentID, byte[] bytearray) {
         Thread writingThread = new Thread() {
             public void run() {
                 if (student == null) {
                     //change if necessary sync status of student
                     networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
                     for (Student singleStudent : aClass.getStudents_vector()) {
-                        if (singleStudent.getOutputStream() != null) {
+                        if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
+                                || !networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
                             try {
                                 synchronized (singleStudent.getOutputStream()) {
                                     singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
@@ -749,27 +792,38 @@ public class NetworkCommunication {
                             } catch (NullPointerException nulex) {
                                 System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
                             }
+                        } else {
+                            if (networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                                networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
+                            }
                         }
                     }
                 } else {
                     //change if necessary sync status of student
                     networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
-                    try {
-                        synchronized (student.getOutputStream()) {
-                            student.getOutputStream().write(bytearray, 0, bytearray.length);
-                            student.getOutputStream().flush();
+                    if (sentID == null || SettingsController.forceSync == 1
+                            || !networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
+                        try {
+                            synchronized (student.getOutputStream()) {
+                                student.getOutputStream().write(bytearray, 0, bytearray.length);
+                                student.getOutputStream().flush();
+                            }
+                        } catch (SocketException sockex) {
+                            System.out.println("SocketException (socket closed by client?)");
+                        } catch (IOException ex2) {
+                            if (ex2.toString().contains("Broken pipe")) {
+                                System.out.println("Broken pipe with a student (student was null)");
+                            } else {
+                                System.out.println("Other IOException occured");
+                                ex2.printStackTrace();
+                            }
+                        } catch (NullPointerException nulex) {
+                            System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
                         }
-                    } catch (SocketException sockex) {
-                        System.out.println("SocketException (socket closed by client?)");
-                    } catch (IOException ex2) {
-                        if (ex2.toString().contains("Broken pipe")) {
-                            System.out.println("Broken pipe with a student (student was null)");
-                        } else {
-                            System.out.println("Other IOException occured");
-                            ex2.printStackTrace();
+                    } else {
+                        if (networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
                         }
-                    } catch (NullPointerException nulex) {
-                        System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
                     }
                 }
             }

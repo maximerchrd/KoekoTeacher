@@ -2,6 +2,7 @@ package koeko.Networking;
 
 import koeko.Koeko;
 import koeko.Tools.FilesHandler;
+import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableIndividualQuestionForStudentResult;
 import koeko.database_management.DbTableStudents;
 import koeko.database_management.DbTableTest;
@@ -11,6 +12,7 @@ import koeko.students_management.Student;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -39,32 +41,6 @@ public class ReceptionProtocol {
             aClass.updateStudentButNotStreams(student);
         } else {
             aClass.updateStudentButNotStreams(student);
-        }
-
-        //send the active questions
-        ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
-        if (activeIDs.size() > 0) {
-            try {
-                for (String activeID : activeIDs) {
-                    if (Long.valueOf(activeID) > 0) {
-                        NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(activeID, student);
-                        NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(activeID, student);
-                    } else {
-                        //send test object
-                        NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
-
-                        //send media file linked to test
-                        String mediaFileName = DbTableTest.getMediaFileName(activeID);
-                        if (mediaFileName.length() > 0) {
-                            File mediaFile = FilesHandler.getMediaFile(mediaFileName);
-                            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, student);
-                        }
-                    }
-                }
-                System.out.println("address: " + student.getInetAddress());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -119,6 +95,18 @@ public class ReceptionProtocol {
                 arg_student.getActiveTest().setTestEvaluation(testEval);
                 DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
             }
+        }
+    }
+
+    public static void receivedRESIDS(String answerString, NetworkState networkState, Student student) {
+        if (SettingsController.forceSync == 0 && answerString.split("///").length >= 3) {
+            String[] resourceIds = answerString.split("///")[2].split("\\|");
+            networkState.getStudentsToIdsMap().get(answerString.split("///")[1])
+                    .addAll(new ArrayList<>(Arrays.asList(resourceIds)));
+        }
+
+        if (answerString.contains("ENDTRSM")) {
+            NetworkCommunication.networkCommunicationSingleton.sendActiveIds(student);
         }
     }
 }

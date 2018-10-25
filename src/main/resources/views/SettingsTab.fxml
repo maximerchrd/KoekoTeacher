@@ -20,6 +20,16 @@
                   </ToggleButton>
                </children>
             </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="381.0" text="Force synchronization with students:" />
+                  <ToggleButton fx:id="forceSyncButton" mnemonicParsing="false" onAction="#forceSyncChanged" text="ToggleButton">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ToggleButton>
+               </children>
+            </HBox>
             <HBox prefHeight="50.0" prefWidth="855.0">
                <children>
                   <Label prefWidth="160.0" text="User Name:" />
