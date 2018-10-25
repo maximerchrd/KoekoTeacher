@@ -22,9 +22,14 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by maximerichard on 03/02/17.
@@ -42,6 +47,8 @@ public class NetworkCommunication {
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
     private NetworkState networkStateSingleton;
+    private BlockingQueue<PayloadForSending> sendingQueue;
+    private AtomicBoolean queueIsFinished;
 
     //For speed testing
     static public Long sendingStartTime = 0L;
@@ -55,6 +62,8 @@ public class NetworkCommunication {
         studentNamesForGroups = new ArrayList<>();
         disconnectiongStudents = new Vector<>();
         networkStateSingleton = new NetworkState();
+        this.sendingQueue = new LinkedBlockingQueue<>();
+        queueIsFinished = new AtomicBoolean(true);
     }
 
     public LearningTrackerController getLearningTrackerController() {
@@ -787,73 +796,94 @@ public class NetworkCommunication {
         }
     }
 
+    private void launchWritingLoop() {
+        Thread writingThread = new Thread(() -> {
+            queueIsFinished.set(false);
+            while (sendingQueue.size() >= 0) {
+                try {
+                    PayloadForSending pl = sendingQueue.take();
+                    System.out.println("Sending: " + pl.getPayloadID());
+                    synchronized (pl.getOutputStream()) {
+                        pl.getOutputStream().write(pl.getPayload(), 0, pl.getPayload().length);
+                        pl.getOutputStream().flush();
+                    }
+                    System.out.println("Finished sending:" + System.nanoTime() / 1000000000.0 + ": " + pl.getPayloadID());
+                } catch (InterruptedException ex1) {
+                    ex1.printStackTrace();
+                } catch (SocketException sockex) {
+                    System.out.println("SocketException (socket closed by client?)");
+                } catch (IOException ex2) {
+                    if (ex2.toString().contains("Broken pipe")) {
+                        System.out.println("Broken pipe with a student (student was null)");
+                    } else {
+                        System.out.println("Other IOException occured");
+                        ex2.printStackTrace();
+                    }
+                } catch (NullPointerException nulex) {
+                    System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
+                }
+                if (sendingQueue.size() == 0) {
+                    queueIsFinished.set(true);
+                }
+            }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (!NetworkCommunication.networkCommunicationSingleton.checkIfQuestionsOnDevices()) {
+                System.err.println("Everything data was sent but some probably didn't reach!!!");
+            }
+        });
+        writingThread.start();
+    }
+
     private void writeToOutputStream(Student student, byte[] bytearray) {
         writeToOutputStream(student, null, bytearray);
     }
 
     private void writeToOutputStream(Student student, String sentID, byte[] bytearray) {
-        Thread writingThread = new Thread() {
-            public void run() {
-                if (student == null) {
-                    //change if necessary sync status of student
-                    networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
-                    for (Student singleStudent : aClass.getStudents_vector()) {
-                        if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
-                                || !networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
-                            try {
-                                synchronized (singleStudent.getOutputStream()) {
-                                    singleStudent.getOutputStream().write(bytearray, 0, bytearray.length);
-                                    singleStudent.getOutputStream().flush();
-                                }
-                            } catch (SocketException sockex) {
-                                System.out.println("SocketException (socket closed by client?)");
-                            } catch (IOException ex2) {
-                                if (ex2.toString().contains("Broken pipe")) {
-                                    System.out.println("Broken pipe with a student (student was null)");
-                                } else {
-                                    System.out.println("Other IOException occured");
-                                    ex2.printStackTrace();
-                                }
-                            } catch (NullPointerException nulex) {
-                                System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
-                            }
-                        } else {
-                            if (networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
-                                networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
-                            }
+        if (student == null) {
+            //change if necessary sync status of student
+            networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
+            for (Student singleStudent : aClass.getStudents_vector()) {
+                if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
+                        || !networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
+                    try {
+                        sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
+                        if (queueIsFinished.get() == true) {
+                            System.out.println("launching");
+                            launchWritingLoop();
                         }
+                    } catch (InterruptedException intex) {
+                        intex.printStackTrace();
                     }
                 } else {
-                    //change if necessary sync status of student
-                    networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
-                    if (sentID == null || SettingsController.forceSync == 1
-                            || !networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
-                        try {
-                            synchronized (student.getOutputStream()) {
-                                student.getOutputStream().write(bytearray, 0, bytearray.length);
-                                student.getOutputStream().flush();
-                            }
-                        } catch (SocketException sockex) {
-                            System.out.println("SocketException (socket closed by client?)");
-                        } catch (IOException ex2) {
-                            if (ex2.toString().contains("Broken pipe")) {
-                                System.out.println("Broken pipe with a student (student was null)");
-                            } else {
-                                System.out.println("Other IOException occured");
-                                ex2.printStackTrace();
-                            }
-                        } catch (NullPointerException nulex) {
-                            System.out.println("NullPointerException in a thread with null output stream (closed by another thread)");
-                        }
-                    } else {
-                        if (networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
-                            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
-                        }
+                    if (networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                        networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
                     }
                 }
             }
-        };
-        writingThread.start();
+        } else {
+            //change if necessary sync status of student
+            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
+            if (sentID == null || SettingsController.forceSync == 1
+                    || !networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
+                try {
+                    sendingQueue.put(new PayloadForSending(student.getOutputStream(), bytearray, sentID));
+                    if (queueIsFinished.get() == true) {
+                        System.out.println("launching");
+                        launchWritingLoop();
+                    }
+                } catch (InterruptedException intex) {
+                    intex.printStackTrace();
+                }
+            } else {
+                if (networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                    networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
+                }
+            }
+        }
     }
 
     public void popUpIfStudentIdentifierCollision(String studentName) {
