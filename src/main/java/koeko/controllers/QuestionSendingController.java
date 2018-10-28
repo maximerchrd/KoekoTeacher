@@ -372,7 +372,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         }
 
-        //first add the tests
+        //one add the tests
         for (QuestionGeneric testGeneric : testsNodeList) {
             ArrayList<String> questionIDs = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(testGeneric.getQuestion());
 
@@ -599,7 +599,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         //remove question from sentQuestions
-        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSentQuestionIds().remove(questionCell.getItem().getGlobalID());
+        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getQuestionIdsToSend().remove(questionCell.getItem().getGlobalID());
 
         //remove question from table
         int index = questionCell.getIndex();
@@ -1167,7 +1167,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
 
-        //first send the test
+        //one send the test
         if (!Koeko.studentGroupsAndClass.get(group).getActiveIDs().contains(globalID)) {
             readyQuestionsList.getItems().add(questionGeneric);
             Koeko.studentGroupsAndClass.get(group).getActiveIDs().add(globalID);

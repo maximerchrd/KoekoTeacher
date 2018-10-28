@@ -171,7 +171,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         removeQuestion(index, 0);
     }
     public void removeQuestion(int index, Integer group) {
-        //in case there are some tests in the ready question list, the index is not right, so we need to fix it first
+        //in case there are some tests in the ready question list, the index is not right, so we need to fix it one
         int indexCorrected = 0;
         if (index >= 0) {
             for (int i = 0; i < index && i < Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size(); i++) {

@@ -7,8 +7,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NetworkState {
-    private Map<String, CopyOnWriteArrayList<String>> studentsToIdsMap;
-    private List<String> sentQuestionIds;
+    private Map<String, CopyOnWriteArrayList<String>> studentsToSyncedIdsMap;
+    private List<String> questionIdsToSend;
 
     //0: not ready; 1: ready
     static public int STUDENT_NOT_SYNCED = 0;
@@ -20,8 +20,8 @@ public class NetworkState {
 
 
     public NetworkState() {
-        this.studentsToIdsMap = Collections.synchronizedMap(new LinkedHashMap<>());
-        this.sentQuestionIds = new CopyOnWriteArrayList<>();
+        this.studentsToSyncedIdsMap = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.questionIdsToSend = new CopyOnWriteArrayList<>();
         this.studentsToReadyMap = Collections.synchronizedMap(new LinkedHashMap<>());
         this.studentsToActiveIdMap = Collections.synchronizedMap(new LinkedHashMap<>());
     }
@@ -50,20 +50,20 @@ public class NetworkState {
     }
 
 
-    public Map<String, CopyOnWriteArrayList<String>> getStudentsToIdsMap() {
-        return studentsToIdsMap;
+    public Map<String, CopyOnWriteArrayList<String>> getStudentsToSyncedIdsMap() {
+        return studentsToSyncedIdsMap;
     }
 
-    public void setStudentsToIdsMap(Map<String, CopyOnWriteArrayList<String>> studentsToIdsMap) {
-        this.studentsToIdsMap = studentsToIdsMap;
+    public void setStudentsToSyncedIdsMap(Map<String, CopyOnWriteArrayList<String>> studentsToSyncedIdsMap) {
+        this.studentsToSyncedIdsMap = studentsToSyncedIdsMap;
     }
 
-    public List<String> getSentQuestionIds() {
-        return sentQuestionIds;
+    public List<String> getQuestionIdsToSend() {
+        return questionIdsToSend;
     }
 
-    public void setSentQuestionIds(List<String> sentQuestionIds) {
-        this.sentQuestionIds = sentQuestionIds;
+    public void setQuestionIdsToSend(List<String> questionIdsToSend) {
+        this.questionIdsToSend = questionIdsToSend;
     }
 
     public Map<String, Integer> getStudentsToReadyMap() {

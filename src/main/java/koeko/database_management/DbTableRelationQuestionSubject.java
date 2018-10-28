@@ -190,7 +190,7 @@ public class DbTableRelationQuestionSubject {
      * @throws Exception
      */
     static public void addRelationQuestionSubject(String questionID, String subject) {
-        //first get the list of all subjects linked to the question (also check parents subjects)
+        //one get the list of all subjects linked to the question (also check parents subjects)
         Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
         Vector<String> allSubjectsVector = new Vector<>();
         if (!allSubjectsVector.contains(subject)) {

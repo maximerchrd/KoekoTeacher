@@ -33,13 +33,6 @@ public class Koeko extends Application {
     static public Boolean recordLogs = false;
 
     public static void main(String[] args) throws Exception {
-        if (System.getProperty("os.name").contains("OS X")) {
-            try {
-                com.apple.eawt.Application.getApplication().setDockIconImage(new ImageIcon("pictures/app-icon.png").getImage());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         Application.launch(args);
     }
 

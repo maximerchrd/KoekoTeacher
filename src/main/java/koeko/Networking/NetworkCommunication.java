@@ -22,10 +22,8 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -36,12 +34,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class NetworkCommunication {
     static public NetworkCommunication networkCommunicationSingleton;
+    static final public int prefixSize = 80;
     private LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
-    private int network_solution = 0; //0: all devices connected to same wifi router
+    private int network_solution = 1; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
@@ -81,66 +80,63 @@ public class NetworkCommunication {
      */
     public void startServer() throws IOException {
 
-        if (network_solution == 0) {
-            //Send the ip of the computer to everyone on the subnet
-            Thread sendIPthread = new Thread() {
-                public void run() {
-                    while (true) {
-                        try {
-                            sendIpAddress();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+
+        //Send the ip of the computer to everyone on the subnet
+        Thread sendIPthread = new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        sendIpAddress();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-            };
-            sendIPthread.start();
+            }
+        };
+        sendIPthread.start();
 
 
-            // we create a server socket and bind it to port 9090.
-            ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
+        // we create a server socket and bind it to port 9090.
+        ServerSocket myServerSocket = new ServerSocket(PORTNUMBER);
 
-            //Wait for client connection
-            System.out.println("\nServer Started. Waiting for clients to connect...");
-            aClass = Koeko.studentGroupsAndClass.get(0);
-            Thread connectionthread = new Thread() {
-                public void run() {
-                    while (true) {
+        //Wait for client connection
+        System.out.println("\nServer Started. Waiting for clients to connect...");
+        aClass = Koeko.studentGroupsAndClass.get(0);
+        Thread connectionthread = new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        //listening to client connection and accept it
+                        Socket skt = myServerSocket.accept();
+                        Student student = new Student();
+                        student.setInetAddress(skt.getInetAddress());
+                        student.setPort(String.valueOf(skt.getPort()));
+                        System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
+
                         try {
-                            //listening to client connection and accept it
-                            Socket skt = myServerSocket.accept();
-                            Student student = new Student();
-                            student.setInetAddress(skt.getInetAddress());
-                            student.setPort(String.valueOf(skt.getPort()));
-                            System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
-
-                            try {
-                                //register student
-                                student.setInputStream(skt.getInputStream());
-                                student.setOutputStream(skt.getOutputStream());
-                                if (!aClass.studentAlreadyInClass(student)) {
-                                    aClass.addStudentIfNotInClass(student);
-                                    System.out.println("aClass.size() = " + aClass.getClassSize() + ". Added student: " + student.getInetAddress().toString());
-                                } else {
-                                    student.setInputStream(skt.getInputStream());
-                                    student.setOutputStream(skt.getOutputStream());
-                                    student = aClass.updateStudentStreams(student);
-                                }
-
-                                //start a new thread for listening to each student
-                                listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
+                            //register student
+                            student.setInputStream(skt.getInputStream());
+                            student.setOutputStream(skt.getOutputStream());
+                            if (!aClass.studentAlreadyInClass(student)) {
+                                aClass.addStudentIfNotInClass(student);
+                                System.out.println("aClass.size() = " + aClass.getClassSize() + ". Added student: " + student.getInetAddress().toString());
+                            } else {
+                                student = aClass.updateStudentStreams(student);
                             }
-                        } catch (IOException e2) {
-                            // TODO Auto-generated catch block
-                            e2.printStackTrace();
+
+                            //start a new thread for listening to each student
+                            listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
                         }
+                    } catch (IOException e2) {
+                        // TODO Auto-generated catch block
+                        e2.printStackTrace();
                     }
                 }
-            };
-            connectionthread.start();
-        }
+            }
+        };
+        connectionthread.start();
     }
 
     public void SendQuestionID(String QuestID, Vector<Student> students) {
@@ -160,10 +156,10 @@ public class NetworkCommunication {
 
         for (Student student : students) {
             if (student.getOutputStream() != null) {
-                byte[] idBytearraystring = new byte[80];
+                byte[] idBytearraystring = new byte[prefixSize];
                 String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
                 byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
-                for (int i = 0; i < prefixBytesArray.length && i < 80; i++) {
+                for (int i = 0; i < prefixBytesArray.length && i < prefixSize; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];
                 }
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -216,7 +212,7 @@ public class NetworkCommunication {
             if (l == 0) question_text += " ";
             question_text += "///";
 
-            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the one 80 bytes (separated by ":")
             int intfileLength = 0;
             File myFile = new File(questionMultipleChoice.getIMAGE());
             if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
@@ -226,10 +222,10 @@ public class NetworkCommunication {
                 question_text += questionMultipleChoice.getIMAGE() + "///";
             }
 
-            //writing of the first 80 bytes
+            //writing of the one 80 bytes
             byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[80 + textbyteslength + intfileLength];
+            byte[] bytearray = new byte[prefixSize + textbyteslength + intfileLength];
             String fileLength;
             fileLength = "MULTQ";
             fileLength += ":" + String.valueOf(intfileLength);
@@ -249,21 +245,22 @@ public class NetworkCommunication {
 
             //copy the textbytes into the array which will be sent
             for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + 80] = bytearraytext[k];
+                bytearray[k + prefixSize] = bytearraytext[k];
             }
 
             //write the file into the bytearray
             if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 fis = new FileInputStream(myFile);
                 bis = new BufferedInputStream(fis);
-                bis.read(bytearray, 80 + textbyteslength, intfileLength);
+                bis.read(bytearray, prefixSize + textbyteslength, intfileLength);
             }
             System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
             writeToOutputStream(student, questionID, bytearray);
 
-            networkStateSingleton.getSentQuestionIds().add(questionID);
+            networkStateSingleton.getQuestionIdsToSend().add(questionID);
+            sendOnlyId(student, questionID);
         }
     }
 
@@ -299,7 +296,7 @@ public class NetworkCommunication {
             if (l == 0) question_text += " ";
             question_text += "///";
 
-            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the one 80 bytes (separated by ":")
             int intfileLength = 0;
             File myFile = new File(questionShortAnswer.getIMAGE());
             ;
@@ -310,10 +307,10 @@ public class NetworkCommunication {
                 question_text += questionShortAnswer.getIMAGE() + "///";
             }
 
-            //writing of the first 80 bytes
+            //writing of the one 80 bytes
             byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[80 + textbyteslength + intfileLength];
+            byte[] bytearray = new byte[prefixSize + textbyteslength + intfileLength];
             String fileLength;
             fileLength = "SHRTA";
             fileLength += ":" + String.valueOf(intfileLength);
@@ -325,21 +322,22 @@ public class NetworkCommunication {
 
             //copy the textbytes into the array which will be sent
             for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + 80] = bytearraytext[k];
+                bytearray[k + prefixSize] = bytearraytext[k];
             }
 
             //write the file into the bytearray   !!! tested up to 630000 bytes, does not work with file of 4,7MB
             if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
                 fis = new FileInputStream(myFile);
                 bis = new BufferedInputStream(fis);
-                bis.read(bytearray, 80 + textbyteslength, intfileLength);
+                bis.read(bytearray, prefixSize + textbyteslength, intfileLength);
             }
             System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
             int arraylength = bytearray.length;
             System.out.println("Sending " + arraylength + " bytes in total");
             writeToOutputStream(student, questionID, bytearray);
 
-            networkStateSingleton.getSentQuestionIds().add(questionID);
+            networkStateSingleton.getQuestionIdsToSend().add(questionID);
+            sendOnlyId(student, questionID);
         }
     }
 
@@ -375,7 +373,7 @@ public class NetworkCommunication {
             try {
                 byte[] bytesArray = toSend.getBytes();
                 String prefix = "OEVAL:" + bytesArray.length + "///";
-                byte[] bytesPrefix = new byte[80];
+                byte[] bytesPrefix = new byte[prefixSize];
                 byte[] bytesPrefixString = prefix.getBytes();
                 for (int i = 0; i < bytesPrefixString.length; i++) {
                     bytesPrefix[i] = bytesPrefixString[i];
@@ -407,7 +405,9 @@ public class NetworkCommunication {
                     try {
                         byte[] in_bytearray = new byte[1000];
                         bytesread = answerInStream.read(in_bytearray);
-                        if (bytesread >= 1000) System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
+                        if (bytesread >= 1000) {
+                            System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
+                        }
                         if (bytesread >= 0) {
                             String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
                             System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + "bytes:" + answerString);
@@ -532,8 +532,8 @@ public class NetworkCommunication {
                                 ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
                                 for (String receivedString : receptionArray) {
                                     if (!arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
-                                        networkStateSingleton.getStudentsToIdsMap().get(arg_student.getUniqueDeviceID()).add(receivedString);
-                                        if (networkStateSingleton.getStudentsToIdsMap().get(arg_student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                                        networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).add(receivedString);
+                                        if (networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
                                             networkStateSingleton.toggleSyncStateForStudent(arg_student, NetworkState.STUDENT_SYNCED);
                                         }
                                     } else {
@@ -568,7 +568,7 @@ public class NetworkCommunication {
                                 sendActiveIds(arg_student);
                             }
                         } else {
-
+                            System.out.println("Communication over?");
                         }
                     } catch (SocketException sockex) {
                         if (sockex.toString().contains("timed out")) {
@@ -602,10 +602,11 @@ public class NetworkCommunication {
             }
 
             //add the file to the sent objects (for sync check)
-            networkStateSingleton.getSentQuestionIds().add(mediaName);
+            networkStateSingleton.getQuestionIdsToSend().add(mediaName);
+            sendOnlyId(student, mediaName);
 
             String infoString = "FILE///" + mediaName + "///" + fileData.length + "///";
-            byte[] infoPrefix = new byte[80];
+            byte[] infoPrefix = new byte[prefixSize];
             for (int i = 0; i < infoPrefix.length && i < infoString.getBytes().length; i++) {
                 infoPrefix[i] = infoString.getBytes()[i];
             }
@@ -620,7 +621,7 @@ public class NetworkCommunication {
     public void SendEvaluation(double evaluation, String questionID, Student student) {
         String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[80];
+        byte[] bytes = new byte[prefixSize];
         int bytes_length = 0;
         try {
             bytes_length = evalToSend.getBytes("UTF-8").length;
@@ -650,7 +651,7 @@ public class NetworkCommunication {
 
         evalToSend += "UPDEV///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[80];
+        byte[] bytes = new byte[prefixSize];
         int bytes_length = 0;
         try {
             bytes_length = evalToSend.getBytes("UTF-8").length;
@@ -670,7 +671,7 @@ public class NetworkCommunication {
     public void SendCorrection(String questionID) {
         String messageToSend = "CORR///";
         messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0, 4) + "///";
-        byte[] bytes = new byte[80];
+        byte[] bytes = new byte[prefixSize];
         int bytes_length = 0;
         try {
             bytes_length = messageToSend.getBytes("UTF-8").length;
@@ -703,9 +704,9 @@ public class NetworkCommunication {
 
     public Boolean checkIfQuestionsOnDevices() {
         Boolean questionsOnDevices = true;
-        for (Map.Entry<String, CopyOnWriteArrayList<String>> entry : networkStateSingleton.getStudentsToIdsMap().entrySet()) {
+        for (Map.Entry<String, CopyOnWriteArrayList<String>> entry : networkStateSingleton.getStudentsToSyncedIdsMap().entrySet()) {
             CopyOnWriteArrayList<String> questions = entry.getValue();
-            if (!questions.containsAll(networkStateSingleton.getSentQuestionIds())) {
+            if (!questions.containsAll(networkStateSingleton.getQuestionIdsToSend())) {
                 questionsOnDevices = false;
                 break;
             }
@@ -722,7 +723,7 @@ public class NetworkCommunication {
 
     public void activateTestForGroup(ArrayList<String> questionIds, ArrayList<String> students, String testID) {
 
-        //first reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
+        //one reinitialize if groups array are same size as number of groups (meaning we are in a new groups session)
         if (questionIdsForGroups.size() == Koeko.studentGroupsAndClass.size() - 1) {
             questionIdsForGroups.clear();
             studentNamesForGroups.clear();
@@ -737,7 +738,7 @@ public class NetworkCommunication {
         for (String studentName : students) {
             Student student = aClass.getStudentWithName(studentName);
             if (questionIds.size() > 0) {
-                //get the first question ID which doesn't correspond to a test
+                //get the one question ID which doesn't correspond to a test
                 int i = 0;
                 for (; i < questionIds.size() && Long.valueOf(questionIds.get(i)) < 0; i++) {
                 }
@@ -761,23 +762,39 @@ public class NetworkCommunication {
     }
 
     public void sendActiveIds(Student student) {
+        //send a list of the ids to sync
+        if (network_solution == 1) {
+            String idsToSync = "";
+            for (String id : networkStateSingleton.getQuestionIdsToSend()) {
+                idsToSync += id + "|";
+            }
+            byte[] prefix = new byte[prefixSize];
+            String stringPrefix = "SYNCIDS///" + idsToSync.getBytes().length + "///";
+            for (int i = 0; i < stringPrefix.getBytes().length; i++) {
+                prefix[i] = stringPrefix.getBytes()[i];
+            }
+            byte[] wholeBytesArray = Arrays.copyOf(prefix, prefix.length + idsToSync.getBytes().length);
+            System.arraycopy(idsToSync.getBytes(), 0, wholeBytesArray, prefix.length, idsToSync.getBytes().length);
+            writeToOutputStream(student, wholeBytesArray);
+        }
+
         //send the active questions
         ArrayList<String> activeIDs = (ArrayList<String>) Koeko.studentGroupsAndClass.get(0).getActiveIDs().clone();
         if (activeIDs.size() > 0) {
             try {
                 for (String activeID : activeIDs) {
                     if (Long.valueOf(activeID) > 0) {
-                        NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(activeID, student);
-                        NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(activeID, student);
+                        sendMultipleChoiceWithID(activeID, student);
+                        sendShortAnswerQuestionWithID(activeID, student);
                     } else {
                         //send test object
-                        NetworkCommunication.networkCommunicationSingleton.sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
+                        sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
 
                         //send media file linked to test
                         String mediaFileName = DbTableTest.getMediaFileName(activeID);
                         if (mediaFileName.length() > 0) {
                             File mediaFile = FilesHandler.getMediaFile(mediaFileName);
-                            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, student);
+                            SendMediaFile(mediaFile, student);
                         }
                     }
                 }
@@ -793,6 +810,20 @@ public class NetworkCommunication {
             Vector<Student> singleStudent = new Vector<>();
             singleStudent.add(student);
             SendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
+        }
+    }
+
+    private void sendOnlyId(Student student, String id) {
+        if (network_solution == 1) {
+            id += "|";
+            byte[] prefix = new byte[prefixSize];
+            String stringPrefix = "SYNCIDS///" + id.getBytes().length + "///";
+            for (int i = 0; i < stringPrefix.getBytes().length; i++) {
+                prefix[i] = stringPrefix.getBytes()[i];
+            }
+            byte[] wholeBytesArray = Arrays.copyOf(prefix, prefix.length + id.getBytes().length);
+            System.arraycopy(id.getBytes(), 0, wholeBytesArray, prefix.length, id.getBytes().length);
+            writeToOutputStream(student, wholeBytesArray);
         }
     }
 
@@ -848,7 +879,7 @@ public class NetworkCommunication {
             networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
             for (Student singleStudent : aClass.getStudents_vector()) {
                 if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
-                        || !networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
+                        || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
                     try {
                         sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
                         if (queueIsFinished.get() == true) {
@@ -859,7 +890,7 @@ public class NetworkCommunication {
                         intex.printStackTrace();
                     }
                 } else {
-                    if (networkStateSingleton.getStudentsToIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                    if (networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
                         networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
                     }
                 }
@@ -868,7 +899,7 @@ public class NetworkCommunication {
             //change if necessary sync status of student
             networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
             if (sentID == null || SettingsController.forceSync == 1
-                    || !networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
+                    || !networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
                 try {
                     sendingQueue.put(new PayloadForSending(student.getOutputStream(), bytearray, sentID));
                     if (queueIsFinished.get() == true) {
@@ -879,7 +910,7 @@ public class NetworkCommunication {
                     intex.printStackTrace();
                 }
             } else {
-                if (networkStateSingleton.getStudentsToIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getSentQuestionIds())) {
+                if (networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
                     networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
                 }
             }

@@ -34,7 +34,7 @@ public class DbTableRelationQuestionStudent {
      * @throws Exception
      */
     static public void addRelationQuestionStudent(Integer idGlobal, String student) throws Exception {
-        //first get the list of all subjects linked to the question
+        //one get the list of all subjects linked to the question
 
         Connection c = null;
         Statement stmt = null;

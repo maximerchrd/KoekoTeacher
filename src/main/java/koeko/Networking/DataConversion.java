@@ -1,6 +1,7 @@
 package koeko.Networking;
 
 // import QuestionSendingController;
+import koeko.Tools.StringSep;
 import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableRelationQuestionQuestion;
 import koeko.questions_management.Test;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 public class DataConversion {
     static public byte[] testToBytesArray(Test test) {
         String testString = "";
-        testString += test.getIdTest() + "///";
+        testString += test.getIdTest() + StringSep.one;
         testString += test.getTestName() + "///";
         String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
         testString += testMap;

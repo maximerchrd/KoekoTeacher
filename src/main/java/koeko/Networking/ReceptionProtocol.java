@@ -1,19 +1,13 @@
 package koeko.Networking;
 
-import koeko.Koeko;
-import koeko.Tools.FilesHandler;
 import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableIndividualQuestionForStudentResult;
 import koeko.database_management.DbTableStudents;
-import koeko.database_management.DbTableTest;
-import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -32,7 +26,7 @@ public class ReceptionProtocol {
 
         //update the tracking of questions on device
         if (networkState.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
-            networkState.getStudentsToIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
+            networkState.getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
             networkState.getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
             networkState.getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
         }
@@ -99,7 +93,7 @@ public class ReceptionProtocol {
     public static void receivedRESIDS(String answerString, NetworkState networkState, Student student) {
         if (SettingsController.forceSync == 0 && answerString.split("///").length >= 3) {
             String[] resourceIds = answerString.split("///")[2].split("\\|");
-            networkState.getStudentsToIdsMap().get(answerString.split("///")[1])
+            networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
                     .addAll(new ArrayList<>(Arrays.asList(resourceIds)));
         }
 
