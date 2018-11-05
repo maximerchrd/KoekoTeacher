@@ -1,7 +1,7 @@
 package koeko.database_management;
 
 import koeko.questions_management.QuestionShortAnswer;
-import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.QuestionView;
 import koeko.view.Utilities;
 
 import java.sql.*;
@@ -204,8 +204,8 @@ public class DbTableQuestionShortAnswer {
         return "";
     }
 
-    static public Vector<QuestionMultipleChoiceView> getQuestionViews() {
-        Vector<QuestionMultipleChoiceView> questionViews = new Vector<>();
+    static public Vector<QuestionView> getQuestionViews() {
+        Vector<QuestionView> questionViews = new Vector<>();
 
         String sql = "SELECT * FROM short_answer_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
@@ -214,7 +214,7 @@ public class DbTableQuestionShortAnswer {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                QuestionMultipleChoiceView questionMultipleChoiceView = new QuestionMultipleChoiceView();
+                QuestionView questionMultipleChoiceView = new QuestionView();
                 questionMultipleChoiceView.setID(rs.getString("ID_GLOBAL"));
                 questionMultipleChoiceView.setTYPE(1);
                 questionMultipleChoiceView.setQUESTION(rs.getString("QUESTION"));
@@ -278,5 +278,76 @@ public class DbTableQuestionShortAnswer {
             System.out.println(e.getMessage());
         }
         return questionViews;
+    }
+
+    public static QuestionView getQuestionViewWithId(String questionID) {
+        QuestionView questionView = new QuestionView();
+
+        String sql = "SELECT * FROM short_answer_questions WHERE ID_GLOBAL = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, questionID);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                questionView.setID(rs.getString("ID_GLOBAL"));
+                questionView.setTYPE(1);
+                questionView.setQUESTION(rs.getString("QUESTION"));
+                questionView.setQCM_MUID(rs.getString("IDENTIFIER"));
+                questionView.setIMAGE(rs.getString("IMAGE_PATH"));
+                questionView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        sql = "SELECT OPTION FROM answer_options ao " +
+                "INNER JOIN question_answeroption_relation rel ON rel.ID_ANSWEROPTION_GLOBAL = ao.ID_ANSWEROPTION_GLOBAL " +
+                "INNER JOIN short_answer_questions sha ON sha.ID_GLOBAL = rel.ID_GLOBAL " +
+                " WHERE sha.ID_GLOBAL = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1,questionView.getID());
+                ResultSet rs = pstmt.executeQuery();
+
+                int j = 0;
+                while (rs.next()) {
+                    switch (j) {
+                        case 0:
+                            questionView.setOPT0(rs.getString("OPTION"));
+                            break;
+                        case 1:
+                            questionView.setOPT1(rs.getString("OPTION"));
+                            break;
+                        case 2:
+                            questionView.setOPT2(rs.getString("OPTION"));
+                            break;
+                        case 3:
+                            questionView.setOPT3(rs.getString("OPTION"));
+                            break;
+                        case 4:
+                            questionView.setOPT4(rs.getString("OPTION"));
+                            break;
+                        case 5:
+                            questionView.setOPT5(rs.getString("OPTION"));
+                            break;
+                        case 6:
+                            questionView.setOPT6(rs.getString("OPTION"));
+                            break;
+                        case 7:
+                            questionView.setOPT7(rs.getString("OPTION"));
+                            break;
+                        case 8:
+                            questionView.setOPT8(rs.getString("OPTION"));
+                            break;
+                        default:
+                            questionView.setOPT9(questionView.getOPT9() + rs.getString("OPTION") + "///");
+                    }
+                    j++;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return questionView;
     }
 }

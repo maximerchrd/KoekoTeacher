@@ -1,5 +1,6 @@
 package koeko.controllers;
 
+import koeko.Tools.FilesHandler;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
@@ -178,7 +179,7 @@ public class EditQuestionController implements Initializable {
         imagePath.setText(path);
     }
     public void addPicture() {
-        File theDir = new File("pictures");
+        File theDir = new File(FilesHandler.mediaDirectoryNoSlash);
         // if the directory does not exist, create it
         if (!theDir.exists()) {
             System.out.println("creating directory: " + theDir.getName());
@@ -200,16 +201,18 @@ public class EditQuestionController implements Initializable {
         fileChooser.setTitle("Select image file");
         Stage stage = (Stage) vBox.getScene().getWindow();
         File source_file = fileChooser.showOpenDialog(stage);
-        String directory = "pictures/";
-        File dest_file = new File(directory + source_file.getName());
-        File hashedFileName = new File(directory + source_file.getName());
+        File dest_file = new File(FilesHandler.mediaDirectory + source_file.getName());
+        File hashedFileName = new File(FilesHandler.mediaDirectory + source_file.getName());
         try {
             Files.copy(source_file.toPath(), dest_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hashedBytes = Files.readAllBytes(dest_file.toPath());
             messageDigest.update(hashedBytes);
             String encryptedString = DatatypeConverter.printHexBinary(messageDigest.digest());
-            hashedFileName = new File(directory + encryptedString);
+            if (encryptedString.length() > 14) {
+                encryptedString = encryptedString.substring(0, 14);
+            }
+            hashedFileName = new File(FilesHandler.mediaDirectory + encryptedString);
             Files.move(dest_file.toPath(), hashedFileName.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e1) {
             // TODO Auto-generated catch block
@@ -217,7 +220,7 @@ public class EditQuestionController implements Initializable {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        imagePath.setText(hashedFileName.getPath());
+        imagePath.setText(hashedFileName.getName());
         imagePath.setEditable(false);
     }
 

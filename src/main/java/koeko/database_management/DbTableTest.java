@@ -2,7 +2,7 @@ package koeko.database_management;
 
 import koeko.questions_management.Test;
 import koeko.questions_management.QuestionGeneric;
-import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.QuestionView;
 import koeko.view.Utilities;
 
 import java.sql.*;
@@ -71,15 +71,15 @@ public class DbTableTest {
         return tests;
     }
 
-    static public ArrayList<QuestionMultipleChoiceView> getAllTestViews() {
-        ArrayList<QuestionMultipleChoiceView> testViews = new ArrayList<>();
+    static public ArrayList<QuestionView> getAllTestViews() {
+        ArrayList<QuestionView> testViews = new ArrayList<>();
 
         String sql = 	"SELECT * FROM test";
         try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                QuestionMultipleChoiceView testView = new QuestionMultipleChoiceView();
+                QuestionView testView = new QuestionView();
                 testView.setTYPE(2);
                 testView.setID(rs.getString("ID_TEST_GLOBAL"));
                 testView.setQCM_MUID(rs.getString("IDENTIFIER"));

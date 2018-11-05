@@ -3,7 +3,7 @@ package koeko.view;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class QuestionMultipleChoiceView implements Serializable {
+public class QuestionView implements Serializable {
     private String ID;
     private int TYPE;   //0: QMC; 1: SHRTAQ; 2: TEST
     private String SUBJECT;
@@ -37,7 +37,7 @@ public class QuestionMultipleChoiceView implements Serializable {
     private Timestamp QCM_UPD_TMS;
 
 
-    public QuestionMultipleChoiceView()	{
+    public QuestionView()	{
         ID="0";
         TYPE=-1;
         SUBJECT="";

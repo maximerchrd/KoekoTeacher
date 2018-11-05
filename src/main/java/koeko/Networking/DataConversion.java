@@ -1,19 +1,24 @@
 package koeko.Networking;
 
 // import QuestionSendingController;
-import koeko.Tools.StringSep;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import koeko.controllers.SettingsController;
+import koeko.database_management.DbTableLearningObjectives;
 import koeko.database_management.DbTableRelationQuestionQuestion;
+import koeko.database_management.DbTableSubject;
 import koeko.questions_management.Test;
+import koeko.view.SubjectsAndObjectivesForQuestion;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DataConversion {
     static public byte[] testToBytesArray(Test test) {
         String testString = "";
-        testString += test.getIdTest() + StringSep.one;
+        testString += test.getIdTest() + "///";
         testString += test.getTestName() + "///";
         String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
         testString += testMap;
@@ -122,5 +127,32 @@ public class DataConversion {
         wholeByteArray = outputStream.toByteArray( );
 
         return  wholeByteArray;
+    }
+
+    public static byte[] getBytesSubNObjForQuestion(String questionID) {
+        ArrayList<String> subjects = new ArrayList<>(DbTableSubject.getSubjectsForQuestionID(questionID));
+        ArrayList<String> objectives = new ArrayList<>(DbTableLearningObjectives.getObjectiveForQuestionID(questionID));
+        String[] subjectsAr = new String[subjects.size()];
+        String[] objectivesAr = new String[objectives.size()];
+        subjectsAr = subjects.toArray(subjectsAr);
+        objectivesAr = objectives.toArray(objectivesAr);
+        SubjectsAndObjectivesForQuestion subNObj = new SubjectsAndObjectivesForQuestion(objectivesAr, subjectsAr);
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = "";
+        try {
+            jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(subNObj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        byte[] dataBytes = jsonString.getBytes();
+        byte[] preprefix = new DataPrefix(DataPref.subObj,String.valueOf(dataBytes.length),"","").parseToString().getBytes();
+        byte[] prefixBytes = new byte[NetworkCommunication.prefixSize];
+        for (int i = 0; i < preprefix.length && i < NetworkCommunication.prefixSize; i++) {
+            prefixBytes[i] = preprefix[i];
+        }
+        byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + dataBytes.length);
+        System.arraycopy(dataBytes, 0, wholeBytesArray, prefixBytes.length, dataBytes.length);
+        return wholeBytesArray;
     }
 }

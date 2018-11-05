@@ -3,6 +3,7 @@ package koeko.KoekoSyncCollect;
 import koeko.Koeko;
 import koeko.database_management.*;
 import koeko.questions_management.Test;
+import koeko.view.QuestionView;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -224,9 +225,6 @@ public class TCPCommunication {
 
     // Send a file coping with all the exchanges and synchronisation
     public boolean SendFile(String filename) throws IOException {
-        // dirty fix because the folder "pictures" is also stored in the filename
-        filename = filename.substring(filename.indexOf("/") + 1);
-
         boolean bOK = false;
         SendCommande(cstrUploadFIle);
         if (IsAcknowledged()) {
@@ -366,8 +364,8 @@ public class TCPCommunication {
                 int cnt = 0;
                 while (cnt<gtl.get_nbQuestionMultipleChoice()) {
                     Object rcv = GetObject();
-                    if (rcv.getClass().getName().equals("koeko.view.QuestionMultipleChoiceView")) {
-                        koeko.view.QuestionMultipleChoiceView qcm = (koeko.view.QuestionMultipleChoiceView)rcv;
+                    if (rcv.getClass().getName().equals("koeko.view.QuestionView")) {
+                        QuestionView qcm = (QuestionView)rcv;
                         DbTableQuestionMultipleChoice.addIfNeededMultipleChoiceQuestionFromView(qcm);
                         if (!qcm.getIMAGE().equals("none")) {
                             ReceiveBinaryFile(qcm.getIMAGE());

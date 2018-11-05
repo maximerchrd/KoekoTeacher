@@ -36,7 +36,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.database_management.*;
-import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.QuestionView;
 
 import java.awt.*;
 import java.io.*;
@@ -1238,7 +1238,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void insertQuestionView(QuestionMultipleChoiceView questionMultipleChoiceView) {
+    public void insertQuestionView(QuestionView questionMultipleChoiceView) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {

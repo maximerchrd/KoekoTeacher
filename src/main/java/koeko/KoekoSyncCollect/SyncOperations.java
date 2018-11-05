@@ -69,12 +69,12 @@ public class SyncOperations {
                 CreateOrUpdateObjective(objective);
             }
 
-            Vector<QuestionMultipleChoiceView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
+            Vector<QuestionView> qcmVector = DbTableQuestionMultipleChoice.getQuestionsMultipleChoiceView();
             qcmVector.addAll(DbTableQuestionShortAnswer.getQuestionViews());
             qcmVector.addAll(DbTableTest.getAllTestViews());
             en = qcmVector.elements();
             while (en.hasMoreElements()) {
-                QuestionMultipleChoiceView qcm = (QuestionMultipleChoiceView) en.nextElement();
+                QuestionView qcm = (QuestionView) en.nextElement();
                 qcm.setLANGUAGE(professor.get_language());
                 CreateOrUpdateQuestionMultipleChoice(qcm, professor.get_muid());
 
@@ -155,7 +155,7 @@ public class SyncOperations {
         }
     }
 
-    static private void CreateOrUpdateQuestionMultipleChoice(QuestionMultipleChoiceView qcm, String ownerMUID) {
+    static private void CreateOrUpdateQuestionMultipleChoice(QuestionView qcm, String ownerMUID) {
         try {
             if (!qcm.getIMAGE().equals("none")) {
                 boolean bOK = _tcpcom.SendFile(qcm.getIMAGE());

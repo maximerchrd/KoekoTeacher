@@ -3,7 +3,7 @@ package koeko.database_management;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.questions_management.Test;
-import koeko.view.QuestionMultipleChoiceView;
+import koeko.view.QuestionView;
 import koeko.view.Utilities;
 
 import java.sql.*;
@@ -101,7 +101,7 @@ public class DbTableQuestionMultipleChoice {
      * @param quest
      * @throws Exception
      */
-    static public boolean checkIfExists(QuestionMultipleChoiceView quest) throws Exception {
+    static public boolean checkIfExists(QuestionView quest) throws Exception {
         // Check if the question exists already
         boolean bExists = true;
         Connection c = null;
@@ -137,7 +137,7 @@ public class DbTableQuestionMultipleChoice {
      * @param quest
      * @throws Exception
      */
-    static public void addIfNeededMultipleChoiceQuestionFromView(QuestionMultipleChoiceView quest) throws Exception {
+    static public void addIfNeededMultipleChoiceQuestionFromView(QuestionView quest) throws Exception {
         // Check if the question exists already
         if (checkIfExists(quest))
             return;
@@ -368,7 +368,7 @@ public class DbTableQuestionMultipleChoice {
         return correctionMode;
     }
 
-    private static void QuestionMultipleChoiceViewFromRecord(QuestionMultipleChoiceView questionMultipleChoice, ResultSet rs) throws SQLException {
+    private static void QuestionMultipleChoiceViewFromRecord(QuestionView questionMultipleChoice, ResultSet rs) throws SQLException {
         questionMultipleChoice.setID(rs.getString("ID_GLOBAL"));
         questionMultipleChoice.setLEVEL(rs.getString("LEVEL"));
         questionMultipleChoice.setQUESTION(rs.getString("QUESTION"));
@@ -389,8 +389,8 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setTYPE(0);
     }
 
-    static public Vector<QuestionMultipleChoiceView> getQuestionsMultipleChoiceView() {
-        Vector<QuestionMultipleChoiceView> questions = new Vector<>();
+    static public Vector<QuestionView> getQuestionsMultipleChoiceView() {
+        Vector<QuestionView> questions = new Vector<>();
         Connection c = null;
         Statement stmt = null;
         stmt = null;
@@ -402,7 +402,7 @@ public class DbTableQuestionMultipleChoice {
             String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                QuestionMultipleChoiceView qcm = new QuestionMultipleChoiceView();
+                QuestionView qcm = new QuestionView();
                 QuestionMultipleChoiceViewFromRecord(qcm, rs);
                 questions.add(qcm);
             }
@@ -415,6 +415,23 @@ public class DbTableQuestionMultipleChoice {
         }
 
         return questions;
+    }
+
+    static public QuestionView getQuestionMultipleChoiceView(String idGlobal) {
+        QuestionView questionView = new QuestionView();
+        String query = "SELECT * FROM multiple_choice_questions WHERE ID_GLOBAL = ?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement pstmt = c.prepareStatement(query)) {
+            pstmt.setString(1, idGlobal);
+            ResultSet rs = pstmt.executeQuery();
+            QuestionMultipleChoiceViewFromRecord(questionView, rs);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return questionView;
     }
 
 

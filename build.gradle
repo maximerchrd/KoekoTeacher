@@ -18,6 +18,7 @@ dependencies {
     runtime 'mysql:mysql-connector-java:5.1.23'
     compile 'com.github.kenglxn.QRGen:javase:2.5.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
 }
 buildscript {
     ext.kotlin_version = '1.2.71'

@@ -1,5 +1,6 @@
 package koeko.Networking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import koeko.Koeko;
 import koeko.Tools.FilesHandler;
 import koeko.controllers.LearningTrackerController;
@@ -18,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import koeko.view.QuestionView;
 
 import java.io.*;
 import java.net.*;
@@ -182,55 +184,29 @@ public class NetworkCommunication {
     }
 
     public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
-        QuestionMultipleChoice questionMultipleChoice = null;
-        questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
+        QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
         if (questionMultipleChoice.getQUESTION().length() > 0) {
-            String question_text = questionMultipleChoice.getQUESTION() + "///";
-            question_text += questionMultipleChoice.getOPT0() + "///";
-            question_text += questionMultipleChoice.getOPT1() + "///";
-            question_text += questionMultipleChoice.getOPT2() + "///";
-            question_text += questionMultipleChoice.getOPT3() + "///";
-            question_text += questionMultipleChoice.getOPT4() + "///";
-            question_text += questionMultipleChoice.getOPT5() + "///";
-            question_text += questionMultipleChoice.getOPT6() + "///";
-            question_text += questionMultipleChoice.getOPT7() + "///";
-            question_text += questionMultipleChoice.getOPT8() + "///";
-            question_text += questionMultipleChoice.getOPT9() + "///";
-            question_text += questionMultipleChoice.getID() + "///";
-            question_text += questionMultipleChoice.getNB_CORRECT_ANS() + "///";
-            Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
-            int l = 0;
-            for (l = 0; l < subjectsVector.size(); l++) {
-                question_text += subjectsVector.get(l) + "|||";
-            }
-            if (l == 0) question_text += " ";
-            question_text += "///";
-            Vector<String> objectivesVector = DbTableLearningObjectives.getObjectiveForQuestionID(questionMultipleChoice.getID());
-            for (l = 0; l < objectivesVector.size(); l++) {
-                question_text += objectivesVector.get(l) + "|||";
-            }
-            if (l == 0) question_text += " ";
-            question_text += "///";
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionMultipleChoice);
 
-            // send file : the sizes of the file and of the text are given in the one 80 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
             int intfileLength = 0;
-            File myFile = new File(questionMultipleChoice.getIMAGE());
-            if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
-                question_text += questionMultipleChoice.getIMAGE().split("/")[questionMultipleChoice.getIMAGE().split("/").length - 1];
-                intfileLength = (int) myFile.length();
-            } else {
-                question_text += questionMultipleChoice.getIMAGE() + "///";
+            File imageFile = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+            if (!questionMultipleChoice.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+                SendMediaFile(imageFile, student);
             }
 
-            //writing of the one 80 bytes
-            byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
+            //writing of the first 80 bytes
+            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[prefixSize + textbyteslength + intfileLength];
-            String fileLength;
-            fileLength = "MULTQ";
-            fileLength += ":" + String.valueOf(intfileLength);
-            fileLength += ":" + String.valueOf(textbyteslength) + ":";
-            System.out.println("fileLength: " + fileLength);
+            DataPrefix dataPrefix = new DataPrefix(DataPref.multq, String.valueOf(textbyteslength), "", "");
+            String stringPrefix = dataPrefix.parseToString();
+            byte[] prefixBytes = new byte[prefixSize];
+            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
+                prefixBytes[i] = stringPrefix.getBytes()[i];
+            }
+            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
+            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
 
             //for testing
             if (functionalTesting.transferRateTesting) {
@@ -238,26 +214,8 @@ public class NetworkCommunication {
                 NetworkCommunication.sendingStartTime = System.nanoTime();
             }
 
-            byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
-            for (int k = 0; k < bytearraystring.length; k++) {
-                bytearray[k] = bytearraystring[k];
-            }
-
-            //copy the textbytes into the array which will be sent
-            for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + prefixSize] = bytearraytext[k];
-            }
-
-            //write the file into the bytearray
-            if (!questionMultipleChoice.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
-                fis = new FileInputStream(myFile);
-                bis = new BufferedInputStream(fis);
-                bis.read(bytearray, prefixSize + textbyteslength, intfileLength);
-            }
-            System.out.println("Sending " + questionMultipleChoice.getIMAGE() + "(" + intfileLength + " bytes)");
-            int arraylength = bytearray.length;
-            System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, questionID, bytearray);
+            writeToOutputStream(student, questionID, wholeBytesArray);
+            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
 
             networkStateSingleton.getQuestionIdsToSend().add(questionID);
             sendOnlyId(student, questionID);
@@ -265,76 +223,33 @@ public class NetworkCommunication {
     }
 
     public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
-        QuestionShortAnswer questionShortAnswer = null;
-        questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
+        QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
+
         if (questionShortAnswer.getQUESTION().length() > 0) {
-            String question_text = questionShortAnswer.getQUESTION() + "///";
-            question_text += questionShortAnswer.getID() + "///";
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionShortAnswer);
 
-            //add answers
-            ArrayList<String> answersArray = questionShortAnswer.getANSWER();
-            for (int i = 0; i < answersArray.size(); i++) {
-                question_text += answersArray.get(i) + "|||";
-            }
-            if (answersArray.size() == 0) question_text += " ";
-            question_text += "///";
-
-            //add subjects
-            Vector<String> subjectsVector = DbTableSubject.getSubjectsForQuestionID(questionID);
-            int l = 0;
-            for (l = 0; l < subjectsVector.size(); l++) {
-                question_text += subjectsVector.get(l) + "|||";
-            }
-            if (l == 0) question_text += " ";
-            question_text += "///";
-
-            //add objectives
-            Vector<String> objectivesVector = DbTableLearningObjectives.getObjectiveForQuestionID(questionShortAnswer.getID());
-            for (l = 0; l < objectivesVector.size(); l++) {
-                question_text += objectivesVector.get(l) + "|||";
-            }
-            if (l == 0) question_text += " ";
-            question_text += "///";
-
-            // send file : the sizes of the file and of the text are given in the one 80 bytes (separated by ":")
+            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
             int intfileLength = 0;
-            File myFile = new File(questionShortAnswer.getIMAGE());
-            ;
-            if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
-                question_text += questionShortAnswer.getIMAGE().split("/")[questionShortAnswer.getIMAGE().split("/").length - 1];
-                intfileLength = (int) myFile.length();
-            } else {
-                question_text += questionShortAnswer.getIMAGE() + "///";
+            File imageFile = new File(questionShortAnswer.getIMAGE());
+            if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+                SendMediaFile(imageFile, student);
             }
 
-            //writing of the one 80 bytes
-            byte[] bytearraytext = question_text.getBytes(Charset.forName("UTF-8"));
+            //writing of the first 80 bytes
+            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
             int textbyteslength = bytearraytext.length;
-            byte[] bytearray = new byte[prefixSize + textbyteslength + intfileLength];
-            String fileLength;
-            fileLength = "SHRTA";
-            fileLength += ":" + String.valueOf(intfileLength);
-            fileLength += ":" + String.valueOf(textbyteslength) + ":";
-            byte[] bytearraystring = fileLength.getBytes(Charset.forName("UTF-8"));
-            for (int k = 0; k < bytearraystring.length; k++) {
-                bytearray[k] = bytearraystring[k];
+            DataPrefix dataPrefix = new DataPrefix(DataPref.shrta, String.valueOf(textbyteslength), "", "");
+            String stringPrefix = dataPrefix.parseToString();
+            byte[] prefixBytes = new byte[prefixSize];
+            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
+                prefixBytes[i] = stringPrefix.getBytes()[i];
             }
+            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
+            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
 
-            //copy the textbytes into the array which will be sent
-            for (int k = 0; k < bytearraytext.length; k++) {
-                bytearray[k + prefixSize] = bytearraytext[k];
-            }
-
-            //write the file into the bytearray   !!! tested up to 630000 bytes, does not work with file of 4,7MB
-            if (!questionShortAnswer.getIMAGE().equals("none") && myFile.exists() && !myFile.isDirectory()) {
-                fis = new FileInputStream(myFile);
-                bis = new BufferedInputStream(fis);
-                bis.read(bytearray, prefixSize + textbyteslength, intfileLength);
-            }
-            System.out.println("Sending " + questionShortAnswer.getIMAGE() + "(" + intfileLength + " bytes)");
-            int arraylength = bytearray.length;
-            System.out.println("Sending " + arraylength + " bytes in total");
-            writeToOutputStream(student, questionID, bytearray);
+            writeToOutputStream(student, questionID, wholeBytesArray);
+            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
 
             networkStateSingleton.getQuestionIdsToSend().add(questionID);
             sendOnlyId(student, questionID);
@@ -597,7 +512,8 @@ public class NetworkCommunication {
 
             //build info prefix
             String mediaName = mediaFile.getName();
-            if (mediaName.length() > 14) {
+            List<String> extensions = Arrays.asList(FilesHandler.supportedMediaExtensions);
+            if (extensions.contains("*." + mediaName.substring(mediaName.length() - 3, mediaName.length())) && mediaName.length() > 14) {
                 mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
             }
 

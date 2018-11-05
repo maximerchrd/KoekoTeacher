@@ -13,6 +13,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
+import koeko.Tools.FilesHandler;
 import koeko.controllers.EditQuestionController;
 import koeko.controllers.TestControlling.EditTestController;
 import koeko.controllers.controllers_tools.Toast;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.logging.FileHandler;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -109,7 +111,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
 
             setText(item.getQuestion());
             if (Long.valueOf(item.getGlobalID()) > 0) {
-                String url = "file:" + item.getImagePath();
+                String url = "file:" + FilesHandler.mediaDirectory + item.getImagePath();
                 image = new ImageView(new Image(url, imageSize, imageSize, true, true));
             } else {
                 if (item.getTypeOfQuestion().contentEquals("TEFO")) {
