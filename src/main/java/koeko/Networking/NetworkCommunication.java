@@ -1,5 +1,6 @@
 package koeko.Networking;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import koeko.Koeko;
 import koeko.Tools.FilesHandler;
@@ -42,7 +43,7 @@ public class NetworkCommunication {
 
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
-    private int network_solution = 1; //0: all devices connected to same wifi router
+    private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
@@ -263,6 +264,8 @@ public class NetworkCommunication {
             testToSend.setMedalsInstructions(DbTableTest.getMedals(testToSend.getTestName()));
             byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
             writeToOutputStream(student, bytesArray);
+        } catch (JsonProcessingException e1) {
+            e1.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

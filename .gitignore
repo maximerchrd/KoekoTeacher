@@ -1,3 +1,6 @@
+*.db
+media/*
+logs/*
 pictures/*
 questions/*
 .idea

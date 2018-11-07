@@ -145,7 +145,8 @@ public class DbTableTest {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT NAME,TEST_MODE, MEDIA_FILE, SEND_MEDIA_FILE FROM test WHERE ID_TEST_GLOBAL = '" + testID + "';";
+            String query = "SELECT NAME,TEST_MODE, MEDIA_FILE, SEND_MEDIA_FILE, MODIF_DATE" +
+                    " FROM test WHERE ID_TEST_GLOBAL = '" + testID + "';";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 newTest = new Test();
@@ -153,6 +154,7 @@ public class DbTableTest {
                 newTest.setTestMode(rs.getInt("TEST_MODE"));
                 newTest.setMediaFileName(rs.getString("MEDIA_FILE"));
                 newTest.setSendMediaFile(rs.getInt("SEND_MEDIA_FILE"));
+                newTest.setUpdateTime(rs.getString("MODIF_DATE"));
                 newTest.setIdTest(testID);
             }
             stmt.close();

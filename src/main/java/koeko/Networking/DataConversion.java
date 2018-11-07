@@ -9,19 +9,36 @@ import koeko.database_management.DbTableRelationQuestionQuestion;
 import koeko.database_management.DbTableSubject;
 import koeko.questions_management.Test;
 import koeko.view.SubjectsAndObjectivesForQuestion;
+import koeko.view.TestView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DataConversion {
-    static public byte[] testToBytesArray(Test test) {
-        String testString = "";
-        testString += test.getIdTest() + "///";
-        testString += test.getTestName() + "///";
+    static public byte[] testToBytesArray(Test test) throws JsonProcessingException {
+        TestView testView = new TestView();
+        testView.setIdTest(test.getIdTest());
+        testView.setTestName(test.getTestName());
+        testView.setTestMode(test.getTestMode());
+
+        String objectives = "";
+        for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
+            objectives += test.getObjectivesIDs().get(i) + "/|/";
+            objectives += test.getObjectives().get(i) + "|||";
+        }
+        testView.setObjectives(objectives);
+        testView.setMedalInstructions(DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName()));
+        //shorten media file name
+        if (test.getSendMediaFile() == 1 && test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
+            testView.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
+        }
+
         String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
-        testString += testMap;
+        testView.setTestMap(testMap);
+        testView.setUpdateTime(Timestamp.valueOf(test.getUpdateTime()));
 
         //insert the question ids into the test
         ArrayList<String> questionIDs = new ArrayList<>();
@@ -33,23 +50,10 @@ public class DataConversion {
         }
         test.setIdsQuestions(questionIDs);
 
-        testString += "///";
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testView);
 
-        for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
-            testString += test.getObjectivesIDs().get(i) + "/|/";
-            testString += test.getObjectives().get(i) + "|||";
-        }
-        testString += "///";
-        testString += test.getTestMode() + "///";
-        testString += test.getMedalsInstructions() + "///";
-
-        //shorten media file name
-        if (test.getSendMediaFile() == 1 && test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
-            test.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
-            testString += test.getMediaFileName() + "///";
-        }
-
-        byte[] bytearraytest = testString.getBytes();
+        byte[] bytearraytest = jsonString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
         String prefix = "TEST:" + textDataSize + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
@@ -60,10 +64,8 @@ public class DataConversion {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
         try {
-            synchronized (outputStream) {
-                outputStream.write(wholeByteArray);
-                outputStream.write(bytearraytest);
-            }
+            outputStream.write(wholeByteArray);
+            outputStream.write(bytearraytest);
         } catch (IOException e) {
             e.printStackTrace();
         }

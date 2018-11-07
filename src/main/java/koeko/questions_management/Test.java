@@ -1,5 +1,6 @@
 package koeko.questions_management;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
@@ -19,6 +20,7 @@ public class Test {
     private Boolean isSynchroneousQuestionsTest;
     private Integer testMode;   //0: certificative test; 1: formative test
     private String medalsInstructions;
+    private String updateTime;
 
     public Test() {
         this.testName = "";
@@ -89,6 +91,10 @@ public class Test {
         return sendMediaFile;
     }
 
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
     //setter
     public void setTestEvaluation(Double testEvaluation) {
         this.testEvaluation = testEvaluation;
@@ -142,4 +148,7 @@ public class Test {
         this.sendMediaFile = sendMediaFile;
     }
 
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
 }
