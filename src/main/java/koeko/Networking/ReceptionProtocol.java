@@ -24,6 +24,16 @@ public class ReceptionProtocol {
         }
         student.setStudentID(studentID);
 
+        //get the device infos if android
+        if (answerString.split("///").length >= 4) {
+            String[] infos = answerString.split("///")[3].split(":");
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
+                    .put(student.getUniqueDeviceID(), infos);
+        } else {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
+                    .put(student.getUniqueDeviceID(), new String[]{"IOS"});
+        }
+
         //update the tracking of questions on device
         if (networkState.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
             networkState.getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
