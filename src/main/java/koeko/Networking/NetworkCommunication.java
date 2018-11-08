@@ -26,6 +26,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,6 +52,7 @@ public class NetworkCommunication {
     private NetworkState networkStateSingleton;
     private BlockingQueue<PayloadForSending> sendingQueue;
     private AtomicBoolean queueIsFinished;
+    private PrintWriter writer;
 
     //For speed testing
     static public Long sendingStartTime = 0L;
@@ -66,6 +68,16 @@ public class NetworkCommunication {
         networkStateSingleton = new NetworkState();
         this.sendingQueue = new LinkedBlockingQueue<>();
         queueIsFinished = new AtomicBoolean(true);
+        try {
+            writer = new PrintWriter("test_output.txt", "UTF-8");
+            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+            writer.println(timeStamp + "\t" + "start");
+            writer.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public LearningTrackerController getLearningTrackerController() {
@@ -302,7 +314,6 @@ public class NetworkCommunication {
      * @throws IOException
      */
     private void listenForClient(final Student arg_student) throws IOException {
-        //for (int i = 0; i < aClass.getClassSize(); i++) {
         final InputStream answerInStream = arg_student.getInputStream();
         Thread listeningthread = new Thread() {
             public void run() {
@@ -317,7 +328,7 @@ public class NetworkCommunication {
                         }
                         if (bytesread >= 0) {
                             String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
-                            System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + "bytes:" + answerString);
+                            System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + " message:" + answerString);
                             if (answerString.split("///")[0].contains("ANSW")) {
                                 //arg_student.setName(answerString.split("///")[2]);
                                 double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
@@ -382,7 +393,7 @@ public class NetworkCommunication {
                                         DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
                                     }
                                 }
-                            } else if (answerString.split("///")[0].contains("CONN")) {
+                            } else if (answerString.split("///")[0].contentEquals("CONN")) {
                                 ReceptionProtocol.receivedCONN(arg_student, answerString, aClass, networkStateSingleton);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
@@ -473,6 +484,10 @@ public class NetworkCommunication {
                                 }
                             } else if (answerString.contains("ENDTRSM")) {
                                 sendActiveIds(arg_student);
+                            } else if (answerString.contains("RECONNECTED")) {
+                                String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                                writer.println(timeStamp + "\t" + answerString.split("///")[1]);
+                                writer.flush();
                             }
                         } else {
                             System.out.println("Communication over?");
@@ -493,6 +508,7 @@ public class NetworkCommunication {
                         }
                     }
                 }
+                writer.close();
             }
         };
         listeningthread.start();
