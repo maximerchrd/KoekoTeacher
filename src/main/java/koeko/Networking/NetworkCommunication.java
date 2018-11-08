@@ -165,19 +165,8 @@ public class NetworkCommunication {
                 for (int i = 0; i < prefixBytesArray.length && i < prefixSize; i++) {
                     idBytearraystring[i] = prefixBytesArray[i];
                 }
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                try {
-                    synchronized (outputStream) {
-                        outputStream.write(idBytearraystring);
-                        outputStream.flush();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                byte bytearraystring[] = outputStream.toByteArray();
-                System.out.println("sending question: " + new String(bytearraystring) + " to single student");
-                writeToOutputStream(student, bytearraystring);
+                System.out.println("sending question: " + new String(idBytearraystring) + " to single student");
+                writeToOutputStream(student, idBytearraystring);
             } else {
                 System.out.println("Problem sending ID: outputstream is null; probably didnt receive acknowledgment of receipt on time");
             }
@@ -795,7 +784,9 @@ public class NetworkCommunication {
     private void writeToOutputStream(Student student, String sentID, byte[] bytearray) {
         if (student == null) {
             //change if necessary sync status of student
-            networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
+            if (sentID != null) {
+                networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
+            }
             for (Student singleStudent : aClass.getStudents_vector()) {
                 if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
                         || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
@@ -816,7 +807,9 @@ public class NetworkCommunication {
             }
         } else {
             //change if necessary sync status of student
-            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
+            if (sentID != null) {
+                networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
+            }
             if (sentID == null || SettingsController.forceSync == 1
                     || !networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
                 try {
