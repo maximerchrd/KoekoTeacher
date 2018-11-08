@@ -30,7 +30,7 @@ public class DataConversion {
             objectives += test.getObjectives().get(i) + "|||";
         }
         testView.setObjectives(objectives);
-        testView.setMedalInstructions(DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName()));
+        testView.setMedalInstructions(test.getMedalsInstructions());
         //shorten media file name
         if (test.getSendMediaFile() == 1 && test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
             testView.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
@@ -38,7 +38,7 @@ public class DataConversion {
 
         String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
         testView.setTestMap(testMap);
-        testView.setUpdateTime(Timestamp.valueOf(test.getUpdateTime()));
+        testView.setUpdateTime(test.getUpdateTime());
 
         //insert the question ids into the test
         ArrayList<String> questionIDs = new ArrayList<>();
@@ -55,7 +55,7 @@ public class DataConversion {
 
         byte[] bytearraytest = jsonString.getBytes();
         String textDataSize = String.valueOf(bytearraytest.length);
-        String prefix = "TEST:" + textDataSize + "///";
+        String prefix = "TEST///" + textDataSize + "///";
         byte[] byteArrayPrefix = prefix.getBytes();
         byte[] wholeByteArray = new byte[80];
         for (int i = 0; i < byteArrayPrefix.length; i++) {
@@ -138,7 +138,7 @@ public class DataConversion {
         String[] objectivesAr = new String[objectives.size()];
         subjectsAr = subjects.toArray(subjectsAr);
         objectivesAr = objectives.toArray(objectivesAr);
-        SubjectsAndObjectivesForQuestion subNObj = new SubjectsAndObjectivesForQuestion(objectivesAr, subjectsAr);
+        SubjectsAndObjectivesForQuestion subNObj = new SubjectsAndObjectivesForQuestion(objectivesAr, subjectsAr, questionID);
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = "";
         try {

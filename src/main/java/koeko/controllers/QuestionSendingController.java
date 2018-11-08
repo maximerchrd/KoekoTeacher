@@ -278,7 +278,14 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (empty) {
                     setText(null);
                     setGraphic(null);
+                    setStyle("");
                 } else {
+                    //set correct background for activation
+                    if (questionGeneric.getActivated()) {
+                        setStyle("-fx-background-color:#ff9999;");
+                    } else {
+                        setStyle("");
+                    }
                     HBox hBox = new HBox();
                     javafx.scene.control.Button buttonDelete = new javafx.scene.control.Button("X");
                     buttonDelete.setTooltip(
@@ -542,6 +549,12 @@ public class QuestionSendingController extends Window implements Initializable {
             } else {
                 activateTestSynchroneousQuestions();
             }
+            //mark the question/test as activated
+            for (QuestionGeneric questionGeneric1 : readyQuestionsList.getItems()) {
+                questionGeneric1.setActivated(false);
+            }
+            readyQuestionsList.getSelectionModel().getSelectedItem().setActivated(true);
+            readyQuestionsList.refresh();
         }
 
         //keep track of which questions are activated for which students in which group
@@ -615,7 +628,15 @@ public class QuestionSendingController extends Window implements Initializable {
         }
         if (index >= 0) {
             Koeko.studentGroupsAndClass.get(group).getActiveIDs().remove(index);
+            //remove activation if it was activated
+            if (NetworkCommunication.networkCommunicationSingleton
+                    .getNetworkStateSingleton().getActiveID().contentEquals(readyQuestionsList.getItems().get(index).getGlobalID())) {
+                NetworkCommunication.networkCommunicationSingleton
+                        .getNetworkStateSingleton().setActiveID("");
+                readyQuestionsList.getItems().get(index).setActivated(false);
+            }
             readyQuestionsList.getItems().remove(index);
+            readyQuestionsList.refresh();
         }
     }
     public void removeQuestion(int index) {

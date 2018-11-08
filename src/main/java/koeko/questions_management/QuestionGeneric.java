@@ -13,6 +13,7 @@ public class QuestionGeneric {
     private int intTypeOfQuestion;
     private int indexInList;
     private String globalID;
+    private Boolean activated;
     public QuestionGeneric () {
         typeOfQuestion = "undefined";
         indexInList = -1;
@@ -20,24 +21,28 @@ public class QuestionGeneric {
         intTypeOfQuestion = -1;
         question = "question not initialized";
         imagePath = "";
+        activated = false;
     }
     public QuestionGeneric(String typeoflist, int indexinlist) {
         typeOfQuestion = typeoflist;
         indexInList = indexinlist;
+        activated = false;
     }
     public QuestionGeneric(int typeofQuest, String GlobalID) {
         intTypeOfQuestion = typeofQuest;
         globalID = GlobalID;
+        activated = false;
     }
     public String getGlobalID() {
         globalID = globalID.replace("--", "");
         return globalID;
     }
-    public void setGlobalID(String globalID) {
-        this.globalID = globalID;
+
+    public String getTypeOfQuestion() {
+        return typeOfQuestion;
     }
-    public void setTypeOfQuestion(String typeofquestion) {
-        typeOfQuestion = typeofquestion;
+    public int getIndexInList() {
+        return indexInList;
     }
     public int getIntTypeOfQuestion() {
         return intTypeOfQuestion;
@@ -48,7 +53,16 @@ public class QuestionGeneric {
     public String getImagePath() {
         return imagePath;
     }
+    public Boolean getActivated() {
+        return activated;
+    }
 
+    public void setGlobalID(String globalID) {
+        this.globalID = globalID;
+    }
+    public void setTypeOfQuestion(String typeofquestion) {
+        typeOfQuestion = typeofquestion;
+    }
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
@@ -58,14 +72,11 @@ public class QuestionGeneric {
     public void setIndexInList(int indexinlist) {
         indexInList = indexinlist;
     }
-    public String getTypeOfQuestion() {
-        return typeOfQuestion;
-    }
-    public int getIndexInList() {
-        return indexInList;
-    }
     public void setIntTypeOfQuestion(int intTypeOfQuestion) {
         this.intTypeOfQuestion = intTypeOfQuestion;
+    }
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
     }
 
     //other methods
