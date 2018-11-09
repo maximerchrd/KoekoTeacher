@@ -8,12 +8,13 @@ import koeko.students_management.Student;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReceptionProtocol {
 
-    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass, NetworkState networkState) {
+    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass) {
         Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
         student.setConnected(true);
         student.setUniqueDeviceID(answerString.split("///")[1]);
@@ -27,19 +28,47 @@ public class ReceptionProtocol {
         //get the device infos if android
         if (answerString.split("///").length >= 4) {
             String[] infos = answerString.split("///")[3].split(":");
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
-                    .put(student.getUniqueDeviceID(), infos);
+            if (infos.length >= 4) {
+                Integer sdklevel = 0;
+                try {
+                    sdklevel = Integer.valueOf(infos[1]);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+                Boolean ble = false;
+                if (infos[2].contentEquals("BLE")) {
+                    ble = true;
+                }
+                Long googleServicesVersion = 0L;
+                try {
+                    googleServicesVersion = Long.valueOf(infos[3]);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+                DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion);
+                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
+                        .put(student.getUniqueDeviceID(), deviceInfo);
+            }
         } else {
             NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
-                    .put(student.getUniqueDeviceID(), new String[]{"IOS"});
+                    .put(student.getUniqueDeviceID(), new DeviceInfo(student.getUniqueDeviceID(),"IOS", 0, false, 0L));
         }
 
+        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                .add(student.getUniqueDeviceID());
+
         //update the tracking of questions on device
-        if (networkState.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
-            networkState.getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
-            networkState.getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
-            networkState.getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
+        if (NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                .getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
         }
+
+        activateNearbyIfNecessary();
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
@@ -50,7 +79,7 @@ public class ReceptionProtocol {
                                     ArrayList<ArrayList<String>> studentNamesForGroups) {
         double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
                 answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-        NetworkCommunication.networkCommunicationSingleton.SendEvaluation(eval, answerString.split("///")[5], arg_student);
+        NetworkCommunication.networkCommunicationSingleton.sendEvaluation(eval, answerString.split("///")[5], arg_student);
 
         //find out to which group the student and answer belong
         Integer groupIndex = 0;
@@ -72,7 +101,7 @@ public class ReceptionProtocol {
         if (!nextQuestion.contentEquals("-1")) {
             Vector<Student> singleStudent = new Vector<>();
             singleStudent.add(arg_student);
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(nextQuestion, singleStudent);
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(nextQuestion, singleStudent);
         }
 
         //set evaluation if question belongs to a test
@@ -109,6 +138,51 @@ public class ReceptionProtocol {
 
         if (answerString.contains("ENDTRSM")) {
             NetworkCommunication.networkCommunicationSingleton.sendActiveIds(student);
+        }
+    }
+
+    private static void activateNearbyIfNecessary() {
+        NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
+        if (NetworkCommunication.network_solution == 1 && networkState.getStudentsToConnectionStatus().size() >= NetworkCommunication.maximumSupportedDevices - 1) {
+            System.out.println("Trying to activate nearby connections");
+            ArrayList<DeviceInfo> potentialAdvertisers = new ArrayList<>();
+            ArrayList<DeviceInfo> potentialDiscoverers = new ArrayList<>();
+            for (Map.Entry<String, DeviceInfo> entry : networkState.getStudentsToDeviceInfos().entrySet()) {
+                DeviceInfo deviceInfo = entry.getValue();
+                if (deviceInfo.getGoogleServicesVersion() >= 12451000) {
+                    if (deviceInfo.getBle()) {
+                        potentialAdvertisers.add(deviceInfo);
+                    } else if (deviceInfo.getOs().contentEquals("android")) {
+                        potentialDiscoverers.add(deviceInfo);
+                    }
+                }
+            }
+
+            if (potentialAdvertisers.size() > 0) {
+                DeviceInfo mostRecentAndroid = new DeviceInfo();
+                DeviceInfo discoverer = new DeviceInfo();
+                for (DeviceInfo deviceInfo : potentialAdvertisers) {
+                    if (mostRecentAndroid.getSdkLevel() < deviceInfo.getSdkLevel()) {
+                        mostRecentAndroid = deviceInfo;
+                    }
+                }
+                potentialAdvertisers.remove(mostRecentAndroid);
+
+                if (potentialAdvertisers.size() > 5) {
+                    discoverer = potentialAdvertisers.get(0);
+                } else if (potentialDiscoverers.size() > 0) {
+                    discoverer = potentialDiscoverers.get(0);
+                } else if (potentialAdvertisers.size() > 0) {
+                    discoverer = potentialAdvertisers.get(0);
+                } else {
+                    System.out.println("PROBLEM: Wifi saturated without possibility of starting new nearby node (less than 2 suitable androids)");
+                }
+
+                NetworkCommunication.networkCommunicationSingleton.activateAsAdvertiser(mostRecentAndroid.getUniqueId());
+                NetworkCommunication.networkCommunicationSingleton.activateAsDiscoverer(discoverer.getUniqueId());
+            } else {
+                System.out.println("PROBLEM: Wifi saturated without possibility of starting new nearby node");
+            }
         }
     }
 }

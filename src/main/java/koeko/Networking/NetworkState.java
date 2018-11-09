@@ -17,7 +17,8 @@ public class NetworkState {
 
     private String activeID = "";
     private Map<String, String> studentsToActiveIdMap;
-    private Map<String, String[]> studentsToDeviceInfos;
+    private Map<String, DeviceInfo> studentsToDeviceInfos;
+    private List<String> studentsToConnectionStatus; //0: not connected; 1: connected
 
 
     public NetworkState() {
@@ -26,6 +27,7 @@ public class NetworkState {
         this.studentsToReadyMap = Collections.synchronizedMap(new LinkedHashMap<>());
         this.studentsToActiveIdMap = Collections.synchronizedMap(new LinkedHashMap<>());
         this.studentsToDeviceInfos = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.studentsToConnectionStatus = new CopyOnWriteArrayList<>();
     }
 
     public void toggleSyncStateForStudent(Student student, Integer state) {
@@ -92,11 +94,19 @@ public class NetworkState {
         this.studentsToActiveIdMap = studentsToActiveIdMap;
     }
 
-    public Map<String, String[]> getStudentsToDeviceInfos() {
+    public Map<String, DeviceInfo> getStudentsToDeviceInfos() {
         return studentsToDeviceInfos;
     }
 
-    public void setStudentsToDeviceInfos(Map<String, String[]> studentsToDeviceInfos) {
+    public void setStudentsToDeviceInfos(Map<String, DeviceInfo> studentsToDeviceInfos) {
         this.studentsToDeviceInfos = studentsToDeviceInfos;
+    }
+
+    public List<String> getStudentsToConnectionStatus() {
+        return studentsToConnectionStatus;
+    }
+
+    public void setStudentsToConnectionStatus(List<String> studentsToConnectionStatus) {
+        this.studentsToConnectionStatus = studentsToConnectionStatus;
     }
 }

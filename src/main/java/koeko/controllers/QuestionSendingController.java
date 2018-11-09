@@ -338,7 +338,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     String questionID = readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID();
                     Vector<Student> singleStudent = new Vector<>();
                     singleStudent.add(student);
-                    NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionID,singleStudent);
+                    NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionID,singleStudent);
                 }
             });
             studentsContextMenu.getItems().add(studentItem);
@@ -545,7 +545,7 @@ public class QuestionSendingController extends Window implements Initializable {
             stage.show();
         } else {
             if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
-                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID(), students);
+                NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionGeneric.getGlobalID(), students);
             } else {
                 activateTestSynchroneousQuestions();
             }
@@ -649,7 +649,7 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void sendCorrection() {
-        NetworkCommunication.networkCommunicationSingleton.SendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+        NetworkCommunication.networkCommunicationSingleton.sendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
     }
 
     public void importQuestions() {
@@ -1005,7 +1005,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
             }
 
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
         } else {
             System.out.println("No test is selected");
         }
@@ -1240,7 +1240,7 @@ public class QuestionSendingController extends Window implements Initializable {
         String mediaFileName = DbTableTest.getMediaFileName(globalID);
         if (mediaFileName.length() > 0) {
             File mediaFile = FilesHandler.getMediaFile(mediaFileName);
-            NetworkCommunication.networkCommunicationSingleton.SendMediaFile(mediaFile, null);
+            NetworkCommunication.networkCommunicationSingleton.sendMediaFile(mediaFile, null);
         }
     }
 

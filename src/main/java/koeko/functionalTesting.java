@@ -179,7 +179,7 @@ public class functionalTesting {
     private static void activateQuestionsPack() {
         Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
         for (String id : questionPack) {
-            NetworkCommunication.networkCommunicationSingleton.SendQuestionID(id, students);
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(id, students);
             //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
             try {
                 Thread.sleep(msDelay);

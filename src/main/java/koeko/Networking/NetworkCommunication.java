@@ -9,8 +9,6 @@ import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.QuestionMultipleChoice;
-import koeko.questions_management.QuestionShortAnswer;
 import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
@@ -42,9 +40,14 @@ public class NetworkCommunication {
     private LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
+    static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
+    static public int maximumSupportedDevices = 3; //max devices that can connect to accesspoint (with computer hosting server)
+    private int nextHotspotNumber = 1;
+    private String hotspotName = "koeko";
+    private ArrayList<String> hostpotPasswords = new ArrayList<>();
+
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
-    private int network_solution = 0; //0: all devices connected to same wifi router
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
@@ -154,7 +157,7 @@ public class NetworkCommunication {
         connectionthread.start();
     }
 
-    public void SendQuestionID(String QuestID, Vector<Student> students) {
+    public void sendQuestionID(String QuestID, Vector<Student> students) {
         System.out.println("Sending question to " + students.size() + " students");
         //if question ID is negative (=test), change its sign
         if (Long.valueOf(QuestID) < 0) {
@@ -195,7 +198,7 @@ public class NetworkCommunication {
             int intfileLength = 0;
             File imageFile = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
             if (!questionMultipleChoice.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-                SendMediaFile(imageFile, student);
+                sendMediaFile(imageFile, student);
             }
 
             //writing of the first 80 bytes
@@ -235,7 +238,7 @@ public class NetworkCommunication {
             int intfileLength = 0;
             File imageFile = new File(questionShortAnswer.getIMAGE());
             if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-                SendMediaFile(imageFile, student);
+                sendMediaFile(imageFile, student);
             }
 
             //writing of the first 80 bytes
@@ -333,7 +336,7 @@ public class NetworkCommunication {
                                 //arg_student.setName(answerString.split("///")[2]);
                                 double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
                                         answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-                                SendEvaluation(eval, answerString.split("///")[5], arg_student);
+                                sendEvaluation(eval, answerString.split("///")[5], arg_student);
 
                                 //find out to which group the student and answer belong
                                 Integer groupIndex = -1;
@@ -367,7 +370,7 @@ public class NetworkCommunication {
                                 if (!nextQuestion.contentEquals("-1")) {
                                     Vector<Student> singleStudent = new Vector<>();
                                     singleStudent.add(arg_student);
-                                    SendQuestionID(nextQuestion, singleStudent);
+                                    sendQuestionID(nextQuestion, singleStudent);
                                 }
 
                                 //set evaluation if question belongs to a test
@@ -394,7 +397,7 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contentEquals("CONN")) {
-                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass, networkStateSingleton);
+                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
                                 Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
@@ -412,6 +415,8 @@ public class NetworkCommunication {
                                 student.setName(answerString.split("///")[2]);
                                 student.setConnected(false);
                                 if (answerString.contains("close-connection")) {
+                                    NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                                            .add(student.getUniqueDeviceID());
                                     learningTrackerController.userDisconnected(student);
 
                                     System.out.println("Student device really disconnecting. We should close the connection");
@@ -430,6 +435,8 @@ public class NetworkCommunication {
                                     arg_student.setInputStream(null);
                                     ableToRead = false;
                                 } else {
+                                    NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                                            .add(student.getUniqueDeviceID());
                                     disconnectiongStudents.add(student.getUniqueDeviceID());
                                     Thread studentDisconnectionQThread = new Thread() {
                                         public void run() {
@@ -514,7 +521,7 @@ public class NetworkCommunication {
         listeningthread.start();
     }
 
-    public void SendMediaFile(File mediaFile, Student student) {
+    public void sendMediaFile(File mediaFile, Student student) {
         try {
             byte[] fileData = Files.readAllBytes(mediaFile.toPath());
 
@@ -542,7 +549,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void SendEvaluation(double evaluation, String questionID, Student student) {
+    public void sendEvaluation(double evaluation, String questionID, Student student) {
         String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
         System.out.println("sending: " + evalToSend);
         byte[] bytes = new byte[prefixSize];
@@ -569,7 +576,7 @@ public class NetworkCommunication {
         }
     }
 
-    public void UpdateEvaluation(double evaluation, String questionID, String studentID) {
+    public void updateEvaluation(double evaluation, String questionID, String studentID) {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "";
 
@@ -592,7 +599,7 @@ public class NetworkCommunication {
         writeToOutputStream(student, bytes);
     }
 
-    public void SendCorrection(String questionID) {
+    public void sendCorrection(String questionID) {
         String messageToSend = "CORR///";
         messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0, 4) + "///";
         byte[] bytes = new byte[prefixSize];
@@ -668,7 +675,7 @@ public class NetworkCommunication {
                 }
                 Vector<Student> singleStudent = new Vector<>();
                 singleStudent.add(student);
-                SendQuestionID(questionIds.get(i), singleStudent);
+                sendQuestionID(questionIds.get(i), singleStudent);
             }
             student.setTestQuestions((ArrayList<String>) questionIds.clone());
 
@@ -718,7 +725,7 @@ public class NetworkCommunication {
                         String mediaFileName = DbTableTest.getMediaFileName(activeID);
                         if (mediaFileName.length() > 0) {
                             File mediaFile = FilesHandler.getMediaFile(mediaFileName);
-                            SendMediaFile(mediaFile, student);
+                            sendMediaFile(mediaFile, student);
                         }
                     }
                 }
@@ -733,7 +740,7 @@ public class NetworkCommunication {
                 .contentEquals(networkStateSingleton.getActiveID())) {
             Vector<Student> singleStudent = new Vector<>();
             singleStudent.add(student);
-            SendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
+            sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
         }
     }
 
@@ -749,6 +756,15 @@ public class NetworkCommunication {
             System.arraycopy(id.getBytes(), 0, wholeBytesArray, prefix.length, id.getBytes().length);
             writeToOutputStream(student, wholeBytesArray);
         }
+    }
+
+    private byte[] buildPrefixBytes(String prefix) {
+        byte[] wholePrefix = new byte[NetworkCommunication.prefixSize];
+        byte[] stringPrefix = prefix.getBytes();
+        for (int i = 0; i < stringPrefix.length; i++) {
+            wholePrefix[i] = stringPrefix[i];
+        }
+        return wholePrefix;
     }
 
     private void launchWritingLoop() {
@@ -902,5 +918,22 @@ public class NetworkCommunication {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void activateAsAdvertiser(String uniqueId) {
+        String activationString = "ADVER///";
+        Student student = aClass.getStudentWithUniqueID(uniqueId);
+        writeToOutputStream(student, buildPrefixBytes(activationString));
+        System.out.println("activating: " + student.getName() + " as advertiser");
+    }
+
+    public void activateAsDiscoverer(String uniqueId) {
+        String nextHotspotName = this.hotspotName + this.nextHotspotNumber;
+        String hotspotPassword = String.valueOf(System.nanoTime());
+        this.hostpotPasswords.add(hotspotPassword);
+        String activationString = "DISCOV///" + nextHotspotName + "///" + hotspotPassword + "///";
+        Student student = aClass.getStudentWithUniqueID(uniqueId);
+        writeToOutputStream(student, buildPrefixBytes(activationString));
+        System.out.println("activating: " + student.getName() + " as discoverer");
     }
 }

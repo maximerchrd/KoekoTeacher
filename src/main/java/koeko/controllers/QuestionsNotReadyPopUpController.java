@@ -29,7 +29,7 @@ public class QuestionsNotReadyPopUpController extends Window {
 
     public void sendAnyway() {
             if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
-                NetworkCommunication.networkCommunicationSingleton.SendQuestionID(questionGeneric.getGlobalID(),students);
+                NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionGeneric.getGlobalID(),students);
             } else {
                 Koeko.questionSendingControllerSingleton.activateTestSynchroneousQuestions();
             }

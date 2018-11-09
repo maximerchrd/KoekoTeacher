@@ -39,7 +39,7 @@ public class EditEvaluationController implements Initializable {
     public void saveNewEvaluation() {
         DbTableIndividualQuestionForStudentResult.setEvalForQuestionAndStudentIDs(Double.valueOf(newEval.getText()),
                 identifier);
-        NetworkCommunication.networkCommunicationSingleton.UpdateEvaluation(Double.valueOf(newEval.getText()), globalID, studentID);
+        NetworkCommunication.networkCommunicationSingleton.updateEvaluation(Double.valueOf(newEval.getText()), globalID, studentID);
         Stage stage = (Stage) currentEval.getScene().getWindow();
         stage.close();
     }
