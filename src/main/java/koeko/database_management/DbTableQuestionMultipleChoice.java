@@ -37,6 +37,7 @@ public class DbTableQuestionMultipleChoice {
                     " ID_GLOBAL        INT     NOT NULL, " +
                     " CORRECTION_MODE TEXT, " +
                     " MODIF_DATE       TEXT, " +
+                    " HASH_CODE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch (Exception e) {
@@ -63,8 +64,8 @@ public class DbTableQuestionMultipleChoice {
 
             String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
             preparedStatement = c.prepareStatement(sql);
             preparedStatement.setString(1, quest.getLEVEL());
@@ -83,6 +84,7 @@ public class DbTableQuestionMultipleChoice {
             preparedStatement.setString(14, quest.getIMAGE());
             preparedStatement.setString(15, globalID);
             preparedStatement.setString(16, Utilities.TimestampForNowAsString());
+            preparedStatement.setString(17, quest.computeShortHashCode());
             preparedStatement.executeUpdate();
             preparedStatement.close();
             c.commit();
@@ -204,38 +206,33 @@ public class DbTableQuestionMultipleChoice {
      * @param quest
      * @throws Exception
      */
-    static public void updateMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "UPDATE multiple_choice_questions " +
-                    "SET QUESTION='" + quest.getQUESTION() + "', " +
-                    "OPTION0='" + quest.getOPT0() + "', " +
-                    "OPTION1='" + quest.getOPT1() + "', " +
-                    "OPTION2='" + quest.getOPT2() + "', " +
-                    "OPTION3='" + quest.getOPT3() + "', " +
-                    "OPTION4='" + quest.getOPT4() + "', " +
-                    "OPTION5='" + quest.getOPT5() + "', " +
-                    "OPTION6='" + quest.getOPT6() + "', " +
-                    "OPTION7='" + quest.getOPT7() + "', " +
-                    "OPTION8='" + quest.getOPT8() + "', " +
-                    "OPTION9='" + quest.getOPT9() + "', " +
-                    "NB_CORRECT_ANS='" + quest.getNB_CORRECT_ANS() + "', " +
-                    "IMAGE_PATH='" + quest.getIMAGE() + "', " +
-                    "MODIF_DATE='" + Utilities.TimestampForNowAsString() + "' " +
-                    "WHERE ID_GLOBAL='" + quest.getID() + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
+    static public void updateMultipleChoiceQuestion(QuestionMultipleChoice quest) {
+        String sql = "UPDATE multiple_choice_questions SET QUESTION=?, OPTION0=?, OPTION1=?, OPTION2=?, OPTION3=?," +
+                "OPTION4=?, OPTION5=?, OPTION6=?, OPTION7=?, OPTION8=?, OPTION9=?, NB_CORRECT_ANS=?," +
+                "IMAGE_PATH=?, MODIF_DATE=?, HASH_CODE=? WHERE ID_GLOBAL=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, quest.getQUESTION());
+            stmt.setString(2, quest.getOPT0());
+            stmt.setString(3, quest.getOPT1());
+            stmt.setString(4, quest.getOPT2());
+            stmt.setString(5, quest.getOPT3());
+            stmt.setString(6, quest.getOPT4());
+            stmt.setString(7, quest.getOPT5());
+            stmt.setString(8, quest.getOPT6());
+            stmt.setString(9, quest.getOPT7());
+            stmt.setString(10, quest.getOPT8());
+            stmt.setString(11, quest.getOPT9());
+            stmt.setInt(12, quest.getNB_CORRECT_ANS());
+            stmt.setString(13, quest.getIMAGE());
+            stmt.setTimestamp(14, quest.getQCM_UPD_TMS());
+            stmt.setString(15, quest.computeShortHashCode());
+            stmt.setString(16, quest.getID());
+            stmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
     }
 
@@ -387,6 +384,7 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
         questionMultipleChoice.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
         questionMultipleChoice.setTYPE(0);
+        questionMultipleChoice.setHashCode(rs.getString("HASH_CODE"));
     }
 
     static public Vector<QuestionView> getQuestionsMultipleChoiceView() {
@@ -434,6 +432,39 @@ public class DbTableQuestionMultipleChoice {
         return questionView;
     }
 
+    static public String getResourceHashCode(String uid) {
+        String hashCode = null;
+        String query = "SELECT HASH_CODE FROM multiple_choice_questions WHERE ID_GLOBAL = ?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement pstmt = c.prepareStatement(query)) {
+            pstmt.setString(1, uid);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                hashCode = rs.getString("HASH_CODE");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (hashCode == null) {
+            query = "SELECT MODIF_DATE FROM short_answer_questions WHERE ID_GLOBAL = ?";
+            try (Connection c = Utilities.getDbConnection();
+                 PreparedStatement pstmt = c.prepareStatement(query)) {
+                pstmt.setString(1, uid);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    hashCode = rs.getString("HASH_CODE");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return hashCode;
+    }
 
     static public void setResourceMUID(String idQMC, String muid) {
         Connection c = null;

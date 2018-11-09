@@ -24,6 +24,7 @@ public class DbTableQuestionShortAnswer {
                     " AUTOMATIC_CORRECTION      INT     NOT NULL, " +
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " MODIF_DATE       TEXT, " +
+                    " HASH_CODE       TEXT, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch (Exception e) {
@@ -35,8 +36,8 @@ public class DbTableQuestionShortAnswer {
     static public String addShortAnswerQuestion(QuestionShortAnswer quest) {
         String idGlobal = "-1";
         String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
-                "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE) " +
-                "VALUES (?,?,?,?,?,?,?);";
+                "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE, HASH_CODE) " +
+                "VALUES (?,?,?,?,?,?,?,?);";
         try {
             if (quest.getUID().length() < 15) {
                 idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
@@ -55,6 +56,7 @@ public class DbTableQuestionShortAnswer {
             stmt.setString(5, quest.getIMAGE());
             stmt.setString(6, quest.getUID());
             stmt.setString(7, Utilities.TimestampForNowAsString());
+            stmt.setString(8, quest.computeShortHashCode());
             stmt.executeUpdate();
             stmt.close();
             c.commit();
@@ -70,30 +72,20 @@ public class DbTableQuestionShortAnswer {
     }
 
     static public void updateShortAnswerQuestion(QuestionShortAnswer quest) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "UPDATE short_answer_questions " +
-                    "SET QUESTION='" + quest.getQUESTION() + "', " +
-                    "IMAGE_PATH='" + quest.getIMAGE() + "', " +
-                    "MODIF_DATE='" + Utilities.TimestampForNowAsString() + "' " +
-                    "WHERE ID_GLOBAL='" + quest.getID() + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-            DbTableAnswerOptions.removeOptionsRelationsQuestion(String.valueOf(quest.getID()));
-            for (int i = 0; i < quest.getANSWER().size(); i++) {
-                DbTableAnswerOptions.addAnswerOption(String.valueOf(quest.getID()), quest.getANSWER().get(i));
-            }
+        String sql = "UPDATE short_answer_questions SET QUESTION=?, IMAGE_PATH=?, " +
+                "MODIF_DATE=?, HASH_CODE=? WHERE ID_GLOBAL=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, quest.getQUESTION());
+            stmt.setString(2, quest.getIMAGE());
+            stmt.setString(3, Utilities.TimestampForNowAsString());
+            stmt.setString(4, quest.computeShortHashCode());
+            stmt.setString(5, quest.getID());
+            stmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
     }
 
@@ -296,6 +288,7 @@ public class DbTableQuestionShortAnswer {
                 questionView.setQCM_MUID(rs.getString("IDENTIFIER"));
                 questionView.setIMAGE(rs.getString("IMAGE_PATH"));
                 questionView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+                questionView.setHashCode(rs.getString("HASH_CODE"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

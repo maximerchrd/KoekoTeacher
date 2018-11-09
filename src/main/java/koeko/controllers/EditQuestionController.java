@@ -1,5 +1,7 @@
 package koeko.controllers;
 
+import koeko.Networking.NetworkCommunication;
+import koeko.Networking.NetworkState;
 import koeko.Tools.FilesHandler;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
@@ -259,6 +261,7 @@ public class EditQuestionController implements Initializable {
             new_questshortanswer.setID(questionGeneric.getGlobalID());
             try {
                 DbTableQuestionShortAnswer.updateShortAnswerQuestion(new_questshortanswer);
+                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().unsyncIdAfterUpdate(new_questshortanswer.getID());
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -319,6 +322,7 @@ public class EditQuestionController implements Initializable {
             new_questmultchoice.setID(questionGeneric.getGlobalID());
             try {
                 DbTableQuestionMultipleChoice.updateMultipleChoiceQuestion(new_questmultchoice);
+                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().unsyncIdAfterUpdate(new_questmultchoice.getID());
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

@@ -1,5 +1,8 @@
 package koeko.questions_management;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.Vector;
 
@@ -52,6 +55,8 @@ public class QuestionMultipleChoice {
 		OPT9="";
 		IMAGE="none";
 		answers = new Vector<>();
+		subjects = new Vector<>();
+		objectives = new Vector<>();
 	}
 	public QuestionMultipleChoice(String lEVEL, String qUESTION, String oPT0, String oPT1, String oPT2, String oPT3, String oPT4,
 								  String oPT5, String oPT6, String oPT7, String oPT8, String oPT9, String iMAGE) {
@@ -84,6 +89,8 @@ public class QuestionMultipleChoice {
 		if (oPT8.length() > 0) i++;
 		if (oPT9.length() > 0) i++;
 		OPTIONSNUMBER = i;
+		subjects = new Vector<>();
+		objectives = new Vector<>();
 	}
 	public String getID()
 	{
@@ -176,6 +183,31 @@ public class QuestionMultipleChoice {
 
 		return incorrectAnswers;
 	}
+
+	public String computeShortHashCode() {
+		String hash = "";
+		String stringToHash = LEVEL + QUESTION + OPTIONSNUMBER + NB_CORRECT_ANS + OPT0 + OPT1 + OPT2 + OPT3 + OPT4
+				+ OPT5 + OPT6 + OPT7 + OPT8 + OPT9 + IMAGE;
+		for (String subject : subjects) {
+			stringToHash += subject;
+		}
+		for (String objective : objectives) {
+			stringToHash += objective;
+		}
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+			messageDigest.update(stringToHash.getBytes());
+			hash = String.format("%064x", new BigInteger(1, messageDigest.digest()));
+			if (hash.length() > 20) {
+				hash = hash.substring(hash.length() - 18);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		return hash;
+	}
+
 	public String getIMAGE() {
 		return IMAGE;
 	}

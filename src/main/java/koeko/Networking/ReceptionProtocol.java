@@ -2,12 +2,13 @@ package koeko.Networking;
 
 import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableIndividualQuestionForStudentResult;
+import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableStudents;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -132,8 +133,19 @@ public class ReceptionProtocol {
     public static void receivedRESIDS(String answerString, NetworkState networkState, Student student) {
         if (SettingsController.forceSync == 0 && answerString.split("///").length >= 3) {
             String[] resourceIds = answerString.split("///")[2].split("\\|");
-            networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
-                    .addAll(new ArrayList<>(Arrays.asList(resourceIds)));
+            for (int i = 0; i < resourceIds.length; i++) {
+                if (resourceIds[i].split(";").length > 1) {
+                    String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resourceIds[i].split(";")[0]);
+                    String studentsHash = resourceIds[i].split(";")[1];
+                    if (teachersHash != null && studentsHash != null && teachersHash.contentEquals(studentsHash)) {
+                        networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
+                                .add(resourceIds[i].split(";")[0]);
+                    }
+                } else {
+                    networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
+                            .add(resourceIds[i].split(";")[0]);
+                }
+            }
         }
 
         if (answerString.contains("ENDTRSM")) {

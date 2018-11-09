@@ -53,6 +53,12 @@ public class NetworkState {
         }
     }
 
+    public void unsyncIdAfterUpdate(String id) {
+        for (CopyOnWriteArrayList<String> studentsIds : studentsToSyncedIdsMap.values()) {
+            studentsIds.remove(id);
+        }
+    }
+
 
     public Map<String, CopyOnWriteArrayList<String>> getStudentsToSyncedIdsMap() {
         return studentsToSyncedIdsMap;

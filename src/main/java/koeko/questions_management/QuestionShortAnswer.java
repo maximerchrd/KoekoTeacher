@@ -1,5 +1,9 @@
 package koeko.questions_management;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -33,6 +37,33 @@ public class QuestionShortAnswer {
 		UID="";
 		ANSWERS = new ArrayList<>();
 	}
+
+	public String computeShortHashCode() {
+		String hash = "";
+		String stringToHash = QUESTION + IMAGE;
+		for (String answer : ANSWERS) {
+			stringToHash += answer;
+		}
+		for (String subject : subjects) {
+			stringToHash += subject;
+		}
+		for (String objective : objectives) {
+			stringToHash += objective;
+		}
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+			messageDigest.update(stringToHash.getBytes());
+			hash = String.format("%064x", new BigInteger(1, messageDigest.digest()));
+			if (hash.length() > 20) {
+				hash = hash.substring(hash.length() - 18);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		return hash;
+	}
+
 	public String getID()
 	{
 		return ID;

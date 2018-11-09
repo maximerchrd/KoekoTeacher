@@ -456,7 +456,7 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("OK")) {
                                 ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
                                 for (String receivedString : receptionArray) {
-                                    if (!arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
+                                    if (!receivedString.contentEquals("OK") && !arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
                                         networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).add(receivedString);
                                         if (networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
                                             networkStateSingleton.toggleSyncStateForStudent(arg_student, NetworkState.STUDENT_SYNCED);
@@ -699,11 +699,9 @@ public class NetworkCommunication {
             for (String id : networkStateSingleton.getQuestionIdsToSend()) {
                 idsToSync += id + "|";
             }
-            byte[] prefix = new byte[prefixSize];
+
             String stringPrefix = "SYNCIDS///" + idsToSync.getBytes().length + "///";
-            for (int i = 0; i < stringPrefix.getBytes().length; i++) {
-                prefix[i] = stringPrefix.getBytes()[i];
-            }
+            byte[] prefix = buildPrefixBytes(stringPrefix);
             byte[] wholeBytesArray = Arrays.copyOf(prefix, prefix.length + idsToSync.getBytes().length);
             System.arraycopy(idsToSync.getBytes(), 0, wholeBytesArray, prefix.length, idsToSync.getBytes().length);
             writeToOutputStream(student, wholeBytesArray);
@@ -825,7 +823,6 @@ public class NetworkCommunication {
                     try {
                         sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
                         if (queueIsFinished.get() == true) {
-                            System.out.println("launching");
                             launchWritingLoop();
                         }
                     } catch (InterruptedException intex) {
@@ -847,7 +844,6 @@ public class NetworkCommunication {
                 try {
                     sendingQueue.put(new PayloadForSending(student.getOutputStream(), bytearray, sentID));
                     if (queueIsFinished.get() == true) {
-                        System.out.println("launching");
                         launchWritingLoop();
                     }
                 } catch (InterruptedException intex) {

@@ -3,7 +3,7 @@ package koeko.view;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class QuestionView implements Serializable {
+public class QuestionView {
     private String ID;
     private int TYPE;   //0: QMC; 1: SHRTAQ; 2: TEST
     private String SUBJECT;
@@ -29,6 +29,7 @@ public class QuestionView implements Serializable {
     private String OPT8;
     private String OPT9;
     private String IMAGE;
+    private String hashCode;
     private String LANGUAGE;
 
 
@@ -56,6 +57,7 @@ public class QuestionView implements Serializable {
         OPT8="";
         OPT9="";
         IMAGE="none";
+        hashCode="";
         LANGUAGE="";
     }
 
@@ -225,5 +227,13 @@ public class QuestionView implements Serializable {
 
     public void setQCM_UPD_TMS(Timestamp QCM_UPD_TMS) {
         this.QCM_UPD_TMS = QCM_UPD_TMS;
+    }
+
+    public String getHashCode() {
+        return hashCode;
+    }
+
+    public void setHashCode(String hashCode) {
+        this.hashCode = hashCode;
     }
 }
