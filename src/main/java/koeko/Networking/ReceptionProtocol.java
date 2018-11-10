@@ -69,9 +69,9 @@ public class ReceptionProtocol {
                     .getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
         }
 
-        activateNearbyIfNecessary();
-
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
+
+        activateNearbyIfNecessary();
 
         aClass.updateStudentButNotStreams(student);
     }
@@ -100,7 +100,7 @@ public class ReceptionProtocol {
             System.out.println(testid);
         }
         if (!nextQuestion.contentEquals("-1")) {
-            Vector<Student> singleStudent = new Vector<>();
+            ArrayList<Student> singleStudent = new ArrayList<>();
             singleStudent.add(arg_student);
             NetworkCommunication.networkCommunicationSingleton.sendQuestionID(nextQuestion, singleStudent);
         }

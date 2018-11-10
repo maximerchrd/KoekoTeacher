@@ -9,14 +9,15 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import koeko.students_management.Student;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class QuestionsNotReadyPopUpController extends Window {
     @FXML private Label text;
     QuestionGeneric questionGeneric;
-    Vector<Student> students;
+    ArrayList<Student> students;
 
-    public void initParameters(QuestionGeneric questionGeneric, Vector<Student> students) {
+    public void initParameters(QuestionGeneric questionGeneric, ArrayList<Student> students) {
         this.questionGeneric = questionGeneric;
         this.students = students;
         text.setText("Some questions might not be saved on all devices. \nDo you really want to try to activate the question now?");

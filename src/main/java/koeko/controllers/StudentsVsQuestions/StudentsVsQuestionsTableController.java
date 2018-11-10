@@ -425,7 +425,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void editEvaluation(Integer group) {
         TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
         String globalID = Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
-        String studentID = Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(tablePosition.getRow()).getStudentID();
+        String studentID = Koeko.studentGroupsAndClass.get(group).getStudents().get(tablePosition.getRow()).getStudentID();
         if (Long.valueOf(globalID) >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
             Parent root1 = null;
@@ -515,9 +515,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
             tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
             Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
-            if (Koeko.studentGroupsAndClass.get(group).getStudents_vector().size() > studentIndex &&
-                    studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents_vector().get(studentIndex).getName())) {
-                Koeko.studentGroupsAndClass.get(group).getStudents_vector().remove(studentIndex);
+            if (Koeko.studentGroupsAndClass.get(group).getStudents().size() > studentIndex &&
+                    studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents().get(studentIndex).getName())) {
+                Koeko.studentGroupsAndClass.get(group).getStudents().remove(studentIndex);
             }
         }
     }
@@ -541,7 +541,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
 
             //add studentGroupsAndClass for group
-            Vector<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
+            ArrayList<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
             for (Student student : students) {
                 addUser(student, false, i);
             }

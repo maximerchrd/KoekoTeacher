@@ -73,7 +73,7 @@ public class EditGroupController extends Window implements Initializable {
             //initialize students array and add it to the static singleton
 
             Koeko.studentGroupsAndClass.get(groupIndex).setClassName(groupName.getText());
-            Koeko.studentGroupsAndClass.get(groupIndex).getStudents_vector().clear();
+            Koeko.studentGroupsAndClass.get(groupIndex).getStudents().clear();
             for (HBox hBox : hBoxArrayList) {
                 String student = ((ComboBox) hBox.getChildren().get(0)).getSelectionModel().getSelectedItem().toString();
                 DbTableRelationClassStudent.addClassStudentRelation(groupName.getText(), student);

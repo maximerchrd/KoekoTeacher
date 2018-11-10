@@ -154,8 +154,8 @@ public class DbTableClasses {
         }
         return classes;
     }
-    static public Vector<Student> getStudentsInClass(String className) {
-        Vector<Student> classes = new Vector<>();
+    static public ArrayList<Student> getStudentsInClass(String className) {
+        ArrayList<Student> classes = new ArrayList<>();
         Connection c = null;
         Statement stmt = null;
         stmt = null;

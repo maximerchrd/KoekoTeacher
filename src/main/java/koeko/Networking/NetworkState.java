@@ -40,7 +40,7 @@ public class NetworkState {
         }
     }
 
-    public void toggleSyncStateForStudent(Vector<Student> students, Integer state) {
+    public void toggleSyncStateForStudent(ArrayList<Student> students, Integer state) {
         if (state == 0) {
             for (Student student : students) {
                 if (studentsToReadyMap.get(student.getUniqueDeviceID()) == 1) {

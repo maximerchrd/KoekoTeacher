@@ -496,7 +496,7 @@ public class DbTableIndividualQuestionForStudentResult {
         ArrayList<String> studentsID = new ArrayList<>();
 
         //extract the students from the class if a class name is given
-        Vector<Student> studentsFromClass = new Vector<>();
+        ArrayList<Student> studentsFromClass;
         ArrayList<String> studentsFromClassID = new ArrayList<>();
         if (!className.contentEquals("All classes")) {
             studentsFromClass = DbTableClasses.getStudentsInClass(className);

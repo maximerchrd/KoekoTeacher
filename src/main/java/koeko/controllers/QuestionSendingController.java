@@ -336,7 +336,7 @@ public class QuestionSendingController extends Window implements Initializable {
             studentItem.setOnAction(event -> {
                 if (readyQuestionsList.getSelectionModel().getSelectedItem() != null) {
                     String questionID = readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID();
-                    Vector<Student> singleStudent = new Vector<>();
+                    ArrayList<Student> singleStudent = new ArrayList<>();
                     singleStudent.add(student);
                     NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionID,singleStudent);
                 }
@@ -500,7 +500,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
             group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
         }
-        Vector<Student> students = new Vector<>();
+        ArrayList<Student> students = new ArrayList<>();
         if (group.length() > 0) {
             students = DbTableClasses.getStudentsInClass(group);
         } else {
@@ -509,10 +509,10 @@ public class QuestionSendingController extends Window implements Initializable {
 
         if (students.size() == 0) {
             //if there is no class selected
-            students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+            students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
         } else if (groupsCombobox.getSelectionModel().getSelectedIndex() == 0) {
             //if a class (and not a group!) is selected, make sure that all students connected get the question
-            Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().clone();
+            Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().clone();
             for (int i = 0; i < tableStudents.size(); i++) {
                 for (int j = 0; j < students.size(); j++) {
                     if (tableStudents.get(i).getName().contentEquals(students.get(j).getName())) {
@@ -878,7 +878,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             CreateGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents_vector()) {
+            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
                 studentsList.add(singleStudent.getName());
             }
             controller.initParameters(activeClass, groupsCombobox, studentsList);
@@ -966,11 +966,11 @@ public class QuestionSendingController extends Window implements Initializable {
             }
             EditGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents_vector()) {
+            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
                 studentsList.add(singleStudent.getName());
             }
             if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-                Vector<Student> studentsInGroup = DbTableClasses.getStudentsInClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
+                ArrayList<Student> studentsInGroup = DbTableClasses.getStudentsInClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
                 ArrayList<String> studentNames = new ArrayList<>();
                 for (Student student : studentsInGroup) {
                     studentNames.add(student.getName());
@@ -993,7 +993,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
             }
             String testName = readyQuestionsList.getSelectionModel().getSelectedItem().getQuestion();
-            Vector<Student> students = new Vector<>();
+            ArrayList<Student> students = new ArrayList<>();
             if (group.length() > 0) {
                 students = DbTableClasses.getStudentsInClass(group);
             } else {
@@ -1002,7 +1002,7 @@ public class QuestionSendingController extends Window implements Initializable {
 
             //if there is a problem with the students
             if (students.size() == 0) {
-                students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+                students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
             }
 
             NetworkCommunication.networkCommunicationSingleton.sendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
@@ -1213,7 +1213,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         }
         //add the id to the stored questions on devices for all students
-        for (Student student : Koeko.studentGroupsAndClass.get(0).getStudents_vector()) {
+        for (Student student : Koeko.studentGroupsAndClass.get(0).getStudents()) {
             student.getDeviceQuestions().add(globalID);
         }
 

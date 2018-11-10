@@ -55,7 +55,7 @@ public class functionalTesting {
             @Override
             public void run() {
                 if (testCode == 0 || testCode == 2 || testCode == 3) {
-                    while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size() < functionalTesting.numberStudents) {
+                    while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size() < functionalTesting.numberStudents) {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -63,7 +63,7 @@ public class functionalTesting {
                         }
                     }
 
-                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
+                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
                         studentsNbEvalSent.put(student.getName(), 0);
                     }
 
@@ -81,7 +81,7 @@ public class functionalTesting {
 
                     System.setOut(originalStream);
                     System.out.println("** Sending questions");
-                    System.out.println(NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector().size());
+                    System.out.println(NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size());
                     System.setOut(dummyStream);
 
                     sendQuestionsPack();
@@ -107,7 +107,7 @@ public class functionalTesting {
                     System.setOut(originalStream);
                     System.out.println("*** RESULTS ***");
 
-                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector()) {
+                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
                         System.out.println(student.getName() + " was sent \t \t " + studentsNbEvalSent.get(student.getName()) + " evaluations.");
                     }
 
@@ -177,7 +177,7 @@ public class functionalTesting {
     }
 
     private static void activateQuestionsPack() {
-        Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+        ArrayList<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
         for (String id : questionPack) {
             NetworkCommunication.networkCommunicationSingleton.sendQuestionID(id, students);
             //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
@@ -195,7 +195,7 @@ public class functionalTesting {
 
     private static void sendQuestionsPack() {
         functionalTesting.startTimeQuestionSending = System.currentTimeMillis();
-        Vector<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents_vector();
+        ArrayList<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
         for (int i = 0; i < students.size(); i++) {
             for (String id : questionPack) {
                 try {

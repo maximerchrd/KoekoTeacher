@@ -143,7 +143,7 @@ public class NetworkCommunication {
                             }
 
                             //start a new thread for listening to each student
-                            listenForClient(aClass.getStudents_vector().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
+                            listenForClient(aClass.getStudents().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
@@ -157,7 +157,7 @@ public class NetworkCommunication {
         connectionthread.start();
     }
 
-    public void sendQuestionID(String QuestID, Vector<Student> students) {
+    public void sendQuestionID(String QuestID, ArrayList<Student> students) {
         System.out.println("Sending question to " + students.size() + " students");
         //if question ID is negative (=test), change its sign
         if (Long.valueOf(QuestID) < 0) {
@@ -368,7 +368,7 @@ public class NetworkCommunication {
                                     System.out.println(testid);
                                 }
                                 if (!nextQuestion.contentEquals("-1")) {
-                                    Vector<Student> singleStudent = new Vector<>();
+                                    ArrayList<Student> singleStudent = new ArrayList<>();
                                     singleStudent.add(arg_student);
                                     sendQuestionID(nextQuestion, singleStudent);
                                 }
@@ -616,7 +616,7 @@ public class NetworkCommunication {
                 e.printStackTrace();
             }
         }
-        for (Student student : aClass.getStudents_vector()) {
+        for (Student student : aClass.getStudents()) {
             writeToOutputStream(student, bytes);
         }
     }
@@ -673,7 +673,7 @@ public class NetworkCommunication {
                 int i = 0;
                 for (; i < questionIds.size() && Long.valueOf(questionIds.get(i)) < 0; i++) {
                 }
-                Vector<Student> singleStudent = new Vector<>();
+                ArrayList<Student> singleStudent = new ArrayList<>();
                 singleStudent.add(student);
                 sendQuestionID(questionIds.get(i), singleStudent);
             }
@@ -736,7 +736,7 @@ public class NetworkCommunication {
         //activate the present question/test if it's not already done
         if (!networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID())
                 .contentEquals(networkStateSingleton.getActiveID())) {
-            Vector<Student> singleStudent = new Vector<>();
+            ArrayList<Student> singleStudent = new ArrayList<>();
             singleStudent.add(student);
             sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
         }
@@ -815,9 +815,9 @@ public class NetworkCommunication {
         if (student == null) {
             //change if necessary sync status of student
             if (sentID != null) {
-                networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents_vector(), NetworkState.STUDENT_NOT_SYNCED);
+                networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents(), NetworkState.STUDENT_NOT_SYNCED);
             }
-            for (Student singleStudent : aClass.getStudents_vector()) {
+            for (Student singleStudent : aClass.getStudents()) {
                 if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
                         || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
                     try {
