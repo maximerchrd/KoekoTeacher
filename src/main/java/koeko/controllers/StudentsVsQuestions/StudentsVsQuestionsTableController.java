@@ -312,7 +312,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         }
     }
 
-    public void addAnswerForUser(Student student, String answer, String question, double evaluation, String questionId, Integer group) {
+    public void addAnswerForUser(String student, String answer, String question, double evaluation, String questionId, Integer group) {
         if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
             Platform.runLater(new Runnable(){
                 @Override
@@ -334,7 +334,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
         Integer indexRow = -1;
         for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student.getName())) {
+            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student)) {
                 indexRow = i;
             }
         }

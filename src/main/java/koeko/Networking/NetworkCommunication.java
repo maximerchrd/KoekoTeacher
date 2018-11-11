@@ -41,7 +41,7 @@ public class NetworkCommunication {
     public Classroom aClass = null;
 
     static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
-    static public int maximumSupportedDevices = 3; //max devices that can connect to accesspoint (with computer hosting server)
+    static public int maximumSupportedDevices = 5; //max devices that can connect to accesspoint (with computer hosting server)
     private int nextHotspotNumber = 1;
     private String hotspotName = "koeko";
     private ArrayList<String> hostpotPasswords = new ArrayList<>();
@@ -360,7 +360,7 @@ public class NetworkCommunication {
                                     }
                                 }
 
-                                learningTrackerController.addAnswerForUser(arg_student, answerString.split("///")[3], answerString.split("///")[4], eval,
+                                Koeko.studentsVsQuestionsTableControllerSingleton.addAnswerForUser(answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[4], eval,
                                         answerString.split("///")[5], groupIndex);
                                 String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
                                 System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
