@@ -100,17 +100,15 @@ public class NetworkCommunication {
 
 
         //Send the ip of the computer to everyone on the subnet
-        Thread sendIPthread = new Thread() {
-            public void run() {
-                while (true) {
-                    try {
-                        sendIpAddress();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        Thread sendIPthread = new Thread(() -> {
+            while (true) {
+                try {
+                    sendIpAddress();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        };
+        });
         sendIPthread.start();
 
 
@@ -120,40 +118,38 @@ public class NetworkCommunication {
         //Wait for client connection
         System.out.println("\nServer Started. Waiting for clients to connect...");
         aClass = Koeko.studentGroupsAndClass.get(0);
-        Thread connectionthread = new Thread() {
-            public void run() {
-                while (true) {
+        Thread connectionthread = new Thread(() -> {
+            while (true) {
+                try {
+                    //listening to client connection and accept it
+                    Socket skt = myServerSocket.accept();
+                    Student student = new Student();
+                    student.setInetAddress(skt.getInetAddress());
+                    student.setPort(String.valueOf(skt.getPort()));
+                    System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
+
                     try {
-                        //listening to client connection and accept it
-                        Socket skt = myServerSocket.accept();
-                        Student student = new Student();
-                        student.setInetAddress(skt.getInetAddress());
-                        student.setPort(String.valueOf(skt.getPort()));
-                        System.out.println("Student with address: " + student.getInetAddress() + " accepted. Waiting for next client to connect");
-
-                        try {
-                            //register student
-                            student.setInputStream(skt.getInputStream());
-                            student.setOutputStream(skt.getOutputStream());
-                            if (!aClass.studentAlreadyInClass(student)) {
-                                aClass.addStudentIfNotInClass(student);
-                                System.out.println("aClass.size() = " + aClass.getClassSize() + ". Added student: " + student.getInetAddress().toString());
-                            } else {
-                                student = aClass.updateStudentStreams(student);
-                            }
-
-                            //start a new thread for listening to each student
-                            listenForClient(aClass.getStudents().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
+                        //register student
+                        student.setInputStream(skt.getInputStream());
+                        student.setOutputStream(skt.getOutputStream());
+                        if (!aClass.studentAlreadyInClass(student)) {
+                            aClass.addStudentIfNotInClass(student);
+                            System.out.println("aClass.size() = " + aClass.getClassSize() + ". Added student: " + student.getInetAddress().toString());
+                        } else {
+                            student = aClass.updateStudentStreams(student);
                         }
-                    } catch (IOException e2) {
-                        // TODO Auto-generated catch block
-                        e2.printStackTrace();
+
+                        //start a new thread for listening to each student
+                        listenForClient(aClass.getStudents().get(aClass.indexOfStudentWithAddress(student.getInetAddress().toString())));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
                     }
+                } catch (IOException e2) {
+                    // TODO Auto-generated catch block
+                    e2.printStackTrace();
                 }
             }
-        };
+        });
         connectionthread.start();
     }
 
@@ -327,213 +323,211 @@ public class NetworkCommunication {
      */
     private void listenForClient(final Student arg_student) throws IOException {
         final InputStream answerInStream = arg_student.getInputStream();
-        Thread listeningthread = new Thread() {
-            public void run() {
-                int bytesread = 0;
-                Boolean ableToRead = true;
-                while (bytesread >= 0 && ableToRead) {
-                    try {
-                        byte[] in_bytearray = new byte[1000];
-                        bytesread = answerInStream.read(in_bytearray);
-                        if (bytesread >= 1000) {
-                            System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
-                        }
-                        if (bytesread >= 0) {
-                            String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
-                            System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + " message:" + answerString);
-                            if (answerString.split("///")[0].contains("ANSW")) {
-                                //arg_student.setName(answerString.split("///")[2]);
-                                double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
-                                        answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
-                                sendEvaluation(eval, answerString.split("///")[5], arg_student);
+        Thread listeningthread = new Thread(() -> {
+            int bytesread = 0;
+            Boolean ableToRead = true;
+            while (bytesread >= 0 && ableToRead) {
+                try {
+                    byte[] in_bytearray = new byte[1000];
+                    bytesread = answerInStream.read(in_bytearray);
+                    if (bytesread >= 1000) {
+                        System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
+                    }
+                    if (bytesread >= 0) {
+                        String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
+                        System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + " message:" + answerString);
+                        if (answerString.split("///")[0].contains("ANSW")) {
+                            //arg_student.setName(answerString.split("///")[2]);
+                            double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
+                                    answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[0]);
+                            sendEvaluation(eval, answerString.split("///")[5], arg_student);
 
-                                //find out to which group the student and answer belong
-                                Integer groupIndex = -1;
-                                String questID = answerString.split("///")[5];
-                                for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
-                                    if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
-                                            Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
-                                        groupIndex = i;
-                                        Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
-                                                .remove(questID);
-                                    }
+                            //find out to which group the student and answer belong
+                            Integer groupIndex = -1;
+                            String questID = answerString.split("///")[5];
+                            for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+                                if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
+                                        Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
+                                    groupIndex = i;
+                                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
+                                            .remove(questID);
                                 }
-
-                                if (groupIndex == -1) {
-                                    groupIndex = 0;
-                                    for (int i = 0; i < studentNamesForGroups.size(); i++) {
-                                        if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
-                                            groupIndex = i;
-                                            questionIdsForGroups.get(i).remove(questID);
-                                        }
-                                    }
-                                }
-
-                                Koeko.studentsVsQuestionsTableControllerSingleton.addAnswerForUser(answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[4], eval,
-                                        answerString.split("///")[5], groupIndex);
-                                String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
-                                System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
-                                for (String testid : arg_student.getTestQuestions()) {
-                                    System.out.println(testid);
-                                }
-                                if (!nextQuestion.contentEquals("-1")) {
-                                    ArrayList<Student> singleStudent = new ArrayList<>();
-                                    singleStudent.add(arg_student);
-                                    sendQuestionID(nextQuestion, singleStudent);
-                                }
-
-                                //set evaluation if question belongs to a test
-                                if (arg_student.getActiveTest().getIdsQuestions().contains(questID)) {
-                                    System.out.println("inserting question evaluation for test");
-                                    int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
-                                    if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
-                                        arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
-                                    }
-                                    Boolean testCompleted = true;
-                                    for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
-                                        if (questEval < 0) {
-                                            testCompleted = false;
-                                        }
-                                    }
-                                    if (testCompleted) {
-                                        Double testEval = 0.0;
-                                        for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
-                                            testEval += questEval;
-                                        }
-                                        testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
-                                        arg_student.getActiveTest().setTestEvaluation(testEval);
-                                        DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
-                                    }
-                                }
-                            } else if (answerString.split("///")[0].contentEquals("CONN")) {
-                                Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
-
-                                //copy some basic informations because arg_student is used to write the answer into the table
-                                //Student.essentialCopyStudent(student, arg_student);
-
-                                //if RESIDS were merged with CONN
-                                if (answerString.contains("RESIDS")) {
-                                    String substring = answerString.substring(answerString.indexOf("RESIDS"));
-                                    ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
-                                }
-                            } else if (answerString.split("///")[0].contains("RESIDS")) {
-                                ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
-                            } else if (answerString.split("///")[0].contains("DISC")) {
-                                Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
-                                student.setUniqueDeviceID(answerString.split("///")[1]);
-                                student.setName(answerString.split("///")[2]);
-                                student.setConnected(false);
-                                if (answerString.contains("close-connection")) {
-                                    NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                                            .add(student.getUniqueDeviceID());
-                                    learningTrackerController.userDisconnected(student);
-
-                                    System.out.println("Student device really disconnecting. We should close the connection");
-                                    arg_student.getOutputStream().flush();
-                                    arg_student.getOutputStream().close();
-                                    arg_student.setOutputStream(null);
-                                    arg_student.getInputStream().close();
-                                    arg_student.setInputStream(null);
-                                    ableToRead = false;
-                                } else if (answerString.contains("locked")) {
-                                    disconnectiongStudents.remove(student.getUniqueDeviceID());
-                                    arg_student.getOutputStream().flush();
-                                    arg_student.getOutputStream().close();
-                                    arg_student.setOutputStream(null);
-                                    arg_student.getInputStream().close();
-                                    arg_student.setInputStream(null);
-                                    ableToRead = false;
-                                } else {
-                                    NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                                            .add(student.getUniqueDeviceID());
-                                    disconnectiongStudents.add(student.getUniqueDeviceID());
-                                    Thread studentDisconnectionQThread = new Thread() {
-                                        public void run() {
-                                            try {
-                                                Thread.sleep(1000);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            if (disconnectiongStudents.contains(student.getUniqueDeviceID())) {
-                                                learningTrackerController.userDisconnected(student);
-                                                disconnectiongStudents.remove(student.getUniqueDeviceID());
-                                            }
-                                        }
-                                    };
-                                    studentDisconnectionQThread.start();
-                                }
-                            } else if (answerString.split("///")[0].contains("OK")) {
-                                String uuid = "";
-                                if (answerString.split("///")[0].split(":").length > 1) {
-                                    uuid = answerString.split("///")[0].split(":")[1];
-                                } else {
-                                    System.err.println("Received OK but no identifier associated!");
-                                }
-                                ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
-                                for (String receivedString : receptionArray) {
-                                    if (!receivedString.contains("OK:") && !uuid.contentEquals("no identifier")) {
-                                        networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).add(receivedString);
-                                        if (networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
-                                            Student student = aClass.getStudentWithUniqueID(uuid);
-                                            if (student != null) {
-                                                networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                //For sending speed testing, provided that we only send one question multiple choice
-                                if (functionalTesting.transferRateTesting) {
-                                    Long sendingTime = System.nanoTime() - NetworkCommunication.sendingStartTime;
-                                    Double sendingTimeDouble = sendingTime / 1000000000.0;
-                                    System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
-                                            "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
-                                            + "MB/s");
-                                }
-                            } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
-                                int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
-                                functionalTesting.nbAccuseReception += nbAccuses;
-                                System.out.println(functionalTesting.nbAccuseReception);
-                                if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
-                                    functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
-                                }
-                            } else if (answerString.split("///")[0].contains("ACTID")) {
-                                if (answerString.split("///").length >= 2) {
-                                    String activeID = answerString.split("///")[1];
-                                    if (Long.valueOf(activeID) < 0) {
-                                        activeID = QuestionGeneric.changeIdSign(activeID);
-                                    }
-                                    networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
-                                }
-                            } else if (answerString.contains("ENDTRSM")) {
-                                sendActiveIds(arg_student);
-                            } else if (answerString.contains("RECONNECTED")) {
-                                String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                                writer.println(timeStamp + "\t" + answerString.split("///")[1]);
-                                writer.flush();
                             }
-                        } else {
-                            System.out.println("Communication over?");
+
+                            if (groupIndex == -1) {
+                                groupIndex = 0;
+                                for (int i = 0; i < studentNamesForGroups.size(); i++) {
+                                    if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
+                                        groupIndex = i;
+                                        questionIdsForGroups.get(i).remove(questID);
+                                    }
+                                }
+                            }
+
+                            Koeko.studentsVsQuestionsTableControllerSingleton.addAnswerForUser(answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[4], eval,
+                                    answerString.split("///")[5], groupIndex);
+                            String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
+                            System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
+                            for (String testid : arg_student.getTestQuestions()) {
+                                System.out.println(testid);
+                            }
+                            if (!nextQuestion.contentEquals("-1")) {
+                                ArrayList<Student> singleStudent = new ArrayList<>();
+                                singleStudent.add(arg_student);
+                                sendQuestionID(nextQuestion, singleStudent);
+                            }
+
+                            //set evaluation if question belongs to a test
+                            if (arg_student.getActiveTest().getIdsQuestions().contains(questID)) {
+                                System.out.println("inserting question evaluation for test");
+                                int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
+                                if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
+                                    arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
+                                }
+                                Boolean testCompleted = true;
+                                for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                                    if (questEval < 0) {
+                                        testCompleted = false;
+                                    }
+                                }
+                                if (testCompleted) {
+                                    Double testEval = 0.0;
+                                    for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                                        testEval += questEval;
+                                    }
+                                    testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
+                                    arg_student.getActiveTest().setTestEvaluation(testEval);
+                                    DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
+                                }
+                            }
+                        } else if (answerString.split("///")[0].contentEquals("CONN")) {
+                            Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
+
+                            //copy some basic informations because arg_student is used to write the answer into the table
+                            //Student.essentialCopyStudent(student, arg_student);
+
+                            //if RESIDS were merged with CONN
+                            if (answerString.contains("RESIDS")) {
+                                String substring = answerString.substring(answerString.indexOf("RESIDS"));
+                                ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
+                            }
+                        } else if (answerString.split("///")[0].contains("RESIDS")) {
+                            ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
+                        } else if (answerString.split("///")[0].contains("DISC")) {
+                            Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
+                            student.setUniqueDeviceID(answerString.split("///")[1]);
+                            student.setName(answerString.split("///")[2]);
+                            student.setConnected(false);
+                            if (answerString.contains("close-connection")) {
+                                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                                        .add(student.getUniqueDeviceID());
+                                learningTrackerController.userDisconnected(student);
+
+                                System.out.println("Student device really disconnecting. We should close the connection");
+                                arg_student.getOutputStream().flush();
+                                arg_student.getOutputStream().close();
+                                arg_student.setOutputStream(null);
+                                arg_student.getInputStream().close();
+                                arg_student.setInputStream(null);
+                                ableToRead = false;
+                            } else if (answerString.contains("locked")) {
+                                disconnectiongStudents.remove(student.getUniqueDeviceID());
+                                arg_student.getOutputStream().flush();
+                                arg_student.getOutputStream().close();
+                                arg_student.setOutputStream(null);
+                                arg_student.getInputStream().close();
+                                arg_student.setInputStream(null);
+                                ableToRead = false;
+                            } else {
+                                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                                        .add(student.getUniqueDeviceID());
+                                disconnectiongStudents.add(student.getUniqueDeviceID());
+                                Thread studentDisconnectionQThread = new Thread() {
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (disconnectiongStudents.contains(student.getUniqueDeviceID())) {
+                                            learningTrackerController.userDisconnected(student);
+                                            disconnectiongStudents.remove(student.getUniqueDeviceID());
+                                        }
+                                    }
+                                };
+                                studentDisconnectionQThread.start();
+                            }
+                        } else if (answerString.split("///")[0].contains("OK")) {
+                            String uuid = "";
+                            if (answerString.split("///")[0].split(":").length > 1) {
+                                uuid = answerString.split("///")[0].split(":")[1];
+                            } else {
+                                System.err.println("Received OK but no identifier associated!");
+                            }
+                            ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
+                            for (String receivedString : receptionArray) {
+                                if (!receivedString.contains("OK:") && !uuid.contentEquals("no identifier")) {
+                                    networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).add(receivedString);
+                                    if (networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
+                                        Student student = aClass.getStudentWithUniqueID(uuid);
+                                        if (student != null) {
+                                            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
+                                        }
+                                    }
+                                }
+                            }
+
+                            //For sending speed testing, provided that we only send one question multiple choice
+                            if (functionalTesting.transferRateTesting) {
+                                Long sendingTime = System.nanoTime() - NetworkCommunication.sendingStartTime;
+                                Double sendingTimeDouble = sendingTime / 1000000000.0;
+                                System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
+                                        "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
+                                        + "MB/s");
+                            }
+                        } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
+                            int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
+                            functionalTesting.nbAccuseReception += nbAccuses;
+                            System.out.println(functionalTesting.nbAccuseReception);
+                            if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
+                                functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
+                            }
+                        } else if (answerString.split("///")[0].contains("ACTID")) {
+                            if (answerString.split("///").length >= 2) {
+                                String activeID = answerString.split("///")[1];
+                                if (Long.valueOf(activeID) < 0) {
+                                    activeID = QuestionGeneric.changeIdSign(activeID);
+                                }
+                                networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
+                            }
+                        } else if (answerString.contains("ENDTRSM")) {
+                            sendActiveIds(arg_student);
+                        } else if (answerString.contains("RECONNECTED")) {
+                            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                            writer.println(timeStamp + "\t" + answerString.split("///")[1]);
+                            writer.flush();
                         }
-                    } catch (SocketException sockex) {
-                        if (sockex.toString().contains("timed out")) {
-                            System.out.println("Socket exception: read timed out");
-                        } else if (sockex.toString().contains("Connection reset")) {
-                            System.out.println("Socket exception: connection reset");
-                        } else {
-                            System.out.println("Other Socket exception");
-                        }
+                    } else {
+                        System.out.println("Communication over?");
+                    }
+                } catch (SocketException sockex) {
+                    if (sockex.toString().contains("timed out")) {
+                        System.out.println("Socket exception: read timed out");
+                    } else if (sockex.toString().contains("Connection reset")) {
+                        System.out.println("Socket exception: connection reset");
+                    } else {
+                        System.out.println("Other Socket exception");
+                    }
+                    bytesread = -1;
+                } catch (IOException e1) {
+                    System.out.println("Some other IOException occured");
+                    if (e1.toString().contains("Connection reset")) {
                         bytesread = -1;
-                    } catch (IOException e1) {
-                        System.out.println("Some other IOException occured");
-                        if (e1.toString().contains("Connection reset")) {
-                            bytesread = -1;
-                        }
                     }
                 }
-                writer.close();
             }
-        };
+            writer.close();
+        });
         listeningthread.start();
     }
 
@@ -774,6 +768,14 @@ public class NetworkCommunication {
             System.arraycopy(id.getBytes(), 0, wholeBytesArray, prefix.length, id.getBytes().length);
             writeToOutputStream(student, wholeBytesArray);
         }
+    }
+
+    public void sendString(Student student, String prefixMessage) {
+            byte[] prefix = new byte[prefixSize];
+            for (int i = 0; i < prefixMessage.getBytes().length && i < prefixSize; i++) {
+                prefix[i] = prefixMessage.getBytes()[i];
+            }
+            writeToOutputStream(student, prefix);
     }
 
     private byte[] buildPrefixBytes(String prefix) {

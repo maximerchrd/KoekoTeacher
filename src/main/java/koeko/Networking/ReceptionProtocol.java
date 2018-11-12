@@ -1,5 +1,6 @@
 package koeko.Networking;
 
+import koeko.Koeko;
 import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableStudents;
@@ -48,6 +49,7 @@ public class ReceptionProtocol {
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
+        NetworkCommunication.networkCommunicationSingleton.sendString(arg_student, "CONNECTED///");
         activateNearbyIfNecessary();
 
         return student;
