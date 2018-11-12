@@ -3,6 +3,7 @@ package koeko.students_management;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
@@ -122,14 +123,14 @@ public class Classroom {
         return student;
     }
 
-    public Student getStudentWithIP(String ip) {
-        Student student = new Student();
+    public ArrayList<Student> getStudentsWithIP(String ip) {
+        ArrayList<Student> returnstudents = new ArrayList<>();
         for (int i = 0; i < students.size(); i++) {
             if (ip.contentEquals(students.get(i).getInetAddress().toString())) {
-                student = students.get(i);
+                returnstudents.add(students.get(i));
             }
         }
-        return student;
+        return returnstudents;
     }
 
     public Student getStudentWithUniqueID(String deviceID) {
@@ -156,12 +157,41 @@ public class Classroom {
         return student;
     }
 
-    public String getQuestionWithID(Integer questionID) {
-        String question = "";
-        if (activeQuestions.size() == activeIDs.size() && activeIDs.size() > 0) {
-            question = activeQuestions.get(activeIDs.indexOf(questionID));
+    public Student getStudentWithIPAndUUID(InetAddress inetAddress, String uuid) {
+        ArrayList<Student> sameIPstudents = getStudentsWithIP(inetAddress.toString());
+        Student student = null;
+
+        //case where we reconnect and the student was already fully initialized
+        for (Student stud : sameIPstudents) {
+            if (stud.getUniqueDeviceID().contentEquals(uuid)) {
+                student = stud;
+            }
         }
-        return question;
+
+        if (student == null) {
+            //case where a student with same ip wasn't yet initialized
+            for (Student stud : sameIPstudents) {
+                if (stud.getUniqueDeviceID().contentEquals(Student.UNITIALIZED_UUID)) {
+                    student = stud;
+                }
+            }
+
+            //case where there is only 'none UID matching', 'fully initialized' students: we need to copy some stuffs from an initialized student
+            if (student == null) {
+                if (sameIPstudents.size() > 0) {
+                    student = new Student();
+                    student.setPort(sameIPstudents.get(0).getPort());
+                    student.setInetAddress(sameIPstudents.get(0).getInetAddress());
+                    student.setOutputStream(sameIPstudents.get(0).getOutputStream());
+                    student.setInputStream(sameIPstudents.get(0).getInputStream());
+                    this.students.add(student);
+                } else {
+                    System.out.println("First student in class?");
+                }
+            }
+        }
+
+        return student;
     }
 
     public int indexOfStudentWithAddress (String address) {
@@ -244,16 +274,6 @@ public class Classroom {
         }
 
         return students.get(index);
-    }
-
-    public void updateStudentButNotStreams(Student student) {
-        int index = indexOfStudentWithAddress(student.getInetAddress().toString());
-        if (index >= 0) {
-            students.get(index).setName(student.getName());
-            students.get(index).setUniqueDeviceID(student.getUniqueDeviceID());
-        } else {
-            System.out.println("A problem occured: student not in class when trying to update infos");
-        }
     }
 
     public Double updateAverageEvaluationForQuestion(Integer question, Integer student, Double evaluation) {

@@ -31,12 +31,14 @@ public class NetworkState {
     }
 
     public void toggleSyncStateForStudent(Student student, Integer state) {
-        if (studentsToReadyMap.get(student.getUniqueDeviceID()) == 0 && state == 1) {
-            Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(student, STUDENT_SYNCED);
-            studentsToReadyMap.put(student.getUniqueDeviceID(), state);
-        } else if (studentsToReadyMap.get(student.getUniqueDeviceID()) == 1 && state == 0) {
-            Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(student, STUDENT_NOT_SYNCED);
-            studentsToReadyMap.put(student.getUniqueDeviceID(), state);
+        if (studentsToReadyMap.get(student.getUniqueDeviceID()) != null) {
+            if (studentsToReadyMap.get(student.getUniqueDeviceID()) == 0 && state == 1) {
+                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(student, STUDENT_SYNCED);
+                studentsToReadyMap.put(student.getUniqueDeviceID(), state);
+            } else if (studentsToReadyMap.get(student.getUniqueDeviceID()) == 1 && state == 0) {
+                Koeko.studentsVsQuestionsTableControllerSingleton.setStatusQuestionsReceived(student, STUDENT_NOT_SYNCED);
+                studentsToReadyMap.put(student.getUniqueDeviceID(), state);
+            }
         }
     }
 

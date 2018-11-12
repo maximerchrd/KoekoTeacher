@@ -1,22 +1,25 @@
 package koeko.Networking;
 
 import koeko.controllers.SettingsController;
-import koeko.database_management.DbTableIndividualQuestionForStudentResult;
 import koeko.database_management.DbTableQuestionMultipleChoice;
 import koeko.database_management.DbTableStudents;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ReceptionProtocol {
 
-    static public void receivedCONN(Student arg_student, String answerString, Classroom aClass) {
-        Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
+    static public Student receivedCONN(Student arg_student, String answerString, Classroom aClass) {
+        Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), answerString.split("///")[1]);
+        if (student == null) {
+            student = arg_student;
+        } else {
+            student.setInputStream(arg_student.getInputStream());
+            student.setOutputStream(arg_student.getOutputStream());
+        }
         student.setConnected(true);
         student.setUniqueDeviceID(answerString.split("///")[1]);
         student.setName(answerString.split("///")[2]);
@@ -27,6 +30,30 @@ public class ReceptionProtocol {
         student.setStudentID(studentID);
 
         //get the device infos if android
+        extractInfos(answerString, student);
+
+        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                .add(student.getUniqueDeviceID());
+
+        //update the tracking of questions on device
+        if (NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                .getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
+        }
+
+        NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
+
+        activateNearbyIfNecessary();
+
+        return student;
+    }
+
+    private static void extractInfos(String answerString, Student student) {
         if (answerString.split("///").length >= 4) {
             String[] infos = answerString.split("///")[3].split(":");
             if (infos.length >= 4) {
@@ -54,26 +81,6 @@ public class ReceptionProtocol {
             NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
                     .put(student.getUniqueDeviceID(), new DeviceInfo(student.getUniqueDeviceID(),"IOS", 0, false, 0L));
         }
-
-        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                .add(student.getUniqueDeviceID());
-
-        //update the tracking of questions on device
-        if (NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                .getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
-        }
-
-        NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
-
-        activateNearbyIfNecessary();
-
-        aClass.updateStudentButNotStreams(student);
     }
 
     public static void receivedRESIDS(String answerString, NetworkState networkState, Student student) {

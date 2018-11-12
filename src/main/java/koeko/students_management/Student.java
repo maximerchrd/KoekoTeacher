@@ -14,7 +14,9 @@ import java.util.Arrays;
  * Created by maximerichard on 14/02/17.
  */
 public class Student {
-    private String uniqueDeviceID = "no identifier";
+    static public String UNITIALIZED_UUID = "no identifier";
+
+    private String uniqueDeviceID = UNITIALIZED_UUID;
     private String studentID = "-1";
     private InetAddress mInetAddress = null;
     private String port = "";

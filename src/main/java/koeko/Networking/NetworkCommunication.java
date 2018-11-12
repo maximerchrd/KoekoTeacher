@@ -41,7 +41,7 @@ public class NetworkCommunication {
     public Classroom aClass = null;
 
     static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
-    static public int maximumSupportedDevices = 5; //max devices that can connect to accesspoint (with computer hosting server)
+    static public int maximumSupportedDevices = 10; //max devices that can connect to accesspoint (with computer hosting server)
     private int nextHotspotNumber = 1;
     private String hotspotName = "koeko";
     private ArrayList<String> hostpotPasswords = new ArrayList<>();
@@ -172,16 +172,25 @@ public class NetworkCommunication {
         }
 
 
+        ArrayList<OutputStream> handledOutputStreams = new ArrayList<>();
+
         for (Student student : students) {
             if (student.getOutputStream() != null) {
-                byte[] idBytearraystring = new byte[prefixSize];
-                String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
-                byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
-                for (int i = 0; i < prefixBytesArray.length && i < prefixSize; i++) {
-                    idBytearraystring[i] = prefixBytesArray[i];
+                if (!handledOutputStreams.contains(student.getOutputStream())) {
+                    byte[] idBytearraystring = new byte[prefixSize];
+                    String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
+                    byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
+                    for (int i = 0; i < prefixBytesArray.length && i < prefixSize; i++) {
+                        idBytearraystring[i] = prefixBytesArray[i];
+                    }
+                    System.out.println("sending question: " + new String(idBytearraystring) + " to single student");
+                    writeToOutputStream(student, idBytearraystring);
+
+                    //if Nearby activated (layers), try to prevent sending twice to same outputStream
+                    if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(student.getOutputStream())) {
+                        handledOutputStreams.add(student.getOutputStream());
+                    }
                 }
-                System.out.println("sending question: " + new String(idBytearraystring) + " to single student");
-                writeToOutputStream(student, idBytearraystring);
             } else {
                 System.out.println("Problem sending ID: outputstream is null; probably didnt receive acknowledgment of receipt on time");
             }
@@ -397,10 +406,10 @@ public class NetworkCommunication {
                                     }
                                 }
                             } else if (answerString.split("///")[0].contentEquals("CONN")) {
-                                ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
+                                Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
 
                                 //copy some basic informations because arg_student is used to write the answer into the table
-                                Student.essentialCopyStudent(aClass.getStudentWithIP(arg_student.getInetAddress().toString()), arg_student);
+                                //Student.essentialCopyStudent(student, arg_student);
 
                                 //if RESIDS were merged with CONN
                                 if (answerString.contains("RESIDS")) {
@@ -410,7 +419,7 @@ public class NetworkCommunication {
                             } else if (answerString.split("///")[0].contains("RESIDS")) {
                                 ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                             } else if (answerString.split("///")[0].contains("DISC")) {
-                                Student student = aClass.getStudentWithIP(arg_student.getInetAddress().toString());
+                                Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
                                 student.setUniqueDeviceID(answerString.split("///")[1]);
                                 student.setName(answerString.split("///")[2]);
                                 student.setConnected(false);
@@ -454,15 +463,22 @@ public class NetworkCommunication {
                                     studentDisconnectionQThread.start();
                                 }
                             } else if (answerString.split("///")[0].contains("OK")) {
+                                String uuid = "";
+                                if (answerString.split("///")[0].split(":").length > 1) {
+                                    uuid = answerString.split("///")[0].split(":")[1];
+                                } else {
+                                    System.err.println("Received OK but no identifier associated!");
+                                }
                                 ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
                                 for (String receivedString : receptionArray) {
-                                    if (!receivedString.contentEquals("OK") && !arg_student.getUniqueDeviceID().contentEquals("no identifier")) {
-                                        networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).add(receivedString);
-                                        if (networkStateSingleton.getStudentsToSyncedIdsMap().get(arg_student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
-                                            networkStateSingleton.toggleSyncStateForStudent(arg_student, NetworkState.STUDENT_SYNCED);
+                                    if (!receivedString.contains("OK:") && !uuid.contentEquals("no identifier")) {
+                                        networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).add(receivedString);
+                                        if (networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
+                                            Student student = aClass.getStudentWithUniqueID(uuid);
+                                            if (student != null) {
+                                                networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
+                                            }
                                         }
-                                    } else {
-                                        System.out.println("WARNING: received OK but arg_student UniqueDeviceID was not initialized");
                                     }
                                 }
 
@@ -734,11 +750,15 @@ public class NetworkCommunication {
         }
 
         //activate the present question/test if it's not already done
-        if (!networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID())
-                .contentEquals(networkStateSingleton.getActiveID())) {
-            ArrayList<Student> singleStudent = new ArrayList<>();
-            singleStudent.add(student);
-            sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
+        if (networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) != null) {
+            if (!networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID())
+                    .contentEquals(networkStateSingleton.getActiveID())) {
+                ArrayList<Student> singleStudent = new ArrayList<>();
+                singleStudent.add(student);
+                sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
+            }
+        } else {
+            System.err.println("student with id: " + student.getUniqueDeviceID() + " not in studentsToActiveIdMap");
         }
     }
 
@@ -817,9 +837,13 @@ public class NetworkCommunication {
             if (sentID != null) {
                 networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents(), NetworkState.STUDENT_NOT_SYNCED);
             }
+
+            ArrayList<OutputStream> handledOutputStreams = new ArrayList<>();
+
             for (Student singleStudent : aClass.getStudents()) {
                 if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
-                        || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))) {
+                        || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))
+                        && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
                     try {
                         sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
                         if (queueIsFinished.get() == true) {
@@ -827,6 +851,11 @@ public class NetworkCommunication {
                         }
                     } catch (InterruptedException intex) {
                         intex.printStackTrace();
+                    }
+
+                    //if Nearby activated (layers), try to prevent sending twice to same outputStream
+                    if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
+                        handledOutputStreams.add(singleStudent.getOutputStream());
                     }
                 } else {
                     if (networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
