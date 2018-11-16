@@ -40,11 +40,9 @@ public class NetworkCommunication {
     private LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
-    static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
-    static public int maximumSupportedDevices = 10; //max devices that can connect to accesspoint (with computer hosting server)
+    static public int network_solution = 0; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
+    static public int maximumSupportedDevices = 3; //max devices that can connect to accesspoint (with computer hosting server)
     private int nextHotspotNumber = 1;
-    private String hotspotName = "koeko";
-    private ArrayList<String> hostpotPasswords = new ArrayList<>();
 
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
@@ -330,7 +328,7 @@ public class NetworkCommunication {
                 try {
                     byte[] in_bytearray = new byte[1000];
                     bytesread = answerInStream.read(in_bytearray);
-                    if (bytesread >= 1000) {
+                    if (bytesread > 1000) {
                         System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
                     }
                     if (bytesread >= 0) {
@@ -414,6 +412,7 @@ public class NetworkCommunication {
                         } else if (answerString.split("///")[0].contains("RESIDS")) {
                             ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                         } else if (answerString.split("///")[0].contains("DISC")) {
+                            networkStateSingleton.disconnectDevice(answerString.split("///")[1]);
                             Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
                             student.setUniqueDeviceID(answerString.split("///")[1]);
                             student.setName(answerString.split("///")[2]);
@@ -502,6 +501,15 @@ public class NetworkCommunication {
                             }
                         } else if (answerString.contains("ENDTRSM")) {
                             sendActiveIds(arg_student);
+                        } else if (answerString.split("///")[0].contentEquals("HOTSPOTIP")) {
+                            for (SubNet subNet : networkStateSingleton.getSubNets()) {
+                                if (subNet.getPassword().contentEquals(answerString.split("///")[2])) {
+                                    subNet.setIpAddress(answerString.split("///")[1]);
+                                }
+                            }
+                        } else if (answerString.split("///")[0].contentEquals("FAIL")) {
+                            networkStateSingleton.operationFailed(answerString.split("///")[1]);
+                            System.out.println("Received FAIL");
                         } else if (answerString.contains("RECONNECTED")) {
                             String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
                             writer.println(timeStamp + "\t" + answerString.split("///")[1]);
@@ -947,20 +955,24 @@ public class NetworkCommunication {
         }
     }
 
-    public void activateAsAdvertiser(String uniqueId) {
+    public void activateSubnet(DeviceInfo advertiser, DeviceInfo discoverer) {
+        SubNet subNet = networkStateSingleton.activateAndGetNextSubnet(advertiser, discoverer);
         String activationString = "ADVER///";
-        Student student = aClass.getStudentWithUniqueID(uniqueId);
-        writeToOutputStream(student, buildPrefixBytes(activationString));
-        System.out.println("activating: " + student.getName() + " as advertiser");
+        Student advertiserStudent = aClass.getStudentWithUniqueID(subNet.getAdvertiser().getUniqueId());
+        writeToOutputStream(advertiserStudent, buildPrefixBytes(activationString));
+        System.out.println("activating: " + advertiserStudent.getName() + " as advertiser");
+
+        String activationStringDiscoverer = "DISCOV///" + subNet.getName() + "///" +
+                subNet.getPassword() + "///";
+        Student discovererStudent = aClass.getStudentWithUniqueID(subNet.getDiscoverer().getUniqueId());
+        writeToOutputStream(discovererStudent, buildPrefixBytes(activationStringDiscoverer));
+        System.out.println("activating: " + discovererStudent.getName() + " as discoverer");
     }
 
-    public void activateAsDiscoverer(String uniqueId) {
-        String nextHotspotName = this.hotspotName + this.nextHotspotNumber;
-        String hotspotPassword = String.valueOf(System.nanoTime());
-        this.hostpotPasswords.add(hotspotPassword);
-        String activationString = "DISCOV///" + nextHotspotName + "///" + hotspotPassword + "///";
-        Student student = aClass.getStudentWithUniqueID(uniqueId);
-        writeToOutputStream(student, buildPrefixBytes(activationString));
-        System.out.println("activating: " + student.getName() + " as discoverer");
+    public void activateDeviceToThirdLayer(SubNet subNet, DeviceInfo deviceToActivate) {
+        String activationString = "THIRDLAY///" + subNet.getName() + "///" + subNet.getPassword() + "///" + subNet.getIpAddress() + "///";
+        Student thirdLayerDevice = aClass.getStudentWithUniqueID(deviceToActivate.getUniqueId());
+        writeToOutputStream(thirdLayerDevice, buildPrefixBytes(activationString));
+        System.out.println("activating: " + thirdLayerDevice.getName() + " as 3rd layer device");
     }
 }

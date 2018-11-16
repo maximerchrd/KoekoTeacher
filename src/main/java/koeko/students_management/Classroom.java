@@ -139,7 +139,6 @@ public class Classroom {
         for (int i = 0; i < students.size() && !found; i++) {
             if (deviceID.contentEquals(students.get(i).getUniqueDeviceID())) {
                 student = students.get(i);
-                System.out.println("found student: " + student.getName() + " with device ID");
                 found = true;
             }
         }

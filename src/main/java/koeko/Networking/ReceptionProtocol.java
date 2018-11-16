@@ -7,6 +7,8 @@ import koeko.database_management.DbTableStudents;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,18 +35,14 @@ public class ReceptionProtocol {
         //get the device infos if android
         extractInfos(answerString, student);
 
-        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                .add(student.getUniqueDeviceID());
+        NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
+        networkState.getStudentsToConnectionStatus().add(student.getUniqueDeviceID());
 
         //update the tracking of questions on device
-        if (NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                .getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
+        if (networkState.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) == null) {
+            networkState.getStudentsToSyncedIdsMap().put(student.getUniqueDeviceID(), new CopyOnWriteArrayList<>());
+            networkState.getStudentsToReadyMap().put(student.getUniqueDeviceID(), 0);
+            networkState.getStudentsToActiveIdMap().put(student.getUniqueDeviceID(), "");
         }
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
@@ -76,12 +74,20 @@ public class ReceptionProtocol {
                     e.printStackTrace();
                 }
                 DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion);
-                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
-                        .put(student.getUniqueDeviceID(), deviceInfo);
+
+                //don't classify device if he is reconnecting after verticalizing
+                for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets()) {
+                    if (subNet.getAdvertiser().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                    if (subNet.getDiscoverer().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                    for (DeviceInfo clientsInfos : subNet.getClients()) {
+                        if (clientsInfos.getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                    }
+                }
+                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().classifiyNewDevice(deviceInfo);
             }
         } else {
-            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToDeviceInfos()
-                    .put(student.getUniqueDeviceID(), new DeviceInfo(student.getUniqueDeviceID(),"IOS", 0, false, 0L));
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
+                    .classifiyNewDevice(new DeviceInfo(student.getUniqueDeviceID(),"IOS", 0, false, 0L));
         }
     }
 
@@ -110,45 +116,38 @@ public class ReceptionProtocol {
 
     private static void activateNearbyIfNecessary() {
         NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
-        if (NetworkCommunication.network_solution == 1 && networkState.getStudentsToConnectionStatus().size() >= NetworkCommunication.maximumSupportedDevices - 1) {
-            System.out.println("Trying to activate nearby connections");
-            ArrayList<DeviceInfo> potentialAdvertisers = new ArrayList<>();
-            ArrayList<DeviceInfo> potentialDiscoverers = new ArrayList<>();
-            for (Map.Entry<String, DeviceInfo> entry : networkState.getStudentsToDeviceInfos().entrySet()) {
-                DeviceInfo deviceInfo = entry.getValue();
-                if (deviceInfo.getGoogleServicesVersion() >= 12451000) {
-                    if (deviceInfo.getBle()) {
-                        potentialAdvertisers.add(deviceInfo);
-                    } else if (deviceInfo.getOs().contentEquals("android")) {
-                        potentialDiscoverers.add(deviceInfo);
+
+        Integer numberFirstLayerDevices = networkState.getNumberOfFirstLayerDevices();
+        System.out.println("Number of first layer students: " + numberFirstLayerDevices);
+        if (NetworkCommunication.network_solution == 1 && numberFirstLayerDevices >= NetworkCommunication.maximumSupportedDevices - 1) {
+            System.out.println("Checking verticalizing possibilities");
+
+            //check if we can send a device to 3rd layer
+            Boolean sentForThirdLayer = false;
+            for (SubNet subNet : networkState.getSubNets()) {
+                if (subNet.getOnline() && !subNet.getSaturated()) {
+                    //find suitable device as 3rd layer device
+                    DeviceInfo deviceInfo = networkState.popThirdLayerDevice();
+                    subNet.getClients().add(deviceInfo);
+                    NetworkCommunication.networkCommunicationSingleton.activateDeviceToThirdLayer(subNet, deviceInfo);
+                    if (deviceInfo != null) {
+                        sentForThirdLayer = true;
+                    } else {
+                        System.err.println("PROBLEM in activateNearbyIfNecessary: unable to find device to send to active subnet!");
                     }
+                    break;
                 }
             }
 
-            if (potentialAdvertisers.size() > 0) {
-                DeviceInfo mostRecentAndroid = new DeviceInfo();
-                DeviceInfo discoverer = new DeviceInfo();
-                for (DeviceInfo deviceInfo : potentialAdvertisers) {
-                    if (mostRecentAndroid.getSdkLevel() < deviceInfo.getSdkLevel()) {
-                        mostRecentAndroid = deviceInfo;
-                    }
-                }
-                potentialAdvertisers.remove(mostRecentAndroid);
-
-                if (potentialAdvertisers.size() > 5) {
-                    discoverer = potentialAdvertisers.get(0);
-                } else if (potentialDiscoverers.size() > 0) {
-                    discoverer = potentialDiscoverers.get(0);
-                } else if (potentialAdvertisers.size() > 0) {
-                    discoverer = potentialAdvertisers.get(0);
+            //activate new Subnet
+            if (!sentForThirdLayer) {
+                DeviceInfo advertiser = networkState.popAdvertiser();
+                DeviceInfo discoverer = networkState.popDiscoverer();
+                if (advertiser != null && discoverer != null) {
+                    NetworkCommunication.networkCommunicationSingleton.activateSubnet(advertiser, discoverer);
                 } else {
-                    System.out.println("PROBLEM: Wifi saturated without possibility of starting new nearby node (less than 2 suitable androids)");
+                    System.err.println("UNABLE TO BUILD NEARBY NETWORK; INFORM TEACHER TO CONNECT RECENT ANDROIDS FIRST");
                 }
-
-                NetworkCommunication.networkCommunicationSingleton.activateAsAdvertiser(mostRecentAndroid.getUniqueId());
-                NetworkCommunication.networkCommunicationSingleton.activateAsDiscoverer(discoverer.getUniqueId());
-            } else {
-                System.out.println("PROBLEM: Wifi saturated without possibility of starting new nearby node");
             }
         }
     }
