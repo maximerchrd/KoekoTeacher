@@ -40,7 +40,7 @@ public class NetworkCommunication {
     private LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
-    static public int network_solution = 0; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
+    static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
     static public int maximumSupportedDevices = 3; //max devices that can connect to accesspoint (with computer hosting server)
     private int nextHotspotNumber = 1;
 
@@ -507,6 +507,9 @@ public class NetworkCommunication {
                                     subNet.setIpAddress(answerString.split("///")[1]);
                                 }
                             }
+                        } else if (answerString.split("///")[0].contentEquals("SUCCESS")) {
+                            networkStateSingleton.subnetSuccess(answerString.split("///")[1]);
+                            System.out.println("Received SUCCESS");
                         } else if (answerString.split("///")[0].contentEquals("FAIL")) {
                             networkStateSingleton.operationFailed(answerString.split("///")[1]);
                             System.out.println("Received FAIL");
@@ -967,12 +970,5 @@ public class NetworkCommunication {
         Student discovererStudent = aClass.getStudentWithUniqueID(subNet.getDiscoverer().getUniqueId());
         writeToOutputStream(discovererStudent, buildPrefixBytes(activationStringDiscoverer));
         System.out.println("activating: " + discovererStudent.getName() + " as discoverer");
-    }
-
-    public void activateDeviceToThirdLayer(SubNet subNet, DeviceInfo deviceToActivate) {
-        String activationString = "THIRDLAY///" + subNet.getName() + "///" + subNet.getPassword() + "///" + subNet.getIpAddress() + "///";
-        Student thirdLayerDevice = aClass.getStudentWithUniqueID(deviceToActivate.getUniqueId());
-        writeToOutputStream(thirdLayerDevice, buildPrefixBytes(activationString));
-        System.out.println("activating: " + thirdLayerDevice.getName() + " as 3rd layer device");
     }
 }

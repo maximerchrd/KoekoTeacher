@@ -1,6 +1,7 @@
 package koeko.Networking;
 
 import koeko.Koeko;
+import koeko.database_management.DbTableSubnetResult;
 import koeko.students_management.Student;
 
 import java.util.*;
@@ -22,8 +23,10 @@ public class NetworkState {
     private List<String> studentsToConnectionStatus;
 
     //hotspots
+    public Integer numberDesiredHotspots = 2;
     private String hotspotName = "koeko";
-    private int nextSubNet = 1;
+    private String hotspotPassword = "12345678";
+    public int nextSubNet = 1;
     private ArrayList<SubNet> subNets;
 
     static private Long minimumGoogleServiceVersion = 12451000L;
@@ -44,12 +47,6 @@ public class NetworkState {
         this.potentialDiscoverers = new ArrayList<>();
         this.potentialThirdLayerDevices = new ArrayList<>();
         this.onlyFirstLayerDevices = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            SubNet subNet = new SubNet();
-            subNet.setName(hotspotName + (i+1));
-            subNet.setPassword(String.valueOf(System.nanoTime() + i));
-            subNets.add(subNet);
-        }
     }
 
     public void toggleSyncStateForStudent(Student student, Integer state) {
@@ -84,6 +81,7 @@ public class NetworkState {
     }
 
     public void classifiyNewDevice(DeviceInfo deviceInfo) {
+        System.out.println("Classifiying new device: " + deviceInfo.getSdkLevel() + "; " + deviceInfo.getBle());
         if (deviceInfo.getOs().contentEquals("android") && deviceInfo.getBle()
                 && deviceInfo.getGoogleServicesVersion() >= minimumGoogleServiceVersion) {
             potentialAdvertisers.add(deviceInfo);
@@ -100,33 +98,75 @@ public class NetworkState {
     }
 
     public DeviceInfo popAdvertiser() {
-        DeviceInfo mostRecentAndroid = null;
-        for (DeviceInfo deviceInfo : potentialAdvertisers) {
-            if (mostRecentAndroid == null || mostRecentAndroid.getSdkLevel() < deviceInfo.getSdkLevel()) {
-                mostRecentAndroid = deviceInfo;
-            }
-        }
-        if (mostRecentAndroid != null) {
-            potentialAdvertisers.remove(mostRecentAndroid);
-        }
-        return mostRecentAndroid;
+        return getBetterDevice(potentialAdvertisers, false);
     }
 
     public DeviceInfo popDiscoverer() {
-        DeviceInfo discoverer = null;
-        if (potentialAdvertisers.size() > 5) {
-            discoverer = potentialAdvertisers.get(0);
-            potentialAdvertisers.remove(discoverer);
-        } else if (potentialDiscoverers.size() > 0) {
-            discoverer = potentialDiscoverers.get(0);
-            potentialDiscoverers.remove(discoverer);
-        } else if (potentialAdvertisers.size() > 0) {
-            discoverer = potentialAdvertisers.get(0);
-            potentialAdvertisers.remove(discoverer);
-        } else {
+        DeviceInfo discoverer = getBetterDevice(potentialDiscoverers, true);
+        if (discoverer == null) {
+            discoverer = getBetterDevice(potentialAdvertisers, true);
+        }
+        if (discoverer == null) {
             System.out.println("PROBLEM: Wifi saturated without possibility of starting new nearby node (less than 2 suitable androids)");
         }
         return discoverer;
+    }
+
+    private DeviceInfo getBetterDevice(ArrayList<DeviceInfo> deviceInfosList, Boolean hotspotNeeded) {
+        DeviceInfo betterAndroid = null;
+        Integer nbSuccess = 0;
+        Integer nbFails = 0;
+        for (DeviceInfo deviceInfo : deviceInfosList) {
+            Integer[] score = getDeviceScore(deviceInfo.getUniqueId(), SubNetConst.ADVERTISER);
+            if (betterAndroid == null) {
+                if (!hotspotNeeded || deviceInfo.getHotspotAvailable() == 1) {
+                    betterAndroid = deviceInfo;
+                    nbSuccess = score[0];
+                    nbFails = score[1];
+                }
+            } else {
+                // chose device according to 1: rate success/fail; 2: nb of success; 3: higher sdk level
+                double presentBest = (double)nbSuccess / ((double)nbSuccess + (double)nbFails);
+                if (Double.isNaN(presentBest)) presentBest = 0.0;
+                double newResult = (double)score[0] / ((double)score[0] + (double)score[1]);
+                if (Double.isNaN(newResult)) newResult = 0.0;
+                if (newResult >= presentBest ) {
+                    if (newResult == presentBest) {
+                        if (score[1] < nbFails) {
+                            if (!hotspotNeeded || deviceInfo.getHotspotAvailable() == 1) {
+                                betterAndroid = deviceInfo;
+                                nbSuccess = score[0];
+                                nbFails = score[1];
+                            }
+                        } else if (betterAndroid.getSdkLevel() < deviceInfo.getSdkLevel()) {
+                            if (!hotspotNeeded || deviceInfo.getHotspotAvailable() == 1) {
+                                betterAndroid = deviceInfo;
+                                nbSuccess = score[0];
+                                nbFails = score[1];
+                            }
+                        }
+                    } else {
+                        if (!hotspotNeeded || deviceInfo.getHotspotAvailable() == 1) {
+                            betterAndroid = deviceInfo;
+                            nbSuccess = score[0];
+                            nbFails = score[1];
+                        }
+                    }
+                } else {
+                    if (betterAndroid.getSdkLevel() < deviceInfo.getSdkLevel()) {
+                        if (!hotspotNeeded || deviceInfo.getHotspotAvailable() == 1) {
+                            betterAndroid = deviceInfo;
+                            nbSuccess = score[0];
+                            nbFails = score[1];
+                        }
+                    }
+                }
+            }
+        }
+        if (betterAndroid != null) {
+            deviceInfosList.remove(betterAndroid);
+        }
+        return betterAndroid;
     }
 
     public DeviceInfo popThirdLayerDevice() {
@@ -145,23 +185,65 @@ public class NetworkState {
     }
 
     public SubNet activateAndGetNextSubnet(DeviceInfo advertiser, DeviceInfo discoverer) {
-        subNets.get(nextSubNet).setAdvertiser(advertiser);
-        subNets.get(nextSubNet).setDiscoverer(discoverer);
-        subNets.get(nextSubNet).setOnline(true);
+        SubNet subNet = new SubNet();
+        subNet.setName(hotspotName + "_" + nextSubNet);
+        subNet.setPassword(hotspotPassword);
+        subNet.setAdvertiser(advertiser);
+        subNet.setDiscoverer(discoverer);
+        subNets.add(subNet);
         nextSubNet++;
-        return subNets.get(nextSubNet - 1);
+        return subNet;
     }
 
-    public Integer getNumberOfFirstLayerDevices() {
-        Integer devices = 0;
-        devices += potentialAdvertisers.size();
-        devices += potentialDiscoverers.size();
-        devices += potentialThirdLayerDevices.size();
-        devices += onlyFirstLayerDevices.size();
-        for (SubNet subNet : subNets) {
-            if (subNet.getOnline()) devices++;
+    public void subnetSuccess(String deviceIdentifier) {
+        for ( SubNet subNet : subNets) {
+            if (subNet.getDiscoverer().getUniqueId().contentEquals(deviceIdentifier)) {
+                subnetResult(subNet, 1);
+            }
         }
-        return  devices;
+    }
+
+    static public void subnetResult(SubNet subNet, Integer success) {
+        if (success == 0) {
+            subNet.setOnline(false);
+        } else {
+            subNet.setOnline(true);
+        }
+
+        SubnetResult advertiserResult = new SubnetResult();
+        advertiserResult.setSuccess(success);
+        advertiserResult.setSdkLevel(subNet.getAdvertiser().getSdkLevel());
+        advertiserResult.setDeviceRole(SubNetConst.ADVERTISER);
+        advertiserResult.setDeviceModel(subNet.getAdvertiser().getDeviceModel());
+        advertiserResult.setDeviceId(subNet.getAdvertiser().getUniqueId());
+        DbTableSubnetResult.insertSubnetResult(advertiserResult);
+
+        SubnetResult discovererResult = new SubnetResult();
+        discovererResult.setSuccess(success);
+        discovererResult.setSdkLevel(subNet.getDiscoverer().getSdkLevel());
+        discovererResult.setDeviceRole(SubNetConst.DISCOVERER);
+        discovererResult.setDeviceModel(subNet.getDiscoverer().getDeviceModel());
+        discovererResult.setDeviceId(subNet.getDiscoverer().getUniqueId());
+        DbTableSubnetResult.insertSubnetResult(discovererResult);
+    }
+
+    static public Integer[] getDeviceScore(String deviceId, Integer deviceRole) {
+        Integer[] results = new Integer[2];
+        ArrayList<SubnetResult> deviceResults = DbTableSubnetResult.getSubnetResultForId(deviceId, deviceRole);
+
+        Integer nbSuccess = 0;
+        Integer nbFails = 0;
+        for (SubnetResult subnetResult : deviceResults) {
+            if (subnetResult.getSuccess() == 1) {
+                nbSuccess++;
+            } else {
+                nbFails++;
+            }
+        }
+        results[0] = nbSuccess;
+        results[1] = nbFails;
+
+        return results;
     }
 
     public void disconnectDevice(String deviceUID) {

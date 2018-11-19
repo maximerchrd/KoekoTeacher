@@ -12,8 +12,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ReceptionProtocol {
+    static private AtomicBoolean startingNearby = new AtomicBoolean(false);
 
     static public Student receivedCONN(Student arg_student, String answerString, Classroom aClass) {
         Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), answerString.split("///")[1]);
@@ -48,7 +50,7 @@ public class ReceptionProtocol {
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
         NetworkCommunication.networkCommunicationSingleton.sendString(arg_student, "CONNECTED///");
-        activateNearbyIfNecessary();
+        activateNearbyIfNecessary(0);
 
         return student;
     }
@@ -58,22 +60,26 @@ public class ReceptionProtocol {
             String[] infos = answerString.split("///")[3].split(":");
             if (infos.length >= 4) {
                 Integer sdklevel = 0;
+                Long googleServicesVersion = 0L;
+                Boolean ble = false;
+                Integer hotspotAvailable = 0;
+                String deviceModel = "";
                 try {
                     sdklevel = Integer.valueOf(infos[1]);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-                Boolean ble = false;
-                if (infos[2].contentEquals("BLE")) {
-                    ble = true;
-                }
-                Long googleServicesVersion = 0L;
-                try {
+
+                    if (infos[2].contentEquals("BLE")) {
+                        ble = true;
+                    }
                     googleServicesVersion = Long.valueOf(infos[3]);
+                    hotspotAvailable = Integer.valueOf(infos[4]);
+                    deviceModel = infos[5];
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
                 }
-                DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion);
+                DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion,
+                        hotspotAvailable, deviceModel);
 
                 //don't classify device if he is reconnecting after verticalizing
                 for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets()) {
@@ -87,7 +93,7 @@ public class ReceptionProtocol {
             }
         } else {
             NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
-                    .classifiyNewDevice(new DeviceInfo(student.getUniqueDeviceID(),"IOS", 0, false, 0L));
+                    .classifiyNewDevice(new DeviceInfo(student.getUniqueDeviceID(), "IOS", 0, false, 0L, 0, "IOS"));
         }
     }
 
@@ -114,41 +120,47 @@ public class ReceptionProtocol {
         }
     }
 
-    private static void activateNearbyIfNecessary() {
-        NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
+    private static void activateNearbyIfNecessary(int trials) {
+        if (!startingNearby.get()) {
+            startingNearby.set(true);
+            NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
 
-        Integer numberFirstLayerDevices = networkState.getNumberOfFirstLayerDevices();
-        System.out.println("Number of first layer students: " + numberFirstLayerDevices);
-        if (NetworkCommunication.network_solution == 1 && numberFirstLayerDevices >= NetworkCommunication.maximumSupportedDevices - 1) {
-            System.out.println("Checking verticalizing possibilities");
+            if (NetworkCommunication.network_solution == 1 && networkState.nextSubNet <= networkState.numberDesiredHotspots) {
+                System.out.println("Checking verticalizing possibilities");
 
-            //check if we can send a device to 3rd layer
-            Boolean sentForThirdLayer = false;
-            for (SubNet subNet : networkState.getSubNets()) {
-                if (subNet.getOnline() && !subNet.getSaturated()) {
-                    //find suitable device as 3rd layer device
-                    DeviceInfo deviceInfo = networkState.popThirdLayerDevice();
-                    subNet.getClients().add(deviceInfo);
-                    NetworkCommunication.networkCommunicationSingleton.activateDeviceToThirdLayer(subNet, deviceInfo);
-                    if (deviceInfo != null) {
-                        sentForThirdLayer = true;
-                    } else {
-                        System.err.println("PROBLEM in activateNearbyIfNecessary: unable to find device to send to active subnet!");
-                    }
-                    break;
-                }
-            }
-
-            //activate new Subnet
-            if (!sentForThirdLayer) {
+                //activate new Subnet
                 DeviceInfo advertiser = networkState.popAdvertiser();
                 DeviceInfo discoverer = networkState.popDiscoverer();
                 if (advertiser != null && discoverer != null) {
                     NetworkCommunication.networkCommunicationSingleton.activateSubnet(advertiser, discoverer);
+                    if (trials < 4) {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets()) {
+                            if (subNet.getAdvertiser().getUniqueId().contentEquals(advertiser.getUniqueId())) {
+                                if (!subNet.getOnline()) {
+                                    System.out.println("Verticalizing failed");
+                                    startingNearby.set(false);
+                                    NetworkState.subnetResult(subNet, 0);
+                                    activateNearbyIfNecessary(++trials);
+                                }
+                            }
+                        }
+                    }
                 } else {
-                    System.err.println("UNABLE TO BUILD NEARBY NETWORK; INFORM TEACHER TO CONNECT RECENT ANDROIDS FIRST");
+                    if (advertiser != null) {
+                        networkState.classifiyNewDevice(advertiser);
+                    }
+                    if (discoverer != null) {
+                        networkState.classifiyNewDevice(discoverer);
+                    }
+                    System.out.println("Can't start subnet yet");
                 }
             }
+            startingNearby.set(false);
         }
     }
 }

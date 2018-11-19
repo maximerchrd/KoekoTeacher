@@ -60,6 +60,7 @@ public class DBManager {
 		DbTableRelationQuestionQuestion.createTableRelationQuestionQuestion(c, stmt);
 		DBTableSyncOp.createTableSyncOp(c, stmt);
 		DbTableLogs.createTableClasses(c, stmt);
+		DbTableSubnetResult.createTableSubnetResults();
 		try {
 			stmt.close();
 			c.close();

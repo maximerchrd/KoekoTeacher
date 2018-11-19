@@ -10,3 +10,8 @@ class SubNet {
     var discoverer: DeviceInfo = DeviceInfo()
     var clients = mutableListOf<DeviceInfo>()
 }
+
+object SubNetConst {
+    const val ADVERTISER = 0
+    const val DISCOVERER = 1
+}
