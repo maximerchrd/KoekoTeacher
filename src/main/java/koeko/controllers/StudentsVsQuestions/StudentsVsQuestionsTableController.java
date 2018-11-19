@@ -14,6 +14,8 @@ import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.questions_management.QuestionGeneric;
+import koeko.questions_management.QuestionMultipleChoice;
+import koeko.questions_management.QuestionShortAnswer;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import javafx.application.Platform;
@@ -313,15 +315,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
 
     public void addAnswerForUser(String student, String answer, String question, double evaluation, String questionId, Integer group) {
-        if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
-            Platform.runLater(new Runnable(){
-                @Override
-                public void run() {
-                    popUpIfQuestionNotCorresponding();
-                }
-            });
-        }
-
         //set answer
         answer = answer.replace("|||",";");
         if (answer.contentEquals("") || answer.contentEquals(" ")) {
@@ -337,6 +330,33 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student)) {
                 indexRow = i;
             }
+        }
+
+        if (indexRow >= 0 && indexColumn == -1) {
+            //the question is not activated (for example when reading from QR code), so we activate it and insert the answer
+
+            Koeko.studentGroupsAndClass.get(group).getActiveIDs().add(questionId);
+            QuestionGeneric questionGeneric;
+            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
+            if (questionMultipleChoice.getQUESTION().length() > 0) {
+                NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
+                Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group));
+                questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
+                questionGeneric.setActivated(true);
+            } else {
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
+                NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
+                Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group));
+                questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
+                questionGeneric.setActivated(true);
+            }
+
+            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
+            indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);;
+        }
+
+        if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
+            Platform.runLater(() -> popUpIfQuestionNotCorresponding());
         }
 
         if (indexColumn >= 0 && indexRow >= 0) {

@@ -40,8 +40,7 @@ public class NetworkCommunication {
     private LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
-    static public int network_solution = 1; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
-    static public int maximumSupportedDevices = 3; //max devices that can connect to accesspoint (with computer hosting server)
+    static public int network_solution = 0; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
     private int nextHotspotNumber = 1;
 
     private FileInputStream fis = null;
