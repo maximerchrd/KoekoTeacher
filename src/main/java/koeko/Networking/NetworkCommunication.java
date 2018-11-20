@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import koeko.view.QuestionView;
+import koeko.view.Utilities;
 
 import java.io.*;
 import java.net.*;
@@ -550,13 +551,21 @@ public class NetworkCommunication {
         try {
             Long longId = Long.valueOf(resourceId);
             if (longId < 0) {
-                ArrayList<String> questionIds = sendTestWithID(resourceId, student);
+                ArrayList<String> questionIds = sendTestWithID(Utilities.setPositiveIdSign(resourceId), student);
                 for (String questionId : questionIds) {
                     QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
                     if (questionMultipleChoice.getQUESTION().length() > 0) {
                         sendMultipleChoiceWithID(questionId, student);
                     } else {
                         sendShortAnswerQuestionWithID(questionId, student);
+                    }
+                }
+                //Added delay to give enough time to put the questions in the queue before the ID
+                for (int i = 0; i < 40 && !networkStateSingleton.getStudentsToSyncedIdsMap().get(studentId).containsAll(questionIds); i++) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             } else {
@@ -566,16 +575,17 @@ public class NetworkCommunication {
                 } else {
                     sendShortAnswerQuestionWithID(resourceId, student);
                 }
-            }
-
-            //Added delay to give enough time to put the questions in the queue before the ID
-            for (int i = 0; i < 20 && !networkStateSingleton.getStudentsToSyncedIdsMap().get(studentId).contains(resourceId); i++) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                //Added delay to give enough time to put the questions in the queue before the ID
+                for (int i = 0; i < 20 && !networkStateSingleton.getStudentsToSyncedIdsMap().get(studentId).contains(resourceId); i++) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+
+
 
             ArrayList<Student> singleStudent = new ArrayList<>();
             singleStudent.add(student);
