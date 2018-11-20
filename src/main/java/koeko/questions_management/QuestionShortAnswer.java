@@ -44,11 +44,15 @@ public class QuestionShortAnswer {
 		for (String answer : ANSWERS) {
 			stringToHash += answer;
 		}
-		for (String subject : subjects) {
-			stringToHash += subject;
+		if (subjects != null) {
+			for (String subject : subjects) {
+				stringToHash += subject;
+			}
 		}
-		for (String objective : objectives) {
-			stringToHash += objective;
+		if (objectives != null) {
+			for (String objective : objectives) {
+				stringToHash += objective;
+			}
 		}
 		try {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
