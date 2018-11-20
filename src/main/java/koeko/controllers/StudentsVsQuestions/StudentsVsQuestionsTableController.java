@@ -315,88 +315,93 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
 
     public void addAnswerForUser(String student, String answer, String question, double evaluation, String questionId, Integer group) {
-        //set answer
-        answer = answer.replace("|||",";");
-        if (answer.contentEquals("") || answer.contentEquals(" ")) {
-            answer = "no answer";
-        }
-        if (evaluation == 100) {
-            answer += "#/#";
-        }
-        Integer indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
-
-        Integer indexRow = -1;
-        for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student)) {
-                indexRow = i;
+        try {
+            //set answer
+            answer = answer.replace("|||", ";");
+            if (answer.contentEquals("") || answer.contentEquals(" ")) {
+                answer = "no answer";
             }
-        }
+            if (evaluation == 100) {
+                answer += "#/#";
+            }
+            Integer indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
 
-        if (indexRow >= 0 && indexColumn == -1) {
-            //the question is not activated (for example when reading from QR code), so we activate it and insert the answer
-
-            Koeko.studentGroupsAndClass.get(group).getActiveIDs().add(questionId);
-            QuestionGeneric questionGeneric;
-            QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
-            if (questionMultipleChoice.getQUESTION().length() > 0) {
-                NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
-                Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group));
-                questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
-                questionGeneric.setActivated(true);
-            } else {
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
-                NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
-                Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group));
-                questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
-                questionGeneric.setActivated(true);
+            Integer indexRow = -1;
+            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
+                if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student)) {
+                    indexRow = i;
+                }
             }
 
-            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
-            indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);;
-        }
+            if (indexRow >= 0 && indexColumn == -1) {
+                //the question is not activated (for example when reading from QR code), so we activate it and insert the answer
 
-        if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
-            Platform.runLater(() -> popUpIfQuestionNotCorresponding());
-        }
+                Koeko.studentGroupsAndClass.get(group).getActiveIDs().add(questionId);
+                QuestionGeneric questionGeneric;
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
+                if (questionMultipleChoice.getQUESTION().length() > 0) {
+                    NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
+                    Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group));
+                    questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
+                    questionGeneric.setActivated(true);
+                } else {
+                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
+                    NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
+                    Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group));
+                    questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
+                    questionGeneric.setActivated(true);
+                }
 
-        if (indexColumn >= 0 && indexRow >= 0) {
-            SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
-            singleStudentAnswersLine.setAnswer(answer, indexColumn);
-
-            //update evaluation
-            int numberAnswers = 0;
-            for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
-                String answerInCell = singleStudentAnswersLine.getAnswers().get(i).getValue();
-                if (answerInCell.length() > 0) numberAnswers++;
+                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
+                indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
+                ;
             }
-            Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
-            meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
-            if (Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().size() > indexColumn &&
-                    Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexColumn) != null) {
-                Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexColumn, meanEvaluation);
-            } else {
-                System.out.println("Problem setting the average evaluation for column: " + indexColumn);
-            }
-            DecimalFormat df = new DecimalFormat("#.#");
-            singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
-            tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
 
-            //update mean values
-            Double questionAverage = Koeko.studentGroupsAndClass.get(group).updateAverageEvaluationForQuestion(indexColumn, indexRow, evaluation);
-            Double classAverage = Koeko.studentGroupsAndClass.get(group).updateAverageEvaluationForClass();
-            SingleStudentAnswersLine averageEvaluationsLine = tableViewArrayList.get(group).getItems().get(tableViewArrayList.get(group).getItems().size() - 1);
-            averageEvaluationsLine.setEvaluation(String.valueOf(df.format(classAverage)));
-            if (questionAverage > 60.0) {
-                averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)) + "#/#", indexColumn);
-            } else {
-                averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)), indexColumn);
+            if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {
+                Platform.runLater(() -> popUpIfQuestionNotCorresponding());
             }
-            tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
 
-            //update MCQStats
-            if (mcqStatsController != null) {
-                mcqStatsController.updateChart(answer, indexRow);
+            if (indexColumn >= 0 && indexRow >= 0) {
+                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(group).getItems().get(indexRow);
+                singleStudentAnswersLine.setAnswer(answer, indexColumn);
+
+                //update evaluation
+                int numberAnswers = 0;
+                for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
+                    String answerInCell = singleStudentAnswersLine.getAnswers().get(i).getValue();
+                    if (answerInCell.length() > 0) numberAnswers++;
+                }
+                Double meanEvaluation = Double.parseDouble(singleStudentAnswersLine.getEvaluation());
+                meanEvaluation = ((meanEvaluation * (numberAnswers - 1)) + evaluation) / numberAnswers;
+                if (Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().size() > indexColumn &&
+                        Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().get(indexColumn) != null) {
+                    Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().set(indexColumn, meanEvaluation);
+                } else {
+                    System.out.println("Problem setting the average evaluation for column: " + indexColumn);
+                }
+                DecimalFormat df = new DecimalFormat("#.#");
+                singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
+                tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
+
+                //update mean values
+                Double questionAverage = Koeko.studentGroupsAndClass.get(group).updateAverageEvaluationForQuestion(indexColumn, indexRow, evaluation);
+                Double classAverage = Koeko.studentGroupsAndClass.get(group).updateAverageEvaluationForClass();
+                SingleStudentAnswersLine averageEvaluationsLine = tableViewArrayList.get(group).getItems().get(tableViewArrayList.get(group).getItems().size() - 1);
+                averageEvaluationsLine.setEvaluation(String.valueOf(df.format(classAverage)));
+                if (questionAverage > 60.0) {
+                    averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)) + "#/#", indexColumn);
+                } else {
+                    averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)), indexColumn);
+                }
+                tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
+
+                //update MCQStats
+                if (mcqStatsController != null) {
+                    mcqStatsController.updateChart(answer, indexRow);
+                }
             }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
         }
     }
 

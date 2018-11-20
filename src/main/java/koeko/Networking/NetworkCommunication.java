@@ -9,6 +9,7 @@ import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
+import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
@@ -516,6 +517,8 @@ public class NetworkCommunication {
                             String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
                             writer.println(timeStamp + "\t" + answerString.split("///")[1]);
                             writer.flush();
+                        } else if (answerString.split("///")[0].contentEquals("REQUEST")) {
+                            sendResourceWithId(answerString.split("///")[2], answerString.split("///")[1]);
                         }
                     } else {
                         System.out.println("Communication over?");
@@ -539,6 +542,31 @@ public class NetworkCommunication {
             writer.close();
         });
         listeningthread.start();
+    }
+
+    private void sendResourceWithId(String resourceId, String studentId) {
+        Student student = aClass.getStudentWithUniqueID(studentId);
+        System.out.println("Resource requested: " + resourceId + ". Sending to: " + student.getName());
+        try {
+            Long longId = Long.valueOf(resourceId);
+            if (longId < 0) {
+                sendTestWithID(resourceId, student);
+            } else {
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(resourceId);
+                if (questionMultipleChoice.getQUESTION().length() > 0) {
+                    sendMultipleChoiceWithID(resourceId, student);
+                } else {
+                    sendShortAnswerQuestionWithID(resourceId, student);
+                }
+            }
+            ArrayList<Student> singleStudent = new ArrayList<>();
+            singleStudent.add(student);
+            sendQuestionID(resourceId, singleStudent);
+        } catch (NumberFormatException e) {
+            System.err.println("Received request but resource id not in number format");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMediaFile(File mediaFile, Student student) {
