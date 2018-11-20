@@ -71,80 +71,81 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void addQuestion(String question, String ID, Integer group) {
         if (Long.valueOf(ID) > 0) {
             if (group < 1) group = 0;
-            // Add extra columns if necessary:
-            TableColumn column = new TableColumn();
-            column.setPrefWidth(180);
-
-            VBox vBox = new VBox(new Label(question));
-            vBox.setAlignment(Pos.CENTER);
-            int index = tableViewArrayList.get(group).getColumns().size();
-            String columnIndex = group + "/" + index + "/" + question + "/" + ID;
-            vBox.getProperties().put("index", columnIndex);
-            column.setGraphic(vBox);
-            column.setText("");
-
-            //Add header onclick listener
-            EventHandler<? super MouseEvent> handlerClick = event -> {
-                if (!columnIdentifiers.contentEquals("")) {
-                    diplayQuestionStats(columnIdentifiers);
-                }
-            };
-            EventHandler<? super MouseEvent> handlerEnter = event -> {
-                columnIdentifiers = (String) ((Node) event.getTarget()).getProperties().get("index");
-            };
-            EventHandler<? super MouseEvent> handlerExit = event -> {
-                columnIdentifiers = "";
-            };
-            column.getGraphic().addEventFilter(MouseEvent.MOUSE_ENTERED, handlerEnter);
-            column.getGraphic().addEventFilter(MouseEvent.MOUSE_CLICKED, handlerClick);
-            column.getGraphic().addEventFilter(MouseEvent.MOUSE_EXITED, handlerExit);
-
-
-            column.setSortable(false);
-            tableViewArrayList.get(group).getColumns().add(column);
-
             Koeko.studentGroupsAndClass.get(group).getActiveQuestions().add(question);
-            //questions.add(question);
-            //questionsIDs.add(ID);
 
-            //add the evaluations for the table
-            for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-                tableViewArrayList.get(group).getItems().get(i).addAnswer();
-                if (Koeko.studentGroupsAndClass.get(group).getActiveEvaluations() != null
-                        && Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().size() > i) {
-                    Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().get(i).add(-1.0);
+            final int groupFinal = group;
+            Platform.runLater(() -> {
+                // Add extra columns if necessary:
+                TableColumn column = new TableColumn();
+                column.setPrefWidth(180);
+
+                VBox vBox = new VBox(new Label(question));
+                vBox.setAlignment(Pos.CENTER);
+                int index = tableViewArrayList.get(groupFinal).getColumns().size();
+                String columnIndex = groupFinal + "/" + index + "/" + question + "/" + ID;
+                vBox.getProperties().put("index", columnIndex);
+                column.setGraphic(vBox);
+                column.setText("");
+
+                //Add header onclick listener
+                EventHandler<? super MouseEvent> handlerClick = event -> {
+                    if (!columnIdentifiers.contentEquals("")) {
+                        diplayQuestionStats(columnIdentifiers);
+                    }
+                };
+                EventHandler<? super MouseEvent> handlerEnter = event -> {
+                    columnIdentifiers = (String) ((Node) event.getTarget()).getProperties().get("index");
+                };
+                EventHandler<? super MouseEvent> handlerExit = event -> {
+                    columnIdentifiers = "";
+                };
+                column.getGraphic().addEventFilter(MouseEvent.MOUSE_ENTERED, handlerEnter);
+                column.getGraphic().addEventFilter(MouseEvent.MOUSE_CLICKED, handlerClick);
+                column.getGraphic().addEventFilter(MouseEvent.MOUSE_EXITED, handlerExit);
+
+
+                column.setSortable(false);
+                tableViewArrayList.get(groupFinal).getColumns().add(column);
+
+                //add the evaluations for the table
+                for (int i = 0; i < tableViewArrayList.get(groupFinal).getItems().size(); i++) {
+                    tableViewArrayList.get(groupFinal).getItems().get(i).addAnswer();
+                    if (Koeko.studentGroupsAndClass.get(groupFinal).getActiveEvaluations() != null
+                            && Koeko.studentGroupsAndClass.get(groupFinal).getActiveEvaluations().size() > i) {
+                        Koeko.studentGroupsAndClass.get(groupFinal).getActiveEvaluations().get(i).add(-1.0);
+                    }
                 }
-            }
-            Koeko.studentGroupsAndClass.get(group).getAverageEvaluations().add(0.0);
+                Koeko.studentGroupsAndClass.get(groupFinal).getAverageEvaluations().add(0.0);
 
 
-            final int questionIndex = Koeko.studentGroupsAndClass.get(group).getActiveQuestions().size() - 1;
-            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                    // p.getValue() returns the Person instance for a particular TableView row
-                    return p.getValue().getAnswers().get(questionIndex);
-                }
-            });
-            column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
-                @Override
-                public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
-                    return new TableCell<SingleStudentAnswersLine, String>() {
+                final int questionIndex = Koeko.studentGroupsAndClass.get(groupFinal).getActiveQuestions().size() - 1;
+                column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
+                    public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
+                        // p.getValue() returns the Person instance for a particular TableView row
+                        return p.getValue().getAnswers().get(questionIndex);
+                    }
+                });
+                column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
+                    @Override
+                    public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
+                        return new TableCell<SingleStudentAnswersLine, String>() {
 
-                        @Override
-                        public void updateItem(String item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (!isEmpty()) {
-                                this.setStyle("-fx-text-fill: red;");
-                                // Get fancy and change color based on data
-                                if (item.contains("#/#")) {
-                                    this.setStyle("-fx-text-fill: green;");
+                            @Override
+                            public void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (!isEmpty()) {
+                                    this.setStyle("-fx-text-fill: red;");
+                                    // Get fancy and change color based on data
+                                    if (item.contains("#/#")) {
+                                        this.setStyle("-fx-text-fill: green;");
+                                    }
+                                    setText(item.replace("#/#", ""));
                                 }
-                                setText(item.replace("#/#", ""));
                             }
-                        }
 
-                    };
-                }
+                        };
+                    }
+                });
             });
         }
     }
@@ -334,27 +335,36 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
 
             if (indexRow >= 0 && indexColumn == -1) {
+                int nbColumnsBefore = tableViewArrayList.get(group).getColumns().size();
                 //the question is not activated (for example when reading from QR code), so we activate it and insert the answer
-
                 Koeko.studentGroupsAndClass.get(group).getActiveIDs().add(questionId);
                 QuestionGeneric questionGeneric;
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
                 if (questionMultipleChoice.getQUESTION().length() > 0) {
                     NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
-                    Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group));
+                    addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group);
                     questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
                     questionGeneric.setActivated(true);
                 } else {
                     QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
                     NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
-                    Platform.runLater(() -> NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group));
+                    addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group);
                     questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
                     questionGeneric.setActivated(true);
                 }
 
                 Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
                 indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
-                ;
+
+                int nbColumnsAfter = nbColumnsBefore;
+                for (int i = 0; i < 5 && nbColumnsAfter <= nbColumnsBefore; i++) {
+                    nbColumnsAfter = tableViewArrayList.get(group).getColumns().size();
+                    try {
+                        Thread.sleep(150);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             if (!Koeko.studentGroupsAndClass.get(group).getActiveQuestions().contains(question)) {

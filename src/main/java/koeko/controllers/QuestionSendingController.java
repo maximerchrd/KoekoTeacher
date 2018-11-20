@@ -296,8 +296,10 @@ public class QuestionSendingController extends Window implements Initializable {
                     });
                     imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
                     hBox.getChildren().addAll(buttonDelete, imageView);
-                    setText(questionGeneric.getQuestion());
-                    setGraphic(hBox);
+                    Platform.runLater(() -> {
+                        setText(questionGeneric.getQuestion());
+                        setGraphic(hBox);
+                    });
                 }
             }
         });

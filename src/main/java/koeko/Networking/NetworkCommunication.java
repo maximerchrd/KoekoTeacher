@@ -550,7 +550,15 @@ public class NetworkCommunication {
         try {
             Long longId = Long.valueOf(resourceId);
             if (longId < 0) {
-                sendTestWithID(resourceId, student);
+                ArrayList<String> questionIds = sendTestWithID(resourceId, student);
+                for (String questionId : questionIds) {
+                    QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
+                    if (questionMultipleChoice.getQUESTION().length() > 0) {
+                        sendMultipleChoiceWithID(questionId, student);
+                    } else {
+                        sendShortAnswerQuestionWithID(questionId, student);
+                    }
+                }
             } else {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(resourceId);
                 if (questionMultipleChoice.getQUESTION().length() > 0) {
@@ -559,6 +567,16 @@ public class NetworkCommunication {
                     sendShortAnswerQuestionWithID(resourceId, student);
                 }
             }
+
+            //Added delay to give enough time to put the questions in the queue before the ID
+            for (int i = 0; i < 20 && !networkStateSingleton.getStudentsToSyncedIdsMap().get(studentId).contains(resourceId); i++) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             ArrayList<Student> singleStudent = new ArrayList<>();
             singleStudent.add(student);
             sendQuestionID(resourceId, singleStudent);
