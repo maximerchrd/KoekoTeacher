@@ -204,9 +204,7 @@ public class NetworkState {
     }
 
     static public void subnetResult(SubNet subNet, Integer success) {
-        if (success == 0) {
-            subNet.setOnline(false);
-        } else {
+        if (success != 0) {
             subNet.setOnline(true);
         }
 
@@ -225,6 +223,12 @@ public class NetworkState {
         discovererResult.setDeviceModel(subNet.getDiscoverer().getDeviceModel());
         discovererResult.setDeviceId(subNet.getDiscoverer().getUniqueId());
         DbTableSubnetResult.insertSubnetResult(discovererResult);
+
+        if (success == 0) {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().classifiyNewDevice(subNet.getAdvertiser());
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().classifiyNewDevice(subNet.getDiscoverer());
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets().remove(subNet);
+        }
     }
 
     static public Integer[] getDeviceScore(String deviceId, Integer deviceRole) {

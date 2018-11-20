@@ -135,7 +135,7 @@ public class ReceptionProtocol {
                     NetworkCommunication.networkCommunicationSingleton.activateSubnet(advertiser, discoverer);
                     if (trials < 4) {
                         try {
-                            Thread.sleep(10000);
+                            Thread.sleep(15000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
