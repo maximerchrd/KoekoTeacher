@@ -3,7 +3,7 @@ package koeko.view;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class QuestionView {
+public class QuestionView implements Serializable {
     private String ID;
     private int TYPE;   //0: QMC; 1: SHRTAQ; 2: TEST
     private String SUBJECT;

@@ -110,11 +110,11 @@ public class SyncOperations {
             _tcpcom.DownloadSelection();
             System.out.println("Selection downloaded");
 
-            // Termine le processus de synchronisation avec le serveur
+            // End syncing processus
             _tcpcom.EndSynchronisation();
             System.out.println("Ending synchronization");
 
-            // Note la dernière synchro
+            // Take note of last sync
             DBTableSyncOp.SetLastSyncOp(Utilities.TimestampForNowAsString());
             System.out.println("Marking sync time");
         }
@@ -157,9 +157,13 @@ public class SyncOperations {
 
     static private void CreateOrUpdateQuestionMultipleChoice(QuestionView qcm, String ownerMUID) {
         try {
-            if (!qcm.getIMAGE().equals("none")) {
-                boolean bOK = _tcpcom.SendFile(qcm.getIMAGE());
-                if (!bOK) throw new Exception("File upload failed!");
+            if (qcm.getIMAGE() != null) {
+                if (!qcm.getIMAGE().equals("none")) {
+                    boolean bOK = _tcpcom.SendFile(qcm.getIMAGE());
+                    if (!bOK) throw new Exception("File upload failed!");
+                }
+            } else {
+                qcm.setIMAGE("none");
             }
             String muid = _tcpcom.SendSerializableObject(qcm);
             if (muid != null) {

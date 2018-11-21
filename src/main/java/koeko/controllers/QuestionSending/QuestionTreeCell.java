@@ -110,18 +110,22 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             ImageView image = new ImageView();
 
             setText(item.getQuestion());
-            if (Long.valueOf(item.getGlobalID()) > 0) {
-                String url = "file:" + FilesHandler.mediaDirectory + item.getImagePath();
-                image = new ImageView(new Image(url, imageSize, imageSize, true, true));
-            } else {
-                if (item.getTypeOfQuestion().contentEquals("TEFO")) {
-                   image = new ImageView(new Image("/drawable/test.png", imageSize, imageSize, true, true));
-                } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
-                    image = new ImageView(new Image("/drawable/test_certificative.png", imageSize, imageSize, true, true));
+            try {
+                if (Long.valueOf(item.getGlobalID()) > 0) {
+                    String url = "file:" + FilesHandler.mediaDirectory + item.getImagePath();
+                    image = new ImageView(new Image(url, imageSize, imageSize, true, true));
+                } else {
+                    if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+                        image = new ImageView(new Image("/drawable/test.png", imageSize, imageSize, true, true));
+                    } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
+                        image = new ImageView(new Image("/drawable/test_certificative.png", imageSize, imageSize, true, true));
+                    }
                 }
+                hbox.getChildren().addAll(buttonsBox, buttonsBox2, image);
+                setGraphic(hbox);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
-            hbox.getChildren().addAll(buttonsBox, buttonsBox2, image);
-            setGraphic(hbox);
         } else {
             setText(null);
             setGraphic(null);

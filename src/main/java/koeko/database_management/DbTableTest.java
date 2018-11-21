@@ -84,6 +84,7 @@ public class DbTableTest {
                 testView.setID(rs.getString("ID_TEST_GLOBAL"));
                 testView.setQCM_MUID(rs.getString("IDENTIFIER"));
                 testView.setQUESTION(rs.getString("NAME"));
+                testView.setIMAGE(rs.getString("MEDIA_FILE"));
                 String modifDate = rs.getString("MODIF_DATE");
                 testView.setQCM_UPD_TMS(Utilities.StringToTimestamp(modifDate));
                 testViews.add(testView);
