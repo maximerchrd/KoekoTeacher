@@ -64,20 +64,11 @@ public class QuestionSendingController extends Window implements Initializable {
     public List<Test> testsList = new ArrayList<>();
     public TreeItem<QuestionGeneric> editedTestItem = null;
 
-    @FXML
-    public TreeView<QuestionGeneric> allQuestionsTree;
-
-    //questions ready for activation (right panel)
-    static public Vector<String> IDsFromBroadcastedQuestions = new Vector<>();
-    @FXML
-    public ListView<QuestionGeneric> readyQuestionsList;
-
+    @FXML public TreeView<QuestionGeneric> allQuestionsTree;
+    @FXML public ListView<QuestionGeneric> readyQuestionsList;
     @FXML private ComboBox groupsCombobox;
-
     @FXML private ComboBox uiChoiceBox;
-
     @FXML private Accordion questionSendingAccordion;
-
     @FXML private Button createQuestionButton;
     @FXML private Button createTestButton;
     @FXML private Button broadcastQuestionForStudentsButton;
@@ -294,9 +285,9 @@ public class QuestionSendingController extends Window implements Initializable {
                     buttonDelete.setOnAction((event) -> {
                         deactivateQuestion(this);
                     });
-                    imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
-                    hBox.getChildren().addAll(buttonDelete, imageView);
                     Platform.runLater(() -> {
+                        imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
+                        hBox.getChildren().addAll(buttonDelete, imageView);
                         setText(questionGeneric.getQuestion());
                         setGraphic(hBox);
                     });
@@ -614,8 +605,15 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         //remove question from sentQuestions
-        NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getQuestionIdsToSend().remove(questionCell.getItem().getGlobalID());
-
+        try {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getQuestionIdsToSend().remove(questionCell.getItem().getGlobalID());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println("network state: " + NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton());
+            System.out.println("questionIdsToSend: " + NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getQuestionIdsToSend());
+            System.out.println("questionCell: " + questionCell);
+            System.out.println("questionCell.getItem(): " + questionCell.getItem());
+        }
         //remove question from table
         int index = questionCell.getIndex();
         if (Long.valueOf(questionCell.getItem().getGlobalID()) > 0) {

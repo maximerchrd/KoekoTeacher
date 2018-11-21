@@ -334,6 +334,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 }
             }
 
+            //if the answer doesn't correspond to an active question, active it first if possible
             if (indexRow >= 0 && indexColumn == -1) {
                 int nbColumnsBefore = tableViewArrayList.get(group).getColumns().size();
                 //the question is not activated (for example when reading from QR code), so we activate it and insert the answer
@@ -344,13 +345,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                     NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
                     addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), group);
                     questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
-                    questionGeneric.setActivated(true);
                 } else {
                     QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
                     NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
                     addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), group);
                     questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
-                    questionGeneric.setActivated(true);
                 }
 
                 Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
