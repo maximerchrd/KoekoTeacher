@@ -64,15 +64,24 @@ public class QuestionSendingController extends Window implements Initializable {
     public List<Test> testsList = new ArrayList<>();
     public TreeItem<QuestionGeneric> editedTestItem = null;
 
-    @FXML public TreeView<QuestionGeneric> allQuestionsTree;
-    @FXML public ListView<QuestionGeneric> readyQuestionsList;
-    @FXML private ComboBox groupsCombobox;
-    @FXML private ComboBox uiChoiceBox;
-    @FXML private Accordion questionSendingAccordion;
-    @FXML private Button createQuestionButton;
-    @FXML private Button createTestButton;
-    @FXML private Button broadcastQuestionForStudentsButton;
-    @FXML private Button activateQuestionForStudentsButton;
+    @FXML
+    public TreeView<QuestionGeneric> allQuestionsTree;
+    @FXML
+    public ListView<QuestionGeneric> readyQuestionsList;
+    @FXML
+    private ComboBox groupsCombobox;
+    @FXML
+    private ComboBox uiChoiceBox;
+    @FXML
+    private Accordion questionSendingAccordion;
+    @FXML
+    private Button createQuestionButton;
+    @FXML
+    private Button createTestButton;
+    @FXML
+    private Button broadcastQuestionForStudentsButton;
+    @FXML
+    private Button activateQuestionForStudentsButton;
 
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
@@ -263,7 +272,6 @@ public class QuestionSendingController extends Window implements Initializable {
         readyQuestionsList.setCellFactory(param -> new ListCell<QuestionGeneric>() {
             private ImageView imageView = new ImageView();
 
-
             public void updateItem(QuestionGeneric questionGeneric, boolean empty) {
                 super.updateItem(questionGeneric, empty);
                 if (empty) {
@@ -285,12 +293,11 @@ public class QuestionSendingController extends Window implements Initializable {
                     buttonDelete.setOnAction((event) -> {
                         deactivateQuestion(this);
                     });
-                    Platform.runLater(() -> {
-                        imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
-                        hBox.getChildren().addAll(buttonDelete, imageView);
-                        setText(questionGeneric.getQuestion());
-                        setGraphic(hBox);
-                    });
+
+                    imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
+                    hBox.getChildren().addAll(buttonDelete, imageView);
+                    setText(questionGeneric.getQuestion());
+                    setGraphic(hBox);
                 }
             }
         });
@@ -331,7 +338,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     String questionID = readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID();
                     ArrayList<Student> singleStudent = new ArrayList<>();
                     singleStudent.add(student);
-                    NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionID,singleStudent);
+                    NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionID, singleStudent);
                 }
             });
             studentsContextMenu.getItems().add(studentItem);
@@ -442,25 +449,25 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     private void populateWithLinkedQuestions(QuestionGeneric testGeneric, String id, TreeItem questionItem) {
-        Vector<String> linkedQuestionsIds = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(id),testGeneric.getQuestion());
+        Vector<String> linkedQuestionsIds = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(String.valueOf(id), testGeneric.getQuestion());
         for (String questionID : linkedQuestionsIds) {
             if (DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionID) == 0) {
                 QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionID);
                 QuestionGeneric questionGeneric = QuestionGeneric.mcqToQuestionGeneric(questionMultipleChoice);
                 TreeItem questionChildren = new TreeItem<>(questionGeneric);
                 questionItem.getChildren().add(questionChildren);
-                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID,testGeneric.getQuestion());
+                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID, testGeneric.getQuestion());
                 if (linkedQuestionsIds2.size() > 0) {
-                    populateWithLinkedQuestions(testGeneric,questionID,questionChildren);
+                    populateWithLinkedQuestions(testGeneric, questionID, questionChildren);
                 }
             } else {
                 QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionID);
                 QuestionGeneric questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
                 TreeItem questionChildren = new TreeItem<>(questionGeneric);
                 questionItem.getChildren().add(questionChildren);
-                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID,testGeneric.getQuestion());
+                Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID, testGeneric.getQuestion());
                 if (linkedQuestionsIds2.size() > 0) {
-                    populateWithLinkedQuestions(testGeneric,questionID,questionChildren);
+                    populateWithLinkedQuestions(testGeneric, questionID, questionChildren);
                 }
             }
         }
@@ -505,7 +512,7 @@ public class QuestionSendingController extends Window implements Initializable {
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
         } else if (groupsCombobox.getSelectionModel().getSelectedIndex() == 0) {
             //if a class (and not a group!) is selected, make sure that all students connected get the question
-            Vector<Student> tableStudents = (Vector<Student>)NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().clone();
+            Vector<Student> tableStudents = (Vector<Student>) NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().clone();
             for (int i = 0; i < tableStudents.size(); i++) {
                 for (int j = 0; j < students.size(); j++) {
                     if (tableStudents.get(i).getName().contentEquals(students.get(j).getName())) {
@@ -617,7 +624,7 @@ public class QuestionSendingController extends Window implements Initializable {
         //remove question from table
         int index = questionCell.getIndex();
         if (Long.valueOf(questionCell.getItem().getGlobalID()) > 0) {
-            Koeko.studentsVsQuestionsTableControllerSingleton.removeQuestion(index,group);
+            Koeko.studentsVsQuestionsTableControllerSingleton.removeQuestion(index, group);
         }
 
         //remove question from database
@@ -631,14 +638,14 @@ public class QuestionSendingController extends Window implements Initializable {
             //remove activation if it was activated
             if (NetworkCommunication.networkCommunicationSingleton
                     .getNetworkStateSingleton().getActiveID().contentEquals(readyQuestionsList.getItems().get(index).getGlobalID())) {
-                NetworkCommunication.networkCommunicationSingleton
-                        .getNetworkStateSingleton().setActiveID("");
+                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().setActiveID("");
                 readyQuestionsList.getItems().get(index).setActivated(false);
             }
             readyQuestionsList.getItems().remove(index);
             readyQuestionsList.refresh();
         }
     }
+
     public void removeQuestion(int index) {
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
@@ -904,9 +911,9 @@ public class QuestionSendingController extends Window implements Initializable {
     public void activeClassChanged(String argActiveClass) {
         //change combobox content
         this.activeClass = argActiveClass;
-        groupsCombobox.getItems().remove(0,groupsCombobox.getItems().size());
+        groupsCombobox.getItems().remove(0, groupsCombobox.getItems().size());
         ArrayList<String> groups = DbTableClasses.getGroupsFromClass(activeClass);
-        groups.add(0,activeClass);
+        groups.add(0, activeClass);
         groupsCombobox.getItems().addAll(groups);
 
 
@@ -1005,7 +1012,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
             }
 
-            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(),students);
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID(), students);
         } else {
             System.out.println("No test is selected");
         }
@@ -1087,6 +1094,7 @@ public class QuestionSendingController extends Window implements Initializable {
     public void refreshReadyQuestionsList() {
         refreshReadyQuestionsList(0);
     }
+
     public void refreshReadyQuestionsList(Integer group) {
         //save former broadcasted questions to compare later with new ones
         List<QuestionGeneric> formerQuestions = readyQuestionsList.getItems();
