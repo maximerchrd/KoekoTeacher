@@ -27,7 +27,7 @@ public class NetworkState {
     private String hotspotName = "koeko";
     private String hotspotPassword = "12345678";
     public int nextSubNet = 1;
-    private ArrayList<SubNet> subNets;
+    private List<SubNet> subNets;
 
     static private Long minimumGoogleServiceVersion = 12451000L;
     private ArrayList<DeviceInfo> potentialAdvertisers;         //Android with BTE
@@ -42,7 +42,7 @@ public class NetworkState {
         this.studentsToActiveIdMap = Collections.synchronizedMap(new LinkedHashMap<>());
         this.studentsToDeviceInfos = Collections.synchronizedMap(new LinkedHashMap<>());
         this.studentsToConnectionStatus = new CopyOnWriteArrayList<>();
-        this.subNets = new ArrayList<>();
+        this.subNets = new CopyOnWriteArrayList<>();
         this.potentialAdvertisers = new ArrayList<>();
         this.potentialDiscoverers = new ArrayList<>();
         this.potentialThirdLayerDevices = new ArrayList<>();
@@ -341,7 +341,7 @@ public class NetworkState {
         return hotspotName;
     }
 
-    public ArrayList<SubNet> getSubNets() {
+    public List<SubNet> getSubNets() {
         return subNets;
     }
 

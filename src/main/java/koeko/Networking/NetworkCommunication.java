@@ -155,10 +155,13 @@ public class NetworkCommunication {
     public void sendQuestionID(String QuestID, ArrayList<Student> students) {
         System.out.println("Sending question to " + students.size() + " students");
         //if question ID is negative (=test), change its sign
-        if (Long.valueOf(QuestID) < 0) {
-            QuestionGeneric.changeIdSign(QuestID);
+        try {
+            if (Long.valueOf(QuestID) < 0) {
+                QuestionGeneric.changeIdSign(QuestID);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("sendQuestionID(): number format exception while sending " + QuestID);
         }
-
         //set active id for network state
         networkStateSingleton.setActiveID(QuestID);
 
@@ -240,7 +243,7 @@ public class NetworkCommunication {
 
             // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
             int intfileLength = 0;
-            File imageFile = new File(questionShortAnswer.getIMAGE());
+            File imageFile = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
             if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
                 sendMediaFile(imageFile, student);
             }
