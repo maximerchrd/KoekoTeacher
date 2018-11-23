@@ -589,7 +589,6 @@ public class NetworkCommunication {
             }
 
 
-
             ArrayList<Student> singleStudent = new ArrayList<>();
             singleStudent.add(student);
             sendQuestionID(resourceId, singleStudent);
@@ -606,8 +605,10 @@ public class NetworkCommunication {
 
             //build info prefix
             String mediaName = mediaFile.getName();
+
             List<String> extensions = Arrays.asList(FilesHandler.supportedMediaExtensions);
-            if (extensions.contains("*." + mediaName.substring(mediaName.length() - 3, mediaName.length())) && mediaName.length() > 14) {
+            String[] extension = mediaName.split("\\.");
+            if (extension.length > 1 && extensions.contains("*." + extension[1]) && mediaName.length() > 14) {
                 mediaName = mediaName.substring(mediaName.length() - 14, mediaName.length());
             }
 
@@ -623,6 +624,7 @@ public class NetworkCommunication {
             byte[] allData = Arrays.copyOf(infoPrefix, infoPrefix.length + fileData.length);
             System.arraycopy(fileData, 0, allData, infoPrefix.length, fileData.length);
             writeToOutputStream(student, mediaName, allData);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -840,11 +842,11 @@ public class NetworkCommunication {
     }
 
     public void sendString(Student student, String prefixMessage) {
-            byte[] prefix = new byte[prefixSize];
-            for (int i = 0; i < prefixMessage.getBytes().length && i < prefixSize; i++) {
-                prefix[i] = prefixMessage.getBytes()[i];
-            }
-            writeToOutputStream(student, prefix);
+        byte[] prefix = new byte[prefixSize];
+        for (int i = 0; i < prefixMessage.getBytes().length && i < prefixSize; i++) {
+            prefix[i] = prefixMessage.getBytes()[i];
+        }
+        writeToOutputStream(student, prefix);
     }
 
     private byte[] buildPrefixBytes(String prefix) {

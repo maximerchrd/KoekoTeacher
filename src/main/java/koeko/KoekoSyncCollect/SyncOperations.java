@@ -160,6 +160,7 @@ public class SyncOperations {
             if (qcm.getIMAGE() != null) {
                 if (!qcm.getIMAGE().equals("none")) {
                     boolean bOK = _tcpcom.SendFile(qcm.getIMAGE());
+                    //TODO catch this exception
                     if (!bOK) throw new Exception("File upload failed!");
                 }
             } else {
