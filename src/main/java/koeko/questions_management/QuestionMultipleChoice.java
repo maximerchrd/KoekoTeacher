@@ -36,6 +36,7 @@ public class QuestionMultipleChoice {
 	private Vector<String> subjects;
 	private Vector<String> objectives;
 	private Vector <String> answers;
+	private Integer timerSeconds;
 	public QuestionMultipleChoice()	{
 		ID="0";
 		SUBJECT="";
@@ -138,6 +139,9 @@ public class QuestionMultipleChoice {
 	}
 	public String getOPT9() {
 		return OPT9;
+	}
+	public Integer getTimerSeconds() {
+		return timerSeconds;
 	}
 	public int getNB_CORRECT_ANS() {
 		return NB_CORRECT_ANS;
@@ -290,5 +294,8 @@ public class QuestionMultipleChoice {
 	}
 	public void setObjectives(Vector<String> objectives) {
 		this.objectives = objectives;
+	}
+	public void setTimerSeconds(Integer timerSeconds) {
+		this.timerSeconds = timerSeconds;
 	}
 }

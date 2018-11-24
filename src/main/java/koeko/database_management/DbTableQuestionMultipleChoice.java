@@ -34,6 +34,7 @@ public class DbTableQuestionMultipleChoice {
                     " OPTION9           TEXT    NOT NULL, " +
                     " NB_CORRECT_ANS   INT     NOT NULL, " +
                     " IMAGE_PATH       TEXT    NOT NULL, " +
+                    " TIMER_SECONDS       INTEGER, " +
                     " ID_GLOBAL        INT     NOT NULL, " +
                     " CORRECTION_MODE TEXT, " +
                     " MODIF_DATE       TEXT, " +
@@ -64,8 +65,8 @@ public class DbTableQuestionMultipleChoice {
 
             String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE, TIMER_SECONDS) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
             preparedStatement = c.prepareStatement(sql);
             preparedStatement.setString(1, quest.getLEVEL());
@@ -85,6 +86,7 @@ public class DbTableQuestionMultipleChoice {
             preparedStatement.setString(15, globalID);
             preparedStatement.setString(16, Utilities.TimestampForNowAsString());
             preparedStatement.setString(17, quest.computeShortHashCode());
+            preparedStatement.setInt(18, quest.getTimerSeconds());
             preparedStatement.executeUpdate();
             preparedStatement.close();
             c.commit();
@@ -148,8 +150,8 @@ public class DbTableQuestionMultipleChoice {
             DbTableQuestionGeneric.addGenericQuestion(0, quest.getQCM_MUID());
             String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE,TIMER_SECONDS) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
             try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
                  PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setString(1, quest.getLEVEL());
@@ -169,6 +171,7 @@ public class DbTableQuestionMultipleChoice {
                 preparedStatement.setString(15, quest.getQCM_MUID());
                 preparedStatement.setString(16, quest.getQCM_MUID());
                 preparedStatement.setString(17, quest.getQCM_UPD_TMS().toString());
+                preparedStatement.setInt(18, quest.getTimerSeconds());
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -189,6 +192,7 @@ public class DbTableQuestionMultipleChoice {
             questionShortAnswer.getANSWER().add(quest.getOPT8());
             questionShortAnswer.getANSWER().addAll(new ArrayList<>(Arrays.asList(quest.getOPT9().split("///"))));
             questionShortAnswer.setUID(quest.getQCM_MUID());
+            questionShortAnswer.setTimerSeconds(quest.getTimerSeconds());
 
             DbTableQuestionShortAnswer.addShortAnswerQuestion(questionShortAnswer);
         } else if (quest.getTYPE() == 2) {
@@ -209,7 +213,7 @@ public class DbTableQuestionMultipleChoice {
     static public void updateMultipleChoiceQuestion(QuestionMultipleChoice quest) {
         String sql = "UPDATE multiple_choice_questions SET QUESTION=?, OPTION0=?, OPTION1=?, OPTION2=?, OPTION3=?," +
                 "OPTION4=?, OPTION5=?, OPTION6=?, OPTION7=?, OPTION8=?, OPTION9=?, NB_CORRECT_ANS=?," +
-                "IMAGE_PATH=?, MODIF_DATE=?, HASH_CODE=? WHERE ID_GLOBAL=?";
+                "IMAGE_PATH=?, MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
         try (Connection c = Utilities.getDbConnection();
                 PreparedStatement stmt = c.prepareStatement(sql)) {
             stmt.setString(1, quest.getQUESTION());
@@ -228,6 +232,7 @@ public class DbTableQuestionMultipleChoice {
             stmt.setTimestamp(14, quest.getQCM_UPD_TMS());
             stmt.setString(15, quest.computeShortHashCode());
             stmt.setString(16, quest.getID());
+            stmt.setInt(17, quest.getTimerSeconds());
             stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -255,7 +260,7 @@ public class DbTableQuestionMultipleChoice {
             stmt = c.createStatement();
             String query = "SELECT LEVEL,QUESTION,OPTION0," +
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
+                    "NB_CORRECT_ANS,IMAGE_PATH,TIMER_SECONDS FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
 
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -273,6 +278,7 @@ public class DbTableQuestionMultipleChoice {
                 questionMultipleChoice.setOPT9(rs.getString("OPTION9"));
                 questionMultipleChoice.setNB_CORRECT_ANS(rs.getInt("NB_CORRECT_ANS"));
                 questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
+                questionMultipleChoice.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
             }
             stmt.close();
             c.commit();
@@ -385,6 +391,7 @@ public class DbTableQuestionMultipleChoice {
         questionMultipleChoice.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
         questionMultipleChoice.setTYPE(0);
         questionMultipleChoice.setHashCode(rs.getString("HASH_CODE"));
+        questionMultipleChoice.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
     }
 
     static public Vector<QuestionView> getQuestionsMultipleChoiceView() {

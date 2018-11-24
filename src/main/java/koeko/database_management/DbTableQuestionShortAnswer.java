@@ -25,6 +25,7 @@ public class DbTableQuestionShortAnswer {
                     " IMAGE_PATH           TEXT    NOT NULL, " +
                     " MODIF_DATE       TEXT, " +
                     " HASH_CODE       TEXT, " +
+                    " TIMER_SECONDS       INTEGER, " +
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch (Exception e) {
@@ -36,8 +37,8 @@ public class DbTableQuestionShortAnswer {
     static public String addShortAnswerQuestion(QuestionShortAnswer quest) {
         String idGlobal = "-1";
         String sql = "INSERT INTO short_answer_questions (ID_GLOBAL,LEVEL," +
-                "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE, HASH_CODE) " +
-                "VALUES (?,?,?,?,?,?,?,?);";
+                "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE, TIMER_SECONDS, HASH_CODE) " +
+                "VALUES (?,?,?,?,?,?,?,?,?);";
         try {
             if (quest.getUID().length() < 15) {
                 idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
@@ -56,7 +57,8 @@ public class DbTableQuestionShortAnswer {
             stmt.setString(5, quest.getIMAGE());
             stmt.setString(6, quest.getUID());
             stmt.setString(7, Utilities.TimestampForNowAsString());
-            stmt.setString(8, quest.computeShortHashCode());
+            stmt.setInt(8,quest.getTimerSeconds());
+            stmt.setString(9, quest.computeShortHashCode());
             stmt.executeUpdate();
             stmt.close();
             c.commit();
@@ -73,7 +75,7 @@ public class DbTableQuestionShortAnswer {
 
     static public void updateShortAnswerQuestion(QuestionShortAnswer quest) {
         String sql = "UPDATE short_answer_questions SET QUESTION=?, IMAGE_PATH=?, " +
-                "MODIF_DATE=?, HASH_CODE=? WHERE ID_GLOBAL=?";
+                "MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
         try (Connection c = Utilities.getDbConnection();
                 PreparedStatement stmt = c.prepareStatement(sql)) {
             stmt.setString(1, quest.getQUESTION());
@@ -81,6 +83,7 @@ public class DbTableQuestionShortAnswer {
             stmt.setString(3, Utilities.TimestampForNowAsString());
             stmt.setString(4, quest.computeShortHashCode());
             stmt.setString(5, quest.getID());
+            stmt.setInt(6, quest.getTimerSeconds());
             stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -142,13 +145,14 @@ public class DbTableQuestionShortAnswer {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT LEVEL,QUESTION,IMAGE_PATH FROM short_answer_questions WHERE ID_GLOBAL='" + questionId + "';";
+            String query = "SELECT LEVEL,QUESTION,IMAGE_PATH, TIMER_SECONDS FROM short_answer_questions WHERE ID_GLOBAL='" + questionId + "';";
 
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 questionShortAnswer.setLEVEL(rs.getString("LEVEL"));
                 questionShortAnswer.setQUESTION(rs.getString("QUESTION"));
                 questionShortAnswer.setIMAGE(rs.getString("IMAGE_PATH"));
+                questionShortAnswer.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
             }
             ArrayList<String> answers = new ArrayList<>();
             rs = stmt.executeQuery("SELECT OPTION FROM answer_options " +
@@ -213,6 +217,7 @@ public class DbTableQuestionShortAnswer {
                 questionMultipleChoiceView.setQCM_MUID(rs.getString("IDENTIFIER"));
                 questionMultipleChoiceView.setIMAGE(rs.getString("IMAGE_PATH"));
                 questionMultipleChoiceView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+                questionMultipleChoiceView.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
                 questionViews.add(questionMultipleChoiceView);
             }
         } catch (SQLException e) {
@@ -289,6 +294,7 @@ public class DbTableQuestionShortAnswer {
                 questionView.setIMAGE(rs.getString("IMAGE_PATH"));
                 questionView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
                 questionView.setHashCode(rs.getString("HASH_CODE"));
+                questionView.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

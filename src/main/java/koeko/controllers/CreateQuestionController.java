@@ -53,6 +53,7 @@ public class CreateQuestionController implements Initializable {
     @FXML private HBox firstAnswer;
     @FXML private TextArea questionText;
     @FXML private TextField imagePath;
+    @FXML private TextField timerTextView;
 
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree) {
         genericQuestionsList = argGenericQuestionsList;
@@ -194,6 +195,13 @@ public class CreateQuestionController implements Initializable {
             QuestionShortAnswer questionShortAnswer = new QuestionShortAnswer();
             int questionType = -1;
 
+            Integer timerSeconds = null;
+            try {
+                timerSeconds = Integer.valueOf(timerTextView.getText());
+            } catch (NumberFormatException e) {
+                System.out.println("timerSeconds not an int: setting to infinite");
+            }
+
             for (int i = 0; i < subjectsComboBoxArrayList.size(); i++) {
                 subjects.add(subjectsComboBoxArrayList.get(i).getSelectionModel().getSelectedItem().toString());
             }
@@ -212,6 +220,12 @@ public class CreateQuestionController implements Initializable {
                 if (imagePath.getText().length() > 0) {
                     questionShortAnswer.setIMAGE(imagePath.getText());
                 }
+                if (timerSeconds != null) {
+                    questionShortAnswer.setTimerSeconds(timerSeconds);
+                } else {
+                    questionShortAnswer.setTimerSeconds(-1);
+                }
+
                 ArrayList<String> answerOptions = new ArrayList<String>();
                 for (int i = 0; i < hBoxArrayList.size(); i++) {
                     TextField textField = (TextField) hBoxArrayList.get(i).getChildren().get(1);
@@ -245,6 +259,11 @@ public class CreateQuestionController implements Initializable {
                         options_vector.get(5), options_vector.get(6), options_vector.get(7), options_vector.get(8),
                         options_vector.get(9), imagePath.getText());
                 questionMultipleChoice.setNB_CORRECT_ANS(number_correct_answers);
+                if (timerSeconds != null) {
+                    questionMultipleChoice.setTimerSeconds(timerSeconds);
+                } else {
+                    questionMultipleChoice.setTimerSeconds(-1);
+                }
             }
 
             saveQuestion(subjects, objectives, questionType, questionMultipleChoice, questionShortAnswer);

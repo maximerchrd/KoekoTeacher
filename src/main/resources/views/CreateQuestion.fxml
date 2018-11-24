@@ -71,6 +71,12 @@
                <children>
                   <VBox fx:id="vBoxSubjects" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
+                        <HBox prefHeight="46.0" prefWidth="197.0">
+                           <children>
+                              <Label prefHeight="27.0" prefWidth="147.0" text="Timer (nb of seconds):" />
+                              <TextField fx:id="timerTextView" prefHeight="27.0" prefWidth="66.0" promptText="Infinite" />
+                           </children>
+                        </HBox>
                         <Button mnemonicParsing="false" onAction="#addSubject" text="Add Subject">
                            <VBox.margin>
                               <Insets left="50.0" top="50.0" />
@@ -86,7 +92,7 @@
                      <children>
                         <Button mnemonicParsing="false" onAction="#addObjective" text="Add Objective">
                            <VBox.margin>
-                              <Insets left="50.0" top="50.0" />
+                              <Insets left="50.0" top="90.0" />
                            </VBox.margin>
                         </Button>
                      </children>

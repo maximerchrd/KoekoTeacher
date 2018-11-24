@@ -31,6 +31,7 @@ public class QuestionView implements Serializable {
     private String IMAGE;
     private String hashCode;
     private String LANGUAGE;
+    private int timerSeconds;
 
 
 
@@ -235,5 +236,14 @@ public class QuestionView implements Serializable {
 
     public void setHashCode(String hashCode) {
         this.hashCode = hashCode;
+    }
+
+
+    public int getTimerSeconds() {
+        return timerSeconds;
+    }
+
+    public void setTimerSeconds(int timerSeconds) {
+        this.timerSeconds = timerSeconds;
     }
 }

@@ -17,6 +17,7 @@ public class QuestionShortAnswer {
 	private Vector<String> subjects;
 	private Vector<String> objectives;
 	private String UID;
+	private Integer timerSeconds;
 	public QuestionShortAnswer()
 	{
 		ID="0";
@@ -96,6 +97,9 @@ public class QuestionShortAnswer {
 	public String getUID() {
 		return UID;
 	}
+	public Integer getTimerSeconds() {
+		return timerSeconds;
+	}
 
 	public void setID(String id)
 	{
@@ -124,5 +128,8 @@ public class QuestionShortAnswer {
 	}
 	public void setUID(String UID) {
 		this.UID = UID;
+	}
+	public void setTimerSeconds(Integer timerSeconds) {
+		this.timerSeconds = timerSeconds;
 	}
 }
