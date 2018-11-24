@@ -429,7 +429,9 @@ public class DbTableQuestionMultipleChoice {
                 PreparedStatement pstmt = c.prepareStatement(query)) {
             pstmt.setString(1, idGlobal);
             ResultSet rs = pstmt.executeQuery();
-            QuestionMultipleChoiceViewFromRecord(questionView, rs);
+            while (rs.next()) {
+                QuestionMultipleChoiceViewFromRecord(questionView, rs);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -456,7 +458,7 @@ public class DbTableQuestionMultipleChoice {
         }
 
         if (hashCode == null) {
-            query = "SELECT MODIF_DATE FROM short_answer_questions WHERE ID_GLOBAL = ?";
+            query = "SELECT HASH_CODE FROM short_answer_questions WHERE ID_GLOBAL = ?";
             try (Connection c = Utilities.getDbConnection();
                  PreparedStatement pstmt = c.prepareStatement(query)) {
                 pstmt.setString(1, uid);
