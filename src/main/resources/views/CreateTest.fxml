@@ -13,7 +13,6 @@
       <Button layoutX="348.0" layoutY="45.0" mnemonicParsing="false" onAction="#saveTest" text="Save Test" />
       <Button fx:id="addObjectiveButton" disable="true" layoutX="243.0" layoutY="333.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
       <VBox fx:id="vBoxObjectives" layoutX="222.0" layoutY="367.0" prefHeight="200.0" prefWidth="210.0" />
-      <CheckBox fx:id="certificativeCheckBox" layoutX="24.0" layoutY="337.0" mnemonicParsing="false" onAction="#certificativeCheckBoxAction" text="Certificative Assessment" />
       <Label layoutX="37.0" layoutY="198.0" text="Gold Medal" />
       <Label layoutX="139.0" layoutY="198.0" text="Silver Medal" />
       <Label layoutX="229.0" layoutY="198.0" text="Bronze Medal" />
@@ -28,5 +27,6 @@
       <Button layoutX="24.0" layoutY="117.0" mnemonicParsing="false" onAction="#addMediaFile" text="Choose Media File " />
       <TextField fx:id="mediaPath" layoutX="148.0" layoutY="117.0" text="none" />
       <CheckBox fx:id="sendMedia" layoutX="26.0" layoutY="157.0" mnemonicParsing="false" text="Send Media File To Students' devices" />
+      <ComboBox fx:id="testTypeCombobox" layoutX="25.0" layoutY="333.0" onAction="#changedTestType" prefHeight="27.0" prefWidth="210.0" />
    </children>
 </AnchorPane>

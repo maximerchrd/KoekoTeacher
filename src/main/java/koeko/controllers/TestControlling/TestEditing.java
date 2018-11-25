@@ -24,6 +24,12 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class TestEditing {
+    public static String formativeTest = "Formative test";
+    public static String certificativeTest = "Certificative test";
+    public static String game = "Game";
+    public static String questionSet = "Question set for game";
+    public static String[] testTypes = {formativeTest, certificativeTest, game, questionSet};
+
     public static void toggleMedals(CheckBox medalsCheckbox, TextField goldMedalTime, TextField goldMedalScore,
                                     TextField silverMedalTime, TextField silverMedalScore, TextField bronzeMedalTime,
                                     TextField bronzeMedalScore) {
@@ -61,17 +67,17 @@ public class TestEditing {
         mediaPath.setEditable(false);
     }
 
-    public static void certificativeCheckAction(CheckBox certificativeCheckBox, Button addObjectiveButton,
-                                                ArrayList<ComboBox> objectivesComboBoxArrayList) {
-        if (!certificativeCheckBox.isSelected()) {
-            addObjectiveButton.setDisable(true);
-            for (ComboBox comboBox : objectivesComboBoxArrayList) {
-                comboBox.setDisable(true);
-            }
-        } else {
+    public static void testTypeChanged(ComboBox testTypeCombobox, Button addObjectiveButton,
+                                       ArrayList<ComboBox> objectivesComboBoxArrayList) {
+        if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.certificativeTest)) {
             addObjectiveButton.setDisable(false);
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
                 comboBox.setDisable(false);
+            }
+        } else {
+            addObjectiveButton.setDisable(true);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(true);
             }
         }
     }

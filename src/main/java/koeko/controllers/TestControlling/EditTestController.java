@@ -41,7 +41,7 @@ public class EditTestController extends Window implements Initializable {
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
-    @FXML private CheckBox certificativeCheckBox;
+    @FXML private ComboBox testTypeCombobox;
     @FXML private Button addObjectiveButton;
     @FXML private Label warningLabel;
     @FXML private TextField goldMedalTime;
@@ -63,20 +63,38 @@ public class EditTestController extends Window implements Initializable {
         hBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
         this.objectives = objectives;
+        ObservableList<String> testTypes =
+                FXCollections.observableArrayList(TestEditing.testTypes);
+        testTypeCombobox.setItems(testTypes);
+        testTypeCombobox.getSelectionModel().select(TestEditing.formativeTest);
+
         for (String obj : objectives) {
             addObjective(obj);
         }
         test = DbTableTest.getTestWithID(testID);
         test.setMedalsInstructions(DbTableTest.getMedals(test.getTestName()));
         this.presentName = test.getTestName();
-        if (test.getTestMode() == QuestionGeneric.CERTIFICATIVE_TEST) {
-            certificativeCheckBox.setSelected(true);
-            addObjectiveButton.setDisable(false);
-            for (ComboBox comboBox : objectivesComboBoxArrayList) {
-                comboBox.setDisable(false);
-            }
-        } else {
-            addObjectiveButton.setDisable(true);
+
+        switch (test.getTestMode()) {
+            case QuestionGeneric.CERTIFICATIVE_TEST:
+                testTypeCombobox.getSelectionModel().select(TestEditing.certificativeTest);
+                addObjectiveButton.setDisable(false);
+                for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                    comboBox.setDisable(false);
+                }
+                break;
+            case QuestionGeneric.FORMATIVE_TEST:
+                testTypeCombobox.getSelectionModel().select(TestEditing.formativeTest);
+                addObjectiveButton.setDisable(true);
+                break;
+            case QuestionGeneric.GAME:
+                testTypeCombobox.getSelectionModel().select(TestEditing.game);
+                addObjectiveButton.setDisable(true);
+                break;
+            case QuestionGeneric.GAME_QUESTIONSET:
+                testTypeCombobox.getSelectionModel().select(TestEditing.questionSet);
+                addObjectiveButton.setDisable(true);
+                break;
         }
         testName.setText(presentName);
 
@@ -86,7 +104,7 @@ public class EditTestController extends Window implements Initializable {
         } else {
             warningLabel.setText("You cannot change the type of a formative test \nwhich contains questions");
             addObjectiveButton.setDisable(true);
-            certificativeCheckBox.setDisable(true);
+            testTypeCombobox.setDisable(true);
         }
 
         //set media file
@@ -120,8 +138,8 @@ public class EditTestController extends Window implements Initializable {
         comboBox.getSelectionModel().select(objective);
     }
 
-    public void certificativeCheckBoxAction() {
-        TestEditing.certificativeCheckAction(certificativeCheckBox, addObjectiveButton, objectivesComboBoxArrayList);
+    public void changedTestType() {
+        TestEditing.testTypeChanged(testTypeCombobox, addObjectiveButton, objectivesComboBoxArrayList);
     }
 
     public void addMediaFile() {
@@ -134,20 +152,23 @@ public class EditTestController extends Window implements Initializable {
     }
 
     public void saveTest() {
-        if (certificativeCheckBox.isSelected()) {
-            DbTableTest.changeTestMode(test.getIdTest(),0);
-        } else {
-            DbTableTest.changeTestMode(test.getIdTest(),1);
+        if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.certificativeTest)) {
+            DbTableTest.changeTestMode(test.getIdTest(),QuestionGeneric.CERTIFICATIVE_TEST);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
+        } else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.formativeTest)) {
+            DbTableTest.changeTestMode(test.getIdTest(),QuestionGeneric.FORMATIVE_TEST);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
+        } else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.game)) {
+            DbTableTest.changeTestMode(test.getIdTest(),QuestionGeneric.GAME);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.GAME);
+        } else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.questionSet)) {
+            DbTableTest.changeTestMode(test.getIdTest(),QuestionGeneric.GAME_QUESTIONSET);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.GAME_QUESTIONSET);
         }
         if (!testNames.contains(testName.getText()) || testName.getText().contentEquals(presentName)) {
             questionGeneric.setQuestion(testName.getText());
 
             //set the type of resource (formative/certificative test)
-            if (certificativeCheckBox.isSelected()) {
-                questionGeneric.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
-            } else {
-                questionGeneric.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
-            }
             treeItem.setValue(questionGeneric);
 
             treeView.refresh();
@@ -156,7 +177,7 @@ public class EditTestController extends Window implements Initializable {
 
             //add objectives to test
             ArrayList<String> newObjectives = new ArrayList<>();
-            if (certificativeCheckBox.isSelected()) {
+            if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.certificativeTest)) {
                 for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
                     try {
                         newObjectives.add(objectiveCombo.getEditor().getText());

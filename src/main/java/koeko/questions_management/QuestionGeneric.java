@@ -7,12 +7,12 @@ import java.util.List;
  * Created by maximerichard on 22.11.17.
  */
 public class QuestionGeneric {
-    static public int MCQ = 0;
-    static public int SHRTAQ = 1;
-    static public int FORMATIVE_TEST = 2;
-    static public int CERTIFICATIVE_TEST = 3;
-    static public int GAME = 4;
-    static public int GAME_QUESTIONSET = 5;
+    static public final int MCQ = 0;
+    static public final int SHRTAQ = 1;
+    static public final int FORMATIVE_TEST = 2;
+    static public final int CERTIFICATIVE_TEST = 3;
+    static public final int GAME = 4;
+    static public final int GAME_QUESTIONSET = 5;
     private String question;
     private String imagePath;
     private int intTypeOfQuestion; //0: MCQ; 1: SHRTAQ; 2: formative Test; 3: certificative Test; 4: game; 5: question set for game

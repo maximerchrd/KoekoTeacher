@@ -1,37 +1,23 @@
 package koeko.controllers.TestControlling;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.stage.FileChooser;
-import koeko.Tools.FilesHandler;
 import koeko.database_management.DbTableLearningObjectives;
 import koeko.database_management.DbTableRelationObjectiveTest;
 import koeko.database_management.DbTableTest;
 import koeko.questions_management.QuestionGeneric;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import koeko.questions_management.Test;
-import org.controlsfx.control.textfield.TextFields;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 public class CreateTestController extends Window implements Initializable {
     private TreeItem<QuestionGeneric> root;
@@ -42,7 +28,7 @@ public class CreateTestController extends Window implements Initializable {
 
     @FXML private TextField testName;
     @FXML private VBox vBoxObjectives;
-    @FXML private CheckBox certificativeCheckBox;
+    @FXML private ComboBox testTypeCombobox;
     @FXML private Button addObjectiveButton;
     @FXML private TextField goldMedalTime;
     @FXML private TextField goldMedalScore;
@@ -66,14 +52,18 @@ public class CreateTestController extends Window implements Initializable {
         silverMedalScore.setEditable(false);
         bronzeMedalTime.setEditable(false);
         bronzeMedalScore.setEditable(false);
+        ObservableList<String> testTypes =
+                FXCollections.observableArrayList(TestEditing.testTypes);
+        testTypeCombobox.setItems(testTypes);
+        testTypeCombobox.getSelectionModel().select(TestEditing.formativeTest);
     }
 
     public void addObjective() {
         TestEditing.addObjectiveField(objectivesComboBoxArrayList, vBoxObjectives);
     }
 
-    public void certificativeCheckBoxAction() {
-        TestEditing.certificativeCheckAction(certificativeCheckBox, addObjectiveButton, objectivesComboBoxArrayList);
+    public void changedTestType() {
+        TestEditing.testTypeChanged(testTypeCombobox, addObjectiveButton, objectivesComboBoxArrayList);
     }
 
     public void togglingMedals() {
@@ -89,10 +79,14 @@ public class CreateTestController extends Window implements Initializable {
         if (!testNames.contains(testName.getText())) {
             Test newTest = new Test();
             newTest.setTestName(testName.getText());
-            if (certificativeCheckBox.isSelected()) {
+            if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.certificativeTest)) {
                 newTest.setTestMode(QuestionGeneric.CERTIFICATIVE_TEST);
-            } else {
+            } else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.formativeTest)) {
                 newTest.setTestMode(QuestionGeneric.FORMATIVE_TEST);
+            } else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.game)) {
+                newTest.setTestMode(QuestionGeneric.GAME);
+            }  else if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.questionSet)) {
+                newTest.setTestMode(QuestionGeneric.GAME_QUESTIONSET);
             }
             String testID = DbTableTest.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
@@ -101,17 +95,13 @@ public class CreateTestController extends Window implements Initializable {
             test.setQuestion(testName.getText());
 
             //set the type of resource (formative/certificative test)
-            if (certificativeCheckBox.isSelected()) {
-                test.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
-            } else {
-                test.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
-            }
+            test.setIntTypeOfQuestion(newTest.getTestMode());
 
             testTreeItem.setValue(test);
             root.getChildren().add(testTreeItem);
 
             //add objectives to test
-            if (certificativeCheckBox.isSelected()) {
+            if (testTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(TestEditing.certificativeTest)) {
                 for (ComboBox objectiveCombo : objectivesComboBoxArrayList) {
                     try {
                         DbTableLearningObjectives.addObjective(objectiveCombo.getEditor().getText(), -1);

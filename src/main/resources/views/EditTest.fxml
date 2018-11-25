@@ -14,7 +14,6 @@
       <Button layoutX="348.0" layoutY="67.0" mnemonicParsing="false" onAction="#saveTest" text="Save Test" />
       <Button fx:id="addObjectiveButton" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
       <VBox fx:id="vBoxObjectives" layoutX="225.0" layoutY="388.0" prefHeight="172.0" prefWidth="210.0" />
-      <CheckBox fx:id="certificativeCheckBox" layoutX="26.0" layoutY="352.0" mnemonicParsing="false" onAction="#certificativeCheckBoxAction" text="Certificative Assessment" />
       <Label fx:id="warningLabel" layoutX="28.0" layoutY="6.0" prefHeight="45.0" prefWidth="407.0" text="warningLabel">
          <font>
             <Font name="Arial Bold" size="14.0" />
@@ -34,5 +33,6 @@
       <Label layoutX="233.0" layoutY="211.0" text="Bronze Medal" />
       <Label layoutX="143.0" layoutY="211.0" text="Silver Medal" />
       <Label layoutX="41.0" layoutY="211.0" text="Gold Medal" />
+      <ComboBox fx:id="testTypeCombobox" layoutX="22.0" layoutY="348.0" onAction="#changedTestType" prefHeight="27.0" prefWidth="210.0" />
    </children>
 </AnchorPane>
