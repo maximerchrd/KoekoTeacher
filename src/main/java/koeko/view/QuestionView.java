@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 public class QuestionView implements Serializable {
     private String ID;
-    private int TYPE;   //0: QMC; 1: SHRTAQ; 2: TEST
+    private int TYPE;   //0: MCQ; 1: SHRTAQ; 2: TEST
     private String SUBJECT;
     private String LEVEL;
     private String QUESTION;

@@ -69,7 +69,7 @@ public class EditTestController extends Window implements Initializable {
         test = DbTableTest.getTestWithID(testID);
         test.setMedalsInstructions(DbTableTest.getMedals(test.getTestName()));
         this.presentName = test.getTestName();
-        if (test.getTestMode() == 0) {
+        if (test.getTestMode() == QuestionGeneric.CERTIFICATIVE_TEST) {
             certificativeCheckBox.setSelected(true);
             addObjectiveButton.setDisable(false);
             for (ComboBox comboBox : objectivesComboBoxArrayList) {
@@ -121,17 +121,7 @@ public class EditTestController extends Window implements Initializable {
     }
 
     public void certificativeCheckBoxAction() {
-        if (!certificativeCheckBox.isSelected()) {
-            addObjectiveButton.setDisable(true);
-            for (ComboBox comboBox : objectivesComboBoxArrayList) {
-                comboBox.setDisable(true);
-            }
-        } else {
-            addObjectiveButton.setDisable(false);
-            for (ComboBox comboBox : objectivesComboBoxArrayList) {
-                comboBox.setDisable(false);
-            }
-        }
+        TestEditing.certificativeCheckAction(certificativeCheckBox, addObjectiveButton, objectivesComboBoxArrayList);
     }
 
     public void addMediaFile() {
@@ -154,9 +144,9 @@ public class EditTestController extends Window implements Initializable {
 
             //set the type of resource (formative/certificative test)
             if (certificativeCheckBox.isSelected()) {
-                questionGeneric.setTypeOfQuestion("TECE");
+                questionGeneric.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
             } else {
-                questionGeneric.setTypeOfQuestion("TEFO");
+                questionGeneric.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
             }
             treeItem.setValue(questionGeneric);
 

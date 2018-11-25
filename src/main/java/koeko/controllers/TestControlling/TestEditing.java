@@ -63,7 +63,17 @@ public class TestEditing {
 
     public static void certificativeCheckAction(CheckBox certificativeCheckBox, Button addObjectiveButton,
                                                 ArrayList<ComboBox> objectivesComboBoxArrayList) {
-        TestEditing.certificativeCheckAction(certificativeCheckBox, addObjectiveButton, objectivesComboBoxArrayList);
+        if (!certificativeCheckBox.isSelected()) {
+            addObjectiveButton.setDisable(true);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(true);
+            }
+        } else {
+            addObjectiveButton.setDisable(false);
+            for (ComboBox comboBox : objectivesComboBoxArrayList) {
+                comboBox.setDisable(false);
+            }
+        }
     }
 
     public static ComboBox addObjectiveField(ArrayList<ComboBox> objectivesComboBoxArrayList, VBox vBoxObjectives) {

@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import koeko.database_management.DbTableRelationClassTest;
 import koeko.database_management.DbTableTest;
+import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
 
 import java.net.URL;
@@ -27,7 +28,7 @@ public class ChooseTestController implements Initializable{
         ArrayList<Test> tests = DbTableTest.getAllTests();
 
         for (Test test : tests) {
-            if (test.getTestMode().equals(0)) {
+            if (test.getTestMode().equals(QuestionGeneric.CERTIFICATIVE_TEST)) {
                 testsList.getItems().add(test);
             }
         }

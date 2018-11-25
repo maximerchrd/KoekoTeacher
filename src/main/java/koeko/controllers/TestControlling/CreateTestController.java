@@ -90,9 +90,9 @@ public class CreateTestController extends Window implements Initializable {
             Test newTest = new Test();
             newTest.setTestName(testName.getText());
             if (certificativeCheckBox.isSelected()) {
-                newTest.setTestMode(0);
+                newTest.setTestMode(QuestionGeneric.CERTIFICATIVE_TEST);
             } else {
-                newTest.setTestMode(1);
+                newTest.setTestMode(QuestionGeneric.FORMATIVE_TEST);
             }
             String testID = DbTableTest.addTest(newTest);
             TreeItem<QuestionGeneric> testTreeItem = new TreeItem<>();
@@ -102,9 +102,9 @@ public class CreateTestController extends Window implements Initializable {
 
             //set the type of resource (formative/certificative test)
             if (certificativeCheckBox.isSelected()) {
-                test.setTypeOfQuestion("TECE");
+                test.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
             } else {
-                test.setTypeOfQuestion("TEFO");
+                test.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
             }
 
             testTreeItem.setValue(test);

@@ -99,7 +99,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                 toggleTestEditMode(this.getTreeItem(), buttonBuildTest);
             });
 
-            if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+            if (item.getIntTypeOfQuestion() == QuestionGeneric.FORMATIVE_TEST) {
                 buttonsBox2.getChildren().addAll(buttonQRCode, buttonBuildTest);
             } else {
                 buttonsBox2.getChildren().addAll(buttonQRCode);
@@ -115,9 +115,9 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                     String url = "file:" + FilesHandler.mediaDirectory + item.getImagePath();
                     image = new ImageView(new Image(url, imageSize, imageSize, true, true));
                 } else {
-                    if (item.getTypeOfQuestion().contentEquals("TEFO")) {
+                    if (item.getIntTypeOfQuestion() == QuestionGeneric.FORMATIVE_TEST) {
                         image = new ImageView(new Image("/drawable/test.png", imageSize, imageSize, true, true));
-                    } else if (item.getTypeOfQuestion().contentEquals("TECE")) {
+                    } else if (item.getIntTypeOfQuestion() == QuestionGeneric.CERTIFICATIVE_TEST) {
                         image = new ImageView(new Image("/drawable/test_certificative.png", imageSize, imageSize, true, true));
                     }
                 }

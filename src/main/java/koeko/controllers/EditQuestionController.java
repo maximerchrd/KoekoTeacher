@@ -1,7 +1,6 @@
 package koeko.controllers;
 
 import koeko.Networking.NetworkCommunication;
-import koeko.Networking.NetworkState;
 import koeko.Tools.FilesHandler;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
@@ -267,8 +266,7 @@ public class EditQuestionController implements Initializable {
             }
 
             //update question in treeView
-            questionGeneric.setTypeOfQuestion("1");
-            questionGeneric.setIntTypeOfQuestion(1);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
             questionGeneric.setQuestion(new_questshortanswer.getQUESTION());
             questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
             Node questionImage = null;
@@ -328,8 +326,7 @@ public class EditQuestionController implements Initializable {
             }
 
             //update question in treeView
-            questionGeneric.setTypeOfQuestion("0");
-            questionGeneric.setIntTypeOfQuestion(0);
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
             questionGeneric.setQuestion(new_questmultchoice.getQUESTION());
             questionGeneric.setImagePath(new_questmultchoice.getIMAGE());
             Node questionImage = null;
@@ -378,7 +375,7 @@ public class EditQuestionController implements Initializable {
 
     private void fillFields() {
         //fill the corresponding fields
-        if (questionGeneric.getIntTypeOfQuestion() == 0) {
+        if (questionGeneric.getIntTypeOfQuestion() == QuestionGeneric.MCQ) {
             typeOfQuestion.getSelectionModel().select(0);
             QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
             try {

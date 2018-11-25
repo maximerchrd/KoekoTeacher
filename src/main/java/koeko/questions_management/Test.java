@@ -18,7 +18,7 @@ public class Test {
     private ArrayList<Integer> objectivesIDs;
     private Double testEvaluation;
     private Boolean isSynchroneousQuestionsTest;
-    private Integer testMode;   //0: certificative test; 1: formative test
+    private Integer testMode;   //0: certificative test; 1: formative test; 2: game; 3: questions set for game
     private String medalsInstructions;
     private String updateTime;
 

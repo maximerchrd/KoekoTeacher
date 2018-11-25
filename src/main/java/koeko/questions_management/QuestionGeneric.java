@@ -7,15 +7,19 @@ import java.util.List;
  * Created by maximerichard on 22.11.17.
  */
 public class QuestionGeneric {
-    private String typeOfQuestion;
+    static public int MCQ = 0;
+    static public int SHRTAQ = 1;
+    static public int FORMATIVE_TEST = 2;
+    static public int CERTIFICATIVE_TEST = 3;
+    static public int GAME = 4;
+    static public int GAME_QUESTIONSET = 5;
     private String question;
     private String imagePath;
-    private int intTypeOfQuestion;
+    private int intTypeOfQuestion; //0: MCQ; 1: SHRTAQ; 2: formative Test; 3: certificative Test; 4: game; 5: question set for game
     private int indexInList;
     private String globalID;
     private Boolean activated;
     public QuestionGeneric () {
-        typeOfQuestion = "undefined";
         indexInList = -1;
         globalID = "-1";
         intTypeOfQuestion = -1;
@@ -23,8 +27,8 @@ public class QuestionGeneric {
         imagePath = "";
         activated = false;
     }
-    public QuestionGeneric(String typeoflist, int indexinlist) {
-        typeOfQuestion = typeoflist;
+    public QuestionGeneric(String globalId, int indexinlist) {
+        globalID = globalId;
         indexInList = indexinlist;
         activated = false;
     }
@@ -38,9 +42,6 @@ public class QuestionGeneric {
         return globalID;
     }
 
-    public String getTypeOfQuestion() {
-        return typeOfQuestion;
-    }
     public int getIndexInList() {
         return indexInList;
     }
@@ -59,9 +60,6 @@ public class QuestionGeneric {
 
     public void setGlobalID(String globalID) {
         this.globalID = globalID;
-    }
-    public void setTypeOfQuestion(String typeofquestion) {
-        typeOfQuestion = typeofquestion;
     }
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
@@ -85,7 +83,7 @@ public class QuestionGeneric {
         questionGeneric.setGlobalID(questionMultipleChoice.getID());
         questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
         questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
-        questionGeneric.setIntTypeOfQuestion(0);
+        questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
 
         return questionGeneric;
     }
@@ -95,7 +93,7 @@ public class QuestionGeneric {
         questionGeneric.setGlobalID(questionShortAnswer.getID());
         questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
         questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
-        questionGeneric.setIntTypeOfQuestion(1);
+        questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
 
         return questionGeneric;
     }

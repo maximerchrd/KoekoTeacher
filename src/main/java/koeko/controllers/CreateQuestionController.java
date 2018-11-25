@@ -309,7 +309,7 @@ public class CreateQuestionController implements Initializable {
             QuestionGeneric questionGeneric = new QuestionGeneric(1, questionShortAnswer.getID());
             questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
             questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
-            questionGeneric.setTypeOfQuestion("1");
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
             genericQuestionsList.add(questionGeneric);
             Node questionImage = null;
             questionImage = new ImageView(new Image("file:" + questionShortAnswer.getIMAGE(), 20, 20, true, false));
@@ -340,7 +340,7 @@ public class CreateQuestionController implements Initializable {
             QuestionGeneric questionGeneric = new QuestionGeneric(0, questionMultipleChoice.getID());
             questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
             questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
-            questionGeneric.setTypeOfQuestion("0");
+            questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
             genericQuestionsList.add(questionGeneric);
             Node questionImage = null;
             questionImage = new ImageView(new Image("file:" + questionMultipleChoice.getIMAGE(), 20, 20, true, false));

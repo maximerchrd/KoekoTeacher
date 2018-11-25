@@ -115,10 +115,10 @@ public class QuestionSendingController extends Window implements Initializable {
             QuestionGeneric testGeneric = new QuestionGeneric();
             testGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
             testGeneric.setQuestion(test.getTestName());
-            if (test.getTestMode() == 0) {
-                testGeneric.setTypeOfQuestion("TECE");
-            } else if (test.getTestMode() == 1) {
-                testGeneric.setTypeOfQuestion("TEFO");
+            if (test.getTestMode() == QuestionGeneric.CERTIFICATIVE_TEST) {
+                testGeneric.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
+            } else if (test.getTestMode() == QuestionGeneric.FORMATIVE_TEST) {
+                testGeneric.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
             }
             testsNodeList.add(testGeneric);
         }
@@ -183,7 +183,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 treeCell.setOnDragDropped(event -> {
                     // data dropped
                     if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) < 0) {
-                        if (treeCell.getTreeItem().getValue().getTypeOfQuestion().contentEquals("TEFO")) {
+                        if (treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == 2) {
 
                             //add a horizontal relation with the question before in the list
                             int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
@@ -419,13 +419,13 @@ public class QuestionSendingController extends Window implements Initializable {
                     QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(genericQuestionsList.get(i).getGlobalID());
                     genericQuestionsList.get(i).setQuestion(questionShortAnswer.getQUESTION());
                     genericQuestionsList.get(i).setImagePath(questionShortAnswer.getIMAGE());
-                    genericQuestionsList.get(i).setTypeOfQuestion("1");
+                    genericQuestionsList.get(i).setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
                     questionImage = new ImageView(new Image("file:" + questionShortAnswer.getIMAGE(), 20, 20, true, false));
                 } else {
                     genericQuestionsList.get(i).setQuestion(questionMultipleChoice.getQUESTION());
                     if (questionMultipleChoice.getIMAGE().length() > 0) {
                         genericQuestionsList.get(i).setImagePath(questionMultipleChoice.getIMAGE());
-                        genericQuestionsList.get(i).setTypeOfQuestion("0");
+                        genericQuestionsList.get(i).setIntTypeOfQuestion(QuestionGeneric.MCQ);
                         questionImage = new ImageView(new Image("file:" + questionMultipleChoice.getIMAGE(), 20, 20, true, false));
                     }
                 }
@@ -1052,8 +1052,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
                     questionGeneric.setGlobalID(questionMultipleChoice.getID());
-                    questionGeneric.setIntTypeOfQuestion(0);
-                    questionGeneric.setTypeOfQuestion("0");
+                    questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
                     questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
                     //sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
                     readyQuestionsList.getItems().add(questionGeneric);
@@ -1066,8 +1065,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 QuestionGeneric questionGeneric = new QuestionGeneric();
                 questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
                 questionGeneric.setGlobalID(questionShortAnswer.getID());
-                questionGeneric.setIntTypeOfQuestion(1);
-                questionGeneric.setTypeOfQuestion("1");
+                questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
                 questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
                 //sendQuestionToStudentsNoDuplicateCheck(questionGeneric);
                 readyQuestionsList.getItems().add(questionGeneric);
@@ -1117,8 +1115,7 @@ public class QuestionSendingController extends Window implements Initializable {
                         QuestionGeneric questionGeneric = new QuestionGeneric();
                         questionGeneric.setQuestion(questionMultipleChoice.getQUESTION());
                         questionGeneric.setGlobalID(questionMultipleChoice.getID());
-                        questionGeneric.setIntTypeOfQuestion(0);
-                        questionGeneric.setTypeOfQuestion("0");
+                        questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
                         questionGeneric.setImagePath(questionMultipleChoice.getIMAGE());
                         if (oneQuestionSent) {
                             sendQuestionToStudentsNoDuplicateCheck(questionGeneric, false);
@@ -1135,8 +1132,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(questionShortAnswer.getQUESTION());
                     questionGeneric.setGlobalID(questionShortAnswer.getID());
-                    questionGeneric.setIntTypeOfQuestion(1);
-                    questionGeneric.setTypeOfQuestion("1");
+                    questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
                     questionGeneric.setImagePath(questionShortAnswer.getIMAGE());
                     if (oneQuestionSent) {
                         sendQuestionToStudentsNoDuplicateCheck(questionGeneric, false);
@@ -1166,7 +1162,7 @@ public class QuestionSendingController extends Window implements Initializable {
             if (!Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().contains(globalID)) {
                 Koeko.studentGroupsAndClass.get(0).getIDsToStoreOnDevices().add(globalID);
             }
-            if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
+            if (questionGeneric.getIntTypeOfQuestion() == 0) {
                 try {
                     broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID), actualSending);
                 } catch (Exception e) {
@@ -1247,7 +1243,7 @@ public class QuestionSendingController extends Window implements Initializable {
     private void sendQuestionToStudentsNoDuplicateCheck(QuestionGeneric questionGeneric, Boolean actualSending) {
         String globalID = questionGeneric.getGlobalID();
         readyQuestionsList.getItems().add(questionGeneric);
-        if (questionGeneric.getTypeOfQuestion().contentEquals("0")) {
+        if (questionGeneric.getIntTypeOfQuestion() == 0) {
             try {
                 broadcastQuestionMultipleChoice(DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(globalID), actualSending);
             } catch (Exception e) {
@@ -1266,7 +1262,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 questionGeneric.setGlobalID(questionMultipleChoiceView.getID());
                 questionGeneric.setQuestion(questionMultipleChoiceView.getQUESTION());
                 questionGeneric.setImagePath(questionMultipleChoiceView.getIMAGE());
-                questionGeneric.setTypeOfQuestion(String.valueOf(questionMultipleChoiceView.getTYPE()));
+                questionGeneric.setIntTypeOfQuestion(questionMultipleChoiceView.getTYPE());
                 genericQuestionsList.add(questionGeneric);
                 Node questionImage = null;
                 questionImage = new ImageView(new Image("file:" + questionMultipleChoiceView.getIMAGE(), 20, 20, true, false));
@@ -1326,7 +1322,7 @@ public class QuestionSendingController extends Window implements Initializable {
         QuestionGeneric questionGeneric = new QuestionGeneric(new_questmultchoice.getID(), 0);
         questionGeneric.setQuestion(new_questmultchoice.getQUESTION());
         questionGeneric.setImagePath(new_questmultchoice.getIMAGE());
-        questionGeneric.setTypeOfQuestion("0");
+        questionGeneric.setIntTypeOfQuestion(QuestionGeneric.MCQ);
         genericQuestionsList.add(questionGeneric);
         Node questionImage = null;
         questionImage = new ImageView(new Image("file:" + new_questmultchoice.getIMAGE(), 20, 20, true, false));
@@ -1405,7 +1401,7 @@ public class QuestionSendingController extends Window implements Initializable {
         QuestionGeneric questionGeneric = new QuestionGeneric(new_questshortanswer.getID(), 1);
         questionGeneric.setQuestion(new_questshortanswer.getQUESTION());
         questionGeneric.setImagePath(new_questshortanswer.getIMAGE());
-        questionGeneric.setTypeOfQuestion("1");
+        questionGeneric.setIntTypeOfQuestion(QuestionGeneric.SHRTAQ);
         genericQuestionsList.add(questionGeneric);
         Node questionImage = null;
         questionImage = new ImageView(new Image("file:" + new_questshortanswer.getIMAGE(), 20, 20, true, false));
