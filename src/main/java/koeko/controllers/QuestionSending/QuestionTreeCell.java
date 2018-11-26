@@ -119,6 +119,10 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                         image = new ImageView(new Image("/drawable/test.png", imageSize, imageSize, true, true));
                     } else if (item.getIntTypeOfQuestion() == QuestionGeneric.CERTIFICATIVE_TEST) {
                         image = new ImageView(new Image("/drawable/test_certificative.png", imageSize, imageSize, true, true));
+                    } else if (item.getIntTypeOfQuestion() == QuestionGeneric.GAME) {
+                        image = new ImageView(new Image("/drawable/game.png", imageSize, imageSize, true, true));
+                    } else if (item.getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET) {
+                        image = new ImageView(new Image("/drawable/game_question_set.png", imageSize, imageSize, true, true));
                     }
                 }
                 hbox.getChildren().addAll(buttonsBox, buttonsBox2, image);

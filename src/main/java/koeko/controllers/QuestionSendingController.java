@@ -34,9 +34,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import koeko.database_management.*;
 import koeko.view.QuestionView;
+import koeko.view.Utilities;
 
 import java.awt.*;
 import java.io.*;
@@ -55,12 +55,15 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class QuestionSendingController extends Window implements Initializable {
     //all questions tree (left panel)
     private QuestionGeneric draggedQuestion = null;
+    private TreeItem<QuestionGeneric> draggedTreeItem = null;
     private TreeItem<QuestionGeneric> root;
     private String activeClass = "";
     private ContextMenu studentsContextMenu;
     public ArrayList<String> questionsForTest = new ArrayList<>();
     public List<QuestionGeneric> testsNodeList = new ArrayList<>();
+    public Map<String, QuestionGeneric> testsNodeMap = new LinkedHashMap<>();
     public List<QuestionGeneric> genericQuestionsList = new ArrayList<>();
+    public Map<String, QuestionGeneric> genericQuestionsMap = new LinkedHashMap<>();
     public List<Test> testsList = new ArrayList<>();
     public TreeItem<QuestionGeneric> editedTestItem = null;
 
@@ -107,6 +110,9 @@ public class QuestionSendingController extends Window implements Initializable {
         //retrieve data from db
         try {
             genericQuestionsList = DbTableQuestionGeneric.getAllGenericQuestions();
+            for (QuestionGeneric questionGeneric : genericQuestionsList) {
+                genericQuestionsMap.put(questionGeneric.getGlobalID(), questionGeneric);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,8 +125,13 @@ public class QuestionSendingController extends Window implements Initializable {
                 testGeneric.setIntTypeOfQuestion(QuestionGeneric.CERTIFICATIVE_TEST);
             } else if (test.getTestMode() == QuestionGeneric.FORMATIVE_TEST) {
                 testGeneric.setIntTypeOfQuestion(QuestionGeneric.FORMATIVE_TEST);
+            } else if (test.getTestMode() == QuestionGeneric.GAME) {
+                testGeneric.setIntTypeOfQuestion(QuestionGeneric.GAME);
+            } else if (test.getTestMode() == QuestionGeneric.GAME_QUESTIONSET) {
+                testGeneric.setIntTypeOfQuestion(QuestionGeneric.GAME_QUESTIONSET);
             }
             testsNodeList.add(testGeneric);
+            testsNodeMap.put(testGeneric.getGlobalID(), testGeneric);
         }
         //create root
         root = new TreeItem<>(new QuestionGeneric());
@@ -130,61 +141,64 @@ public class QuestionSendingController extends Window implements Initializable {
         Platform.runLater(() -> populateTree(null));
         allQuestionsTree.setRoot(root);
         allQuestionsTree.getStylesheets().add("/style/treeview.css");
-        allQuestionsTree.setCellFactory(new Callback<TreeView<QuestionGeneric>, TreeCell<QuestionGeneric>>() {
-            @Override
-            public TreeCell<QuestionGeneric> call(TreeView<QuestionGeneric> stringTreeView) {
-                QuestionTreeCell treeCell = new QuestionTreeCell();
+        allQuestionsTree.setCellFactory(stringTreeView -> {
+            QuestionTreeCell treeCell = new QuestionTreeCell();
 
-                treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) > 0) {
-                            draggedQuestion = treeCell.getTreeItem().getValue();
-                            Dragboard db = allQuestionsTree.startDragAndDrop(TransferMode.ANY);
+            treeCell.setOnDragDetected(mouseEvent -> {
+                if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) > 0
+                        || treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET) {
+                    draggedQuestion = treeCell.getTreeItem().getValue();
+                    draggedTreeItem = treeCell.getTreeItem();
+                    Dragboard db = allQuestionsTree.startDragAndDrop(TransferMode.ANY);
 
-                            // Put a string on a dragboard
-                            ClipboardContent content = new ClipboardContent();
-                            content.putString(treeCell.getText());
-                            db.setContent(content);
+                    // Put a string on a dragboard
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString(treeCell.getText());
+                    db.setContent(content);
 
-                            mouseEvent.consume();
-                        }
-                    }
-                });
+                    mouseEvent.consume();
+                }
+            });
 
-                treeCell.setOnDragOver(event -> {
-                    // data is dragged over the target
-                    // accept it only if it is not dragged from the same node
-                    // and if it has a string data
-                    if (event.getGestureSource() != treeCell &&
-                            event.getDragboard().hasString()) {
-                        event.acceptTransferModes(TransferMode.COPY);
-                    }
+            treeCell.setOnDragOver(event -> {
+                // data is dragged over the target
+                // accept it only if it is not dragged from the same node
+                // and if it has a string data
+                if (event.getGestureSource() != treeCell &&
+                        event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
 
-                    event.consume();
-                });
+                event.consume();
+            });
 
-                treeCell.setOnDragEntered(event -> {
-                    // the drag-and-drop gesture entered the target
-                    // show to the user that it is an actual gesture target
-                    if (event.getGestureSource() != treeCell &&
-                            event.getDragboard().hasString()) {
-                        treeCell.setTextFill(Color.LIGHTGREEN);
-                    }
-                    event.consume();
-                });
-                treeCell.setOnDragExited(event -> {
-                    // mouse moved away, remove the graphical cues
-                    treeCell.setTextFill(Color.BLACK);
-                    event.consume();
-                });
+            treeCell.setOnDragEntered(event -> {
+                // the drag-and-drop gesture entered the target
+                // show to the user that it is an actual gesture target
+                if (event.getGestureSource() != treeCell &&
+                        event.getDragboard().hasString()) {
+                    treeCell.setTextFill(Color.LIGHTGREEN);
+                }
+                event.consume();
+            });
+            treeCell.setOnDragExited(event -> {
+                // mouse moved away, remove the graphical cues
+                treeCell.setTextFill(Color.BLACK);
+                event.consume();
+            });
 
 
-                treeCell.setOnDragDropped(event -> {
-                    // data dropped
-                    if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) < 0) {
-                        if (treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == 2) {
-
+            treeCell.setOnDragDropped(event -> {
+                // data dropped
+                if (Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) < 0) {
+                    if (treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == QuestionGeneric.CERTIFICATIVE_TEST) {
+                        System.out.println("Trying to drag on certificative test");
+                    } else {
+                        if (((treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == QuestionGeneric.FORMATIVE_TEST
+                                || treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET)
+                                && draggedQuestion.getIntTypeOfQuestion() != QuestionGeneric.GAME_QUESTIONSET)
+                                || (treeCell.getTreeItem().getValue().getIntTypeOfQuestion() == QuestionGeneric.GAME
+                                && draggedQuestion.getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET)) {
                             //add a horizontal relation with the question before in the list
                             int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
                             TreeItem<QuestionGeneric> questionBefore = null;
@@ -193,66 +207,69 @@ public class QuestionSendingController extends Window implements Initializable {
                             }
                             if (questionBefore != null) {
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                        String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(),
+                                        String.valueOf(Utilities.setPositiveIdSign(draggedQuestion.getGlobalID())), treeCell.getTreeItem().getValue().getQuestion(),
                                         treeCell.getTreeItem().getValue().getGlobalID(), "");
                             } else {
                                 DbTableRelationQuestionQuestion.addRelationQuestionQuestion("0",
-                                        String.valueOf(draggedQuestion.getGlobalID()), treeCell.getTreeItem().getValue().getQuestion(),
+                                        String.valueOf(Utilities.setPositiveIdSign(draggedQuestion.getGlobalID())), treeCell.getTreeItem().getValue().getQuestion(),
                                         treeCell.getTreeItem().getValue().getGlobalID(), "");
                             }
 
                             //add the node to the tree
-                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                            TreeItem<QuestionGeneric> newTreeItem = new TreeItem<>(draggedQuestion);
+                            if (newTreeItem.getValue().getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET) {
+                                newTreeItem.getChildren().addAll(draggedTreeItem.getChildren());
+                            }
+                            treeCell.getTreeItem().getChildren().add(newTreeItem);
                             event.setDropCompleted(true);
                             treeCell.getTreeItem().setExpanded(true);
                             event.consume();
-                        } else {
-                            System.out.println("Trying to drag on certificative test");
                         }
-                    } else if (treeCell.getTreeItem().getChildren() != draggedQuestion) {
-                        TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
-                        while (treeItemTest.getParent() != root) {
-                            treeItemTest = treeItemTest.getParent();
+                    }
+                } else if (treeCell.getTreeItem().getChildren() != draggedQuestion
+                        && treeCell.getTreeItem().getParent().getValue().getIntTypeOfQuestion() != QuestionGeneric.GAME_QUESTIONSET) {
+                    TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
+                    while (treeItemTest.getParent() != root) {
+                        treeItemTest = treeItemTest.getParent();
+                    }
+                    if (Long.valueOf(treeItemTest.getValue().getGlobalID()) < 0) {
+                        int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
+                        TreeItem<QuestionGeneric> questionBefore = null;
+                        if (bigBrotherIndex >= 0) {
+                            questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
                         }
-                        if (Long.valueOf(treeItemTest.getValue().getGlobalID()) < 0) {
-                            int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
-                            TreeItem<QuestionGeneric> questionBefore = null;
-                            if (bigBrotherIndex >= 0) {
-                                questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
-                            }
-                            if (questionBefore != null) {
-                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                        String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
-                                        treeItemTest.getValue().getGlobalID(), "");
-                            }
-
-                            //add the node to the tree and set the vertical relation
-                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
-                            DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
+                        if (questionBefore != null) {
+                            DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
                                     String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
-                                    treeItemTest.getValue().getGlobalID(), "EVALUATION<60");
-                            event.setDropCompleted(true);
-                            treeCell.getTreeItem().setExpanded(true);
-                            event.consume();
+                                    treeItemTest.getValue().getGlobalID(), "");
                         }
-                    } else {
-                        System.out.println("Trying to drag on self or on question not belonging to any test");
+
+                        //add the node to the tree and set the vertical relation
+                        treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                        DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
+                                String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
+                                treeItemTest.getValue().getGlobalID(), "EVALUATION<60");
+                        event.setDropCompleted(true);
+                        treeCell.getTreeItem().setExpanded(true);
+                        event.consume();
                     }
-                    draggedQuestion = null;
-                });
+                } else {
+                    System.out.println("Trying to drag on self or on question not belonging to any test");
+                }
+                draggedQuestion = null;
+            });
 
-                treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-                    if (editedTestItem != null && Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) > 0
-                            && treeCell.getTreeItem().getParent().getParent() == null && event.getClickCount() == 2) {
-                        questionsForTest.add(treeCell.getTreeItem().getValue().getGlobalID());
-                        addQuestionToTest(treeCell.getTreeItem().getValue());
-                        allQuestionsTree.refresh();
-                    }
-                });
+            treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+                if (editedTestItem != null && Long.valueOf(treeCell.getTreeItem().getValue().getGlobalID()) > 0
+                        && treeCell.getTreeItem().getParent().getParent() == null && event.getClickCount() == 2) {
+                    questionsForTest.add(treeCell.getTreeItem().getValue().getGlobalID());
+                    addQuestionToTest(treeCell.getTreeItem().getValue());
+                    allQuestionsTree.refresh();
+                }
+            });
 
 
-                return treeCell;
-            }
+            return treeCell;
         });
 
         allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -375,7 +392,7 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         }
 
-        //one add the tests
+        //ONE: add the tests
         for (QuestionGeneric testGeneric : testsNodeList) {
             ArrayList<String> questionIDs = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(testGeneric.getQuestion());
 
@@ -395,15 +412,31 @@ public class QuestionSendingController extends Window implements Initializable {
                 TreeItem newTest = new TreeItem<>(testGeneric);
                 root.getChildren().add(newTest);
                 for (String id : questionIDs) {
-                    Boolean found = false;
-                    for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
-                        if (genericQuestionsList.get(i).getGlobalID().contentEquals(id)) {
-                            found = true;
-                            TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
-                            newTest.getChildren().add(questionItem);
+                    if (testGeneric.getIntTypeOfQuestion() != QuestionGeneric.GAME) {
+                        Boolean found = false;
+                        for (int i = 0; i < genericQuestionsList.size() && !found; i++) {
+                            if (genericQuestionsList.get(i).getGlobalID().contentEquals(id)) {
+                                found = true;
+                                TreeItem questionItem = new TreeItem<>(genericQuestionsList.get(i));
+                                newTest.getChildren().add(questionItem);
 
-                            //add the questions linked to the test questions
-                            populateWithLinkedQuestions(testGeneric, id, questionItem);
+                                //add the questions linked to the test questions
+                                populateWithLinkedQuestions(testGeneric, id, questionItem);
+                            }
+                        }
+                    } else {
+                        QuestionGeneric questionSetGeneric = testsNodeMap.get("-" + id);
+                        if (questionSetGeneric != null) {
+                            TreeItem questionSetItem = new TreeItem<>(questionSetGeneric);
+                            ArrayList<String> questionsSetIDs = DbTableRelationQuestionQuestion.getFirstLayerQuestionIdsFromTestName(questionSetGeneric.getQuestion());
+                            for (String id2 : questionsSetIDs) {
+                                QuestionGeneric questionGeneric2 = genericQuestionsMap.get(id2);
+                                if (questionGeneric2 != null) {
+                                    TreeItem questionItem = new TreeItem<>(questionGeneric2);
+                                    questionSetItem.getChildren().add(questionItem);
+                                }
+                            }
+                            newTest.getChildren().add(questionSetItem);
                         }
                     }
                 }
