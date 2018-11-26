@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.Game.GameController">
+   <children>
+      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <HBox prefHeight="42.0" prefWidth="200.0">
+                           <children>
+                              <Label text="End Score:" />
+                              <TextField fx:id="endScoreTextView" prefHeight="27.0" prefWidth="95.0" />
+                           </children>
+                        </HBox>
+                        <Button mnemonicParsing="false" onAction="#addGame" text="Add Game" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox fx:id="teamOnePlayer" prefWidth="150.0" promptText="Player" />
+                        <Button mnemonicParsing="false" onAction="#addPlayerToOne" text="Add player to team 1" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox fx:id="teamTwoPlayer" prefWidth="150.0" promptText="Player" />
+                        <Button mnemonicParsing="false" onAction="#addPlayerToTwo" text="Add player to team 2" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <ListView fx:id="GamesList" />
+                  <ListView fx:id="TeamOneList" prefHeight="200.0" prefWidth="200.0" />
+                  <ListView fx:id="TeamTwoList" prefHeight="200.0" prefWidth="200.0" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

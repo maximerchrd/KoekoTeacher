@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javafx.scene.Parent;
 import javafx.stage.*;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.Game.Game;
 import koeko.controllers.GenericPopUpController;
 import koeko.controllers.InstallAssistantController;
 import koeko.controllers.LearningTrackerController;
@@ -31,6 +32,7 @@ public class Koeko extends Application {
     static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
     static public Boolean recordLogs = false;
+    static public ArrayList<Game> activeGames = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
         Application.launch(args);
@@ -107,7 +109,7 @@ public class Koeko extends Application {
         }
 
         //for (Long i = 0L; i < 3; i++) {
-            //functionalTesting.mainTesting(4, 3, 5, 5000L, 30);
+            //functionalTesting.mainTesting(3, 5, 100, 10000L, 30);
         //}
     }
 

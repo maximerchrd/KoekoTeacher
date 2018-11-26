@@ -1274,6 +1274,21 @@ public class QuestionSendingController extends Window implements Initializable {
             for (TreeItem<QuestionGeneric> treeItem : testItem.getChildren()) {
                 sendTestToStudents(treeItem.getValue(), group, treeItem);
             }
+
+            //open game controlling window
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Stage stage = new Stage();
+            stage.initModality(Modality.NONE);
+            stage.initStyle(StageStyle.DECORATED);
+            stage.setTitle("Game");
+            stage.setScene(new Scene(root1));
+            stage.show();
         }
     }
 
