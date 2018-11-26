@@ -469,11 +469,9 @@ public class QuestionSendingController extends Window implements Initializable {
                     itemChild = new TreeItem<>(genericQuestionsList.get(i));
                 }
                 root.getChildren().add(itemChild);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -512,7 +510,7 @@ public class QuestionSendingController extends Window implements Initializable {
             sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true, false);
         } else if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
             // send test infos and linked objectives
-            sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+            sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), allQuestionsTree.getSelectionModel().getSelectedItem());
         } else {
             System.out.println("Trying to broadcast question or test but ID == 0.");
         }
@@ -1179,7 +1177,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(test.getTestName());
                     questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
-                    sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex());
+                    sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), allQuestionsTree.getSelectionModel().getSelectedItem());
                 }
             }
         }
@@ -1211,7 +1209,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    private void sendTestToStudents(QuestionGeneric questionGeneric, Integer group) {
+    private void sendTestToStudents(QuestionGeneric questionGeneric, Integer group, TreeItem<QuestionGeneric> testItem) {
         ArrayList<String> questionIDs = new ArrayList<>();
         String globalID = questionGeneric.getGlobalID();
         if (group < 1) group = 0;
@@ -1269,6 +1267,13 @@ public class QuestionSendingController extends Window implements Initializable {
         if (mediaFileName.length() > 0) {
             File mediaFile = FilesHandler.getMediaFile(mediaFileName);
             NetworkCommunication.networkCommunicationSingleton.sendMediaFile(mediaFile, null);
+        }
+
+        //if it's a game, send the questions sets linked to it
+        if (testItem.getValue().getIntTypeOfQuestion() == QuestionGeneric.GAME) {
+            for (TreeItem<QuestionGeneric> treeItem : testItem.getChildren()) {
+                sendTestToStudents(treeItem.getValue(), group, treeItem);
+            }
         }
     }
 
