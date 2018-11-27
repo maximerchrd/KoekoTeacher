@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.Tools.FilesHandler;
-import koeko.controllers.EditQuestionController;
+import koeko.controllers.QuestionsControlling.EditQuestionController;
 import koeko.controllers.TestControlling.EditTestController;
 import koeko.controllers.controllers_tools.Toast;
 import koeko.database_management.*;
@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.logging.FileHandler;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 

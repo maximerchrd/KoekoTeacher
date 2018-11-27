@@ -1,33 +1,10 @@
 package koeko.controllers.Game;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import koeko.Koeko;
-import koeko.Tools.FilesHandler;
-import koeko.controllers.EditQuestionController;
-import koeko.controllers.TestControlling.EditTestController;
-import koeko.controllers.controllers_tools.Toast;
-import koeko.database_management.*;
-import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.Test;
-import net.glxn.qrgen.javase.QRCode;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class GameCell extends ListCell<Game> {
     private double imageSize = 60;

@@ -201,4 +201,19 @@ public class DbTableLearningObjectives {
             System.out.println(e.getMessage());
         }
     }
+
+    public static void updateObjective(String oldObjective, String newObjective) {
+        String sql = "UPDATE learning_objectives SET OBJECTIVE=? WHERE OBJECTIVE=?";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(1, newObjective);
+            pstmt.setString(2, oldObjective);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package koeko.controllers;
+package koeko.controllers.QuestionsControlling;
 
 
 import javafx.application.Platform;
@@ -107,7 +107,7 @@ public class CreateQuestionController implements Initializable {
         editButton.setGraphic(editImage);
         editButton.setOnAction(event -> {
             if (comboBox.getSelectionModel().getSelectedItem() != null) {
-                promptEditSubject(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
+                QuestionEditing.promptEditSubject(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
             }
         });
 
@@ -121,38 +121,6 @@ public class CreateQuestionController implements Initializable {
         TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
     }
 
-    private void promptEditSubject(String oldSubject, ComboBox subjectCombobox) {
-        Platform.runLater(() -> {
-            final Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(Koeko.studentsVsQuestionsTableControllerSingleton);
-            dialog.initStyle(StageStyle.DECORATED);
-
-            HBox subjectHbox = new HBox(20);
-            Label subjectLabel = new Label("Edit subject:");
-            TextField subjectField = new TextField(oldSubject);
-            subjectHbox.getChildren().addAll(subjectLabel, subjectField);
-            Button saveButton = new Button("Edit Subject");
-            saveButton.setOnAction(event -> {
-                DbTableSubject.updateSubject(oldSubject, subjectField.getText());
-                ObservableList<String> subjects = subjectCombobox.getItems();
-                for (String subject : subjects) {
-                    if (subject.contentEquals(oldSubject)) {
-                        subjects.set(subjects.indexOf(subject), subjectField.getText());
-                    }
-                }
-                subjectCombobox.setItems(subjects);
-                subjectCombobox.getSelectionModel().select(subjectField.getText());
-                dialog.close();
-            });
-            VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().addAll(subjectHbox, saveButton);
-            Scene dialogScene = new Scene(dialogVbox, 450, 80);
-            dialog.setScene(dialogScene);
-            dialog.show();
-        });
-    }
-
     public void addObjective() {
         Vector<String> objectivessVector = DbTableLearningObjectives.getAllObjectives();
         String[] objectives = objectivessVector.toArray(new String[objectivessVector.size()]);;
@@ -163,14 +131,22 @@ public class CreateQuestionController implements Initializable {
         objectivesComboBoxArrayList.add(comboBox);
 
         HBox hBox = new HBox();
-        //button for removing subject
+
+        Button editButton = new Button();
+        ImageView editImage = new ImageView(new Image("/drawable/editImage.png", buttonImageSize, buttonImageSize, true, true));
+        editButton.setGraphic(editImage);
+        editButton.setOnAction(event -> {
+            if (comboBox.getSelectionModel().getSelectedItem() != null) {
+                QuestionEditing.promptEditObjective(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
+            }
+        });
+
         Button removeButton = new Button("X");
         removeButton.setOnAction(event -> {
             objectivesComboBoxArrayList.remove(comboBox);
             (( VBox)hBox.getParent()).getChildren().remove(hBox);
         });
-        hBox.getChildren().add(comboBox);
-        hBox.getChildren().add(removeButton);
+        hBox.getChildren().addAll(comboBox, editButton, removeButton);
         vBoxObjectives.getChildren().add(hBox);
         TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
     }
