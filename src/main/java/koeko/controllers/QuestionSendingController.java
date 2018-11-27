@@ -43,6 +43,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.lang.*;
 import java.util.List;
@@ -684,7 +685,7 @@ public class QuestionSendingController extends Window implements Initializable {
     public void importQuestions() {
         String importDoneMessage = "Import Done.\n";
 
-        List<String> input = readFile("questions/questions.csv");
+        List<String> input = readFile(FilesHandler.exportDirectory + "questions.csv");
         input.remove(0);
         for (int i = 0; i < input.size(); i++) {
             input.set(i, input.get(i) + "END");
@@ -747,6 +748,15 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void exportQuestions() {
         Boolean exportOK = true;
+        File directory = new File("questions");
+        if (!directory.exists()) {
+            try {
+                Files.createDirectories(Paths.get("questions"));
+            } catch (IOException e) {
+                exportOK = false;
+                e.printStackTrace();
+            }
+        }
         ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
         try {
             questionGenericArrayList = DbTableQuestionGeneric.getAllGenericQuestions();
@@ -756,7 +766,8 @@ public class QuestionSendingController extends Window implements Initializable {
         }
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("questions/questions.csv", "UTF-8");
+            writer = new PrintWriter(FilesHandler.exportDirectory + "questions.csv", "UTF-8");
+            writer.println("Questions Type (0 = question multiple choice, 1 = question short answer);Question text;Right Answers;Other Options;Picture;Subjects;Objectives");
         } catch (FileNotFoundException e) {
             exportOK = false;
             e.printStackTrace();
@@ -764,7 +775,6 @@ public class QuestionSendingController extends Window implements Initializable {
             exportOK = false;
             e.printStackTrace();
         }
-        writer.println("Questions Type (0 = question multiple choice, 1 = question short answer);Question text;Right Answers;Other Options;Picture;Subjects;Objectives");
         for (int i = 0; i < questionGenericArrayList.size(); i++) {
             if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 1) {
                 String question = "1;";
@@ -772,17 +782,18 @@ public class QuestionSendingController extends Window implements Initializable {
 
                 //copy image file to correct directory
                 if (questionShortAnswer.getIMAGE().length() > 0 && !questionShortAnswer.getIMAGE().contentEquals("none")) {
-                    File source = new File(questionShortAnswer.getIMAGE());
-                    File dest = new File("questions/" + questionShortAnswer.getIMAGE());
+                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
+                    File source = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
+                    File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
                     try {
                         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-
                     } catch (IOException e) {
                         e.printStackTrace();
+                        exportOK = false;
                     }
                 }
 
-                question += questionShortAnswer.getQUESTION();
+                question += questionShortAnswer.getQUESTION().replace("\n"," ");
                 question += ";";
                 ArrayList<String> answers = questionShortAnswer.getANSWER();
                 for (int j = 0; j < answers.size(); j++) {
@@ -801,7 +812,12 @@ public class QuestionSendingController extends Window implements Initializable {
                     question += objectives.get(j) + "///";
                 }
                 question += ";";
-                writer.println(question);
+                try {
+                    writer.println(question);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    exportOK = false;
+                }
             } else if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 0) {
                 String question = "0;";
                 QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
@@ -809,20 +825,27 @@ public class QuestionSendingController extends Window implements Initializable {
                     questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionGenericArrayList.get(i).getGlobalID());
                 } catch (Exception e) {
                     e.printStackTrace();
+                    exportOK = false;
                 }
 
                 //copy image file to correct directory
                 if (questionMultipleChoice.getIMAGE().length() > 0 && !questionMultipleChoice.getIMAGE().contentEquals("none")) {
-                    File source = new File(questionMultipleChoice.getIMAGE());
-                    File dest = new File("questions/" + questionMultipleChoice.getIMAGE());
-                    try {
-                        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
+                    File source = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+                    if (source.exists()) {
+                        File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+                        try {
+                            Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.err.println("Exporting question: image not found");
+                        exportOK = false;
                     }
                 }
 
-                question += questionMultipleChoice.getQUESTION();
+                question += questionMultipleChoice.getQUESTION().replace("\n"," ");;
                 question += ";";
                 Vector<String> answers = questionMultipleChoice.getCorrectAnswers();
                 for (int j = 0; j < answers.size(); j++) {
@@ -846,11 +869,21 @@ public class QuestionSendingController extends Window implements Initializable {
                     question += objectives.get(j) + "///";
                 }
                 question += ";";
-                writer.println(question);
+                try {
+                    writer.println(question);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    exportOK = false;
+                }
             }
 
         }
-        writer.close();
+        try {
+            writer.close();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            exportOK = false;
+        }
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
         Parent root1 = null;
@@ -1345,10 +1378,11 @@ public class QuestionSendingController extends Window implements Initializable {
                 options_vector.get(5), options_vector.get(6), options_vector.get(7), options_vector.get(8),
                 options_vector.get(9), question[4]);
         new_questmultchoice.setNB_CORRECT_ANS(number_correct_answers);
+        new_questmultchoice.setTimerSeconds(-1);
 
         //copy image file to correct directory
         if (new_questmultchoice.getIMAGE().length() > 0 && !new_questmultchoice.getIMAGE().contains("none")) {
-            File source = new File("questions/" + new_questmultchoice.getIMAGE());
+            File source = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + new_questmultchoice.getIMAGE());
             if (source.exists() && !source.isDirectory()) {
                 File dest = new File(new_questmultchoice.getIMAGE());
                 try {
@@ -1423,10 +1457,11 @@ public class QuestionSendingController extends Window implements Initializable {
             }
         }
         new_questshortanswer.setANSWER(answerOptions);
+        new_questshortanswer.setTimerSeconds(-1);
 
         //copy image file to correct directory
         if (new_questshortanswer.getIMAGE().length() > 0 && !new_questshortanswer.getIMAGE().contains("none")) {
-            File source = new File("questions/" + new_questshortanswer.getIMAGE());
+            File source = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + new_questshortanswer.getIMAGE());
             if (source.exists() && !source.isDirectory()) {
                 File dest = new File(new_questshortanswer.getIMAGE());
                 try {
