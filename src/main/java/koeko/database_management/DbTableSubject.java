@@ -23,7 +23,7 @@ public class DbTableSubject {
                     " UNIQUE (SUBJECT)); ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -96,7 +96,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -165,7 +165,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -190,7 +190,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -217,7 +217,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -373,7 +373,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -397,7 +397,7 @@ public class DbTableSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

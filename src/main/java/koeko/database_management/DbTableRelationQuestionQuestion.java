@@ -24,7 +24,7 @@ public class DbTableRelationQuestionQuestion {
                     " CONSTRAINT unq UNIQUE (ID_GLOBAL_1, ID_GLOBAL_2, TEST)) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -59,7 +59,7 @@ public class DbTableRelationQuestionQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

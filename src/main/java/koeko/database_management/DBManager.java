@@ -15,7 +15,7 @@ public class DBManager {
 			c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
 			c.close();
 		} catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+			e.printStackTrace();
 			System.exit(0);
 		}
 	}
@@ -28,7 +28,7 @@ public class DBManager {
 			c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
 			stmt = c.createStatement();
 		} catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+			e.printStackTrace();
 			System.exit(0);
 		}
 		DbTableQuestionGeneric.createTableQuestionGeneric(c,stmt);
@@ -65,7 +65,7 @@ public class DBManager {
 			stmt.close();
 			c.close();
 		} catch ( Exception e ) {
-			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+			e.printStackTrace();
 			System.exit(0);
 		}
 	}

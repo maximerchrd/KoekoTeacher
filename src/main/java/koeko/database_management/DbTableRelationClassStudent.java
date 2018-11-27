@@ -20,7 +20,7 @@ public class DbTableRelationClassStudent {
                     " UNIQUE (CLASS_STUDENT_CODE) ) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -55,7 +55,7 @@ public class DbTableRelationClassStudent {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -88,7 +88,7 @@ public class DbTableRelationClassStudent {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -115,7 +115,7 @@ public class DbTableRelationClassStudent {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

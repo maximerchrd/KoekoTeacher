@@ -46,6 +46,7 @@ public class EditQuestionController implements Initializable {
     private List<QuestionGeneric> genericQuestionsList;
     private TreeView<QuestionGeneric> allQuestionsTree;
     private QuestionGeneric questionGeneric;
+    private int timerSecondsInt = 0;
     private TreeItem treeItem;
     private TreeView treeView;
 
@@ -57,6 +58,7 @@ public class EditQuestionController implements Initializable {
     @FXML private TextField imagePath;
     @FXML private ComboBox correctionComboBox;
     @FXML private TextArea customCorrection;
+    @FXML private TextField timerSeconds;
 
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree,
                               QuestionGeneric questionGeneric, TreeItem treeItem, TreeView treeView) {
@@ -259,6 +261,12 @@ public class EditQuestionController implements Initializable {
             new_questshortanswer.setANSWER(answerOptions);
             new_questshortanswer.setID(questionGeneric.getGlobalID());
             try {
+                new_questshortanswer.setTimerSeconds(Integer.valueOf(timerSeconds.getText()));
+            } catch (NumberFormatException e) {
+                System.out.println("Incorrect format for timer seconds");
+                new_questshortanswer.setTimerSeconds(timerSecondsInt);
+            }
+            try {
                 DbTableQuestionShortAnswer.updateShortAnswerQuestion(new_questshortanswer);
                 NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().unsyncIdAfterUpdate(new_questshortanswer.getID());
             } catch (Exception e1) {
@@ -312,12 +320,19 @@ public class EditQuestionController implements Initializable {
                     number_correct_answers++;
                 }
             }
-            QuestionMultipleChoice new_questmultchoice = new QuestionMultipleChoice("1", questionText.getText().replace("'","''"), options_vector.get(0).replace("'","''"),
-                    options_vector.get(1).replace("'","''"), options_vector.get(2).replace("'","''"), options_vector.get(3).replace("'","''"), options_vector.get(4).replace("'","''"),
-                    options_vector.get(5).replace("'","''"), options_vector.get(6).replace("'","''"), options_vector.get(7).replace("'","''"), options_vector.get(8).replace("'","''"),
-                    options_vector.get(9).replace("'","''"), imagePath.getText().replace("'","''"));
+            QuestionMultipleChoice new_questmultchoice = new QuestionMultipleChoice("1", questionText.getText(), options_vector.get(0),
+                    options_vector.get(1), options_vector.get(2), options_vector.get(3), options_vector.get(4),
+                    options_vector.get(5), options_vector.get(6), options_vector.get(7), options_vector.get(8),
+                    options_vector.get(9), imagePath.getText());
             new_questmultchoice.setNB_CORRECT_ANS(number_correct_answers);
             new_questmultchoice.setID(questionGeneric.getGlobalID());
+            try {
+                new_questmultchoice.setTimerSeconds(Integer.valueOf(timerSeconds.getText()));
+            } catch (NumberFormatException e) {
+                System.out.println("Incorrect format for timer seconds");
+                new_questmultchoice.setTimerSeconds(timerSecondsInt);
+            }
+
             try {
                 DbTableQuestionMultipleChoice.updateMultipleChoiceQuestion(new_questmultchoice);
                 NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().unsyncIdAfterUpdate(new_questmultchoice.getID());
@@ -413,6 +428,10 @@ public class EditQuestionController implements Initializable {
                 customCorrection.setVisible(true);
                 customCorrection.setText(DbTableQuestionMultipleChoice.getCorrectionMode(questionGeneric.getGlobalID()).replace("Custom#", ""));
             }
+
+            //fill timer seconds
+            timerSeconds.setText(String.valueOf(questionMultipleChoice.getTimerSeconds()));
+            timerSecondsInt = questionMultipleChoice.getTimerSeconds();
         } else {
             typeOfQuestion.getSelectionModel().select(1);
             QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionGeneric.getGlobalID());
@@ -433,6 +452,10 @@ public class EditQuestionController implements Initializable {
                     FXCollections.observableArrayList("Cannot change Correction Mode");
             correctionComboBox.setItems(correctionModes);
             correctionComboBox.getSelectionModel().select(0);
+
+            //fill timer seconds
+            timerSeconds.setText(String.valueOf(questionShortAnswer.getTimerSeconds()));
+            timerSecondsInt = questionShortAnswer.getTimerSeconds();
         }
     }
 

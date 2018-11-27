@@ -17,7 +17,7 @@ public class DbTableRelationClassQuestion {
                     " CONSTRAINT unq UNIQUE (CLASS_NAME, ID_GLOBAL))  ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -40,7 +40,7 @@ public class DbTableRelationClassQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -60,7 +60,7 @@ public class DbTableRelationClassQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -81,7 +81,7 @@ public class DbTableRelationClassQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -101,7 +101,7 @@ public class DbTableRelationClassQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -125,7 +125,7 @@ public class DbTableRelationClassQuestion {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return questionIDs;

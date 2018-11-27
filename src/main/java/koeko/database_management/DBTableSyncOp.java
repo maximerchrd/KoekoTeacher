@@ -18,7 +18,7 @@ public class DBTableSyncOp {
             sql = "INSERT INTO syncop VALUES ('2018-01-01 01:01:01.000000000') ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -42,7 +42,7 @@ public class DBTableSyncOp {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return lastTS;
@@ -64,7 +64,7 @@ public class DBTableSyncOp {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

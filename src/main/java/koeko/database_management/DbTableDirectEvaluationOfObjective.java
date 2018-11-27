@@ -17,7 +17,7 @@ public class DbTableDirectEvaluationOfObjective {
                     " LEVEL_COGNITIVE_ABILITY                      INT     NOT NULL) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

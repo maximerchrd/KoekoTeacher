@@ -42,7 +42,7 @@ public class DbTableQuestionMultipleChoice {
                     " IDENTIFIER        VARCHAR(15))";
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -92,7 +92,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return globalID;
@@ -128,7 +128,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return bExists;
@@ -231,8 +231,8 @@ public class DbTableQuestionMultipleChoice {
             stmt.setString(13, quest.getIMAGE());
             stmt.setTimestamp(14, quest.getQCM_UPD_TMS());
             stmt.setString(15, quest.computeShortHashCode());
-            stmt.setString(16, quest.getID());
-            stmt.setInt(17, quest.getTimerSeconds());
+            stmt.setInt(16, quest.getTimerSeconds());
+            stmt.setString(17, quest.getID());
             stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -284,7 +284,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(questionID));
@@ -302,7 +302,7 @@ public class DbTableQuestionMultipleChoice {
                 return rs.getString("ID_GLOBAL");
             }
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return "";
@@ -325,7 +325,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return last_id_global;
@@ -415,7 +415,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -518,7 +518,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -539,7 +539,7 @@ public class DbTableQuestionMultipleChoice {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }

@@ -82,8 +82,8 @@ public class DbTableQuestionShortAnswer {
             stmt.setString(2, quest.getIMAGE());
             stmt.setString(3, Utilities.TimestampForNowAsString());
             stmt.setString(4, quest.computeShortHashCode());
-            stmt.setString(5, quest.getID());
-            stmt.setInt(6, quest.getTimerSeconds());
+            stmt.setInt(5, quest.getTimerSeconds());
+            stmt.setString(6, quest.getID());
             stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();

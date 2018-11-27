@@ -18,7 +18,7 @@ public class DbTableRelationClassTest {
                     " CONSTRAINT unq UNIQUE (ID_CLASS, ID_TEST)) ";;
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

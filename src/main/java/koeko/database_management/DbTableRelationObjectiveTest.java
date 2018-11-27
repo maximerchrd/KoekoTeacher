@@ -20,7 +20,7 @@ public class DbTableRelationObjectiveTest {
                     "CONSTRAINT unq UNIQUE (ID_GLOBAL_OBJECTIVE, ID_GLOBAL_TEST)) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -55,7 +55,7 @@ public class DbTableRelationObjectiveTest {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -89,7 +89,7 @@ public class DbTableRelationObjectiveTest {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -115,7 +115,7 @@ public class DbTableRelationObjectiveTest {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return objectives;
@@ -143,7 +143,7 @@ public class DbTableRelationObjectiveTest {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return objectivesIDs;

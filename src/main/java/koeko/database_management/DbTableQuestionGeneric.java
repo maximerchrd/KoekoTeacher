@@ -25,7 +25,7 @@ public class DbTableQuestionGeneric {
                     " QUESTION_TYPE      INT     NOT NULL) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -51,7 +51,7 @@ public class DbTableQuestionGeneric {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return questID;
@@ -76,7 +76,7 @@ public class DbTableQuestionGeneric {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -103,7 +103,7 @@ public class DbTableQuestionGeneric {
             stmt.close();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         System.out.println("Read " + questionGenericArrayList.size() + " generic questions.");
@@ -129,7 +129,7 @@ public class DbTableQuestionGeneric {
             stmt.close();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return questionIdsArrayList;
@@ -153,7 +153,7 @@ public class DbTableQuestionGeneric {
             stmt.close();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return questionType;
@@ -174,7 +174,7 @@ public class DbTableQuestionGeneric {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

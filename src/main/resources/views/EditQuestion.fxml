@@ -64,7 +64,7 @@
             </AnchorPane>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <VBox fx:id="vBoxSubjects" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox fx:id="vBoxSubjects" layoutY="70.0" prefHeight="421.0" prefWidth="188.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="70.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#addSubject" text="Add Subject">
                            <VBox.margin>
@@ -73,11 +73,17 @@
                         </Button>
                      </children>
                   </VBox>
+                  <HBox layoutX="-6.0" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Timer (nb of Seconds):" />
+                        <TextField fx:id="timerSeconds" prefHeight="27.0" prefWidth="51.0" />
+                     </children>
+                  </HBox>
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <VBox fx:id="vBoxObjectives" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox fx:id="vBoxObjectives" layoutY="70.0" prefHeight="421.0" prefWidth="188.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="70.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#addObjective" text="Add Objective">
                            <VBox.margin>

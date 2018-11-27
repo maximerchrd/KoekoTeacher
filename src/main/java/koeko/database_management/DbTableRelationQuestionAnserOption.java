@@ -17,7 +17,7 @@ public class DbTableRelationQuestionAnserOption {
                     " ID_ANSWEROPTION_GLOBAL      INT     NOT NULL) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -45,7 +45,7 @@ public class DbTableRelationQuestionAnserOption {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

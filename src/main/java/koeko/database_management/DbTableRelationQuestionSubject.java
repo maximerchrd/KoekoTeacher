@@ -20,7 +20,7 @@ public class DbTableRelationQuestionSubject {
                     " SUBJECT_LEVEL      INT NOT NULL) ";
             statement.executeUpdate(sql);
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -80,7 +80,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return bExists;
@@ -110,7 +110,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return sbj_id;
@@ -140,7 +140,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
         return rec_id;
@@ -176,7 +176,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -237,7 +237,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -345,7 +345,7 @@ public class DbTableRelationQuestionSubject {
             c.commit();
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 

@@ -44,7 +44,7 @@ public class TestTransfert {
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
 

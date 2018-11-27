@@ -267,7 +267,7 @@ public class TCPCommunication {
                 }
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -284,7 +284,7 @@ public class TCPCommunication {
                 }
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -301,7 +301,7 @@ public class TCPCommunication {
                 }
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -318,7 +318,7 @@ public class TCPCommunication {
                 }
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -332,7 +332,7 @@ public class TCPCommunication {
                 bOK = true;
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -344,7 +344,7 @@ public class TCPCommunication {
             ObjectInputStream ois = new ObjectInputStream(_inStream);
             obj = ois.readObject();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return obj;
@@ -431,7 +431,7 @@ public class TCPCommunication {
             } else
                 bOK = false;
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return bOK;
@@ -442,7 +442,7 @@ public class TCPCommunication {
             SendCommande(cstrByeByeDude);
             _socket.close();
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

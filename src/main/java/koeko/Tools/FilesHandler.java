@@ -4,6 +4,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +16,7 @@ public class FilesHandler {
     static public String mediaDirectory = "media/";
     static public String mediaDirectoryNoSlash = "media";
     static public String[] supportedMediaExtensions = {"*.mp3", "*.wav", "*.mp4", "*.avi", "*.html"};
+    static public String exportDirectory = "questions/";
 
     static public void createMediaDirIfNotExists() {
         File theDir = new File(mediaDirectory);
@@ -35,6 +37,19 @@ public class FilesHandler {
                 System.out.println("DIR created");
             }
         }
+    }
+
+    static public Boolean createExportMediaDirIfNotExists() {
+        File dir = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectoryNoSlash);
+        if (!dir.exists()) {
+            try {
+                Files.createDirectories(Paths.get(FilesHandler.exportDirectory + FilesHandler.mediaDirectoryNoSlash));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     static public File saveMediaFile (File sourceFile) {

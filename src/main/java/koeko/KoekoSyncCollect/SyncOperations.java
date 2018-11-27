@@ -136,7 +136,7 @@ public class SyncOperations {
             // Setup the connection with the DB
             connect = DriverManager.getConnection(connectionString, properties);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
         return connect;
@@ -150,7 +150,7 @@ public class SyncOperations {
                 DbTableProfessor.setProfessorMUID(prof.get_id_prof(), muid);
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -172,7 +172,7 @@ public class SyncOperations {
                 DbTableQuestionMultipleChoice.setResourceMUID(qcm.getID(), muid);
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -185,7 +185,7 @@ public class SyncOperations {
                 DbTableSubject.setSubjectMUID(sbj.get_subjectId(), muid);
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
@@ -215,7 +215,7 @@ public class SyncOperations {
                 DbTableLearningObjectives.setObjectiveUID(objective.get_objectiveName(), muid);
             }
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }

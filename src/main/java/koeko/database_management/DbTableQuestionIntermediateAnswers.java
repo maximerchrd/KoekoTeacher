@@ -29,7 +29,7 @@ public class DbTableQuestionIntermediateAnswers {
                     " ID_GLOBAL                      INT     NOT NULL) ";
             statement.executeUpdate(sql);
         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            e.printStackTrace();
             System.exit(0);
         }
     }
