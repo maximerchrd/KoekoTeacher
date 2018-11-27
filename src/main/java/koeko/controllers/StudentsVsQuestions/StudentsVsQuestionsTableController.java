@@ -1,5 +1,6 @@
 package koeko.controllers.StudentsVsQuestions;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -13,6 +14,7 @@ import koeko.Networking.NetworkCommunication;
 import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
+import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
@@ -118,13 +120,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 Koeko.studentGroupsAndClass.get(groupFinal).getAverageEvaluations().add(0.0);
 
 
-                final int questionIndex = Koeko.studentGroupsAndClass.get(groupFinal).getActiveQuestions().size() - 1;
-                column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-                    public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                        // p.getValue() returns the Person instance for a particular TableView row
-                        return p.getValue().getAnswers().get(questionIndex);
-                    }
-                });
+                final int questionIndex = Koeko.studentGroupsAndClass.get(groupFinal).getActiveQuestions().indexOf(question);
+                column.setCellValueFactory((Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>,
+                        ObservableValue<String>>) p -> p.getValue().getAnswers().get(questionIndex));
                 column.setCellFactory(new Callback<TableColumn<SingleStudentAnswersLine, String>, TableCell<SingleStudentAnswersLine, String>>() {
                     @Override
                     public TableCell<SingleStudentAnswersLine, String> call(TableColumn<SingleStudentAnswersLine, String> param) {
@@ -390,7 +388,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 }
                 DecimalFormat df = new DecimalFormat("#.#");
                 singleStudentAnswersLine.setEvaluation(String.valueOf(df.format(meanEvaluation)));
-                tableViewArrayList.get(group).getItems().set(indexRow, singleStudentAnswersLine);
 
                 //update mean values
                 Double questionAverage = Koeko.studentGroupsAndClass.get(group).updateAverageEvaluationForQuestion(indexColumn, indexRow, evaluation);
@@ -402,7 +399,6 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 } else {
                     averageEvaluationsLine.setAnswer(String.valueOf(df.format(questionAverage)), indexColumn);
                 }
-                tableViewArrayList.get(group).getItems().set(tableViewArrayList.get(group).getItems().size() - 1, averageEvaluationsLine);
 
                 //update MCQStats
                 if (mcqStatsController != null) {
@@ -410,7 +406,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 }
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            if (!functionalTesting.testMode) {
+                e.printStackTrace();
+            }
         }
     }
 
