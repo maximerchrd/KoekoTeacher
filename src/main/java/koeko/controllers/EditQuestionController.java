@@ -1,5 +1,10 @@
 package koeko.controllers;
 
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
+import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.Tools.FilesHandler;
 import koeko.questions_management.QuestionGeneric;
@@ -49,6 +54,7 @@ public class EditQuestionController implements Initializable {
     private int timerSecondsInt = 0;
     private TreeItem treeItem;
     private TreeView treeView;
+    private int buttonImageSize = 20;
 
     @FXML private VBox vBox;
     @FXML private VBox vBoxSubjects;
@@ -108,16 +114,56 @@ public class EditQuestionController implements Initializable {
         subjectsComboBoxArrayList.add(comboBox);
 
         HBox hBox = new HBox();
-        //button for removing subject
+
+        Button editButton = new Button();
+        ImageView editImage = new ImageView(new Image("/drawable/editImage.png", buttonImageSize, buttonImageSize, true, true));
+        editButton.setGraphic(editImage);
+        editButton.setOnAction(event -> {
+            if (comboBox.getSelectionModel().getSelectedItem() != null) {
+                promptEditSubject(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
+            }
+        });
+
         Button removeButton = new Button("X");
         removeButton.setOnAction(event -> {
             subjectsComboBoxArrayList.remove(comboBox);
             (( VBox)hBox.getParent()).getChildren().remove(hBox);
         });
-        hBox.getChildren().add(comboBox);
-        hBox.getChildren().add(removeButton);
+        hBox.getChildren().addAll(comboBox, editButton, removeButton);
         vBoxSubjects.getChildren().add(hBox);
         TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
+    }
+
+    private void promptEditSubject(String oldSubject, ComboBox subjectCombobox) {
+        Platform.runLater(() -> {
+            final Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(Koeko.studentsVsQuestionsTableControllerSingleton);
+            dialog.initStyle(StageStyle.DECORATED);
+
+            HBox subjectHbox = new HBox(20);
+            Label subjectLabel = new Label("Edit subject:");
+            TextField subjectField = new TextField(oldSubject);
+            subjectHbox.getChildren().addAll(subjectLabel, subjectField);
+            Button saveButton = new Button("Edit Subject");
+            saveButton.setOnAction(event -> {
+                DbTableSubject.updateSubject(oldSubject, subjectField.getText());
+                ObservableList<String> subjects = subjectCombobox.getItems();
+                for (String subject : subjects) {
+                    if (subject.contentEquals(oldSubject)) {
+                        subjects.set(subjects.indexOf(subject), subjectField.getText());
+                    }
+                }
+                subjectCombobox.setItems(subjects);
+                subjectCombobox.getSelectionModel().select(subjectField.getText());
+                dialog.close();
+            });
+            VBox dialogVbox = new VBox(20);
+            dialogVbox.getChildren().addAll(subjectHbox, saveButton);
+            Scene dialogScene = new Scene(dialogVbox, 450, 80);
+            dialog.setScene(dialogScene);
+            dialog.show();
+        });
     }
 
     public void addObjective() {
