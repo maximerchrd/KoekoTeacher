@@ -92,24 +92,17 @@ public class DbTableRelationQuestionQuestion {
     }
 
     static public ArrayList<String> getFirstLayerQuestionIdsFromTestName(String testName) {
-        Set<String> questionIDsSet = new LinkedHashSet<>();
-        String query = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST=? AND CONDITION=?";
-        try (Connection c = Utilities.getDbConnection();
-                PreparedStatement preparedStatement = c.prepareStatement(query)) {
-            preparedStatement.setString(1, testName);
-            preparedStatement.setString(2, "");
-            ResultSet rs = preparedStatement.executeQuery();
+        ArrayList<String> questionIds = new ArrayList<>();
+        String query = "SELECT ID_GLOBAL_2 FROM question_question_relation WHERE ID_GLOBAL_1=? AND TEST=? AND CONDITION=?";
 
-            while (rs.next()) {
-                questionIDsSet.add(rs.getString("ID_GLOBAL_1"));
-                questionIDsSet.add(rs.getString("ID_GLOBAL_2"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        ArrayList<String> nextId = new ArrayList<>();
+        nextId.add("0");
+        while (nextId.size() > 0) {
+            questionIds.add(nextId.get(0));
+            nextId = DbUtils.getArrayStringWithThreeParams(query, nextId.get(0), testName, "");
         }
-        ArrayList<String> questionIds = new ArrayList<>(questionIDsSet);
+        questionIds.remove(0);
+
         return questionIds;
     }
 
@@ -340,5 +333,33 @@ public class DbTableRelationQuestionQuestion {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
+    }
+
+    public static void moveUp(String questionId, String bigBrotherId, String testId) {
+        String sql = "UPDATE question_question_relation SET ID_GLOBAL_1=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, questionId, questionId, bigBrotherId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_2=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, bigBrotherId, questionId, questionId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_1=? WHERE ID_GLOBAL_2!=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, bigBrotherId, bigBrotherId, questionId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_2=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1!=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, questionId, bigBrotherId, questionId, "",testId);
+    }
+
+    public static void moveDown(String questionId, String littleBrotherId, String testId) {
+        String sql = "UPDATE question_question_relation SET ID_GLOBAL_1=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, littleBrotherId, littleBrotherId, questionId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_2=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, questionId, littleBrotherId, littleBrotherId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_1=? WHERE ID_GLOBAL_2!=? AND ID_GLOBAL_1=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, questionId, questionId, littleBrotherId, "",testId);
+
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_2=? WHERE ID_GLOBAL_2=? AND ID_GLOBAL_1!=? AND CONDITION=? AND TEST_ID=?";
+        DbUtils.updateWithFiveParam(sql, littleBrotherId, questionId, littleBrotherId, "",testId);
     }
 }

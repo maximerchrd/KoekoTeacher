@@ -20,6 +20,7 @@ import koeko.controllers.controllers_tools.Toast;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
+import koeko.view.Utilities;
 import net.glxn.qrgen.javase.QRCode;
 
 import java.io.File;
@@ -45,7 +46,24 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
                 this.setStyle("");
             }
 
-            HBox hbox = new HBox(10);
+            HBox hbox = new HBox(6);
+
+            if (this.getTreeItem().getParent().getValue().getIntTypeOfQuestion() == QuestionGeneric.FORMATIVE_TEST) {
+                VBox updownBox = new VBox(3);
+                Button upButton = new Button("↑");
+                upButton.setOnAction(event -> {
+                    moveUpNode(item);
+                });
+                Button downButton = new Button("↓");
+                downButton.setOnAction(event -> {
+                    moveDownNode(item);
+                });
+
+                updownBox.getChildren().addAll(upButton, downButton);
+                Separator separator = new Separator();
+                separator.setVisible(false);
+                hbox.getChildren().addAll(updownBox,separator);
+            }
 
             VBox buttonsBox = new VBox(3);
 
@@ -242,6 +260,53 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             int fadeInTime = 500; //0.5 seconds
             int fadeOutTime= 500; //0.5 seconds
             Toast.makeText((Stage) button.getScene().getWindow(), toastMsg, toastMsgTime, fadeInTime, fadeOutTime);
+        }
+    }
+
+    private QuestionGeneric getParentTest(TreeItem<QuestionGeneric> node) {
+        TreeItem<QuestionGeneric> testItem = node.getParent();
+        while (testItem.getValue().getIntTypeOfQuestion() != QuestionGeneric.FORMATIVE_TEST) {
+            testItem = testItem.getParent();
+            if (testItem == null) {
+                return null;
+            }
+        }
+        return testItem.getValue();
+    }
+
+    private void moveUpNode(QuestionGeneric item) {
+        TreeItem<QuestionGeneric> parent = this.getTreeItem().getParent();
+        TreeItem<QuestionGeneric> thisTreeItem = this.getTreeItem();
+        int index = parent.getChildren().indexOf(thisTreeItem);
+        if (index > 0) {
+            TreeItem<QuestionGeneric> previousTreeItem = parent.getChildren().get(index - 1);
+            QuestionGeneric parentTest = getParentTest(thisTreeItem);
+            if (parentTest != null) {
+                DbTableRelationQuestionQuestion.moveUp(item.getGlobalID(), previousTreeItem.getValue().getGlobalID(),
+                        Utilities.setPositiveIdSign(parentTest.getGlobalID()));
+                parent.getChildren().set(index - 1, thisTreeItem);
+                parent.getChildren().set(index, previousTreeItem);
+            } else {
+                System.err.println("Error fetching parent test: is null");
+            }
+        }
+    }
+
+    private void moveDownNode(QuestionGeneric item) {
+        TreeItem<QuestionGeneric> parent = this.getTreeItem().getParent();
+        TreeItem<QuestionGeneric> thisTreeItem = this.getTreeItem();
+        int index = parent.getChildren().indexOf(thisTreeItem);
+        if (index < parent.getChildren().size() - 1) {
+            TreeItem<QuestionGeneric> nextTreeItem = parent.getChildren().get(index + 1);
+            QuestionGeneric parentTest = getParentTest(thisTreeItem);
+            if (parentTest != null ) {
+                DbTableRelationQuestionQuestion.moveDown(item.getGlobalID(), nextTreeItem.getValue().getGlobalID(),
+                        Utilities.setPositiveIdSign(parentTest.getGlobalID()));
+                parent.getChildren().set(index + 1, thisTreeItem);
+                parent.getChildren().set(index, nextTreeItem);
+            } else {
+                System.err.println("Problem fetching parent test moving node down: is null");
+            }
         }
     }
 }
