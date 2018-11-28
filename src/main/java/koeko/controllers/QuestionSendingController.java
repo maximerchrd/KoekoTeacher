@@ -11,10 +11,7 @@ import koeko.Tools.FilesHandler;
 import koeko.controllers.QuestionSending.QuestionTreeCell;
 import koeko.controllers.QuestionsControlling.CreateQuestionController;
 import koeko.controllers.TestControlling.CreateTestController;
-import koeko.questions_management.Test;
-import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.QuestionMultipleChoice;
-import koeko.questions_management.QuestionShortAnswer;
+import koeko.questions_management.*;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import javafx.event.EventHandler;
@@ -230,30 +227,43 @@ public class QuestionSendingController extends Window implements Initializable {
                     }
                 } else if (treeCell.getTreeItem().getChildren() != draggedQuestion
                         && treeCell.getTreeItem().getParent().getValue().getIntTypeOfQuestion() != QuestionGeneric.GAME_QUESTIONSET) {
-                    TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
-                    while (treeItemTest.getParent() != root) {
-                        treeItemTest = treeItemTest.getParent();
+                    Boolean tryingChildOfItself = false;
+                    TreeItem<QuestionGeneric> parent = treeCell.getTreeItem();
+                    while (parent != null) {
+                        if (parent.getValue().getGlobalID().contentEquals(draggedQuestion.getGlobalID())) {
+                            tryingChildOfItself = true;
+                            break;
+                        }
+                        parent = parent.getParent();
                     }
-                    if (Long.valueOf(treeItemTest.getValue().getGlobalID()) < 0) {
-                        int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
-                        TreeItem<QuestionGeneric> questionBefore = null;
-                        if (bigBrotherIndex >= 0) {
-                            questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
+                    if (tryingChildOfItself) {
+                        System.out.println("Trying to link question with itself: not allowed, would make an infinite recursion");
+                    } else {
+                        TreeItem<QuestionGeneric> treeItemTest = treeCell.getTreeItem();
+                        while (treeItemTest.getParent() != root) {
+                            treeItemTest = treeItemTest.getParent();
                         }
-                        if (questionBefore != null) {
-                            DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
-                                    String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
-                                    treeItemTest.getValue().getGlobalID(), "");
-                        }
+                        if (Long.valueOf(treeItemTest.getValue().getGlobalID()) < 0) {
+                            int bigBrotherIndex = treeCell.getTreeItem().getChildren().size() - 1;
+                            TreeItem<QuestionGeneric> questionBefore = null;
+                            if (bigBrotherIndex >= 0) {
+                                questionBefore = treeCell.getTreeItem().getChildren().get(bigBrotherIndex);
+                            }
+                            if (questionBefore != null) {
+                                DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
+                                        String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
+                                        treeItemTest.getValue().getGlobalID(), "");
+                            }
 
-                        //add the node to the tree and set the vertical relation
-                        treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
-                        DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
-                                String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
-                                treeItemTest.getValue().getGlobalID(), "EVALUATION<60");
-                        event.setDropCompleted(true);
-                        treeCell.getTreeItem().setExpanded(true);
-                        event.consume();
+                            //add the node to the tree and set the vertical relation
+                            treeCell.getTreeItem().getChildren().add(new TreeItem<>(draggedQuestion));
+                            DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(treeCell.getTreeItem().getValue().getGlobalID()),
+                                    String.valueOf(draggedQuestion.getGlobalID()), treeItemTest.getValue().getQuestion(),
+                                    treeItemTest.getValue().getGlobalID(), "EVALUATION<60");
+                            event.setDropCompleted(true);
+                            treeCell.getTreeItem().setExpanded(true);
+                            event.consume();
+                        }
                     }
                 } else {
                     System.out.println("Trying to drag on self or on question not belonging to any test");
@@ -486,7 +496,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 TreeItem questionChildren = new TreeItem<>(questionGeneric);
                 questionItem.getChildren().add(questionChildren);
                 Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID, testGeneric.getQuestion());
-                if (linkedQuestionsIds2.size() > 0) {
+                if (linkedQuestionsIds2.size() > 0 && !questionID.contentEquals(id)) {
                     populateWithLinkedQuestions(testGeneric, questionID, questionChildren);
                 }
             } else {
@@ -495,7 +505,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 TreeItem questionChildren = new TreeItem<>(questionGeneric);
                 questionItem.getChildren().add(questionChildren);
                 Vector<String> linkedQuestionsIds2 = DbTableRelationQuestionQuestion.getQuestionsLinkedToQuestion(questionID, testGeneric.getQuestion());
-                if (linkedQuestionsIds2.size() > 0) {
+                if (linkedQuestionsIds2.size() > 0  && !questionID.contentEquals(id)) {
                     populateWithLinkedQuestions(testGeneric, questionID, questionChildren);
                 }
             }
