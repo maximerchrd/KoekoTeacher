@@ -52,8 +52,8 @@ public class DbTableIndividualQuestionForStudentResult {
             stmt = c.createStatement();
             String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
                     "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
-                    "VALUES ('" + id_global + "','-1',date('now'),'" + answers + "','none','none','none','none','none','none','none');";
-            stmt.executeUpdate(sql);
+                    "VALUES (?,'-1',date('now'),?,'none','none','none','none','none','none','none');";
+            DbUtils.updateWithTwoParam(sql, id_global, answers);
             sql = "UPDATE individual_question_for_student_result SET ID_STUDENT_GLOBAL = (SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = " + "'" + student_name + "') WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
             stmt.executeUpdate(sql);
 

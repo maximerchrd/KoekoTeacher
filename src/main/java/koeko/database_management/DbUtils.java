@@ -28,6 +28,19 @@ public class DbUtils {
         return strings;
     }
 
+    static public void updateWithTwoParam(String sql, String param1, String param2) {
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1,param1);
+            pstmt.setString(2,param2);
+            pstmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     static public void updateWithFiveParam(String sql, String param1, String param2, String param3, String param4, String param5) {
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement pstmt = c.prepareStatement(sql)) {
