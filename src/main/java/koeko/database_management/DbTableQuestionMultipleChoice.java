@@ -55,20 +55,12 @@ public class DbTableQuestionMultipleChoice {
      */
     static public String addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
         String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
-        Connection c = null;
-        PreparedStatement preparedStatement = null;
-        preparedStatement = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-
-            String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
-                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE, TIMER_SECONDS) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-
-            preparedStatement = c.prepareStatement(sql);
+        String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
+                "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE, TIMER_SECONDS) " +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement preparedStatement = c.prepareStatement(sql);) {
             preparedStatement.setString(1, quest.getLEVEL());
             preparedStatement.setString(2, quest.getQUESTION());
             preparedStatement.setString(3, quest.getOPT0());
@@ -88,9 +80,6 @@ public class DbTableQuestionMultipleChoice {
             preparedStatement.setString(17, quest.computeShortHashCode());
             preparedStatement.setInt(18, quest.getTimerSeconds());
             preparedStatement.executeUpdate();
-            preparedStatement.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -108,28 +97,18 @@ public class DbTableQuestionMultipleChoice {
     static public boolean checkIfExists(QuestionView quest) throws Exception {
         // Check if the question exists already
         boolean bExists = true;
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "";
-            if (quest.getTYPE() == 0) {
-                sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
-            } else {
-                sql = "SELECT  COUNT(1) FROM short_answer_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
-            }
+        String sql = "";
+        if (quest.getTYPE() == 0) {
+            sql = "SELECT  COUNT(1) FROM multiple_choice_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+        } else {
+            sql = "SELECT  COUNT(1) FROM short_answer_questions WHERE IDENTIFIER = '" + quest.getQCM_MUID() + "';";
+        }
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
             ResultSet result_query = stmt.executeQuery(sql);
             bExists = (Integer.parseInt(result_query.getString(1)) > 0);
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
         return bExists;
     }
@@ -152,7 +131,7 @@ public class DbTableQuestionMultipleChoice {
                     "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                     "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,IDENTIFIER,MODIF_DATE,TIMER_SECONDS) " +
                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-            try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            try (Connection conn = Utilities.getDbConnection();
                  PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
                 preparedStatement.setString(1, quest.getLEVEL());
                 preparedStatement.setString(2, quest.getQUESTION());
@@ -284,7 +263,7 @@ public class DbTableQuestionMultipleChoice {
 
     static public String getMultipleChoiceQuestionIDWithUID(String identifier) {
         String query = "SELECT ID_GLOBAL FROM multiple_choice_questions WHERE IDENTIFIER=?";
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection c = Utilities.getDbConnection();
             PreparedStatement pstmt = c.prepareStatement(query)){
             pstmt.setString(1, identifier);
             ResultSet rs = pstmt.executeQuery();
@@ -317,7 +296,7 @@ public class DbTableQuestionMultipleChoice {
     public static void setCorrectionMode(String correctionMode, String globalId) {
         String sql = "UPDATE multiple_choice_questions SET CORRECTION_MODE = ? WHERE ID_GLOBAL = ?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
@@ -328,6 +307,8 @@ public class DbTableQuestionMultipleChoice {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -335,7 +316,7 @@ public class DbTableQuestionMultipleChoice {
         String correctionMode = "";
         String sql = "SELECT CORRECTION_MODE FROM multiple_choice_questions WHERE ID_GLOBAL = ?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             // set the corresponding param
             pstmt.setString(1, String.valueOf(globalID));
@@ -349,6 +330,8 @@ public class DbTableQuestionMultipleChoice {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return correctionMode;
@@ -379,27 +362,17 @@ public class DbTableQuestionMultipleChoice {
 
     static public Vector<QuestionView> getQuestionsMultipleChoiceView() {
         Vector<QuestionView> questions = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
-            ResultSet rs = stmt.executeQuery(query);
+        String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 QuestionView qcm = new QuestionView();
                 QuestionMultipleChoiceViewFromRecord(qcm, rs);
                 questions.add(qcm);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
 
         return questions;
@@ -459,71 +432,30 @@ public class DbTableQuestionMultipleChoice {
     }
 
     static public void setResourceMUID(String idQMC, String muid) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "UPDATE generic_questions SET ID_GLOBAL='" + muid + 
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE multiple_choice_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE short_answer_questions SET ID_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_answeroption_relation SET ID_GLOBAL='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_objective_relation SET ID_GLOBAL='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE test SET ID_TEST_GLOBAL='" + muid + "',IDENTIFIER='" + muid +
-                    "' WHERE ID_TEST_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_question_relation SET ID_GLOBAL_1='" + muid +
-                    "' WHERE ID_GLOBAL_1=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_question_relation SET ID_GLOBAL_2='" + muid +
-                    "' WHERE ID_GLOBAL_2=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_question_relation SET TEST_ID='" + muid +
-                    "' WHERE TEST_ID=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE question_subject_relation SET ID_GLOBAL='" + muid +
-                    "' WHERE ID_GLOBAL=" + idQMC + ";";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+        String sql = "UPDATE generic_questions SET ID_GLOBAL=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE multiple_choice_questions SET ID_GLOBAL=?,IDENTIFIER=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithThreeParam(sql, muid, muid, idQMC);
+        sql = "UPDATE short_answer_questions SET ID_GLOBAL=?,IDENTIFIER=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithThreeParam(sql, muid, muid, idQMC);
+        sql = "UPDATE question_answeroption_relation SET ID_GLOBAL=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE question_objective_relation SET ID_GLOBAL=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE test SET ID_TEST_GLOBAL=?,IDENTIFIER=? WHERE ID_TEST_GLOBAL=?";
+        DbUtils.updateWithThreeParam(sql, muid, muid, idQMC);
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_1=? WHERE ID_GLOBAL_1=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE question_question_relation SET ID_GLOBAL_2=? WHERE ID_GLOBAL_2=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE question_question_relation SET TEST_ID=? WHERE TEST_ID=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
+        sql = "UPDATE question_subject_relation SET ID_GLOBAL=? WHERE ID_GLOBAL=?";
+        DbUtils.updateWithTwoParam(sql, muid, idQMC);
     }
 
-    static public void removeMultipleChoiceQuestionWithID(String ID) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        int last_id_global = 0;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "DELETE FROM multiple_choice_questions WHERE ID_GLOBAL = '" + ID + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+    static public void removeMultipleChoiceQuestionWithID(String ID) {
+        String sql = "DELETE FROM multiple_choice_questions WHERE ID_GLOBAL = ?;";
+        DbUtils.updateWithOneParam(sql, ID);
     }
 }

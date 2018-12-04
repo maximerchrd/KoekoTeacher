@@ -45,7 +45,7 @@ public class DbTableLearningObjectives {
 
         String sql = 	"INSERT OR IGNORE INTO learning_objectives (ID_OBJECTIVE_GLOBAL,OBJECTIVE,LEVEL_COGNITIVE_ABILITY,IDENTIFIER)" +
                 " VALUES(?,?,?,?)";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
@@ -124,7 +124,7 @@ public class DbTableLearningObjectives {
     static public Vector<Objective> getObjectives(String language) {
         Vector<Objective> objectives = new Vector<>();
         String sql = 	"SELECT * FROM learning_objectives";
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             ResultSet rs = pstmt.executeQuery();
@@ -140,6 +140,8 @@ public class DbTableLearningObjectives {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return objectives;
     }
@@ -149,7 +151,7 @@ public class DbTableLearningObjectives {
 
         String sql = "SELECT ID_OBJECTIVE_GLOBAL, IDENTIFIER FROM learning_objectives WHERE OBJECTIVE = ?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
@@ -164,6 +166,8 @@ public class DbTableLearningObjectives {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return idObjective;
@@ -172,7 +176,7 @@ public class DbTableLearningObjectives {
     static public void setObjectiveUID(String objectiveName, String objectiveUID) {
         String sql = "UPDATE learning_objectives SET IDENTIFIER=? WHERE OBJECTIVE = ?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
@@ -181,13 +185,15 @@ public class DbTableLearningObjectives {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static void updateObjective(String oldObjective, String newObjective) {
         String sql = "UPDATE learning_objectives SET OBJECTIVE=? WHERE OBJECTIVE=?";
 
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
@@ -196,6 +202,8 @@ public class DbTableLearningObjectives {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

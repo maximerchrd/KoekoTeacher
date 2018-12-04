@@ -33,31 +33,10 @@ public class DbTableClasses {
     }
 
     static public void addClass(String name, String level, String year) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,LEVEL,YEAR,TYPE) " +
-                    "VALUES ('" +
-                    2000000 + "','" +
-                    name.replace("'","''") + "','" +
-                    level + "','" +
-                    year + "','" +
-                    0 + "');";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE classes SET ID_CLASS_GLOBAL = 2000000 + ID_CLASS WHERE ID_CLASS = (SELECT MAX(ID_CLASS) FROM classes)";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+        String sql = 	"INSERT OR IGNORE INTO classes (ID_CLASS_GLOBAL,NAME,LEVEL,YEAR,TYPE) VALUES (?,?,?,?,?)";
+        DbUtils.updateWithFiveParam(sql, String.valueOf(2000000), name, level, year, String.valueOf(0));
+        sql = "UPDATE classes SET ID_CLASS_GLOBAL = 2000000 + ID_CLASS WHERE ID_CLASS = (SELECT MAX(ID_CLASS) FROM classes)";
+        DbUtils.updateWithNoParam(sql);
     }
     static public void addGroupToClass(String groupName, String className) {
         Connection c = null;

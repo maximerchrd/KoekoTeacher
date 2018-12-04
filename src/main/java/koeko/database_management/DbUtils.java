@@ -28,6 +28,17 @@ public class DbUtils {
         return strings;
     }
 
+    static public void updateWithNoParam(String sql) {
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     static public void updateWithOneParam(String sql, String param1) {
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement pstmt = c.prepareStatement(sql)) {

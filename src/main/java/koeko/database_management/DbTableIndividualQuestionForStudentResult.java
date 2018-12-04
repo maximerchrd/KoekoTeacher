@@ -173,27 +173,14 @@ public class DbTableIndividualQuestionForStudentResult {
     static public double addIndividualTestEval(String id_global, String student_name, Double testEvaluation) {
         double quantitative_evaluation = -1;
         student_name = student_name;
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
-                    "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
-                    "VALUES ('" + id_global + "','-1',date('now'),'none','none','none','none','" + testEvaluation + "','none','none','none');";
-            stmt.executeUpdate(sql);
-            sql = "UPDATE individual_question_for_student_result SET ID_STUDENT_GLOBAL = (SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = " + "'" + student_name + "') WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
-        }
+        String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
+                "VALUES (?,'-1',date('now'),'none','none','none','none',?,'none','none','none');";
+        DbUtils.updateWithTwoParam(sql, id_global, String.valueOf(testEvaluation));
+        sql = "UPDATE individual_question_for_student_result SET ID_STUDENT_GLOBAL = (SELECT ID_STUDENT_GLOBAL FROM students " +
+                "WHERE FIRST_NAME = ?) WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
+        DbUtils.updateWithOneParam(sql, student_name);
+
         return quantitative_evaluation;
     }
 
@@ -264,81 +251,23 @@ public class DbTableIndividualQuestionForStudentResult {
         }
     }
 
-    static public String exportResults(String file_name) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        PrintWriter resultsFile = null;
-        try {
-            resultsFile = new PrintWriter(file_name);
-            resultsFile.write("");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String query = "SELECT students.FIRST_NAME,DATE,individual_question_for_student_result.QUANTITATIVE_EVAL,multiple_choice_questions.QUESTION, " +
-                "individual_question_for_student_result.ANSWERS " +
-                "FROM 'individual_question_for_student_result' " +
-                "INNER JOIN students ON students.ID_STUDENT_GLOBAL=individual_question_for_student_result.ID_STUDENT_GLOBAL " +
-                "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL=individual_question_for_student_result.ID_GLOBAL;";
-        try {
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()) {
-                for (int i = 1; i < 6; i++) {
-                    resultsFile.print(rs.getString(i) + ";");
-                }
-                resultsFile.print("\n");
-            }
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        resultsFile.close();
-        return "done";
-    }
-
     static public String getEvalForQuestionAndStudentIDs(String globalID, String globalStudentID) {
         String evaluation = "";
         String identifier = "";
-        Connection c = null;
-        Statement stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         String query = "SELECT ID_DIRECT_EVAL,QUANTITATIVE_EVAL FROM individual_question_for_student_result " +
-                "WHERE (ID_STUDENT_GLOBAL='" + globalStudentID + "' AND ID_GLOBAL='" + globalID + "');";
-        try {
-            ResultSet rs = stmt.executeQuery(query);
+                "WHERE (ID_STUDENT_GLOBAL=? AND ID_GLOBAL=?);";
+        try (Connection c = Utilities.getDbConnection();
+                    PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, globalStudentID);
+            stmt.setString(2, globalID);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 evaluation = rs.getString("QUANTITATIVE_EVAL");
                 identifier = rs.getString("ID_DIRECT_EVAL");
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return evaluation + "///" + identifier;
@@ -377,22 +306,11 @@ public class DbTableIndividualQuestionForStudentResult {
         String studentID = "";
         String answers = "";
         String date = "";
-        Connection c = null;
-        Statement stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        String query = "SELECT ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,QUANTITATIVE_EVAL FROM individual_question_for_student_result ORDER BY ID_DIRECT_EVAL DESC;";
-        try {
-            ResultSet rs0 = stmt.executeQuery(query);
+        String query = "SELECT ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,QUANTITATIVE_EVAL FROM individual_question_for_student_result " +
+                "ORDER BY ID_DIRECT_EVAL DESC;";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            ResultSet rs0 = stmt.executeQuery();
             while (rs0.next()) {
                 SingleResultForTable tempSingleResult = new SingleResultForTable();
                 evaluation = rs0.getString("QUANTITATIVE_EVAL");
@@ -462,9 +380,6 @@ public class DbTableIndividualQuestionForStudentResult {
                 }
                 resultsArray.add(tempSingleResult);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -549,30 +464,9 @@ public class DbTableIndividualQuestionForStudentResult {
     }
 
     static public void setEvalForQuestionAndStudentIDs(Double eval, String identifier) {
-        Connection c = null;
-        Statement stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        String sql = "UPDATE individual_question_for_student_result SET QUANTITATIVE_EVAL = '" + eval + "' " +
-                "WHERE ID_DIRECT_EVAL = '" + identifier + "';";
-
-        try {
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String sql = "UPDATE individual_question_for_student_result SET QUANTITATIVE_EVAL = ? " +
+                "WHERE ID_DIRECT_EVAL = ?";
+        DbUtils.updateWithTwoParam(sql, String.valueOf(eval), identifier);
     }
 
     /**

@@ -44,48 +44,24 @@ public class DbTableRelationQuestionQuestion {
         if (testid.substring(0,1).contentEquals("-")) {
             testid = testid.substring(1);
         }
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = 	"INSERT OR IGNORE INTO question_question_relation (ID_GLOBAL_1, ID_GLOBAL_2, TEST_ID, TEST, CONDITION) " +
-                    "VALUES ('" + idGlobal1 + "','" + idGlobal2 + "','" + testid + "','" + test + "','" + condition + "');";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+        String sql = 	"INSERT OR IGNORE INTO question_question_relation (ID_GLOBAL_1, ID_GLOBAL_2, TEST_ID, TEST, CONDITION) " +
+                "VALUES (?,?,?,?,?)";
+        DbUtils.updateWithFiveParam(sql, idGlobal1, idGlobal2, testid, test, condition);
     }
 
     static public Set<String> getQuestionsLinkedToTest(String test) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
         Set<String> questionIDs = new LinkedHashSet<>();
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST='" + test + "';";
-            ResultSet rs = stmt.executeQuery( sql );
+        String sql = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST=?;";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, test);
+            ResultSet rs = stmt.executeQuery();
             while ( rs.next() ) {
                 questionIDs.add(rs.getString("ID_GLOBAL_1"));
                 questionIDs.add(rs.getString("ID_GLOBAL_2"));
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
 
         return questionIDs;
@@ -107,26 +83,19 @@ public class DbTableRelationQuestionQuestion {
     }
 
     static public Vector<String> getQuestionsLinkedToQuestion(String questionID, String test) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
         Vector<String> questionIDs = new Vector<>();
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT ID_GLOBAL_2, CONDITION FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "' AND TEST='" + test + "';";
-            ResultSet rs = stmt.executeQuery( sql );
+        String sql = "SELECT ID_GLOBAL_2, CONDITION FROM question_question_relation WHERE ID_GLOBAL_1=? AND TEST=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, questionID);
+            stmt.setString(2, test);
+            ResultSet rs = stmt.executeQuery();
             while ( rs.next() ) {
                 //We test that the condition is not "" to avoid branching "brother questions"
                 if (rs.getString("CONDITION").length() > 0) {
                     questionIDs.add(rs.getString("ID_GLOBAL_2"));
                 }
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -166,26 +135,16 @@ public class DbTableRelationQuestionQuestion {
 
     static public String getFormattedQuestionsLinkedToTest(String test) {
         Vector<String> testMap = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT * FROM question_question_relation WHERE TEST='" + test + "';";
-            ResultSet rs = stmt.executeQuery( sql );
+        String sql = "SELECT * FROM question_question_relation WHERE TEST=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, test);
+            ResultSet rs = stmt.executeQuery();
             while ( rs.next() ) {
                 testMap.add(rs.getString("ID_GLOBAL_1") + "|||" + rs.getString("CONDITION") + "|||" + rs.getString("ID_GLOBAL_2"));
             }
-            stmt.close();
-
-            c.commit();
-            c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
 
         //the code below reorders and formats to give 1 string containing a map of the test
@@ -294,45 +253,15 @@ public class DbTableRelationQuestionQuestion {
     }
 
     static public void removeRelationsWithQuestion(String questionID) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_1='" + questionID + "';";
-            stmt.executeUpdate(sql);
-            sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_2='" + questionID + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
-        }
+        String sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_1=?";
+        DbUtils.updateWithOneParam(sql, questionID);
+        sql = "DELETE FROM question_question_relation WHERE ID_GLOBAL_2=?";
+        DbUtils.updateWithOneParam(sql, questionID);
     }
 
     static public void removeRelationsWithTest(String test) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "DELETE FROM question_question_relation WHERE TEST='" + test + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
-        }
+        String sql = "DELETE FROM question_question_relation WHERE TEST=?";
+        DbUtils.updateWithOneParam(sql, test);
     }
 
     public static void moveUp(String questionId, String bigBrotherId, String testId) {

@@ -58,8 +58,7 @@ public class DbTableRelationQuestionSubject {
         Statement stmt = null;
         stmt = null;
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c = Utilities.getDbConnection();
             c.setAutoCommit(false);
             stmt = c.createStatement();
             String sql = "SELECT  COUNT(1) FROM question_subject_relation qsr " +
@@ -82,6 +81,8 @@ public class DbTableRelationQuestionSubject {
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
+        } finally {
+            c.close();
         }
         return bExists;
     }
@@ -93,25 +94,15 @@ public class DbTableRelationQuestionSubject {
      */
     static public String getSubjectId(RelationQuestionSubject rqs) throws Exception {
         // Check if the relation question/subject exists already
+        String sql = "SELECT  ID_SUBJECT_GLOBAL FROM subjects WHERE IDENTIFIER=?";
         String sbj_id = "0";
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT  ID_SUBJECT_GLOBAL FROM subjects " +
-                    "WHERE IDENTIFIER='" + rqs.get_subjectMUID() + "';";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, rqs.get_subjectMUID());
             ResultSet result_query = stmt.executeQuery(sql);
             sbj_id = result_query.getString(1);
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
         return sbj_id;
     }
@@ -124,24 +115,15 @@ public class DbTableRelationQuestionSubject {
     static public String getQUestionId(RelationQuestionSubject rqs) throws Exception {
         // Check if the relation question/subject exists already
         String rec_id = "0";
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions " +
-                    "WHERE IDENTIFIER='" + rqs.get_questionMUID() + "';";
+        String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions " +
+                "WHERE IDENTIFIER=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, rqs.get_questionMUID());
             ResultSet result_query = stmt.executeQuery(sql);
             rec_id = result_query.getString(1);
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
         return rec_id;
     }
@@ -160,21 +142,14 @@ public class DbTableRelationQuestionSubject {
 
         String sbj_id = getSubjectId(rqs);
         String mcq_id = getQUestionId(rqs);
-        // insert the relation
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) VALUES (" +
-                    mcq_id + "," + sbj_id + "," + rqs.get_level() + ");";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
+        String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) VALUES (?,?,?);";
+
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, mcq_id);
+            stmt.setString(2, sbj_id);
+            stmt.setString(3, String.valueOf(rqs.get_level()));
+            stmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -208,86 +183,55 @@ public class DbTableRelationQuestionSubject {
             }
         }
 
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+        try (Connection c = Utilities.getDbConnection()) {
             c.setAutoCommit(false);
-            stmt = c.createStatement();
 
             for (int i = 0; i < allSubjectsVector.size(); i++) {
                 String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
                         "WHERE ID_GLOBAL='" + questionID + "' " +
-                        "AND ID_SUBJECT_GLOBAL= (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + allSubjectsVector.get(i) + "');";
-                ResultSet rs = stmt.executeQuery(query);
+                        "AND ID_SUBJECT_GLOBAL= (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = ?)";
+                PreparedStatement stmt = c.prepareStatement(query);
+                stmt.setString(1, allSubjectsVector.get(i));
+                ResultSet rs = stmt.executeQuery();
                 Vector<String> queries = new Vector<>();
                 while (rs.next()) {
                     queries.add(rs.getString("ID_GLOBAL"));
                 }
                 if (queries.size() == 0) {
                     String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) SELECT t1.ID_GLOBAL,t2.ID_SUBJECT_GLOBAL," +
-                            "'1' FROM generic_questions t1, subjects t2 WHERE t1.ID_GLOBAL = '" + questionID + "' " +
-                            "AND t2.SUBJECT='" + allSubjectsVector.get(i) + "';";
-                    stmt.executeUpdate(sql);
+                            "'1' FROM generic_questions t1, subjects t2 WHERE t1.ID_GLOBAL = ? AND t2.SUBJECT=?";
+                    stmt.setString(1, questionID);
+                    stmt.setString(2, allSubjectsVector.get(i));
+                    stmt.executeUpdate();
                 }
+                stmt.close();
             }
-            stmt.close();
             c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
     static public Vector<String> getQuestionsIdsForSubject(String subject) {
         Vector<String> questionIDs = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-
-            String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
-                    "WHERE ID_SUBJECT_GLOBAL = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + subject + "');";
-            ResultSet rs = stmt.executeQuery(query);
+        String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
+                "WHERE ID_SUBJECT_GLOBAL = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + subject + "');";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, subject);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 questionIDs.add(rs.getString("ID_GLOBAL"));
             }
-
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
         return questionIDs;
     }
 
     static public void removeRelationsWithQuestion(String questionID) {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "DELETE FROM question_subject_relation WHERE ID_GLOBAL='" + questionID + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
-        }
+        String sql = "DELETE FROM question_subject_relation WHERE ID_GLOBAL=?;";
+        DbUtils.updateWithOneParam(sql, questionID);
     }
 
     static public void removeRelationSubjectQuestion(String subjectname, String questionID) {
@@ -313,27 +257,23 @@ public class DbTableRelationQuestionSubject {
 
     static public Vector<RelationQuestionSubject> getSubjectsForQuestion(String questionId) {
         Vector<RelationQuestionSubject> subjects = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionId);
-            String query;
-            if (questionType == 0) {
-                query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
-                        "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
-                        "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
-                        "where multiple_choice_questions.ID_GLOBAL=" + questionId + ";";
-            } else {
-                query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
-                        "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
-                        "INNER JOIN short_answer_questions ON short_answer_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
-                        "where short_answer_questions.ID_GLOBAL=" + questionId + ";";
-            }
+        Integer questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(questionId);
+        String query;
+        if (questionType == 0) {
+            query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
+                    "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
+                    "INNER JOIN multiple_choice_questions ON multiple_choice_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
+                    "where multiple_choice_questions.ID_GLOBAL=?";
+        } else {
+            query = "SELECT subjects.IDENTIFIER, SUBJECT_LEVEL FROM subjects " +
+                    "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
+                    "INNER JOIN short_answer_questions ON short_answer_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
+                    "where short_answer_questions.ID_GLOBAL=?";
+        }
+
+        try (Connection c = Utilities.getDbConnection();
+                    PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, questionId);
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 String sbjMUID = rs.getString("IDENTIFIER");
@@ -341,12 +281,8 @@ public class DbTableRelationQuestionSubject {
                 RelationQuestionSubject rqs = new RelationQuestionSubject(questionId, sbjMUID, level);
                 subjects.add(rqs);
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
 
         return subjects;
