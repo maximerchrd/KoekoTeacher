@@ -281,11 +281,8 @@ public class DbTableQuestionMultipleChoice {
         String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
         try (Connection c = Utilities.getDbConnection();
                 PreparedStatement stmt = c.prepareStatement(sql)){
-            ResultSet result_query = stmt.executeQuery(sql);
+            ResultSet result_query = stmt.executeQuery();
             last_id_global = result_query.getString(1);
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);

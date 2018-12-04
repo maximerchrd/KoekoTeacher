@@ -12,7 +12,7 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label prefHeight="29.0" prefWidth="381.0" text="Give the results to students when they answer the question:" />
+                  <Label prefHeight="29.0" prefWidth="381.0" text="Give a feedback to students when they answer the question:" />
                   <ToggleButton fx:id="correctionModeButton" mnemonicParsing="false" onAction="#correctionModeChanged" text="ToggleButton">
                      <HBox.margin>
                         <Insets left="10.0" />
