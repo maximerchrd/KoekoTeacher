@@ -6,7 +6,7 @@ import java.sql.Statement;
 
 public class DBManager {
 	static public String databaseName = "learning_tracker.db";
-	public void createDBIfNotExists() throws Exception {
+	public void createDBIfNotExists() {
 		// connects to db and create it if necessary
 		// closes db afterwards
 		Connection c = null;
@@ -19,7 +19,7 @@ public class DBManager {
 			System.exit(0);
 		}
 	}
-	public void createTablesIfNotExists() throws Exception {
+	public void createTablesIfNotExists() {
 		// First create the table if it doesn't exist
 		Connection c = null;
 		Statement stmt = null;

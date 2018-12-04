@@ -86,54 +86,36 @@ public class DbTableLearningObjectives {
 
     static public Vector<String> getObjectiveForQuestionID(String questionID) {
         Vector<String> objectives = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String query = "SELECT OBJECTIVE FROM learning_objectives " +
-                    "INNER JOIN question_objective_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = question_objective_relation.ID_OBJECTIVE_GLOBAL " +
-                    "INNER JOIN generic_questions ON generic_questions.ID_GLOBAL = question_objective_relation.ID_GLOBAL " +
-                    "WHERE generic_questions.ID_GLOBAL = '" + questionID + "';";
-            ResultSet rs = stmt.executeQuery(query);
+        String query = "SELECT OBJECTIVE FROM learning_objectives " +
+                "INNER JOIN question_objective_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = question_objective_relation.ID_OBJECTIVE_GLOBAL " +
+                "INNER JOIN generic_questions ON generic_questions.ID_GLOBAL = question_objective_relation.ID_GLOBAL " +
+                "WHERE generic_questions.ID_GLOBAL = ?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, questionID);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 objectives.add(rs.getString("OBJECTIVE"));
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
 
         return objectives;
     }
 
     static public Vector<String> getAllObjectives() {
+        String query = "SELECT OBJECTIVE FROM learning_objectives";
+
         Vector<String> objectives = new Vector<>();
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String query = "SELECT OBJECTIVE FROM learning_objectives;";
-            ResultSet rs = stmt.executeQuery(query);
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 objectives.add(rs.getString("OBJECTIVE"));
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
 
         return objectives;

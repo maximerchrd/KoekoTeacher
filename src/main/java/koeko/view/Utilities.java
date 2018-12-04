@@ -1,5 +1,8 @@
 package koeko.view;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Timestamp;
@@ -16,15 +19,33 @@ public class Utilities {
     static public Map<String, String> codeToLanguageMap = new LinkedHashMap<>();
     static public Map<String, String> languageToCodeMap = new LinkedHashMap<>();
 
-    private static Connection connection;
+    //private static Connection connection;
+    private static HikariDataSource hikariDataSource = null;
 
     public static Connection getDbConnection() throws Exception {
-        if(connection == null){
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-        } else if (connection.isClosed()) {
-            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+//        if(connection == null){
+//            Class.forName("org.sqlite.JDBC");
+//            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+//        } else if (connection.isClosed()) {
+//            connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+//        }
+        Connection connection;
+        if (hikariDataSource == null) {
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:sqlite:learning_tracker.db");
+            config.setPoolName("learning_tracker_pool");
+            config.setMaximumPoolSize(1);
+            config.setMinimumIdle(2);
+            config.addDataSourceProperty("cachePrepStmts", true);
+            config.addDataSourceProperty("prepStmtCacheSize", 256);
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+            hikariDataSource = new HikariDataSource(config);
+            connection = hikariDataSource.getConnection();
+        } else {
+            connection = hikariDataSource.getConnection();
         }
+//        Class.forName("org.sqlite.JDBC");
+//        Connection connection = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
         return connection;
     }
 

@@ -250,19 +250,13 @@ public class DbTableQuestionMultipleChoice {
     static public QuestionMultipleChoice getMultipleChoiceQuestionWithID(String questionID) {
         QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
         questionMultipleChoice.setID(questionID);
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String query = "SELECT LEVEL,QUESTION,OPTION0," +
-                    "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
-                    "NB_CORRECT_ANS,IMAGE_PATH,TIMER_SECONDS FROM multiple_choice_questions WHERE ID_GLOBAL='" + questionID + "';";
-
-            ResultSet rs = stmt.executeQuery(query);
+        String query = "SELECT LEVEL,QUESTION,OPTION0," +
+                "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
+                "NB_CORRECT_ANS,IMAGE_PATH,TIMER_SECONDS FROM multiple_choice_questions WHERE ID_GLOBAL=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, questionID);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 questionMultipleChoice.setLEVEL(rs.getString("LEVEL"));
                 questionMultipleChoice.setQUESTION(rs.getString("QUESTION"));
@@ -280,12 +274,8 @@ public class DbTableQuestionMultipleChoice {
                 questionMultipleChoice.setIMAGE(rs.getString("IMAGE_PATH"));
                 questionMultipleChoice.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
         questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(questionID));
         questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(questionID));
@@ -303,22 +293,15 @@ public class DbTableQuestionMultipleChoice {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
         return "";
     }
 
     static public String getLastIDGlobal() throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
         String last_id_global = "0";
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
+        String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)){
             ResultSet result_query = stmt.executeQuery(sql);
             last_id_global = result_query.getString(1);
             stmt.close();

@@ -39,103 +39,96 @@ public class DbTableIndividualQuestionForStudentResult {
         }
     }
 
-    static public double addIndividualQuestionForStudentResult(String id_global, String student_name, String answers, String answerType) {
+    static public double addIndividualQuestionForStudentResult(String id_global, String studentId, String answers, String answerType) {
         double quantitative_evaluation = -1;
-        answers = answers;
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
-                    "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
-                    "VALUES (?,'-1',date('now'),?,'none','none','none','none','none','none','none');";
-            DbUtils.updateWithTwoParam(sql, id_global, answers);
-            sql = "UPDATE individual_question_for_student_result SET ID_STUDENT_GLOBAL = (SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = " + "'" + student_name + "') WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
-            stmt.executeUpdate(sql);
+        String sql = "INSERT INTO individual_question_for_student_result (ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,TIME_FOR_SOLVING,QUESTION_WEIGHT,EVAL_TYPE," +
+                "QUANTITATIVE_EVAL,QUALITATIVE_EVAL,TEST_BELONGING,WEIGHTS_OF_ANSWERS) " +
+                "VALUES (?,?,date('now'),?,'none','none','none','none','none','none','none');";
+        DbUtils.updateWithThreeParam(sql, id_global, studentId, answers);
 
+        if (answerType.contains("ANSW0")) {
+            // correcting the answers and evaluate the multiple choice question in %
+            String[] student_answers_array = answers.split("\\|\\|\\|");
+            ArrayList<Integer> codedStudentAnswers = new ArrayList<>();
+            int number_answers = 0;
+            ArrayList<String> allOptionsVector = new ArrayList<>();
+            ArrayList<String> rightAnswersArray = new ArrayList<>();
 
-            if (answerType.contains("ANSW0")) {
-                // correcting the answers and evaluate the multiple choice question in %
-                String[] student_answers_array = answers.split("\\|\\|\\|");
-                ArrayList<Integer> codedStudentAnswers = new ArrayList<>();
-                int number_answers = 0;
-                String query = "SELECT OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS FROM multiple_choice_questions WHERE ID_GLOBAL = " + id_global + ";";
-                ResultSet rs = stmt.executeQuery(query);
-                Vector<String> all_options_vector = new Vector<>();
-                int count = 0;
+            String query = "SELECT OPTION0,OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9,NB_CORRECT_ANS " +
+                    "FROM multiple_choice_questions WHERE ID_GLOBAL = ?";
+
+            try (Connection conn = Utilities.getDbConnection();
+                 PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+                preparedStatement.setString(1, id_global);
+                ResultSet rs = preparedStatement.executeQuery();
 
                 if (rs.next()) {
                     for (int i = 1; i < 11; i++) {
                         if (!rs.getString(i).equals(" ")) {
-                            all_options_vector.add(rs.getString(i));
+                            allOptionsVector.add(rs.getString(i));
                             number_answers++;
                         }
                     }
-                    String[] right_answers_array = new String[rs.getInt(11)];
                     for (int i = 0; i < rs.getInt(11); i++) {
-                        right_answers_array[i] = rs.getString(i + 1);
-                    }
-
-                    //code the student answers
-                    List<String> studentAnswers = Arrays.asList(student_answers_array);
-                    for (int i = 0; i < all_options_vector.size(); i++) {
-                        if (studentAnswers.contains(all_options_vector.get(i))) {
-                            codedStudentAnswers.add(i + 1);
-                        }
-                    }
-
-                    //evaluate the answer according to the correction mode
-                    int number_rignt_checked_answers_from_student = 0;
-                    for (int i = 0; i < right_answers_array.length; i++) {
-                        if (Arrays.asList(student_answers_array).contains(right_answers_array[i])) {
-                            number_rignt_checked_answers_from_student++;
-                        }
-                    }
-                    int number_right_unchecked_answers_from_student = 0;
-                    for (int i = 0; i < number_answers; i++) {
-                        if (!Arrays.asList(right_answers_array).contains(all_options_vector.get(i)) && !Arrays.asList(student_answers_array).contains(all_options_vector.get(i))) {
-                            number_right_unchecked_answers_from_student++;
-                        }
-                    }
-
-                    String correctionMode = DbTableQuestionMultipleChoice.getCorrectionMode(id_global);
-                    if (correctionMode.contentEquals("AllOrNothing") || correctionMode.contentEquals("")) {
-                        quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
-                        if (quantitative_evaluation < 100) {
-                            quantitative_evaluation = 0;
-                        }
-                    } else if (correctionMode.contentEquals("PercentCorrectDecisions")) {
-                        quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
-                    } else if (correctionMode.contains("Custom")) {
-                        quantitative_evaluation = DbTableIndividualQuestionForStudentResult.getCustomEvaluationForQMC(correctionMode.replace("Custom#", ""), codedStudentAnswers);
+                        rightAnswersArray.add(rs.getString(i + 1));
                     }
                 } else {
                     System.out.println("problem writing result: probably no corresponding question ID");
                 }
-            } else if (answerType.contains("ANSW1")) {
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
-                quantitative_evaluation = 0;
-                for (int i = 0; i < questionShortAnswer.getANSWER().size() && quantitative_evaluation == 0; i++) {
-                    if (answers.contentEquals(questionShortAnswer.getANSWER().get(i))) {
-                        quantitative_evaluation = 100;
-                    }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //code the student answers
+            List<String> studentAnswers = Arrays.asList(student_answers_array);
+            for (int i = 0; i < allOptionsVector.size(); i++) {
+                if (studentAnswers.contains(allOptionsVector.get(i))) {
+                    codedStudentAnswers.add(i + 1);
                 }
             }
 
-            System.out.println("student result: " + quantitative_evaluation);
-            sql = "UPDATE individual_question_for_student_result SET QUANTITATIVE_EVAL = '" + quantitative_evaluation + "' WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            //evaluate the answer according to the correction mode
+            int number_rignt_checked_answers_from_student = 0;
+            for (int i = 0; i < rightAnswersArray.size(); i++) {
+                if (Arrays.asList(student_answers_array).contains(rightAnswersArray.get(i))) {
+                    number_rignt_checked_answers_from_student++;
+                }
+            }
+            int number_right_unchecked_answers_from_student = 0;
+            for (int i = 0; i < number_answers; i++) {
+                if (!Arrays.asList(rightAnswersArray).contains(allOptionsVector.get(i)) && !Arrays.asList(student_answers_array).contains(allOptionsVector.get(i))) {
+                    number_right_unchecked_answers_from_student++;
+                }
+            }
+
+            String correctionMode = DbTableQuestionMultipleChoice.getCorrectionMode(id_global);
+            if (correctionMode.contentEquals("AllOrNothing") || correctionMode.contentEquals("")) {
+                quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
+                if (quantitative_evaluation < 100) {
+                    quantitative_evaluation = 0;
+                }
+            } else if (correctionMode.contentEquals("PercentCorrectDecisions")) {
+                quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
+            } else if (correctionMode.contains("Custom")) {
+                quantitative_evaluation = DbTableIndividualQuestionForStudentResult.getCustomEvaluationForQMC(correctionMode.replace("Custom#", ""), codedStudentAnswers);
+            }
+        } else if (answerType.contains("ANSW1")) {
+            QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
+            quantitative_evaluation = 0;
+            for (int i = 0; i < questionShortAnswer.getANSWER().size() && quantitative_evaluation == 0; i++) {
+                if (answers.contentEquals(questionShortAnswer.getANSWER().get(i))) {
+                    quantitative_evaluation = 100;
+                }
+            }
         }
+
+        System.out.println("student result: " + quantitative_evaluation);
+
+        sql = "UPDATE individual_question_for_student_result SET QUANTITATIVE_EVAL = ? WHERE ID_DIRECT_EVAL = (SELECT MAX(ID_DIRECT_EVAL) FROM individual_question_for_student_result);";
+        DbUtils.updateWithOneParam(sql, String.valueOf(quantitative_evaluation));
+
         return quantitative_evaluation;
     }
 
@@ -163,7 +156,7 @@ public class DbTableIndividualQuestionForStudentResult {
                 "VALUES ('2',?,(SELECT ID_STUDENT_GLOBAL FROM students WHERE FIRST_NAME = ?),date('now'),'none','none','none',?,?,'none',?,'none');";
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
             pstmt.setString(1, String.valueOf(id_global));
@@ -206,6 +199,7 @@ public class DbTableIndividualQuestionForStudentResult {
 
     /**
      * Put the string "" as testName if you want the results independently from the test
+     *
      * @param studentName
      * @param objectiveID
      * @param testName
@@ -358,7 +352,7 @@ public class DbTableIndividualQuestionForStudentResult {
         String query = "SELECT QUANTITATIVE_EVAL,DATE FROM individual_question_for_student_result " +
                 "WHERE ID_STUDENT_GLOBAL=?;";
         try (Connection c = Utilities.getDbConnection();
-                PreparedStatement pstmt = c.prepareStatement(query)){
+             PreparedStatement pstmt = c.prepareStatement(query)) {
             pstmt.setString(1, globalStudentID);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -410,7 +404,7 @@ public class DbTableIndividualQuestionForStudentResult {
                 String question = "";
                 QuestionMultipleChoice questionMultipleChoice;
                 QuestionShortAnswer questionShortAnswer;
-                int questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal (idGlobal);
+                int questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(idGlobal);
                 name = DbTableStudents.getStudentNameWithID(Integer.valueOf(studentID));
                 if (questionType == 0) {
                     questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(idGlobal);
@@ -481,8 +475,9 @@ public class DbTableIndividualQuestionForStudentResult {
 
     /**
      * Method that returns a histogram of the number of hits vs the answer options for a certain question
+     *
      * @param questionID
-     * @param className (set to "" if you want the result for all classes)
+     * @param className  (set to "" if you want the result for all classes)
      * @return an array of 2 arrays containing the answer options (one array) and the number of students who chose
      * this option (second array)
      * IF THE QUESTION ID CORRESPONDS TO A SHRTAQ, RETURNS NULL
@@ -582,14 +577,14 @@ public class DbTableIndividualQuestionForStudentResult {
 
     /**
      * studentAnswers: coded checked answers
-     *
+     * <p>
      * negative:allow           (to allow negative evaluation)
-     *
+     * <p>
      * 1,2,3,4,etc are the answer options in the order they are stored in the db
      * 1:5/-1   means that if the option 1 is checked, 5 "points" are added to the score for the question,
      * and if option 1 is not checked, -1 "point" is subtracted to the score.
      * In the end, the score is divided by the max possible score.
-     *
+     * <p>
      * If no "/" is detected on the line, the instruction is assumed to make a combination of checked/unchecked options
      * to a certain evaluation:
      * 2,4,5:80     (means that if the options, 2,4 and 5 are checked and the other options are unchecked, the eval will be 80
