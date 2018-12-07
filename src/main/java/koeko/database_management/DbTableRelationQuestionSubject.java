@@ -200,6 +200,7 @@ public class DbTableRelationQuestionSubject {
                 if (queries.size() == 0) {
                     String sql = "INSERT INTO question_subject_relation (ID_GLOBAL, ID_SUBJECT_GLOBAL, SUBJECT_LEVEL) SELECT t1.ID_GLOBAL,t2.ID_SUBJECT_GLOBAL," +
                             "'1' FROM generic_questions t1, subjects t2 WHERE t1.ID_GLOBAL = ? AND t2.SUBJECT=?";
+                    stmt = c.prepareStatement(sql);
                     stmt.setString(1, questionID);
                     stmt.setString(2, allSubjectsVector.get(i));
                     stmt.executeUpdate();

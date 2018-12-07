@@ -1,6 +1,7 @@
 package koeko.database_management;
 
 import koeko.ResultsManagement.Result;
+import koeko.view.Utilities;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -141,30 +142,25 @@ public class DbTableStudents {
         return idsAndNames;
     }
 
-    static public String getStudentNameWithID(int studentID) {
-        String studentName = "";
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String query = "SELECT FIRST_NAME FROM students WHERE ID_STUDENT_GLOBAL='" + studentID + "';";
-            ResultSet rs = stmt.executeQuery(query);
+    static public ArrayList<ArrayList<String>> getStudentNamesAndIds() {
+        ArrayList<ArrayList<String>> studentNamesAndIds = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<String> ids = new ArrayList<>();
+        String query = "SELECT FIRST_NAME, ID_STUDENT_GLOBAL FROM students";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                studentName = rs.getString("FIRST_NAME");
+                ArrayList<String> nameAndId = new ArrayList<>();
+                names.add(rs.getString("FIRST_NAME"));
+                ids.add(rs.getString("ID_STUDENT_GLOBAL"));
             }
-            stmt.close();
-            c.commit();
-            c.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+            e.printStackTrace();
         }
-
-        return studentName;
+        studentNamesAndIds.add(names);
+        studentNamesAndIds.add(ids);
+        return studentNamesAndIds;
     }
 
     static public Result getStudentResultsPerSubjectPerTimeStep(String student_name, int timeStep) {
@@ -174,8 +170,7 @@ public class DbTableStudents {
         Statement stmt = null;
         stmt = null;
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c = Utilities.getDbConnection();
             c.setAutoCommit(false);
             stmt = c.createStatement();
 
@@ -185,9 +180,9 @@ public class DbTableStudents {
                 student_ids.add(rs.getString("ID_STUDENT_GLOBAL"));
             }
 
-            int id_student = 0;
+            String id_student = "0";
             if (!student_ids.isEmpty()) {
-                id_student = Integer.parseInt(student_ids.get(0));
+                id_student = student_ids.get(0);
             }
             query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL, DATE FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL='" + id_student + "';";
             rs = stmt.executeQuery(query);
@@ -237,8 +232,7 @@ public class DbTableStudents {
         Statement stmt = null;
         stmt = null;
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c = Utilities.getDbConnection();
             c.setAutoCommit(false);
             stmt = c.createStatement();
 
@@ -248,9 +242,9 @@ public class DbTableStudents {
                 student_ids.add(rs.getString("ID_STUDENT_GLOBAL"));
             }
 
-            int id_student = 0;
+            String id_student = "0";
             if (!student_ids.isEmpty()) {
-                id_student = Integer.parseInt(student_ids.get(0));
+                id_student = student_ids.get(0);
             }
             query = "SELECT ID_GLOBAL,QUANTITATIVE_EVAL,DATE FROM individual_question_for_student_result WHERE ID_STUDENT_GLOBAL='" + id_student + "';";
             rs = stmt.executeQuery(query);

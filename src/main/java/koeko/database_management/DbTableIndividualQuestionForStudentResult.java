@@ -257,7 +257,7 @@ public class DbTableIndividualQuestionForStudentResult {
         String query = "SELECT ID_DIRECT_EVAL,QUANTITATIVE_EVAL FROM individual_question_for_student_result " +
                 "WHERE (ID_STUDENT_GLOBAL=? AND ID_GLOBAL=?);";
         try (Connection c = Utilities.getDbConnection();
-                    PreparedStatement stmt = c.prepareStatement(query)) {
+             PreparedStatement stmt = c.prepareStatement(query)) {
             stmt.setString(1, globalStudentID);
             stmt.setString(2, globalID);
             ResultSet rs = stmt.executeQuery();
@@ -300,91 +300,108 @@ public class DbTableIndividualQuestionForStudentResult {
     }
 
     static public ArrayList<SingleResultForTable> getAllSingleResults() {
+        ArrayList<ArrayList<String>> namesAndIds = DbTableStudents.getStudentNamesAndIds();
+        ArrayList<String> names = namesAndIds.get(0);
+        ArrayList<String> ids = namesAndIds.get(1);
+        ArrayList<String> evaluations = new ArrayList<>();
+        ArrayList<String> idGlobals = new ArrayList<>();
+        ArrayList<String> studentIds = new ArrayList<>();
+        ArrayList<String> answers = new ArrayList<>();
+        ArrayList<String> dates = new ArrayList<>();
         ArrayList<SingleResultForTable> resultsArray = new ArrayList<>();
-        String evaluation = "";
-        String idGlobal = "";
-        String studentID = "";
-        String answers = "";
-        String date = "";
         String query = "SELECT ID_GLOBAL,ID_STUDENT_GLOBAL,DATE,ANSWERS,QUANTITATIVE_EVAL FROM individual_question_for_student_result " +
                 "ORDER BY ID_DIRECT_EVAL DESC;";
         try (Connection c = Utilities.getDbConnection();
-                PreparedStatement stmt = c.prepareStatement(query)) {
+             PreparedStatement stmt = c.prepareStatement(query)) {
             ResultSet rs0 = stmt.executeQuery();
             while (rs0.next()) {
-                SingleResultForTable tempSingleResult = new SingleResultForTable();
-                evaluation = rs0.getString("QUANTITATIVE_EVAL");
-                idGlobal = rs0.getString("ID_GLOBAL");
-                studentID = rs0.getString("ID_STUDENT_GLOBAL");
-                answers = rs0.getString("ANSWERS");
-                date = rs0.getString("DATE");
-                String name = "";
-                String question = "";
-                QuestionMultipleChoice questionMultipleChoice;
-                QuestionShortAnswer questionShortAnswer;
-                int questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(idGlobal);
-                name = DbTableStudents.getStudentNameWithID(Integer.valueOf(studentID));
-                if (questionType == 0) {
-                    questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(idGlobal);
-                    questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobal));
-                    questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobal));
-                    tempSingleResult.setName(name);
-                    tempSingleResult.setDate(date);
-                    tempSingleResult.setEvaluation(evaluation);
-                    tempSingleResult.setQuestion(questionMultipleChoice.getQUESTION());
-                    tempSingleResult.setStudentsAnswer(answers);
-                    String correctAnswers = "";
-                    for (int i = 0; i < questionMultipleChoice.getCorrectAnswers().size(); i++) {
-                        correctAnswers += questionMultipleChoice.getCorrectAnswers().get(i) + ";";
-                    }
-                    tempSingleResult.setCorrectAnswer(correctAnswers);
-                    String incorrectAnswers = "";
-                    for (int i = 0; i < questionMultipleChoice.getIncorrectAnswers().size(); i++) {
-                        incorrectAnswers += questionMultipleChoice.getIncorrectAnswers().get(i) + ";";
-                    }
-                    tempSingleResult.setIncorrectAnswer(incorrectAnswers);
-                    String subjects = "";
-                    for (int i = 0; i < questionMultipleChoice.getSubjects().size(); i++) {
-                        subjects += questionMultipleChoice.getSubjects().get(i) + ";";
-                    }
-                    tempSingleResult.setSubjects(subjects);
-                    String objectives = "";
-                    for (int i = 0; i < questionMultipleChoice.getObjectives().size(); i++) {
-                        objectives += questionMultipleChoice.getObjectives().get(i) + ";";
-                    }
-                    tempSingleResult.setObjectives(objectives);
-                } else {
-                    questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(idGlobal);
-                    questionShortAnswer.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobal));
-                    questionShortAnswer.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobal));
-                    tempSingleResult.setName(name);
-                    tempSingleResult.setDate(date);
-                    tempSingleResult.setEvaluation(evaluation);
-                    tempSingleResult.setQuestion(questionShortAnswer.getQUESTION());
-                    tempSingleResult.setStudentsAnswer(answers);
-                    String correctAnswers = "";
-                    for (int i = 0; i < questionShortAnswer.getANSWER().size(); i++) {
-                        correctAnswers += questionShortAnswer.getANSWER().get(i) + ";";
-                    }
-                    tempSingleResult.setCorrectAnswer(correctAnswers);
-                    String subjects = "";
-                    for (int i = 0; i < questionShortAnswer.getSubjects().size(); i++) {
-                        subjects += questionShortAnswer.getSubjects().get(i) + ";";
-                    }
-                    tempSingleResult.setSubjects(subjects);
-                    String objectives = "";
-                    for (int i = 0; i < questionShortAnswer.getObjectives().size(); i++) {
-                        objectives += questionShortAnswer.getObjectives().get(i) + ";";
-                    }
-                    tempSingleResult.setObjectives(objectives);
-                }
-                resultsArray.add(tempSingleResult);
+                evaluations.add(rs0.getString("QUANTITATIVE_EVAL"));
+                idGlobals.add(rs0.getString("ID_GLOBAL"));
+                studentIds.add(rs0.getString("ID_STUDENT_GLOBAL"));
+                answers.add(rs0.getString("ANSWERS"));
+                dates.add(rs0.getString("DATE"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        for (int j = 0; j < evaluations.size(); j++) {
+            QuestionMultipleChoice questionMultipleChoice;
+            QuestionShortAnswer questionShortAnswer;
+            int questionType = DbTableQuestionGeneric.getQuestionTypeFromIDGlobal(idGlobals.get(j));
+
+            SingleResultForTable tempSingleResult = new SingleResultForTable();
+            if (questionType == 0) {
+                questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(idGlobals.get(j));
+                questionMultipleChoice.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobals.get(j)));
+                questionMultipleChoice.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobals.get(j)));
+                int nameIndex = ids.indexOf(studentIds.get(j));
+                if (nameIndex >= 0) {
+                    tempSingleResult.setName(names.get(nameIndex));
+                } else {
+                    tempSingleResult.setName("No name");
+                    System.err.println("Printing raw results: student id doesn't match any name");
+                }
+                tempSingleResult.setDate(dates.get(j));
+                tempSingleResult.setEvaluation(evaluations.get(j));
+                tempSingleResult.setQuestion(questionMultipleChoice.getQUESTION());
+                tempSingleResult.setStudentsAnswer(answers.get(j));
+                String correctAnswers = "";
+                for (int i = 0; i < questionMultipleChoice.getCorrectAnswers().size(); i++) {
+                    correctAnswers += questionMultipleChoice.getCorrectAnswers().get(i) + ";";
+                }
+                tempSingleResult.setCorrectAnswer(correctAnswers);
+                String incorrectAnswers = "";
+                for (int i = 0; i < questionMultipleChoice.getIncorrectAnswers().size(); i++) {
+                    incorrectAnswers += questionMultipleChoice.getIncorrectAnswers().get(i) + ";";
+                }
+                tempSingleResult.setIncorrectAnswer(incorrectAnswers);
+                String subjects = "";
+                for (int i = 0; i < questionMultipleChoice.getSubjects().size(); i++) {
+                    subjects += questionMultipleChoice.getSubjects().get(i) + ";";
+                }
+                tempSingleResult.setSubjects(subjects);
+                String objectives = "";
+                for (int i = 0; i < questionMultipleChoice.getObjectives().size(); i++) {
+                    objectives += questionMultipleChoice.getObjectives().get(i) + ";";
+                }
+                tempSingleResult.setObjectives(objectives);
+            } else {
+                questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(idGlobals.get(j));
+                questionShortAnswer.setSubjects(DbTableSubject.getSubjectsForQuestionID(idGlobals.get(j)));
+                questionShortAnswer.setObjectives(DbTableLearningObjectives.getObjectiveForQuestionID(idGlobals.get(j)));
+                int nameIndex = ids.indexOf(studentIds.get(j));
+                if (nameIndex >= 0) {
+                    tempSingleResult.setName(names.get(nameIndex));
+                } else {
+                    tempSingleResult.setName("No name");
+                    System.err.println("Printing raw results: student id doesn't match any name");
+                }
+                tempSingleResult.setDate(dates.get(j));
+                tempSingleResult.setEvaluation(evaluations.get(j));
+                tempSingleResult.setQuestion(questionShortAnswer.getQUESTION());
+                tempSingleResult.setStudentsAnswer(answers.get(j));
+                String correctAnswers = "";
+                for (int i = 0; i < questionShortAnswer.getANSWER().size(); i++) {
+                    correctAnswers += questionShortAnswer.getANSWER().get(i) + ";";
+                }
+                tempSingleResult.setCorrectAnswer(correctAnswers);
+                String subjects = "";
+                for (int i = 0; i < questionShortAnswer.getSubjects().size(); i++) {
+                    subjects += questionShortAnswer.getSubjects().get(i) + ";";
+                }
+                tempSingleResult.setSubjects(subjects);
+                String objectives = "";
+                for (int i = 0; i < questionShortAnswer.getObjectives().size(); i++) {
+                    objectives += questionShortAnswer.getObjectives().get(i) + ";";
+                }
+                tempSingleResult.setObjectives(objectives);
+            }
+            resultsArray.add(tempSingleResult);
+        }
+
         return resultsArray;
     }
 

@@ -4,10 +4,12 @@ import javafx.application.Platform;
 import koeko.KoekoSyncCollect.SyncOperations;
 import koeko.Networking.NetworkCommunication;
 import koeko.database_management.*;
+import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.Test;
 import koeko.students_management.Student;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -41,6 +43,8 @@ public class functionalTesting {
     static public int testCodeGlobal = -1;
     static public int nbCopiesGlobal = 0;
 
+    private ArrayList<String> picNames = new ArrayList<>();
+
     static public void mainTesting(int testCode, int nbStudents, int nbQuestions, Long msDelay, int nbCopies) {
         functionalTesting.testCodeGlobal = testCode;
         functionalTesting.nbCopiesGlobal = nbCopies;
@@ -51,94 +55,96 @@ public class functionalTesting {
         startTimeQuestionSending = 0L;
         endTimeQuestionSending = 0L;
         nbAccuseReception = 0;
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                if (testCode == 0 || testCode == 2 || testCode == 3) {
-                    while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size() < functionalTesting.numberStudents) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
-                        studentsNbEvalSent.put(student.getName(), 0);
-                    }
-
-                    originalStream = System.out;
-                    dummyStream = new PrintStream(new OutputStream() {
-                        public void write(int b) {
-                            // NO-OP
-                        }
-                    });
-
-                    System.out.println("***** START FUNCTIONAL TESTING *****");
-                    System.setOut(dummyStream);
-
-                    createQuestionsPack(0, functionalTesting.numberOfQuestions, "subject 1", "objective 1", testCode);
-
-                    System.setOut(originalStream);
-                    System.out.println("** Sending questions");
-                    System.out.println(NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size());
-                    System.setOut(dummyStream);
-
-                    sendQuestionsPack();
-
-                    while (functionalTesting.endTimeQuestionSending == 0L) {
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    System.setOut(originalStream);
-                    Long sendingTime = functionalTesting.endTimeQuestionSending - functionalTesting.startTimeQuestionSending;
-                    sendingTime = sendingTime / 1000;
-                    System.out.println("Questions sent in: " + sendingTime + " seconds");
-                    System.out.println("** Activating questions");
-                    System.setOut(dummyStream);
-
-                    activateQuestionsPack();
-
-                    deleteQuestionsPack();
-
-                    System.setOut(originalStream);
-                    System.out.println("*** RESULTS ***");
-
-                    for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
-                        System.out.println(student.getName() + " was sent \t \t " + studentsNbEvalSent.get(student.getName()) + " evaluations.");
-                    }
-
-                    System.out.println("***** END FUNCTIONAL TESTING *****");
-                } else if (testCode == 1) {
-                    DbTableProfessor.addProfessor("","","test teacher");
-                    DbTableProfessor.setProfessorLanguage("test teacher", "eng");
-                    insertQuestion("test QMC 1 version 1","test subject 1");
-                    insertQuestion("test QMC 2 version 1", "test subject 2");
-                    insertQuestion("test QMC 3 version 1", "test subject 3");
-                    //Sync
+        new Thread(() -> {
+            if (testCode == 0 || testCode == 2 || testCode == 3) {
+                while (NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size() < functionalTesting.numberStudents) {
                     try {
-                        SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507, false);
-                    } catch (Exception e) {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
-                    //clean up the db
-                    //deleteQuestion("1000", "test subject 1");
-                    //deleteQuestion("1001","test subject 2");
-                } else if (testCode == 4) {
-                    createTest(nbCopies);
                 }
+
+                for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
+                    studentsNbEvalSent.put(student.getName(), 0);
+                }
+
+                originalStream = System.out;
+                dummyStream = new PrintStream(new OutputStream() {
+                    public void write(int b) {
+                        // NO-OP
+                    }
+                });
+
+                System.out.println("***** START FUNCTIONAL TESTING *****");
+                System.setOut(dummyStream);
+
+                createQuestionsPack(0, functionalTesting.numberOfQuestions, "subject 1", "objective 1", testCode);
+
+                System.setOut(originalStream);
+                System.out.println("** Sending questions");
+                System.out.println(NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().size());
+                System.setOut(dummyStream);
+
+                sendQuestionsPack();
+
+                try {
+                    Thread.sleep(50000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+//                    while (functionalTesting.endTimeQuestionSending == 0L) {
+//                        try {
+//                            Thread.sleep(200);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+                System.setOut(originalStream);
+                Long sendingTime = functionalTesting.endTimeQuestionSending - functionalTesting.startTimeQuestionSending;
+                sendingTime = sendingTime / 1000;
+                System.out.println("Questions sent in: " + sendingTime + " seconds");
+                System.out.println("** Activating questions");
+                System.setOut(dummyStream);
+
+                activateQuestionsPack();
+
+                deleteQuestionsPack();
+
+                System.setOut(originalStream);
+                System.out.println("*** RESULTS ***");
+
+                for (Student student : NetworkCommunication.networkCommunicationSingleton.aClass.getStudents()) {
+                    System.out.println(student.getName() + " was sent \t \t " + studentsNbEvalSent.get(student.getName()) + " evaluations.");
+                }
+
+                System.out.println("***** END FUNCTIONAL TESTING *****");
+            } else if (testCode == 1) {
+                DbTableProfessor.addProfessor("","","test teacher");
+                DbTableProfessor.setProfessorLanguage("test teacher", "eng");
+                insertQuestion("test MCQ 1 version 1","test subject 1");
+                insertQuestion("test MCQ 2 version 1", "test subject 2");
+                insertQuestion("test MCQ 3 version 1", "test subject 3");
+                //Sync
+                try {
+                    SyncOperations.SyncAll(InetAddress.getByName("127.0.0.1"), 50507, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //clean up the db
+                //deleteQuestion("1000", "test subject 1");
+                //deleteQuestion("1001","test subject 2");
+            } else if (testCode == 4) {
+                createTest(nbCopies);
             }
-        });
+        }).start();
     }
 
     private static void createTest(int nbOfCopies) {
         Vector<String> questionids = DbTableQuestionGeneric.getAllGenericQuestionsIds();
         Test test = new Test();
-        test.setTestMode(1);
+        test.setTestMode(QuestionGeneric.FORMATIVE_TEST);
         test.setTestName("fctTesting test");
         DbTableTest.addTest(test);
         for (int i = 0; i < questionids.size(); i++) {
@@ -209,6 +215,9 @@ public class functionalTesting {
     }
 
     private static void createQuestionsPack(int startingIndex, int endingIndex, String subject, String objective, int testCode) {
+        File f = new File("pictures");
+        ArrayList<String> names = new ArrayList<String>(Arrays.asList(f.list()));
+        names.remove(0);
         questionPack.removeAll(questionPack);
         for (int i = startingIndex; i < endingIndex; i++) {
             QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
@@ -224,12 +233,14 @@ public class functionalTesting {
             questionMultipleChoice.setOPT8((i + 1) + "I \"^^.-_$£, +\\\"*ç%&/()=?'^");
             questionMultipleChoice.setOPT9((i + 1) + "J \"^^.-_$£, +\\\"*ç%&/()=?'^");
             questionMultipleChoice.setNB_CORRECT_ANS(1);
+            questionMultipleChoice.setTimerSeconds(-1);
             if (testCode == 0) {
-                questionMultipleChoice.setIMAGE("pictures/image_" + i % 4 + ".jpg");
+                questionMultipleChoice.setIMAGE("image_" + i % 4 + ".jpg");
             } else if (testCode == 2){
                 questionMultipleChoice.setIMAGE("none");
             } else if (testCode == 3) {
-                questionMultipleChoice.setIMAGE("pictures/cell.jpg");
+                int index = (int) (Math.random() * (names.size() - 1));
+                questionMultipleChoice.setIMAGE(names.get(index));
             }
             try {
                 questionPack.add(DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(questionMultipleChoice));

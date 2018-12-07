@@ -341,7 +341,7 @@ public class NetworkCommunication {
                         if (answerString.split("///")[0].contains("ANSW")) {
                             //arg_student.setName(answerString.split("///")[2]);
                             double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
-                                    arg_student.getUniqueDeviceID(), answerString.split("///")[3], answerString.split("///")[0]);
+                                    arg_student.getStudentID(), answerString.split("///")[3], answerString.split("///")[0]);
                             sendEvaluation(eval, answerString.split("///")[5], arg_student);
 
                             //find out to which group the student and answer belong
