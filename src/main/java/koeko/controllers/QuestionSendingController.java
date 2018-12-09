@@ -308,6 +308,7 @@ public class QuestionSendingController extends Window implements Initializable {
                         setStyle("");
                     }
                     HBox hBox = new HBox();
+                    hBox.setSpacing(5);
                     javafx.scene.control.Button buttonDelete = new javafx.scene.control.Button("X");
                     buttonDelete.setTooltip(
                             new Tooltip("Deactivate question")
@@ -317,7 +318,19 @@ public class QuestionSendingController extends Window implements Initializable {
                     });
 
                     imageView.setImage(new Image("file:" + questionGeneric.getImagePath(), 40, 40, true, false));
-                    hBox.getChildren().addAll(buttonDelete, imageView);
+
+                    if (questionGeneric.getIntTypeOfQuestion() == QuestionGeneric.GAME) {
+                        javafx.scene.control.Button buttonGame = new javafx.scene.control.Button("G");
+                        buttonGame.setTooltip(
+                                new Tooltip("Open game controller")
+                        );
+                        buttonGame.setOnAction((event) -> {
+                            openGameController();
+                        });
+                        hBox.getChildren().addAll(buttonDelete, buttonGame, imageView);
+                    } else {
+                        hBox.getChildren().addAll(buttonDelete, imageView);
+                    }
                     setText(questionGeneric.getQuestion());
                     setGraphic(hBox);
                 }
@@ -1320,22 +1333,25 @@ public class QuestionSendingController extends Window implements Initializable {
             for (TreeItem<QuestionGeneric> treeItem : testItem.getChildren()) {
                 sendTestToStudents(treeItem.getValue(), group, treeItem);
             }
-
-            //open game controlling window
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Stage stage = new Stage();
-            stage.initModality(Modality.NONE);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Game");
-            stage.setScene(new Scene(root1));
-            stage.show();
+            openGameController();
         }
+    }
+
+    private void openGameController() {
+        //open game controlling window
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage stage = new Stage();
+        stage.initModality(Modality.NONE);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Game");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     /* TODO: fix need to use the no duplicate */
