@@ -284,12 +284,9 @@ public class QuestionSendingController extends Window implements Initializable {
             return treeCell;
         });
 
-        allQuestionsTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2 && editedTestItem == null) {
-                    broadcastQuestionForStudents();
-                }
+        allQuestionsTree.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getClickCount() == 2 && editedTestItem == null) {
+                broadcastQuestionForStudents();
             }
         });
 
@@ -329,6 +326,11 @@ public class QuestionSendingController extends Window implements Initializable {
 
         studentsContextMenu = new ContextMenu();
         readyQuestionsList.setContextMenu(studentsContextMenu);
+        readyQuestionsList.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getClickCount() == 2 && readyQuestionsList.getSelectionModel().getSelectedItem() != null) {
+                activateQuestionForStudents();
+            }
+        });
     }
 
     private void addQuestionToTest(QuestionGeneric questionToAdd) {
