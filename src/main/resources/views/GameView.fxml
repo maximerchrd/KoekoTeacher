@@ -38,7 +38,7 @@
                   </VBox>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                <children>
                   <ListView fx:id="GamesList" />
                   <ListView fx:id="TeamOneList" prefHeight="200.0" prefWidth="200.0" />

@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import koeko.Koeko;
 
 public class GameCell extends ListCell<Game> {
     private double imageSize = 60;
@@ -54,6 +55,7 @@ public class GameCell extends ListCell<Game> {
     }
 
     private void deleteItem(Game item) {
-        System.out.println("implement delete item");
+        Koeko.activeGames.remove(item);
+        this.getListView().getItems().remove(this.getIndex());
     }
 }
