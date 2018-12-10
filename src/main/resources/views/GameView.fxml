@@ -24,15 +24,10 @@
                         <Button mnemonicParsing="false" onAction="#addGame" text="Add Game" />
                      </children>
                   </VBox>
-                  <VBox prefHeight="200.0" prefWidth="200.0">
+                  <VBox prefHeight="200.0" prefWidth="200.0" spacing="5.0">
                      <children>
                         <ComboBox fx:id="teamOnePlayer" prefWidth="150.0" promptText="Player" />
                         <Button mnemonicParsing="false" onAction="#addPlayerToOne" text="Add player to team 1" />
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox fx:id="teamTwoPlayer" prefWidth="150.0" promptText="Player" />
                         <Button mnemonicParsing="false" onAction="#addPlayerToTwo" text="Add player to team 2" />
                      </children>
                   </VBox>
