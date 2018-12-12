@@ -103,7 +103,7 @@ public class GameController extends Window implements Initializable {
                 break;
             }
         }
-        if (studentToAdd != null) {
+        if (studentToAdd != null && GamesList.getSelectionModel().getSelectedIndex() >= 0) {
             teamOnePlayer.getItems().remove(studentToAdd.getName());
         }
         return studentToAdd;
