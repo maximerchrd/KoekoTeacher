@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Window;
 import koeko.Koeko;
+import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
@@ -25,6 +26,10 @@ public class GameController extends Window implements Initializable {
     TextField endScoreTextView;
     @FXML
     ComboBox teamOnePlayer;
+    @FXML
+    ComboBox gameType;
+    @FXML
+    Button startGameButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -49,6 +54,9 @@ public class GameController extends Window implements Initializable {
 
         TeamOneList.setCellFactory(param -> new StudentCell());
         TeamTwoList.setCellFactory(param -> new StudentCell());
+
+    gameType.getItems().addAll("Send Questions Manually", "Send Questions Automatically (ordered)",
+            "Send Questions Automatically (random)", "Game with QR codes");
     }
 
     public void addGame() {
@@ -99,5 +107,12 @@ public class GameController extends Window implements Initializable {
             teamOnePlayer.getItems().remove(studentToAdd.getName());
         }
         return studentToAdd;
+    }
+
+    public void startGame() {
+        if (gameType.getSelectionModel().getSelectedIndex() >=0) {
+            startGameButton.setDisable(true);
+            NetworkCommunication.networkCommunicationSingleton.activateGame(gameType.getSelectionModel().getSelectedIndex());
+        }
     }
 }

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import koeko.Koeko;
 import koeko.Tools.FilesHandler;
+import koeko.controllers.Game.Game;
+import koeko.controllers.Game.GameView;
+import koeko.controllers.Game.StudentCellView;
 import koeko.controllers.LearningTrackerController;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
@@ -849,6 +852,36 @@ public class NetworkCommunication {
         writeToOutputStream(student, prefix);
     }
 
+    public void activateGame(Integer gameType) {
+        try {
+            for (Game game : Koeko.activeGames) {
+                for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
+                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
+                    String prefix = "GAME///" + jsonString.getBytes().length + "///";
+                    byte[] prefixByte = buildPrefixBytes(prefix);
+                    byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
+                    writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                }
+            }
+
+            for (Game game : Koeko.activeGames) {
+                for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
+                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
+                    ObjectMapper mapper = new ObjectMapper();
+                    String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
+                    String prefix = "GAME///" + jsonString.getBytes().length + "///";
+                    byte[] prefixByte = buildPrefixBytes(prefix);
+                    byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
+                    writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                }
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     private byte[] buildPrefixBytes(String prefix) {
         byte[] wholePrefix = new byte[NetworkCommunication.prefixSize];
         byte[] stringPrefix = prefix.getBytes();
@@ -856,6 +889,12 @@ public class NetworkCommunication {
             wholePrefix[i] = stringPrefix[i];
         }
         return wholePrefix;
+    }
+
+    private byte[] appendContentToPrefix(byte[] prefixByte, byte[] contentByte) {
+        byte[] wholeBytesArray = Arrays.copyOf(prefixByte, prefixByte.length + contentByte.length);
+        System.arraycopy(contentByte, 0, wholeBytesArray, prefixByte.length, contentByte.length);
+        return wholeBytesArray;
     }
 
     private void launchWritingLoop() {
