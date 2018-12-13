@@ -1,5 +1,6 @@
 package koeko.controllers.Game;
 
+import javafx.application.Platform;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -35,14 +36,32 @@ public class GameCell extends ListCell<Game> {
             Label team1Score = new Label();
             team1Score.setText(String.valueOf(item.getTeamOne().getTeamScore()) + " / " + item.getEndScore());
             Button team1Plus = new Button("+");
+            team1Plus.setOnAction(e -> {
+                Platform.runLater(() -> {
+                    item.getTeamOne().increaseScore(null, 1.0);
+                    this.updateItem(item, false);
+                });
+            });
             Button team1Minus = new Button("-");
+            team1Minus.setOnAction(e -> {
+                item.getTeamOne().increaseScore(null, -1.0);
+                this.updateItem(item, false);
+            });
             team1Vbox.getChildren().addAll(team1Score, team1Plus, team1Minus);
 
             VBox team2Vbox = new VBox(3);
             Label team2Score = new Label();
             team2Score.setText(String.valueOf(item.getTeamTwo().getTeamScore()) + " / " + item.getEndScore());
             Button team2Plus = new Button("+");
+            team2Plus.setOnAction(e -> {
+                item.getTeamTwo().increaseScore(null, 1.0);
+                this.updateItem(item, false);
+            });
             Button team2Minus = new Button("-");
+            team2Minus.setOnAction(e -> {
+                item.getTeamTwo().increaseScore(null, -1.0);
+                this.updateItem(item, false);
+            });
             team2Vbox.getChildren().addAll(team2Score, team2Plus, team2Minus);
 
             hbox.getChildren().addAll(buttonDelete,gameLabel,team1Vbox,team2Vbox);
