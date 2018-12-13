@@ -33,6 +33,10 @@ public class GameController extends Window implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (Koeko.gameControllerSingleton == null) {
+            Koeko.gameControllerSingleton = this;
+        }
+
         GamesList.setCellFactory(param -> new GameCell());
 
         ArrayList<Student> studentsToAdd = new ArrayList<>();
@@ -57,6 +61,12 @@ public class GameController extends Window implements Initializable {
 
     gameType.getItems().addAll("Send Questions Manually", "Send Questions Automatically (ordered)",
             "Send Questions Automatically (random)", "Game with QR codes");
+    }
+
+    public void addStudent(Student student) {
+        if (!teamOnePlayer.getItems().contains(student.getName())) {
+            teamOnePlayer.getItems().add(student.getName());
+        }
     }
 
     public void addGame() {

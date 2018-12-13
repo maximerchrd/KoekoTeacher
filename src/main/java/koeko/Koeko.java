@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.stage.*;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.Game.Game;
+import koeko.controllers.Game.GameController;
 import koeko.controllers.GenericPopUpController;
 import koeko.controllers.InstallAssistantController;
 import koeko.controllers.LearningTrackerController;
@@ -30,6 +31,7 @@ public class Koeko extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
     static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
+    static public GameController gameControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
     static public Boolean recordLogs = false;
     static public ArrayList<Game> activeGames = new ArrayList<>();
@@ -108,9 +110,10 @@ public class Koeko extends Application {
             stage.show();
         }
 
-        //for (Long i = 0L; i < 3; i++) {
-            //functionalTesting.mainTesting(3, 5, 100, 10000L, 30);
-        //}
+//        for (Long i = 0L; i < 9; i++) {
+//            functionalTesting.mainTesting(3, 22, 20, 10000L, 30);
+//            Thread.sleep(760000);
+//        }
     }
 
 }

@@ -49,6 +49,11 @@ public class ReceptionProtocol {
 
         NetworkCommunication.networkCommunicationSingleton.getLearningTrackerController().addUser(student, true);
 
+
+        if (Koeko.gameControllerSingleton != null) {
+            Koeko.gameControllerSingleton.addStudent(student);
+        }
+
         NetworkCommunication.networkCommunicationSingleton.sendString(arg_student, "CONNECTED///");
         activateNearbyIfNecessary(0);
 
