@@ -65,6 +65,7 @@ public class QuestionSendingController extends Window implements Initializable {
     public Map<String, QuestionGeneric> genericQuestionsMap = new LinkedHashMap<>();
     public List<Test> testsList = new ArrayList<>();
     public TreeItem<QuestionGeneric> editedTestItem = null;
+    public Stage gameStage = null;
 
     @FXML
     public TreeView<QuestionGeneric> allQuestionsTree;
@@ -1338,20 +1339,23 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     private void openGameController() {
-        //open game controlling window
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (gameStage == null) {
+            //open game controlling window
+            FXMLLoader gameFxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
+            Parent root1 = null;
+            try {
+                root1 = gameFxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Stage gameStage = new Stage();
+            gameStage.initModality(Modality.NONE);
+            gameStage.initStyle(StageStyle.DECORATED);
+            gameStage.setTitle("Game");
+            gameStage.setScene(new Scene(root1));
+            gameStage.setAlwaysOnTop(true);
+            gameStage.show();
         }
-        Stage stage = new Stage();
-        stage.initModality(Modality.NONE);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Game");
-        stage.setScene(new Scene(root1));
-        stage.show();
     }
 
     /* TODO: fix need to use the no duplicate */

@@ -1,9 +1,13 @@
 package koeko.controllers.Game;
 
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.QuestionGeneric;
@@ -46,10 +50,13 @@ public class GameController extends Window implements Initializable {
         for (Game game : Koeko.activeGames) {
             for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
                 studentsToAdd.remove(studentCellView.getStudent());
+                TeamOneList.getItems().add(studentCellView);
             }
             for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
                 studentsToAdd.remove(studentCellView.getStudent());
+                TeamTwoList.getItems().add(studentCellView);
             }
+            GamesList.getItems().add(game);
         }
 
         for (Student student : studentsToAdd) {
@@ -62,6 +69,11 @@ public class GameController extends Window implements Initializable {
         gameType.getItems().addAll("Send Questions Manually", "Send Questions Automatically (ordered)",
                 "Send Questions Automatically (random)", "Game with QR codes");
         gameType.getSelectionModel().select(0);
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) GamesList.getScene().getWindow();
+            stage.setOnCloseRequest(t -> Koeko.questionSendingControllerSingleton.gameStage = null);
+        });
     }
 
     public void addStudent(Student student) {
