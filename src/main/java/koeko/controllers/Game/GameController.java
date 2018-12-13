@@ -59,8 +59,9 @@ public class GameController extends Window implements Initializable {
         TeamOneList.setCellFactory(param -> new StudentCell());
         TeamTwoList.setCellFactory(param -> new StudentCell());
 
-    gameType.getItems().addAll("Send Questions Manually", "Send Questions Automatically (ordered)",
-            "Send Questions Automatically (random)", "Game with QR codes");
+        gameType.getItems().addAll("Send Questions Manually", "Send Questions Automatically (ordered)",
+                "Send Questions Automatically (random)", "Game with QR codes");
+        gameType.getSelectionModel().select(0);
     }
 
     public void addStudent(Student student) {

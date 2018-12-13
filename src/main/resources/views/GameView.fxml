@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.Game.GameController">
+<AnchorPane prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.Game.GameController">
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -31,9 +31,9 @@
                         <Button mnemonicParsing="false" onAction="#addPlayerToTwo" text="Add player to team 2" />
                      </children>
                   </VBox>
-                  <VBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+                  <VBox prefHeight="100.0" prefWidth="335.0" spacing="5.0">
                      <children>
-                        <ComboBox fx:id="gameType" prefWidth="150.0" promptText="Game Type" />
+                        <ComboBox fx:id="gameType" prefHeight="27.0" prefWidth="305.0" promptText="Game Type" />
                         <Button fx:id="startGameButton" mnemonicParsing="false" onAction="#startGame" text="Start Game(s)" />
                      </children>
                   </VBox>

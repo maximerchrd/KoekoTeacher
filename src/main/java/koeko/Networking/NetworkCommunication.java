@@ -944,57 +944,61 @@ public class NetworkCommunication {
     }
 
     private void writeToOutputStream(Student student, String sentID, byte[] bytearray) {
-        if (student == null) {
-            //change if necessary sync status of student
-            if (sentID != null) {
-                networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents(), NetworkState.STUDENT_NOT_SYNCED);
-            }
+        try {
+            if (student == null) {
+                //change if necessary sync status of student
+                if (sentID != null) {
+                    networkStateSingleton.toggleSyncStateForStudent(aClass.getStudents(), NetworkState.STUDENT_NOT_SYNCED);
+                }
 
-            ArrayList<OutputStream> handledOutputStreams = new ArrayList<>();
+                ArrayList<OutputStream> handledOutputStreams = new ArrayList<>();
 
-            for (Student singleStudent : aClass.getStudents()) {
-                if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
-                        || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))
-                        && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
+                for (Student singleStudent : aClass.getStudents()) {
+                    if (singleStudent.getOutputStream() != null && (sentID == null || SettingsController.forceSync == 1
+                            || !networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).contains(sentID))
+                            && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
+                        try {
+                            sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
+                            if (queueIsFinished.get() == true) {
+                                launchWritingLoop();
+                            }
+                        } catch (InterruptedException intex) {
+                            intex.printStackTrace();
+                        }
+
+                        //if Nearby activated (layers), try to prevent sending twice to same outputStream
+                        if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
+                            handledOutputStreams.add(singleStudent.getOutputStream());
+                        }
+                    } else {
+                        if (networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
+                            networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
+                        }
+                    }
+                }
+            } else {
+                //change if necessary sync status of student
+                if (sentID != null) {
+                    networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
+                }
+                if (sentID == null || SettingsController.forceSync == 1
+                        || !networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
                     try {
-                        sendingQueue.put(new PayloadForSending(singleStudent.getOutputStream(), bytearray, sentID));
+                        sendingQueue.put(new PayloadForSending(student.getOutputStream(), bytearray, sentID));
                         if (queueIsFinished.get() == true) {
                             launchWritingLoop();
                         }
                     } catch (InterruptedException intex) {
                         intex.printStackTrace();
                     }
-
-                    //if Nearby activated (layers), try to prevent sending twice to same outputStream
-                    if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(singleStudent.getOutputStream())) {
-                        handledOutputStreams.add(singleStudent.getOutputStream());
-                    }
                 } else {
-                    if (networkStateSingleton.getStudentsToSyncedIdsMap().get(singleStudent.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
-                        networkStateSingleton.toggleSyncStateForStudent(singleStudent, NetworkState.STUDENT_SYNCED);
+                    if (networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
+                        networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
                     }
                 }
             }
-        } else {
-            //change if necessary sync status of student
-            if (sentID != null) {
-                networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_NOT_SYNCED);
-            }
-            if (sentID == null || SettingsController.forceSync == 1
-                    || !networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).contains(sentID)) {
-                try {
-                    sendingQueue.put(new PayloadForSending(student.getOutputStream(), bytearray, sentID));
-                    if (queueIsFinished.get() == true) {
-                        launchWritingLoop();
-                    }
-                } catch (InterruptedException intex) {
-                    intex.printStackTrace();
-                }
-            } else {
-                if (networkStateSingleton.getStudentsToSyncedIdsMap().get(student.getUniqueDeviceID()).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
-                    networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
-                }
-            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 
