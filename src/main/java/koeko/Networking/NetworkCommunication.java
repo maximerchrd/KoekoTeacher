@@ -665,6 +665,12 @@ public class NetworkCommunication {
         }
     }
 
+    public void sendGameScore(Student student, Double teamOneScore, Double teamTwoScore) {
+        String scoreString = "GAMESCORE///" + teamOneScore + "///" + teamTwoScore + "///";
+        byte[] prefixBytes = buildPrefixBytes(scoreString);
+        writeToOutputStream(student, prefixBytes);
+    }
+
     public void updateEvaluation(double evaluation, String questionID, String studentID) {
         Student student = aClass.getStudentWithID(studentID);
         String evalToSend = "";

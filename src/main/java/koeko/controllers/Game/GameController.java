@@ -145,8 +145,8 @@ public class GameController extends Window implements Initializable {
         for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
             if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
                 isInTeamOne = true;
+                game.getTeamOne().increaseScore(studentCellView, scoreIncrease2);
                 Platform.runLater(() -> {
-                    game.getTeamOne().increaseScore(studentCellView, scoreIncrease2);
                     GamesList.refresh();
                     TeamOneList.refresh();
                 });
@@ -157,14 +157,21 @@ public class GameController extends Window implements Initializable {
         if (!isInTeamOne){
             for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
                 if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
+                    game.getTeamTwo().increaseScore(studentCellView, scoreIncrease2);
                     Platform.runLater(() -> {
-                        game.getTeamTwo().increaseScore(studentCellView, scoreIncrease2);
                         GamesList.refresh();
                         TeamTwoList.refresh();
                     });
                     break;
                 }
             }
+        }
+
+        ArrayList<StudentCellView> allStudentsInGame = game.getTeamOne().getStudentCellView();
+        allStudentsInGame.addAll(game.getTeamTwo().getStudentCellView());
+        for (StudentCellView studentCellView : allStudentsInGame) {
+            NetworkCommunication.networkCommunicationSingleton.sendGameScore(studentCellView.getStudent(),
+                    game.getTeamOne().getTeamScore(), game.getTeamTwo().getTeamScore());
         }
     }
 }
