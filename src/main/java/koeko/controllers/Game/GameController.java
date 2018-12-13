@@ -138,4 +138,33 @@ public class GameController extends Window implements Initializable {
             NetworkCommunication.networkCommunicationSingleton.activateGame(gameType.getSelectionModel().getSelectedIndex());
         }
     }
+
+    public void scoreIncreased(Double scoreIncrease, Game game, Student student) {
+        double scoreIncrease2 = scoreIncrease / 100;
+        Boolean isInTeamOne = false;
+        for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
+            if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
+                isInTeamOne = true;
+                Platform.runLater(() -> {
+                    game.getTeamOne().increaseScore(studentCellView, scoreIncrease2);
+                    GamesList.refresh();
+                    TeamOneList.refresh();
+                });
+                break;
+            }
+        }
+
+        if (!isInTeamOne){
+            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
+                if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
+                    Platform.runLater(() -> {
+                        game.getTeamTwo().increaseScore(studentCellView, scoreIncrease2);
+                        GamesList.refresh();
+                        TeamTwoList.refresh();
+                    });
+                    break;
+                }
+            }
+        }
+    }
 }

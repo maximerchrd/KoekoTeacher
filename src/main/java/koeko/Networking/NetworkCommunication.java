@@ -405,6 +405,11 @@ public class NetworkCommunication {
                                     DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
                                 }
                             }
+
+                            //increase score if a game is on
+                            for (Game game : Koeko.activeGames) {
+                                Koeko.gameControllerSingleton.scoreIncreased(eval, game, arg_student);
+                            }
                         } else if (answerString.split("///")[0].contentEquals("CONN")) {
                             Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
 
