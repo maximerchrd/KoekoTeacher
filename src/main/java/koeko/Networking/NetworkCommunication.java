@@ -525,6 +525,8 @@ public class NetworkCommunication {
                         } else if (answerString.split("///")[0].contentEquals("FAIL")) {
                             networkStateSingleton.operationFailed(answerString.split("///")[1]);
                             System.out.println("Received FAIL");
+                        } else if (answerString.split("///")[0].contentEquals("READY")) {
+                            Koeko.gameControllerSingleton.studentReady(answerString.split("///")[1]);
                         } else if (answerString.contains("RECONNECTED")) {
                             String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
                             writer.println(timeStamp + "\t" + answerString.split("///")[1]);
@@ -866,7 +868,7 @@ public class NetworkCommunication {
     public void activateGame(Integer gameType) {
         try {
             for (Game game : Koeko.activeGames) {
-                for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
+                for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
                     GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
@@ -878,7 +880,7 @@ public class NetworkCommunication {
             }
 
             for (Game game : Koeko.activeGames) {
-                for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
+                for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                     GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);

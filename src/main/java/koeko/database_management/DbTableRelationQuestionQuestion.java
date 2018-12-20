@@ -67,6 +67,31 @@ public class DbTableRelationQuestionQuestion {
         return questionIDs;
     }
 
+    static public ArrayList<String> getQuestionsLinkedToTestId(String testId) {
+        testId = Utilities.setPositiveIdSign(testId);
+        Set<String> questionIDs = new LinkedHashSet<>();
+        String sql = "SELECT ID_GLOBAL_1,ID_GLOBAL_2 FROM question_question_relation WHERE TEST_ID=?;";
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, testId);
+            ResultSet rs = stmt.executeQuery();
+            while ( rs.next() ) {
+                questionIDs.add(rs.getString("ID_GLOBAL_1"));
+                questionIDs.add(rs.getString("ID_GLOBAL_2"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<String> questionIdsArray = new ArrayList<>();
+        for (String questionId : questionIDs) {
+            if (!questionId.contentEquals("0")) {
+                questionIdsArray.add(questionId);
+            }
+        }
+        return questionIdsArray;
+    }
+
     static public ArrayList<String> getFirstLayerQuestionIdsFromTestName(String testName) {
         ArrayList<String> questionIds = new ArrayList<>();
         String query = "SELECT ID_GLOBAL_2 FROM question_question_relation WHERE ID_GLOBAL_1=? AND TEST=? AND CONDITION=?";

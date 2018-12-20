@@ -1,17 +1,14 @@
 package koeko.controllers.Game;
 
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.QuestionGeneric;
-import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,11 +45,11 @@ public class GameController extends Window implements Initializable {
             studentsToAdd.add(student);
         }
         for (Game game : Koeko.activeGames) {
-            for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
+            for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
                 studentsToAdd.remove(studentCellView.getStudent());
                 TeamOneList.getItems().add(studentCellView);
             }
-            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
+            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                 studentsToAdd.remove(studentCellView.getStudent());
                 TeamTwoList.getItems().add(studentCellView);
             }
@@ -101,7 +98,7 @@ public class GameController extends Window implements Initializable {
         Student studentToAdd = getStudentToAdd();
         if (GamesList.getSelectionModel().getSelectedIndex() >= 0) {
             StudentCellView studentCellView = new StudentCellView(studentToAdd, 0);
-            Koeko.activeGames.get(GamesList.getSelectionModel().getSelectedIndex()).getTeamOne().getStudentCellView()
+            Koeko.activeGames.get(GamesList.getSelectionModel().getSelectedIndex()).getTeamOne().getStudentCellViews()
                     .add(studentCellView);
             TeamOneList.getItems().add(studentCellView);
         }
@@ -111,7 +108,7 @@ public class GameController extends Window implements Initializable {
         Student studentToAdd = getStudentToAdd();
         if (GamesList.getSelectionModel().getSelectedIndex() >= 0) {
             StudentCellView studentCellView = new StudentCellView(studentToAdd, 0);
-            Koeko.activeGames.get(GamesList.getSelectionModel().getSelectedIndex()).getTeamTwo().getStudentCellView()
+            Koeko.activeGames.get(GamesList.getSelectionModel().getSelectedIndex()).getTeamTwo().getStudentCellViews()
                     .add(studentCellView);
             TeamTwoList.getItems().add(studentCellView);
         }
@@ -142,7 +139,7 @@ public class GameController extends Window implements Initializable {
     public void scoreIncreased(Double scoreIncrease, Game game, Student student) {
         double scoreIncrease2 = scoreIncrease / 100;
         Boolean isInTeamOne = false;
-        for (StudentCellView studentCellView : game.getTeamOne().getStudentCellView()) {
+        for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
             if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
                 isInTeamOne = true;
                 game.getTeamOne().increaseScore(studentCellView, scoreIncrease2);
@@ -155,7 +152,7 @@ public class GameController extends Window implements Initializable {
         }
 
         if (!isInTeamOne){
-            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellView()) {
+            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                 if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
                     game.getTeamTwo().increaseScore(studentCellView, scoreIncrease2);
                     Platform.runLater(() -> {
@@ -167,11 +164,49 @@ public class GameController extends Window implements Initializable {
             }
         }
 
-        ArrayList<StudentCellView> allStudentsInGame = game.getTeamOne().getStudentCellView();
-        allStudentsInGame.addAll(game.getTeamTwo().getStudentCellView());
+        ArrayList<StudentCellView> allStudentsInGame = game.getTeamOne().getStudentCellViews();
+        allStudentsInGame.addAll(game.getTeamTwo().getStudentCellViews());
         for (StudentCellView studentCellView : allStudentsInGame) {
             NetworkCommunication.networkCommunicationSingleton.sendGameScore(studentCellView.getStudent(),
                     game.getTeamOne().getTeamScore(), game.getTeamTwo().getTeamScore());
+        }
+    }
+
+    public void studentReady(String studentId) {
+        Game checkGame = null;
+        for (Game game : Koeko.activeGames) {
+            for (StudentCellView studentCellView : game.getAllStudents()) {
+                if (studentCellView.getStudent().getUniqueDeviceID().contentEquals(studentId)) {
+                    studentCellView.setReady(true);
+                    checkGame = game;
+                    break;
+                }
+            }
+        }
+
+        if (checkGame != null) {
+            Boolean studentsReady = true;
+            for (StudentCellView studentCellView : checkGame.getAllStudents()) {
+                if (!studentCellView.getReady()) {
+                    studentsReady = false;
+                    break;
+                }
+            }
+
+            if (studentsReady) {
+                ArrayList<QuestionGeneric> questions = new ArrayList<>(Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems());
+                ArrayList<QuestionGeneric> questionSets = new ArrayList<>();
+                for (QuestionGeneric questionGeneric : questions) {
+                    if (questionGeneric.getIntTypeOfQuestion() == QuestionGeneric.GAME_QUESTIONSET) {
+                        questionSets.add(questionGeneric);
+                    }
+                }
+                if (gameType.getSelectionModel().getSelectedItem().toString().contentEquals("Send Questions Automatically (ordered)")) {
+                    checkGame.sendNextQuestion(false, questionSets);
+                } else if (gameType.getSelectionModel().getSelectedItem().toString().contentEquals("Send Questions Automatically (random)")) {
+                    checkGame.sendNextQuestion(true, questionSets);
+                }
+            }
         }
     }
 }
