@@ -206,6 +206,10 @@ public class GameController extends Window implements Initializable {
                 } else if (gameType.getSelectionModel().getSelectedItem().toString().contentEquals("Send Questions Automatically (random)")) {
                     checkGame.sendNextQuestion(true, questionSets);
                 }
+
+                for (StudentCellView studentCellView : checkGame.getAllStudents()) {
+                    studentCellView.setReady(false);
+                }
             }
         }
     }
