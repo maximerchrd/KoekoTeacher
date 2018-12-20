@@ -164,7 +164,8 @@ public class GameController extends Window implements Initializable {
             }
         }
 
-        ArrayList<StudentCellView> allStudentsInGame = game.getTeamOne().getStudentCellViews();
+        ArrayList<StudentCellView> allStudentsInGame = new ArrayList<>();
+        allStudentsInGame.addAll(game.getTeamOne().getStudentCellViews());
         allStudentsInGame.addAll(game.getTeamTwo().getStudentCellViews());
         for (StudentCellView studentCellView : allStudentsInGame) {
             NetworkCommunication.networkCommunicationSingleton.sendGameScore(studentCellView.getStudent(),
