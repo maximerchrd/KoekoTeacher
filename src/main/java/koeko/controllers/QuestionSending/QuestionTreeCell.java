@@ -230,7 +230,7 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             identifier = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(item.getGlobalID()).getQCM_MUID();
         } else if (item.getIntTypeOfQuestion() == 1) {
             identifier = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(item.getGlobalID()).getUID();
-        } else if (item.getIntTypeOfQuestion() == 2) {
+        } else if (item.getIntTypeOfQuestion() == 2 || item.getIntTypeOfQuestion() == 5) {
             identifier = DbTableTest.getTestWithID(item.getGlobalID()).getIdTest();
         }
         Stage stage = (Stage) buttonDelete.getScene().getWindow();

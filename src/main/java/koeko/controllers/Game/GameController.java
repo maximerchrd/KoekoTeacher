@@ -11,6 +11,7 @@ import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Student;
 import org.jetbrains.annotations.NotNull;
+import sun.nio.ch.Net;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -151,7 +152,7 @@ public class GameController extends Window implements Initializable {
             }
         }
 
-        if (!isInTeamOne){
+        if (!isInTeamOne) {
             for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                 if (studentCellView.getStudent().getName().contentEquals(student.getName())) {
                     game.getTeamTwo().increaseScore(studentCellView, scoreIncrease2);
@@ -212,6 +213,41 @@ public class GameController extends Window implements Initializable {
                     studentCellView.setReady(false);
                 }
             }
+        }
+    }
+
+    public void activateQuestionIdsToTeam(ArrayList<String> questionIds, Student arg_student) {
+        ArrayList<Student> studentsToSendTo = new ArrayList<>();
+        Boolean teamFound = false;
+        for (Game game : Koeko.activeGames) {
+            for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
+                studentsToSendTo.add(studentCellView.getStudent());
+                if (studentCellView.getStudent().getUniqueDeviceID().contentEquals(arg_student.getUniqueDeviceID())) {
+                    teamFound = true;
+                }
+            }
+            if (teamFound) {
+                break;
+            } else {
+                studentsToSendTo.clear();
+            }
+            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
+                studentsToSendTo.add(studentCellView.getStudent());
+                if (studentCellView.getStudent().getUniqueDeviceID().contentEquals(arg_student.getUniqueDeviceID())) {
+                    teamFound = true;
+                }
+            }
+            if (teamFound) {
+                break;
+            } else {
+                studentsToSendTo.clear();
+            }
+        }
+        
+        for (int j = 0; j < studentsToSendTo.size(); j++) {
+            ArrayList<Student> singleStudentArray = new ArrayList<>();
+            singleStudentArray.add(studentsToSendTo.get(j));
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionIds.get(j % questionIds.size()), singleStudentArray);
         }
     }
 }

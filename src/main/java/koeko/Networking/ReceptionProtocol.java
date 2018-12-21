@@ -3,7 +3,10 @@ package koeko.Networking;
 import koeko.Koeko;
 import koeko.controllers.SettingsController;
 import koeko.database_management.DbTableQuestionMultipleChoice;
+import koeko.database_management.DbTableRelationQuestionQuestion;
 import koeko.database_management.DbTableStudents;
+import koeko.database_management.DbTableTest;
+import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
@@ -167,5 +170,10 @@ public class ReceptionProtocol {
             }
             startingNearby.set(false);
         }
+    }
+
+    public static void receivedGAMESET(String gameSetId, Student arg_student) {
+        ArrayList<String> questionIds = DbTableRelationQuestionQuestion.getQuestionsLinkedToTestId(gameSetId);
+        Koeko.gameControllerSingleton.activateQuestionIdsToTeam(questionIds, arg_student);
     }
 }
