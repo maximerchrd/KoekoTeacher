@@ -8,6 +8,7 @@ import koeko.students_management.Student
 import kotlin.random.Random
 
 class Game {
+    var gameId = ""
     var endScore = 0
     var teamOne = Team()
     var teamTwo = Team()

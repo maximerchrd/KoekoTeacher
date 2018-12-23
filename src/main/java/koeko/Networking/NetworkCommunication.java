@@ -529,6 +529,13 @@ public class NetworkCommunication {
                             Koeko.gameControllerSingleton.studentReady(answerString.split("///")[1]);
                         } else if (answerString.split("///")[0].contentEquals("GAMESET")) {
                             ReceptionProtocol.receivedGAMESET(answerString.split("///")[2], arg_student);
+                        } else if (answerString.split("///")[0].contentEquals("GAMETEAM")) {
+                            Platform.runLater(() -> {
+                                if (Koeko.gameControllerSingleton == null) {
+                                    Koeko.questionSendingControllerSingleton.openGameController();
+                                }
+                                Koeko.gameControllerSingleton.addPlayerFromQrCode(answerString.split("///")[1], answerString.split("///")[2], arg_student);
+                            });
                         } else if (answerString.contains("RECONNECTED")) {
                             String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
                             writer.println(timeStamp + "\t" + answerString.split("///")[1]);

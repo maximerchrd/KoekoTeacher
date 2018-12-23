@@ -1338,7 +1338,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    private void openGameController() {
+    public void openGameController() {
         if (gameStage == null) {
             //open game controlling window
             FXMLLoader gameFxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));

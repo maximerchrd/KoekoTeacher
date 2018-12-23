@@ -225,19 +225,41 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
     }
 
     private void saveQRCode(QuestionGeneric item, Button buttonDelete) {
-        String identifier = "0";
-        if (item.getIntTypeOfQuestion() == 0) {
-            identifier = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(item.getGlobalID()).getQCM_MUID();
-        } else if (item.getIntTypeOfQuestion() == 1) {
-            identifier = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(item.getGlobalID()).getUID();
-        } else if (item.getIntTypeOfQuestion() == 2 || item.getIntTypeOfQuestion() == 5) {
-            identifier = DbTableTest.getTestWithID(item.getGlobalID()).getIdTest();
+        if (item.getIntTypeOfQuestion() == 4) {
+            String identifier = String.valueOf(System.nanoTime());
+            saveGameQrCode(buttonDelete, 1, identifier);
+            saveGameQrCode(buttonDelete, 2, identifier);
+        } else {
+            String identifier = "0";
+            if (item.getIntTypeOfQuestion() == 0) {
+                identifier = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(item.getGlobalID()).getQCM_MUID();
+            } else if (item.getIntTypeOfQuestion() == 1) {
+                identifier = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(item.getGlobalID()).getUID();
+            } else if (item.getIntTypeOfQuestion() == 2 || item.getIntTypeOfQuestion() == 5) {
+                identifier = DbTableTest.getTestWithID(item.getGlobalID()).getIdTest();
+            }
+            Stage stage = (Stage) buttonDelete.getScene().getWindow();
+            System.out.println(item.getGlobalID());
+            File file = QRCode.from(item.getGlobalID() + ":" + identifier + ":" + DbTableSettings.getCorrectionMode() + ":").file();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save file");
+            File dest = fileChooser.showSaveDialog(stage);
+            if (dest != null) {
+                try {
+                    Files.move(file.toPath(), dest.toPath(), REPLACE_EXISTING);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
+    }
+
+    private void saveGameQrCode(Button buttonDelete, int team, String identifier) {
         Stage stage = (Stage) buttonDelete.getScene().getWindow();
-        System.out.println(item.getGlobalID());
-        File file = QRCode.from(item.getGlobalID() + ":" + identifier + ":" + DbTableSettings.getCorrectionMode() + ":").file();
+        File file = QRCode.from("GAME:" + team + ":" + identifier + ":").file();
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save file");
+        fileChooser.setTitle("Save file for team " + team);
+        fileChooser.setInitialFileName("code_for_team_" + team);
         File dest = fileChooser.showSaveDialog(stage);
         if (dest != null) {
             try {
