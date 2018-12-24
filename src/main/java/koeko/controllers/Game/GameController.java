@@ -156,7 +156,7 @@ public class GameController extends Window implements Initializable {
             GamesList.getItems().add(newGame);
         }
 
-        NetworkCommunication.networkCommunicationSingleton.activateGame(4);
+        NetworkCommunication.networkCommunicationSingleton.activateGame(GameType.qrCodeGame);
     }
 
     @NotNull
@@ -293,5 +293,9 @@ public class GameController extends Window implements Initializable {
             singleStudentArray.add(studentsToSendTo.get(j));
             NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionIds.get(j % questionIds.size()), singleStudentArray);
         }
+    }
+
+    public void setQrMode() {
+        gameType.getSelectionModel().select(3);
     }
 }

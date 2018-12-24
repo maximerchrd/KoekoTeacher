@@ -533,6 +533,7 @@ public class NetworkCommunication {
                             Platform.runLater(() -> {
                                 if (Koeko.gameControllerSingleton == null) {
                                     Koeko.questionSendingControllerSingleton.openGameController();
+                                    Koeko.gameControllerSingleton.setQrMode();
                                 }
                                 Koeko.gameControllerSingleton.addPlayerFromQrCode(answerString.split("///")[1], answerString.split("///")[2], arg_student);
                             });
