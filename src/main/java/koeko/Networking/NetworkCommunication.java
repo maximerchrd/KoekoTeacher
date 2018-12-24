@@ -881,7 +881,7 @@ public class NetworkCommunication {
                     GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                    String prefix = "GAME///" + jsonString.getBytes().length + "///";
+                    String prefix = "GAME///" + jsonString.getBytes().length + "///1///";
                     byte[] prefixByte = buildPrefixBytes(prefix);
                     byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
                     writeToOutputStream(studentCellView.getStudent(), wholeByte);
@@ -893,7 +893,7 @@ public class NetworkCommunication {
                     GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
                     ObjectMapper mapper = new ObjectMapper();
                     String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                    String prefix = "GAME///" + jsonString.getBytes().length + "///";
+                    String prefix = "GAME///" + jsonString.getBytes().length + "///2///";;
                     byte[] prefixByte = buildPrefixBytes(prefix);
                     byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
                     writeToOutputStream(studentCellView.getStudent(), wholeByte);
