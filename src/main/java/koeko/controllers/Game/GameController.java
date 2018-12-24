@@ -1,6 +1,8 @@
 package koeko.controllers.Game;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -46,14 +48,6 @@ public class GameController extends Window implements Initializable {
             studentsToAdd.add(student);
         }
         for (Game game : Koeko.activeGames) {
-            for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
-                studentsToAdd.remove(studentCellView.getStudent());
-                TeamOneList.getItems().add(studentCellView);
-            }
-            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
-                studentsToAdd.remove(studentCellView.getStudent());
-                TeamTwoList.getItems().add(studentCellView);
-            }
             GamesList.getItems().add(game);
         }
 
@@ -71,6 +65,20 @@ public class GameController extends Window implements Initializable {
         Platform.runLater(() -> {
             Stage stage = (Stage) GamesList.getScene().getWindow();
             stage.setOnCloseRequest(t -> Koeko.questionSendingControllerSingleton.gameStage = null);
+        });
+
+        //set list selection change listener
+        GamesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            TeamOneList.getItems().clear();
+            for (StudentCellView student : newValue.getTeamOne().getStudentCellViews()) {
+                TeamOneList.getItems().add(student);
+            }
+            TeamTwoList.getItems().clear();
+            for (StudentCellView student : newValue.getTeamTwo().getStudentCellViews()) {
+                TeamTwoList.getItems().add(student);
+            }
+            // Your action here
+            System.out.println("Selected item changed");
         });
     }
 

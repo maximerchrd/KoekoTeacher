@@ -74,6 +74,10 @@ public class GameCell extends ListCell<Game> {
     }
 
     private void deleteItem(Game item) {
+        if (this.getListView().getSelectionModel().getSelectedIndex() == this.getIndex()) {
+            Koeko.gameControllerSingleton.TeamOneList.getItems().clear();
+            Koeko.gameControllerSingleton.TeamTwoList.getItems().clear();
+        }
         Koeko.activeGames.remove(item);
         this.getListView().getItems().remove(this.getIndex());
     }
