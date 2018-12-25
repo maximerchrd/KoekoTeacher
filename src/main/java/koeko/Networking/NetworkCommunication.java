@@ -875,29 +875,34 @@ public class NetworkCommunication {
         writeToOutputStream(student, prefix);
     }
 
-    public void activateGame(Integer gameType) {
+    public void activateGame(Integer gameType, Student student) {
         try {
             for (Game game : Koeko.activeGames) {
                 for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
-                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
-                    ObjectMapper mapper = new ObjectMapper();
-                    String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                    String prefix = "GAME///" + jsonString.getBytes().length + "///1///";
-                    byte[] prefixByte = buildPrefixBytes(prefix);
-                    byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
-                    writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                    if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
+                        GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
+                        ObjectMapper mapper = new ObjectMapper();
+                        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
+                        String prefix = "GAME///" + jsonString.getBytes().length + "///1///";
+                        byte[] prefixByte = buildPrefixBytes(prefix);
+                        byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
+                        writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                    }
                 }
             }
 
             for (Game game : Koeko.activeGames) {
                 for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
-                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
-                    ObjectMapper mapper = new ObjectMapper();
-                    String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                    String prefix = "GAME///" + jsonString.getBytes().length + "///2///";;
-                    byte[] prefixByte = buildPrefixBytes(prefix);
-                    byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
-                    writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                    if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
+                        GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
+                        ObjectMapper mapper = new ObjectMapper();
+                        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
+                        String prefix = "GAME///" + jsonString.getBytes().length + "///2///";
+                        ;
+                        byte[] prefixByte = buildPrefixBytes(prefix);
+                        byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
+                        writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                    }
                 }
             }
         } catch (JsonProcessingException e) {
