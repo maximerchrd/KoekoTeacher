@@ -300,7 +300,11 @@ public class GameController extends Window implements Initializable {
         for (int j = 0; j < studentsToSendTo.size(); j++) {
             ArrayList<Student> singleStudentArray = new ArrayList<>();
             singleStudentArray.add(studentsToSendTo.get(j));
-            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionIds.get(j % questionIds.size()), singleStudentArray);
+            if (questionIds.size() > 0) {
+                NetworkCommunication.networkCommunicationSingleton.sendQuestionID(questionIds.get(j % questionIds.size()), singleStudentArray);
+            } else {
+                System.err.println("Trying to activate the questions for the team: no corresponding id found");
+            }
         }
     }
 

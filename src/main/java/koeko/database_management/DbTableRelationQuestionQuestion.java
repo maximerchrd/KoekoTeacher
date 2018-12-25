@@ -89,6 +89,12 @@ public class DbTableRelationQuestionQuestion {
                 questionIdsArray.add(questionId);
             }
         }
+
+        //if the array is empty, we assume the id was a question
+        if (questionIdsArray.size() == 0) {
+            questionIdsArray.add(testId);
+        }
+
         return questionIdsArray;
     }
 
