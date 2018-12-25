@@ -89,7 +89,7 @@ public class GameController extends Window implements Initializable {
     }
 
     public void addGame() {
-        Integer endScore = 30;
+        Integer endScore = 15;
         try {
             endScore = Integer.valueOf(endScoreTextView.getText());
         } catch (NumberFormatException e) {
@@ -130,12 +130,12 @@ public class GameController extends Window implements Initializable {
                 if (team.contentEquals("1")) {
                     StudentCellView studentCellView = new StudentCellView(student, 0);
                     Koeko.activeGames.get(i).getTeamOne().getStudentCellViews().add(studentCellView);
-                    GamesList.getItems().get(i).getTeamOne().getStudentCellViews().add(studentCellView);
+                    //GamesList.getItems().get(i).getTeamOne().getStudentCellViews().add(studentCellView);
                     TeamOneList.getItems().add(studentCellView);
                 } else if (team.contentEquals("2")) {
                     StudentCellView studentCellView = new StudentCellView(student, 0);
                     Koeko.activeGames.get(i).getTeamTwo().getStudentCellViews().add(studentCellView);
-                    GamesList.getItems().get(i).getTeamTwo().getStudentCellViews().add(studentCellView);
+                    //GamesList.getItems().get(i).getTeamTwo().getStudentCellViews().add(studentCellView);
                     TeamTwoList.getItems().add(studentCellView);
                 } else {
                     System.err.println("addPlayerFromQrCode: error, no corresponding team");
@@ -147,6 +147,7 @@ public class GameController extends Window implements Initializable {
 
         if (!gameExists) {
             Game newGame = new Game(30);
+            newGame.setGameId(gameId);
 
             if (team.contentEquals("1")) {
                 StudentCellView studentCellView = new StudentCellView(student, 0);
