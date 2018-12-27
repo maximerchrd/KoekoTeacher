@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import koeko.controllers.LeftBar.LeftBarController;
 import koeko.database_management.DbTableSubject;
 import koeko.view.Subject;
 
@@ -32,7 +33,7 @@ public class CreateSubjectController extends Window implements Initializable {
             DbTableSubject.addSubject(subjectName.getText());
             Subject newSubject = new Subject();
             newSubject.set_subjectName(subjectName.getText());
-            QuestionBrowsingController.rootSubjectSingleton.getChildren().add(new TreeItem<>(newSubject));
+            LeftBarController.rootSubjectSingleton.getChildren().add(new TreeItem<>(newSubject));
             Stage stage = (Stage) subjectName.getScene().getWindow();
             stage.close();
         } else {

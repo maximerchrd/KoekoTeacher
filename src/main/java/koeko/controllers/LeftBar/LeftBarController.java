@@ -32,6 +32,7 @@ import koeko.controllers.StudentsVsQuestions.ChooseTestController;
 import koeko.controllers.StudentsVsQuestions.CreateStudentController;
 import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
 import koeko.controllers.SubjectsBrowsing.EditSubjectController;
+import koeko.controllers.SubjectsBrowsing.SubjectTreeCell;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
@@ -63,7 +64,7 @@ public class LeftBarController extends Window implements Initializable {
     private final Double cellHeight = 25.0;
 
     @FXML private Label labelIP;
-    @FXML private TreeView<Subject> subjectsTree;
+    @FXML public TreeView<Subject> subjectsTree;
     @FXML public Accordion browseSubjectsAccordion;
 
     @FXML private ComboBox chooseClassComboBox;
@@ -103,101 +104,73 @@ public class LeftBarController extends Window implements Initializable {
         };
         new Thread(loadQuestions).start();
         subjectsTree.setRoot(rootSubjectSingleton);
-        subjectsTree.setCellFactory(new Callback<TreeView<Subject>, TreeCell<Subject>>() {
-            @Override
-            public TreeCell<Subject> call(TreeView<Subject> stringTreeView) {
-                TreeCell<Subject> treeCell = new TreeCell<Subject>() {
-                    @Override
-                    protected void updateItem(Subject item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!empty && item != null) {
-                            setText(item.get_subjectName());
-                        } else {
-                            setText(null);
-                            setGraphic(null);
-                        }
-                    }
-                };
+        subjectsTree.setCellFactory(stringTreeView -> {
+            SubjectTreeCell treeCell = new SubjectTreeCell();
 
-                treeCell.setOnDragDetected(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent mouseEvent) {
-                        draggedSubject = treeCell.getTreeItem().getValue();
-                        draggedItem = treeCell.getTreeItem();
-                        Dragboard db = subjectsTree.startDragAndDrop(TransferMode.ANY);
+            treeCell.setOnDragDetected(mouseEvent -> {
+                draggedSubject = treeCell.getTreeItem().getValue();
+                draggedItem = treeCell.getTreeItem();
+                Dragboard db = subjectsTree.startDragAndDrop(TransferMode.ANY);
 
-                        /* Put a string on a dragboard */
-                        ClipboardContent content = new ClipboardContent();
-                        content.putString(treeCell.getText());
-                        db.setContent(content);
+                /* Put a string on a dragboard */
+                ClipboardContent content = new ClipboardContent();
+                content.putString(treeCell.getText());
+                db.setContent(content);
 
-                        mouseEvent.consume();
-                    }
-                });
+                mouseEvent.consume();
+            });
 
-                treeCell.setOnDragOver(new EventHandler<DragEvent>() {
-                    public void handle(DragEvent event) {
-                        /* data is dragged over the target */
-                        /* accept it only if it is not dragged from the same node
-                         * and if it has a string data */
-                        if (event.getGestureSource() != treeCell &&
-                                event.getDragboard().hasString()) {
-                            //set the type of dropping: MOVE AND/OR COPY
-                            event.acceptTransferModes(TransferMode.MOVE);
-                        }
+            treeCell.setOnDragOver(event -> {
+                /* data is dragged over the target */
+                /* accept it only if it is not dragged from the same node
+                 * and if it has a string data */
+                if (event.getGestureSource() != treeCell &&
+                        event.getDragboard().hasString()) {
+                    //set the type of dropping: MOVE AND/OR COPY
+                    event.acceptTransferModes(TransferMode.MOVE);
+                }
 
-                        event.consume();
-                    }
-                });
+                event.consume();
+            });
 
-                treeCell.setOnDragEntered(new EventHandler<DragEvent>() {
-                    public void handle(DragEvent event) {
-                        /* the drag-and-drop gesture entered the target */
-                        /* show to the user that it is an actual gesture target */
-                        if (event.getGestureSource() != treeCell &&
-                                event.getDragboard().hasString()) {
-                            //treeCell.setStyle(String.format("-fx-background-color: green"));
-                            treeCell.setTextFill(Color.LIGHTGREEN);
-                        }
-                        event.consume();
-                    }
-                });
-                treeCell.setOnDragExited(new EventHandler<DragEvent>() {
-                    public void handle(DragEvent event) {
-                        /* mouse moved away, remove the graphical cues */
-                        //treeCell.setStyle(String.format("-fx-background-color: white"));
-                        treeCell.setTextFill(Color.BLACK);
-                        event.consume();
-                    }
-                });
+            treeCell.setOnDragEntered(event -> {
+                /* the drag-and-drop gesture entered the target */
+                /* show to the user that it is an actual gesture target */
+                if (event.getGestureSource() != treeCell &&
+                        event.getDragboard().hasString()) {
+                    //treeCell.setStyle(String.format("-fx-background-color: green"));
+                    treeCell.setTextFill(Color.LIGHTGREEN);
+                }
+                event.consume();
+            });
+            treeCell.setOnDragExited(event -> {
+                /* mouse moved away, remove the graphical cues */
+                //treeCell.setStyle(String.format("-fx-background-color: white"));
+                treeCell.setTextFill(Color.BLACK);
+                event.consume();
+            });
 
 
-                treeCell.setOnDragDropped(new EventHandler<DragEvent>() {
-                    public void handle(DragEvent event) {
-                        /* data dropped */
-                        if (!treeCell.getTreeItem().getValue().get_subjectName().contentEquals(draggedSubject.get_subjectName())) {
-                            DbTableRelationSubjectSubject.addRelationSubjectSubject(treeCell.getTreeItem().getValue().get_subjectName(),draggedItem.getValue().get_subjectName(),
-                                    draggedItem.getParent().getValue().get_subjectName());
-                            draggedItem.getParent().getChildren().remove(draggedItem);
-                            treeCell.getTreeItem().getChildren().add(draggedItem);
-                        } else {
-                            System.out.println("Trying to drag on self");
-                        }
-                        draggedSubject = null;
-                    }
-                });
+            treeCell.setOnDragDropped(event -> {
+                /* data dropped */
+                if (!treeCell.getTreeItem().getValue().get_subjectName().contentEquals(draggedSubject.get_subjectName())) {
+                    DbTableRelationSubjectSubject.addRelationSubjectSubject(treeCell.getTreeItem().getValue().get_subjectName(),draggedItem.getValue().get_subjectName(),
+                            draggedItem.getParent().getValue().get_subjectName());
+                    draggedItem.getParent().getChildren().remove(draggedItem);
+                    treeCell.getTreeItem().getChildren().add(draggedItem);
+                } else {
+                    System.out.println("Trying to drag on self");
+                }
+                draggedSubject = null;
+            });
 
 
-                return treeCell;
-            }
+            return treeCell;
         });
 
-        subjectsTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2) {
-                    //filter with subject
-                }
+        subjectsTree.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getClickCount() == 2) {
+                //filter with subject
             }
         });
 

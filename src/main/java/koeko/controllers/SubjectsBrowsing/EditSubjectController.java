@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import koeko.controllers.LeftBar.LeftBarController;
 import koeko.database_management.DbTableSubject;
 import koeko.view.Subject;
 
@@ -34,7 +35,7 @@ public class EditSubjectController extends Window implements Initializable {
         this.subjectTreeView = subjectTreeView;
         subjectName.setText(subject_Name);
         oldSubjectName = subject_Name;
-        for (TreeItem<Subject> treeItem : QuestionBrowsingController.rootSubjectSingleton.getChildren()) {
+        for (TreeItem<Subject> treeItem : LeftBarController.rootSubjectSingleton.getChildren()) {
             if (treeItem.getValue().get_subjectName().contentEquals(subject_Name)) {
                 subjectTreeItem = treeItem;
                 break;

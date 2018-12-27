@@ -30,26 +30,6 @@
                                     <children>
                                         <VBox>
                                             <children>
-                                                <Button mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject">
-                                                    <VBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </VBox.margin>
-                                                </Button>
-                                                <Button mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject">
-                                                    <VBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </VBox.margin>
-                                                </Button>
-                                                <Button mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject">
-                                                    <VBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </VBox.margin>
-                                                </Button>
-                                                <Button mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject">
-                                                    <VBox.margin>
-                                                        <Insets top="5.0" />
-                                                    </VBox.margin>
-                                                </Button>
                                                 <TreeView fx:id="subjectsTree" VBox.vgrow="ALWAYS">
                                                     <VBox.margin>
                                                         <Insets top="5.0" />

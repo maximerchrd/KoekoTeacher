@@ -216,7 +216,7 @@ public class DbTableRelationQuestionSubject {
     static public Vector<String> getQuestionsIdsForSubject(String subject) {
         Vector<String> questionIDs = new Vector<>();
         String query = "SELECT ID_GLOBAL FROM question_subject_relation " +
-                "WHERE ID_SUBJECT_GLOBAL = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = '" + subject + "');";
+                "WHERE ID_SUBJECT_GLOBAL = (SELECT ID_SUBJECT_GLOBAL FROM subjects WHERE SUBJECT = ?);";
         try (Connection c = Utilities.getDbConnection();
                 PreparedStatement stmt = c.prepareStatement(query)) {
             stmt.setString(1, subject);
