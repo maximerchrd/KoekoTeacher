@@ -1103,15 +1103,13 @@ public class QuestionSendingController extends Window implements Initializable {
     public void changeUI() {
         if (uiChoiceBox.getSelectionModel().getSelectedIndex() == 0) {
             questionSendingAccordion.setVisible(false);
-            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(false);
-            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(false);
-            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(false);
+            Koeko.leftBarController.browseSubjectsAccordion.setVisible(false);
+            Koeko.leftBarController.editEvalButton.setVisible(false);
             DbTableSettings.insertUIMode(0);
         } else {
             questionSendingAccordion.setVisible(true);
-            Koeko.questionBrowsingControllerSingleton.browseSubjectsAccordion.setVisible(true);
-            Koeko.studentsVsQuestionsTableControllerSingleton.editEvalButton.setVisible(true);
-            Koeko.studentsVsQuestionsTableControllerSingleton.tableAccordion.setVisible(true);
+            Koeko.leftBarController.browseSubjectsAccordion.setVisible(true);
+            Koeko.leftBarController.editEvalButton.setVisible(true);
             DbTableSettings.insertUIMode(1);
         }
     }

@@ -54,16 +54,13 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     private final Double cellHeight = 25.0;
     //private ArrayList<String> questions;
     //private ArrayList<Integer> questionsIDs;
-    private ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
+    public ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
     private Map<String,Integer> studentIdToStatusReceptionMap;
     private String columnIdentifiers = "";
     private MCQStats mcqStatsController;
 
-    @FXML private ComboBox chooseClassComboBox;
-    @FXML private VBox tableVBox;
-    @FXML private ComboBox chooseTestCombo;
-    @FXML public Button editEvalButton;
-    @FXML public Accordion tableAccordion;
+    //@FXML private ComboBox chooseClassComboBox;
+    @FXML public VBox tableVBox;
     @FXML public ScrollPane tablesScrollPane;
 
     //context menu for right click on row
@@ -451,150 +448,126 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     }
 
     //BUTTONS
-    public void editEvaluation() {
-        editEvaluation(0);
-    }
-    public void editEvaluation(Integer group) {
-        TablePosition tablePosition = tableViewArrayList.get(0).getFocusModel().getFocusedCell();
-        String globalID = Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(tablePosition.getColumn() - 3);
-        String studentID = Koeko.studentGroupsAndClass.get(group).getStudents().get(tablePosition.getRow()).getStudentID();
-        if (Long.valueOf(globalID) >= 0) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            EditEvaluationController controller = fxmlLoader.<EditEvaluationController>getController();
-            controller.initializeVariable(globalID, studentID);
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Edit Evaluation");
-            stage.setScene(new Scene(root1));
-            stage.show();
-        }
-    }
 
-    public void addNewStudentToClass() {
-        if (chooseClassComboBox.getSelectionModel().getSelectedIndex() >= 0) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateStudent.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            CreateStudentController controller = fxmlLoader.<CreateStudentController>getController();
-            controller.initClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Edit Evaluation");
-            stage.setScene(new Scene(root1));
-            stage.show();
-        } else {
-            Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("No class is currently selected", "No Class");
-        }
-    }
 
-    public void createClass() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        CreateClassController controller = fxmlLoader.<CreateClassController>getController();
-        controller.initializeParameters(chooseClassComboBox);
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Class");
-        stage.setScene(new Scene(root1));
-        stage.show();
-    }
-
-    public void saveStudentsToClass() {
-        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
-            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
-                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
-                DbTableRelationClassStudent.addClassStudentRelation(className, studentName);
-            }
-        }
-    }
-
-    public void removeStudentFromClass() {
-        removeStudentFromClass(0);
-    }
-    public void removeStudentFromClass(Integer group) {
-        if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
-            //adapt table height
-            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight * 1.1);
-
-            String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
-            if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
-                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
-                try {
-                    DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
-            tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
-            Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
-            if (Koeko.studentGroupsAndClass.get(group).getStudents().size() > studentIndex &&
-                    studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents().get(studentIndex).getName())) {
-                Koeko.studentGroupsAndClass.get(group).getStudents().remove(studentIndex);
-            }
-        }
-    }
-
-    public void loadGroups() {
-        ArrayList<String> groups = DbTableClasses.getGroupsFromClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-        groups.add(0,chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-        Integer nbGroups = Koeko.studentGroupsAndClass.size();
-        //Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
-
-        int groupsLoaded = 0;
-        if (tableVBox.getChildren().size() > 1) {
-            int vboxSize = tableVBox.getChildren().size();
-            tableVBox.getChildren().remove(1, vboxSize);
-            groupsLoaded = 1;
-        }
-
-        for (int i = 0; i < nbGroups; i++) {
-            if (i > 0) {
-                addGroup(groups.get(i), i);
-            }
-
-            //add studentGroupsAndClass for group
-            ArrayList<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
-            for (Student student : students) {
-                addUser(student, false, i);
-            }
-        }
-    }
-
-    public void loadClass() {
-        String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
-        Koeko.questionSendingControllerSingleton.activeClassChanged(activeClass);
-
-        chooseTestCombo.getItems().clear();
-        ArrayList<String> tests = DbTableRelationClassTest.getTestsForClass(activeClass);
-        chooseTestCombo.getItems().add("No test");
-        for (String test : tests) {
-            chooseTestCombo.getItems().add(test);
-        }
-
-        loadGroups();
-    }
-
-    private void addGroup(String group, Integer groupIndex) {
+//    public void addNewStudentToClass() {
+//        if (chooseClassComboBox.getSelectionModel().getSelectedIndex() >= 0) {
+//            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateStudent.fxml"));
+//            Parent root1 = null;
+//            try {
+//                root1 = fxmlLoader.load();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            CreateStudentController controller = fxmlLoader.<CreateStudentController>getController();
+//            controller.initClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+//            Stage stage = new Stage();
+//            stage.initModality(Modality.WINDOW_MODAL);
+//            stage.initStyle(StageStyle.DECORATED);
+//            stage.setTitle("Edit Evaluation");
+//            stage.setScene(new Scene(root1));
+//            stage.show();
+//        } else {
+//            Koeko.leftBarController.promptGenericPopUp("No class is currently selected", "No Class");
+//        }
+//    }
+//
+//    public void createClass() {
+//        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
+//        Parent root1 = null;
+//        try {
+//            root1 = fxmlLoader.load();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        CreateClassController controller = fxmlLoader.<CreateClassController>getController();
+//        controller.initializeParameters(chooseClassComboBox);
+//        Stage stage = new Stage();
+//        stage.initModality(Modality.WINDOW_MODAL);
+//        stage.initStyle(StageStyle.DECORATED);
+//        stage.setTitle("Create a New Class");
+//        stage.setScene(new Scene(root1));
+//        stage.show();
+//    }
+//
+//    public void saveStudentsToClass() {
+//        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+//            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+//                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+//                DbTableRelationClassStudent.addClassStudentRelation(className, studentName);
+//            }
+//        }
+//    }
+//
+//    public void removeStudentFromClass() {
+//        removeStudentFromClass(0);
+//    }
+//    public void removeStudentFromClass(Integer group) {
+//        if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
+//            //adapt table height
+//            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight * 1.1);
+//
+//            String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
+//            if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+//                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+//                try {
+//                    DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            int studentIndex = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
+//            tableViewArrayList.get(0).getItems().remove(tableViewArrayList.get(0).getSelectionModel().getSelectedItem());
+//            Koeko.studentGroupsAndClass.get(group).getActiveEvaluations().remove(studentIndex);
+//            if (Koeko.studentGroupsAndClass.get(group).getStudents().size() > studentIndex &&
+//                    studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents().get(studentIndex).getName())) {
+//                Koeko.studentGroupsAndClass.get(group).getStudents().remove(studentIndex);
+//            }
+//        }
+//    }
+//
+//    public void loadGroups() {
+//        ArrayList<String> groups = DbTableClasses.getGroupsFromClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+//        groups.add(0,chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+//        Integer nbGroups = Koeko.studentGroupsAndClass.size();
+//        //Integer nbGroupsToAdd = groups.size() - groupsAlreadyAdded;
+//
+//        int groupsLoaded = 0;
+//        if (tableVBox.getChildren().size() > 1) {
+//            int vboxSize = tableVBox.getChildren().size();
+//            tableVBox.getChildren().remove(1, vboxSize);
+//            groupsLoaded = 1;
+//        }
+//
+//        for (int i = 0; i < nbGroups; i++) {
+//            if (i > 0) {
+//                addGroup(groups.get(i), i);
+//            }
+//
+//            //add studentGroupsAndClass for group
+//            ArrayList<Student> students = DbTableClasses.getStudentsInClass(groups.get(i));
+//            for (Student student : students) {
+//                addUser(student, false, i);
+//            }
+//        }
+//    }
+//
+//    public void loadClass() {
+//        String activeClass = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+//        Koeko.questionSendingControllerSingleton.activeClassChanged(activeClass);
+//
+//        chooseTestCombo.getItems().clear();
+//        ArrayList<String> tests = DbTableRelationClassTest.getTestsForClass(activeClass);
+//        chooseTestCombo.getItems().add("No test");
+//        for (String test : tests) {
+//            chooseTestCombo.getItems().add(test);
+//        }
+//
+//        loadGroups();
+//    }
+//
+    public void addGroup(String group, Integer groupIndex) {
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
         //TableColumn groupName = new TableColumn<SingleStudentAnswersLine,String>(group);
         //studentsQuestionsTable.getColumns().add(groupName);
@@ -656,124 +629,124 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableVBox.getChildren().remove(1 + (groupIndex) * 2);
         tableVBox.getChildren().remove(1 + (groupIndex) * 2);
     }
-
-    public void launchChooseTest() {
-        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/ChooseTest.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            ChooseTestController controller = fxmlLoader.<ChooseTestController>getController();
-            controller.initializeParameters(chooseTestCombo, chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Assign a Certificative Test to the Class");
-            stage.setScene(new Scene(root1));
-            stage.show();
-        }
-    }
-
-    public void sendObjectiveEvaluationToStudents() {
-        String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
-        if (test != null && !test.contentEquals("No test")) {
-            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
-                for (int j = 3; j < tableViewArrayList.get(0).getColumns().size(); j++) {
-                    String objective = tableViewArrayList.get(0).getColumns().get(j).getText();
-                    String evaluation = tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
-                    NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
-                }
-            }
-        }
-    }
-
-    public void certificativeTestSelected() {
-
-        //remove questions or objectives columns if some are present
-        String firstQuestion = "";
-        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size() > 0 &&
-                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
-            firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
-
-            //remove questions if some are present in the ready list
-            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().clear();
-        }
-        if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
-            tableViewArrayList.get(0).getColumns().remove(3, tableViewArrayList.get(0).getColumns().size());
-        } else {
-            while (tableViewArrayList.get(0).getColumns().size() > 3) {
-                removeQuestion(0);
-            }
-        }
-
-        //load questions if the selected certificative test is "No test"
-        if (chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
-            for (QuestionGeneric questionGeneric : Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems()) {
-                addQuestion(questionGeneric.getQuestion(), questionGeneric.getGlobalID(), 0);
-            }
-        }
-
-        //BEGIN display objectives as questions in table
-        ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
-        for (int k = 0; k < objectives.size(); k++) {
-            TableColumn column = new TableColumn(objectives.get(k));
-            column.setPrefWidth(180);
-            column.setEditable(true);
-            column.setCellFactory(TextFieldTableCell.forTableColumn());
-            column.setOnEditCommit(
-                    new EventHandler<TableColumn.CellEditEvent<SingleStudentAnswersLine, String>>() {
-                        @Override
-                        public void handle(TableColumn.CellEditEvent<SingleStudentAnswersLine, String> t) {
-                            System.out.println(t.getRowValue().getStudent());
-                            System.out.println(t.getTableColumn().getText());
-                            String idObjective = DbTableLearningObjectives.getObjectiveIdFromName(t.getTableColumn().getText());
-                            DbTableIndividualQuestionForStudentResult.addIndividualObjectiveForStudentResult(idObjective,
-                                    t.getRowValue().getStudent(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
-                        }
-                    }
-            );
-            tableViewArrayList.get(0).setEditable(true);
-            tableViewArrayList.get(0).getColumns().add(column);
-            for (int i = 0; i < tableViewArrayList.get(0).getItems().size(); i++) {
-                tableViewArrayList.get(0).getItems().get(i).addAnswer();
-            }
-
-            final int objectiveIndex = k;
-            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
-                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
-                    // p.getValue() returns the instance for a particular TableView row
-                    return p.getValue().getAnswers().get(objectiveIndex);
-                }
-            });
-        }
-        //END display objectives as questions in table
-
-        //BEGIN fill table with results for objectives
-        if (!chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
-            ArrayList<Integer> objectivesIDs = DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
-
-            for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
-                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
-                for (int i = 0; i < objectivesIDs.size(); i++) {
-                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
-                            String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
-                    singleStudentAnswersLine.setAnswer(eval, i);
-                }
-            }
-        } else {
-            for (SingleStudentAnswersLine singleStudentAnswersLine : tableViewArrayList.get(0).getItems()) {
-                for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
-                    singleStudentAnswersLine.setAnswer("", i);
-                }
-            }
-        }
-        //END fill table with results for objectives
-    }
-
+//
+//    public void launchChooseTest() {
+//        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+//            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/ChooseTest.fxml"));
+//            Parent root1 = null;
+//            try {
+//                root1 = fxmlLoader.load();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            ChooseTestController controller = fxmlLoader.<ChooseTestController>getController();
+//            controller.initializeParameters(chooseTestCombo, chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
+//            Stage stage = new Stage();
+//            stage.initModality(Modality.WINDOW_MODAL);
+//            stage.initStyle(StageStyle.DECORATED);
+//            stage.setTitle("Assign a Certificative Test to the Class");
+//            stage.setScene(new Scene(root1));
+//            stage.show();
+//        }
+//    }
+//
+//    public void sendObjectiveEvaluationToStudents() {
+//        String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
+//        if (test != null && !test.contentEquals("No test")) {
+//            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
+//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+//                for (int j = 3; j < tableViewArrayList.get(0).getColumns().size(); j++) {
+//                    String objective = tableViewArrayList.get(0).getColumns().get(j).getText();
+//                    String evaluation = tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
+//                    NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
+//                }
+//            }
+//        }
+//    }
+//
+//    public void certificativeTestSelected() {
+//
+//        //remove questions or objectives columns if some are present
+//        String firstQuestion = "";
+//        if (Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().size() > 0 &&
+//                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0) != null) {
+//            firstQuestion = Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().get(0).getQuestion();
+//
+//            //remove questions if some are present in the ready list
+//            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().clear();
+//        }
+//        if (tableViewArrayList.get(0).getColumns().size() > 3 && !tableViewArrayList.get(0).getColumns().get(3).getText().contentEquals(firstQuestion)) {
+//            tableViewArrayList.get(0).getColumns().remove(3, tableViewArrayList.get(0).getColumns().size());
+//        } else {
+//            while (tableViewArrayList.get(0).getColumns().size() > 3) {
+//                removeQuestion(0);
+//            }
+//        }
+//
+//        //load questions if the selected certificative test is "No test"
+//        if (chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
+//            for (QuestionGeneric questionGeneric : Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems()) {
+//                addQuestion(questionGeneric.getQuestion(), questionGeneric.getGlobalID(), 0);
+//            }
+//        }
+//
+//        //BEGIN display objectives as questions in table
+//        ArrayList<String> objectives = DbTableRelationObjectiveTest.getObjectivesFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+//        for (int k = 0; k < objectives.size(); k++) {
+//            TableColumn column = new TableColumn(objectives.get(k));
+//            column.setPrefWidth(180);
+//            column.setEditable(true);
+//            column.setCellFactory(TextFieldTableCell.forTableColumn());
+//            column.setOnEditCommit(
+//                    new EventHandler<TableColumn.CellEditEvent<SingleStudentAnswersLine, String>>() {
+//                        @Override
+//                        public void handle(TableColumn.CellEditEvent<SingleStudentAnswersLine, String> t) {
+//                            System.out.println(t.getRowValue().getStudent());
+//                            System.out.println(t.getTableColumn().getText());
+//                            String idObjective = DbTableLearningObjectives.getObjectiveIdFromName(t.getTableColumn().getText());
+//                            DbTableIndividualQuestionForStudentResult.addIndividualObjectiveForStudentResult(idObjective,
+//                                    t.getRowValue().getStudent(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+//                        }
+//                    }
+//            );
+//            tableViewArrayList.get(0).setEditable(true);
+//            tableViewArrayList.get(0).getColumns().add(column);
+//            for (int i = 0; i < tableViewArrayList.get(0).getItems().size(); i++) {
+//                tableViewArrayList.get(0).getItems().get(i).addAnswer();
+//            }
+//
+//            final int objectiveIndex = k;
+//            column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<SingleStudentAnswersLine, String>, ObservableValue<String>>() {
+//                public ObservableValue<String> call(TableColumn.CellDataFeatures<SingleStudentAnswersLine, String> p) {
+//                    // p.getValue() returns the instance for a particular TableView row
+//                    return p.getValue().getAnswers().get(objectiveIndex);
+//                }
+//            });
+//        }
+//        //END display objectives as questions in table
+//
+//        //BEGIN fill table with results for objectives
+//        if (!chooseTestCombo.getSelectionModel().getSelectedItem().toString().contentEquals("No test")) {
+//            ArrayList<Integer> objectivesIDs = DbTableRelationObjectiveTest.getObjectivesIDsFromTestName(chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+//
+//            for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
+//                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
+//                for (int i = 0; i < objectivesIDs.size(); i++) {
+//                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
+//                            String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+//                    singleStudentAnswersLine.setAnswer(eval, i);
+//                }
+//            }
+//        } else {
+//            for (SingleStudentAnswersLine singleStudentAnswersLine : tableViewArrayList.get(0).getItems()) {
+//                for (int i = 0; i < singleStudentAnswersLine.getAnswers().size(); i++) {
+//                    singleStudentAnswersLine.setAnswer("", i);
+//                }
+//            }
+//        }
+//        //END fill table with results for objectives
+//    }
+//
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.studentsVsQuestionsTableControllerSingleton = this;
@@ -833,7 +806,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         Koeko.studentGroupsAndClass.add(mainClassroom);
         List<String> classes = DbTableClasses.getAllClasses();
         ObservableList<String> observableList = FXCollections.observableList(classes);
-        chooseClassComboBox.setItems(observableList);
+        //chooseClassComboBox.setItems(observableList);
 
         //setup contextmenu for right click on row
         MenuItem menuItem = new MenuItem("Mark as Connected");

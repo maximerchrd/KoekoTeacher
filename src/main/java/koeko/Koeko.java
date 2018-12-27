@@ -9,9 +9,8 @@ import javafx.stage.*;
 import koeko.Networking.NetworkCommunication;
 import koeko.controllers.Game.Game;
 import koeko.controllers.Game.GameController;
-import koeko.controllers.GenericPopUpController;
-import koeko.controllers.InstallAssistantController;
 import koeko.controllers.LearningTrackerController;
+import koeko.controllers.LeftBar.LeftBarController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
@@ -25,12 +24,11 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 
-import javax.swing.*;
-
 public class Koeko extends Application {
     static public QuestionSendingController questionSendingControllerSingleton = null;
     static public StudentsVsQuestionsTableController studentsVsQuestionsTableControllerSingleton = null;
     static public QuestionBrowsingController questionBrowsingControllerSingleton = null;
+    static public LeftBarController leftBarController = null;
     static public GameController gameControllerSingleton = null;
     static public ArrayList<Classroom> studentGroupsAndClass;
     static public Boolean recordLogs = false;

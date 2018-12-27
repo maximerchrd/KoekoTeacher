@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.LeftBar.LeftBarController">
+    <children>
+        <VBox prefWidth="260.0" spacing="15.0" style="-fx-background-color: #001a33;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label fx:id="labelIP" style="-fx-text-fill: white; -fx-font-family: Tahoma; -fx-font-size: 11pt;" text="Label IP">
+                    <VBox.margin>
+                        <Insets left="5.0" />
+                    </VBox.margin>
+                </Label>
+                <Button mnemonicParsing="false" onAction="#refreshIP" prefWidth="193.0" text="Refresh IP address">
+                    <VBox.margin>
+                        <Insets left="5.0" top="5.0" />
+                    </VBox.margin>
+                </Button>
+                <Accordion fx:id="browseSubjectsAccordion" prefWidth="205.0" visible="false">
+                    <panes>
+                        <TitledPane animated="false" text="Browse Subjects">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0">
+                                    <children>
+                                        <VBox>
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#deleteSubject" prefHeight="27.0" prefWidth="191.0" text="Delete the subject">
+                                                    <VBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </VBox.margin>
+                                                </Button>
+                                                <Button mnemonicParsing="false" onAction="#editSubject" prefHeight="27.0" prefWidth="191.0" text="Edit the subject">
+                                                    <VBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </VBox.margin>
+                                                </Button>
+                                                <Button mnemonicParsing="false" onAction="#filterQuestionsWithSubject" text="Filter questions with subject">
+                                                    <VBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </VBox.margin>
+                                                </Button>
+                                                <Button mnemonicParsing="false" onAction="#createSubject" prefHeight="27.0" prefWidth="191.0" text="Create a new subject">
+                                                    <VBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </VBox.margin>
+                                                </Button>
+                                                <TreeView fx:id="subjectsTree" VBox.vgrow="ALWAYS">
+                                                    <VBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </VBox.margin>
+                                                </TreeView>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="Class and Groups">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <ComboBox fx:id="chooseClassComboBox" layoutX="4.0" layoutY="4.0" onAction="#loadClass" prefHeight="27.0" prefWidth="193.0" promptText="Choose Class" />
+                                        <Button layoutX="4.0" layoutY="34.0" mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="Add student to Class" />
+                                        <Button layoutX="4.0" layoutY="64.0" mnemonicParsing="false" onAction="#createClass" prefHeight="27.0" prefWidth="193.0" text="Create a new class" />
+                                        <Button layoutX="4.0" layoutY="93.0" mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="Save students to class" />
+                                        <Button layoutX="4.0" layoutY="122.0" mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="193.0" text="Load groups" />
+                                        <Button layoutX="4.0" layoutY="151.0" mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="Remove from class" />
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="Certificative Test">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <ComboBox fx:id="chooseTestCombo" layoutX="12.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="176.0" promptText="Certificative Test" />
+                                        <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#sendObjectiveEvaluationToStudents" prefHeight="27.0" prefWidth="193.0" text="Send Eval. to Students" />
+                                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="193.0" text="Assign to Class" />
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
+                    </panes>
+                    <VBox.margin>
+                        <Insets left="5.0" top="20.0" />
+                    </VBox.margin>
+                </Accordion>
+
+                <Button fx:id="editEvalButton" layoutX="6.0" layoutY="14.0" mnemonicParsing="false" onAction="#editEvaluation" prefHeight="27.0" prefWidth="193.0" text="Edit evaluation" visible="false" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

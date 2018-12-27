@@ -7,7 +7,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="330.0" prefWidth="609.0" style="-fx-background-color: #001a33;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController">
    <children>
-      <ScrollPane fx:id="tablesScrollPane" style="-fx-background-color: #cccccc;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="205.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ScrollPane fx:id="tablesScrollPane" style="-fx-background-color: #cccccc;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" style="-fx-background-color: #cccccc;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="205.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
@@ -19,35 +19,5 @@
             <Insets />
          </opaqueInsets>
       </ScrollPane>
-      <Button fx:id="editEvalButton" layoutX="6.0" layoutY="14.0" mnemonicParsing="false" onAction="#editEvaluation" prefHeight="27.0" prefWidth="193.0" text="Edit evaluation" visible="false" />
-      <Accordion fx:id="tableAccordion" layoutX="2.0" layoutY="57.0">
-        <panes>
-          <TitledPane animated="false" text="Class and Groups">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox fx:id="chooseClassComboBox" layoutX="4.0" layoutY="4.0" onAction="#loadClass" prefHeight="27.0" prefWidth="193.0" promptText="Choose Class" />
-                        <Button layoutX="4.0" layoutY="34.0" mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="Add student to Class" />
-                        <Button layoutX="4.0" layoutY="64.0" mnemonicParsing="false" onAction="#createClass" prefHeight="27.0" prefWidth="193.0" text="Create a new class" />
-                        <Button layoutX="4.0" layoutY="93.0" mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="Save students to class" />
-                        <Button layoutX="4.0" layoutY="122.0" mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="193.0" text="Load groups" />
-                        <Button layoutX="4.0" layoutY="151.0" mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="Remove from class" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-          <TitledPane animated="false" text="Certificative Test">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox fx:id="chooseTestCombo" layoutX="12.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="176.0" promptText="Certificative Test" />
-                        <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#sendObjectiveEvaluationToStudents" prefHeight="27.0" prefWidth="193.0" text="Send Eval. to Students" />
-                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="193.0" text="Assign to Class" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-        </panes>
-      </Accordion>
    </children>
 </AnchorPane>

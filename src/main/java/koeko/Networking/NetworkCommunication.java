@@ -1045,14 +1045,14 @@ public class NetworkCommunication {
     }
 
     private void sendIpAddress() throws IOException {
-        if (Koeko.questionBrowsingControllerSingleton != null &&
-                Koeko.questionBrowsingControllerSingleton.ipAddresses != null &&
-                Koeko.questionBrowsingControllerSingleton.ipAddresses.size() > 0) {
-            for (int i = 0; i < Koeko.questionBrowsingControllerSingleton.ipAddresses.size(); i++) {
+        if (Koeko.leftBarController != null &&
+                Koeko.leftBarController.ipAddresses != null &&
+                Koeko.leftBarController.ipAddresses.size() > 0) {
+            for (int i = 0; i < Koeko.leftBarController.ipAddresses.size(); i++) {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
 
-                String stringAddress = Koeko.questionBrowsingControllerSingleton.ipAddresses.get(i);
+                String stringAddress = Koeko.leftBarController.ipAddresses.get(i);
                 String stringBroadcastAddress = stringAddress.substring(0, stringAddress.lastIndexOf(".") + 1);
                 stringBroadcastAddress = stringBroadcastAddress + "255";
                 InetAddress address = InetAddress.getByName(stringBroadcastAddress);

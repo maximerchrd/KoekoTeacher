@@ -107,12 +107,12 @@ public class SettingsController implements Initializable {
                         e.printStackTrace();
                     }
                     if (success) {
-                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                        Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
                     } else {
-                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization failed", "Synchronization");
+                        Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
                     }
                 } else {
-                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Choose a language before synchronizing", "Language");
+                    Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
                 }
             }
         });
@@ -136,12 +136,12 @@ public class SettingsController implements Initializable {
                         e.printStackTrace();
                     }
                     if (success) {
-                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                        Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
                     } else {
-                        Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Synchronization failed", "Synchronization");
+                        Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
                     }
                 } else {
-                    Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Choose a language before synchronizing", "Language");
+                    Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
                 }
             }
         });

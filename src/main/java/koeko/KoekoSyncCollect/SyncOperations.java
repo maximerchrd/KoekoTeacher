@@ -39,7 +39,7 @@ public class SyncOperations {
         // Before synchronisation, make sure the prof is known in the global database
         Professor professor = DbTableProfessor.getProfessor();
         if (professor == null) {
-            Koeko.questionBrowsingControllerSingleton.promptGenericPopUp("Enter your pseudo before synchronizing.", "Create teacher");
+            Koeko.leftBarController.promptGenericPopUp("Enter your pseudo before synchronizing.", "Create teacher");
         } else {
             CreateOrUpdateProfessor(professor);
 
