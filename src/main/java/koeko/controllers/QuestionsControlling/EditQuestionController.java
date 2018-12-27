@@ -193,7 +193,8 @@ public class EditQuestionController implements Initializable {
     }
 
     public void correctionModeChanged() {
-        if (correctionComboBox.getSelectionModel().getSelectedItem().toString().contains("Custom")) {
+        if (correctionComboBox.getSelectionModel().getSelectedItem() != null &&
+                correctionComboBox.getSelectionModel().getSelectedItem().toString().contains("Custom")) {
             customCorrection.setVisible(true);
         } else {
             customCorrection.setVisible(false);
@@ -277,7 +278,7 @@ public class EditQuestionController implements Initializable {
                 TextField textField = (TextField)  hBoxArrayList.get(i).getChildren().get(1);
                 String answerOption = textField.getText();
                 if (answerOption.length() > 0) {
-                    answerOptions.add(answerOption.replace("'","''"));
+                    answerOptions.add(answerOption);
                 }
             }
             new_questshortanswer.setANSWER(answerOptions);

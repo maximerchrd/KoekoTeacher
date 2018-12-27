@@ -105,9 +105,13 @@ public class DbTableIndividualQuestionForStudentResult {
 
             String correctionMode = DbTableQuestionMultipleChoice.getCorrectionMode(id_global);
             if (correctionMode.contentEquals("AllOrNothing") || correctionMode.contentEquals("")) {
-                quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
-                if (quantitative_evaluation < 100) {
-                    quantitative_evaluation = 0;
+                try {
+                    quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;
+                    if (quantitative_evaluation < 100) {
+                        quantitative_evaluation = 0;
+                    }
+                } catch (ArithmeticException e) {
+                    e.printStackTrace();
                 }
             } else if (correctionMode.contentEquals("PercentCorrectDecisions")) {
                 quantitative_evaluation = 100 * (number_rignt_checked_answers_from_student + number_right_unchecked_answers_from_student) / number_answers;

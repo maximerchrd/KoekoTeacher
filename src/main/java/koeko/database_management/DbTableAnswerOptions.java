@@ -25,7 +25,7 @@ public class DbTableAnswerOptions {
         }
     }
 
-    static public void addAnswerOption(String questionID, String option) throws Exception {
+    static public void addAnswerOption(String questionID, String option) {
         String sql = 	"INSERT OR IGNORE INTO answer_options (ID_ANSWEROPTION_GLOBAL,OPTION) " +
                 "VALUES (?,?);";
 
@@ -41,10 +41,12 @@ public class DbTableAnswerOptions {
             DbTableRelationQuestionAnserOption.addRelationQuestionAnserOption(questionID, option);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    static public void removeOptionsRelationsQuestion(String questionID) throws Exception {
+    static public void removeOptionsRelationsQuestion(String questionID) {
         Connection c = null;
         Statement stmt = null;
         stmt = null;

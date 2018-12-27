@@ -89,7 +89,7 @@ public class GameController extends Window implements Initializable {
     }
 
     public void addGame() {
-        Integer endScore = 15;
+        Integer endScore = 30;
         try {
             endScore = Integer.valueOf(endScoreTextView.getText());
         } catch (NumberFormatException e) {

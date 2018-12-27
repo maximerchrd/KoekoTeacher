@@ -28,6 +28,7 @@ public class QuestionShortAnswer {
 		IMAGE="none";
 		UID="";
 		ANSWERS = new ArrayList<>();
+		timerSeconds = -1;
 	}
 	public QuestionShortAnswer(String sUBJECT, String lEVEL, String qUESTION, String iMAGE) {
 		
@@ -37,6 +38,7 @@ public class QuestionShortAnswer {
 		IMAGE = iMAGE;
 		UID="";
 		ANSWERS = new ArrayList<>();
+		timerSeconds = -1;
 	}
 
 	public String computeShortHashCode() {

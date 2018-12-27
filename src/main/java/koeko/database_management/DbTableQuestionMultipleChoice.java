@@ -54,7 +54,13 @@ public class DbTableQuestionMultipleChoice {
      * @throws Exception
      */
     static public String addMultipleChoiceQuestion(QuestionMultipleChoice quest) throws Exception {
-        String globalID = DbTableQuestionGeneric.addGenericQuestion(0);
+
+        String globalID = "0";
+        if (quest.getID().length() < 14) {
+            globalID = DbTableQuestionGeneric.addGenericQuestion(0);
+        } else {
+            globalID = quest.getID();
+        }
         String sql = "INSERT INTO multiple_choice_questions (LEVEL,QUESTION,OPTION0," +
                 "OPTION1,OPTION2,OPTION3,OPTION4,OPTION5,OPTION6,OPTION7,OPTION8,OPTION9," +
                 "NB_CORRECT_ANS,IMAGE_PATH,ID_GLOBAL,MODIF_DATE, HASH_CODE, TIMER_SECONDS) " +
@@ -190,33 +196,42 @@ public class DbTableQuestionMultipleChoice {
      * @throws Exception
      */
     static public void updateMultipleChoiceQuestion(QuestionMultipleChoice quest) {
-        String sql = "UPDATE multiple_choice_questions SET QUESTION=?, OPTION0=?, OPTION1=?, OPTION2=?, OPTION3=?," +
-                "OPTION4=?, OPTION5=?, OPTION6=?, OPTION7=?, OPTION8=?, OPTION9=?, NB_CORRECT_ANS=?," +
-                "IMAGE_PATH=?, MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
-        try (Connection c = Utilities.getDbConnection();
-                PreparedStatement stmt = c.prepareStatement(sql)) {
-            stmt.setString(1, quest.getQUESTION());
-            stmt.setString(2, quest.getOPT0());
-            stmt.setString(3, quest.getOPT1());
-            stmt.setString(4, quest.getOPT2());
-            stmt.setString(5, quest.getOPT3());
-            stmt.setString(6, quest.getOPT4());
-            stmt.setString(7, quest.getOPT5());
-            stmt.setString(8, quest.getOPT6());
-            stmt.setString(9, quest.getOPT7());
-            stmt.setString(10, quest.getOPT8());
-            stmt.setString(11, quest.getOPT9());
-            stmt.setInt(12, quest.getNB_CORRECT_ANS());
-            stmt.setString(13, quest.getIMAGE());
-            stmt.setTimestamp(14, quest.getQCM_UPD_TMS());
-            stmt.setString(15, quest.computeShortHashCode());
-            stmt.setInt(16, quest.getTimerSeconds());
-            stmt.setString(17, quest.getID());
-            stmt.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(quest.getID()).getQUESTION().length() > 0) {
+            String sql = "UPDATE multiple_choice_questions SET QUESTION=?, OPTION0=?, OPTION1=?, OPTION2=?, OPTION3=?," +
+                    "OPTION4=?, OPTION5=?, OPTION6=?, OPTION7=?, OPTION8=?, OPTION9=?, NB_CORRECT_ANS=?," +
+                    "IMAGE_PATH=?, MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
+            try (Connection c = Utilities.getDbConnection();
+                 PreparedStatement stmt = c.prepareStatement(sql)) {
+                stmt.setString(1, quest.getQUESTION());
+                stmt.setString(2, quest.getOPT0());
+                stmt.setString(3, quest.getOPT1());
+                stmt.setString(4, quest.getOPT2());
+                stmt.setString(5, quest.getOPT3());
+                stmt.setString(6, quest.getOPT4());
+                stmt.setString(7, quest.getOPT5());
+                stmt.setString(8, quest.getOPT6());
+                stmt.setString(9, quest.getOPT7());
+                stmt.setString(10, quest.getOPT8());
+                stmt.setString(11, quest.getOPT9());
+                stmt.setInt(12, quest.getNB_CORRECT_ANS());
+                stmt.setString(13, quest.getIMAGE());
+                stmt.setTimestamp(14, quest.getQCM_UPD_TMS());
+                stmt.setString(15, quest.computeShortHashCode());
+                stmt.setInt(16, quest.getTimerSeconds());
+                stmt.setString(17, quest.getID());
+                stmt.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                DbTableQuestionMultipleChoice.addMultipleChoiceQuestion(quest);
+                DbTableQuestionShortAnswer.removeQuestionWithId(quest.getID());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -276,7 +291,7 @@ public class DbTableQuestionMultipleChoice {
         return "";
     }
 
-    static public String getLastIDGlobal() throws Exception {
+    static public String getLastIDGlobal() {
         String last_id_global = "0";
         String sql = "SELECT  ID_GLOBAL FROM multiple_choice_questions WHERE ID_QUESTION = (SELECT MAX(ID_QUESTION) FROM multiple_choice_questions);";
         try (Connection c = Utilities.getDbConnection();

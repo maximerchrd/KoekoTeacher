@@ -40,7 +40,9 @@ public class DbTableQuestionShortAnswer {
                 "QUESTION,AUTOMATIC_CORRECTION,IMAGE_PATH,IDENTIFIER,MODIF_DATE, TIMER_SECONDS, HASH_CODE) " +
                 "VALUES (?,?,?,?,?,?,?,?,?);";
         try {
-            if (quest.getUID().length() < 15) {
+            if (quest.getID().length() >= 14) {
+                idGlobal = quest.getID();
+            } else if (quest.getUID().length() < 15) {
                 idGlobal = DbTableQuestionGeneric.addGenericQuestion(1);
             } else {
                 DbTableQuestionGeneric.addGenericQuestion(1, quest.getUID());
@@ -74,21 +76,35 @@ public class DbTableQuestionShortAnswer {
     }
 
     static public void updateShortAnswerQuestion(QuestionShortAnswer quest) {
-        String sql = "UPDATE short_answer_questions SET QUESTION=?, IMAGE_PATH=?, " +
-                "MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
-        try (Connection c = Utilities.getDbConnection();
-                PreparedStatement stmt = c.prepareStatement(sql)) {
-            stmt.setString(1, quest.getQUESTION());
-            stmt.setString(2, quest.getIMAGE());
-            stmt.setString(3, Utilities.TimestampForNowAsString());
-            stmt.setString(4, quest.computeShortHashCode());
-            stmt.setInt(5, quest.getTimerSeconds());
-            stmt.setString(6, quest.getID());
-            stmt.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(quest.getID()).getQUESTION().length() > 0) {
+            String sql = "UPDATE short_answer_questions SET QUESTION=?, IMAGE_PATH=?, " +
+                    "MODIF_DATE=?, HASH_CODE=?, TIMER_SECONDS=? WHERE ID_GLOBAL=?";
+            try (Connection c = Utilities.getDbConnection();
+                 PreparedStatement stmt = c.prepareStatement(sql)) {
+                stmt.setString(1, quest.getQUESTION());
+                stmt.setString(2, quest.getIMAGE());
+                stmt.setString(3, Utilities.TimestampForNowAsString());
+                stmt.setString(4, quest.computeShortHashCode());
+                stmt.setInt(5, quest.getTimerSeconds());
+                stmt.setString(6, quest.getID());
+                stmt.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            DbTableAnswerOptions.removeOptionsRelationsQuestion(quest.getID());
+            for (String answeroption : quest.getANSWER()) {
+                DbTableAnswerOptions.addAnswerOption(quest.getID(), answeroption);
+            }
+        } else {
+            DbTableQuestionShortAnswer.addShortAnswerQuestion(quest);
+            DbTableAnswerOptions.removeOptionsRelationsQuestion(quest.getID());
+            for (String answeroption : quest.getANSWER()) {
+                DbTableAnswerOptions.addAnswerOption(quest.getID(), answeroption);
+            }
+            DbTableQuestionMultipleChoice.removeMultipleChoiceQuestionWithID(quest.getID());
         }
     }
 
@@ -348,5 +364,11 @@ public class DbTableQuestionShortAnswer {
             System.out.println(e.getMessage());
         }
         return questionView;
+    }
+
+    public static void removeQuestionWithId(String id) {
+        String sql = "DELETE FROM short_answer_questions WHERE ID_GLOBAL = ?;";
+        DbUtils.updateWithOneParam(sql, id);
+        DbTableAnswerOptions.removeOptionsRelationsQuestion(id);
     }
 }

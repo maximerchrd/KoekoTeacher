@@ -58,6 +58,7 @@ public class QuestionMultipleChoice {
 		answers = new Vector<>();
 		subjects = new Vector<>();
 		objectives = new Vector<>();
+		timerSeconds = -1;
 	}
 	public QuestionMultipleChoice(String lEVEL, String qUESTION, String oPT0, String oPT1, String oPT2, String oPT3, String oPT4,
 								  String oPT5, String oPT6, String oPT7, String oPT8, String oPT9, String iMAGE) {
@@ -92,6 +93,7 @@ public class QuestionMultipleChoice {
 		OPTIONSNUMBER = i;
 		subjects = new Vector<>();
 		objectives = new Vector<>();
+		timerSeconds = -1;
 	}
 	public String getID()
 	{
