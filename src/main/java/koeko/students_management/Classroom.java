@@ -12,6 +12,9 @@ import java.util.Vector;
  * Created by maximerichard on 28/03/17.
  */
 public class Classroom {
+    private String className = "";
+    private String classYear = "";
+    private String classLevel = "";
     private ArrayList<Student> students = null;
     private ArrayList<String> students_addresses = null;
     private ArrayList<QuestionMultipleChoice> current_set_quest_mult_choice = null;
@@ -21,7 +24,6 @@ public class Classroom {
     private ArrayList<ArrayList<Double>> activeEvaluations;
     private ArrayList<Double> averageEvaluations;
     private Integer tableIndex = -1;
-    private String className = "";
     private Integer nbAndroidDevices = 0;
     private ArrayList<String> IDsToStoreOnDevices;
     private HashMap<String, Vector<String>> ongoingQuestionsForStudent;
@@ -79,6 +81,12 @@ public class Classroom {
     public HashMap<String, Vector<String>> getOngoingQuestionsForStudent() {
         return ongoingQuestionsForStudent;
     }
+    public String getClassYear() {
+        return classYear;
+    }
+    public String getClassLevel() {
+        return classLevel;
+    }
 
 
     //setters
@@ -109,7 +117,12 @@ public class Classroom {
     public void setOngoingQuestionsForStudent(HashMap<String, Vector<String>> ongoingQuestionsForStudent) {
         this.ongoingQuestionsForStudent = ongoingQuestionsForStudent;
     }
-
+    public void setClassYear(String classYear) {
+        this.classYear = classYear;
+    }
+    public void setClassLevel(String classLevel) {
+        this.classLevel = classLevel;
+    }
 
 
     //other get methods

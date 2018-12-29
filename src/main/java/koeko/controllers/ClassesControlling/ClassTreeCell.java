@@ -15,15 +15,18 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.CreateClassController;
+import koeko.controllers.EditGroupController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
 import koeko.controllers.SubjectsBrowsing.EditSubjectController;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
+import koeko.students_management.Student;
 import koeko.view.Subject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class ClassTreeCell extends TreeCell<Classroom> {
@@ -48,7 +51,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
                         new Tooltip("Edit class / group")
                 );
                 buttonEdit.setOnAction((event) -> {
-                    editItem(item);
+                    editItem(this);
                 });
 
                 ImageView deleteImage = new ImageView(new Image("/drawable/deleteImage.png", buttonImageSize, buttonImageSize, true, true));
@@ -98,8 +101,22 @@ public class ClassTreeCell extends TreeCell<Classroom> {
         }
     }
 
-    private void editItem(Classroom item) {
-
+    private void editItem(ClassTreeCell treeItem) {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditClass.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        EditClassController controller = fxmlLoader.<EditClassController>getController();
+        controller.initializeParameters(treeItem);
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Edit Class");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 
     private void deleteItem(Classroom classroom, ClassTreeCell treeCell) {

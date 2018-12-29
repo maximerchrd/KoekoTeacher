@@ -2,11 +2,9 @@ package koeko.database_management;
 
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
+import koeko.view.Utilities;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -87,6 +85,25 @@ public class DbTableClasses {
         DbTableRelationClassClass.updateClassGroupRelation(newGroupName, oldGroupName);
         DbTableRelationClassQuestion.updateGroupQuestionRelation(newGroupName, oldGroupName);
     }
+    static public void updateClass(String newGroupName, String oldGroupName, String date, String level) {
+        String sql = "UPDATE classes SET NAME = ?, LEVEL = ?, YEAR = ? WHERE NAME = ?";
+
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, newGroupName);
+            stmt.setString(2, level);
+            stmt.setString(3, date);
+            stmt.setString(4, oldGroupName);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        DbTableRelationClassClass.updateClassGroupRelation(newGroupName, oldGroupName);
+        DbTableRelationClassQuestion.updateGroupQuestionRelation(newGroupName, oldGroupName);
+    }
     static public ArrayList<String> getGroupsFromClass(String className) {
         ArrayList<String> groups = new ArrayList<>();
         Connection c = null;
@@ -110,6 +127,28 @@ public class DbTableClasses {
         }
         return groups;
     }
+
+    static public Classroom getClassroomFromName(String name) {
+        Classroom classroom = new Classroom();
+        String sql = "SELECT YEAR, LEVEL FROM classes WHERE NAME = ?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                classroom.setClassName(name);
+                classroom.setClassYear(rs.getString("YEAR"));
+                classroom.setClassLevel(rs.getString("LEVEL"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return classroom;
+    }
+
     static public ArrayList<Classroom> getClassroomGroupsFromClass(String className) {
         ArrayList<Classroom> groups = new ArrayList<>();
         Connection c = null;
