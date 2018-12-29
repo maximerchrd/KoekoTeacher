@@ -1,4 +1,4 @@
-package koeko.controllers.SubjectsBrowsing;
+package koeko.controllers.ClassesControlling;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,22 +14,26 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
+import koeko.controllers.CreateClassController;
+import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
+import koeko.controllers.SubjectsBrowsing.EditSubjectController;
 import koeko.database_management.DbTableQuestionGeneric;
 import koeko.database_management.DbTableRelationQuestionSubject;
 import koeko.database_management.DbTableRelationSubjectSubject;
 import koeko.database_management.DbTableSubject;
 import koeko.questions_management.QuestionGeneric;
+import koeko.students_management.Classroom;
 import koeko.view.Subject;
 
 import java.io.IOException;
 import java.util.Vector;
 
-public class SubjectTreeCell extends TreeCell<Subject> {
+public class ClassTreeCell extends TreeCell<Classroom> {
     private double imageSize = 60;
     private double buttonSize = 30;
 
     @Override
-    protected void updateItem(Subject item, boolean empty) {
+    protected void updateItem(Classroom item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty && item != null) {
             HBox hbox = new HBox(6);
@@ -70,7 +74,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
                     new Tooltip("Filter questions according to subject")
             );
             buttonAddSubject.setOnAction((event) -> {
-                filterQuestionsWithSubject(item);
+
             });
 
             ImageView linkImage = new ImageView(new Image("/drawable/linkImage.png", buttonImageSize, buttonImageSize, true, true));
@@ -80,14 +84,14 @@ public class SubjectTreeCell extends TreeCell<Subject> {
                     new Tooltip("Add child subject")
             );
             buttonCreateSubject.setOnAction((event) -> {
-                createSubject();
+                createClass(this);
             });
 
             buttonsBox2.getChildren().addAll(buttonAddSubject, buttonCreateSubject);
 
             ImageView image = new ImageView();
 
-            setText(item.get_subjectName());
+            setText(item.getClassName());
             hbox.getChildren().addAll(buttonsBox, buttonsBox2, image);
             setGraphic(hbox);
         } else {
@@ -96,65 +100,28 @@ public class SubjectTreeCell extends TreeCell<Subject> {
         }
     }
 
-    private void editItem(Subject item) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditSubject.fxml"));
+    private void editItem(Classroom item) {
+
+    }
+
+    private void deleteItem(Classroom classroom, ClassTreeCell treeCell) {
+
+    }
+
+    public void createClass(ClassTreeCell classroomClassTreeCell) {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
         Parent root1 = null;
         try {
             root1 = fxmlLoader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        EditSubjectController controller = fxmlLoader.getController();
-        controller.initializeSubject(item.get_subjectName(), Koeko.leftBarController.subjectsTree);
+        CreateClassController controller = fxmlLoader.<CreateClassController>getController();
+        controller.initializeParameters(classroomClassTreeCell);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Edit the Subject");
-        stage.setScene(new Scene(root1));
-        stage.show();
-    }
-
-    private void deleteItem(Subject subject, SubjectTreeCell treeCell) {
-        if (treeCell.getTreeItem().getChildren().size() == 0) {
-            DbTableRelationSubjectSubject.deleteRelationWhereSubjectIsChild(subject.get_subjectName());
-            DbTableRelationQuestionSubject.removeRelationWithSubject(subject.get_subjectName());
-            DbTableSubject.deleteSubject(subject.get_subjectName());
-            this.getTreeItem().getParent().getChildren().remove(this.getTreeItem());
-        } else {
-            final Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(Koeko.leftBarController);
-            VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().add(new Text("Sorry, it is not possible to delete a subject with sub-subject(s)."));
-            Scene dialogScene = new Scene(dialogVbox, 400, 40);
-            dialog.setScene(dialogScene);
-            dialog.show();
-        }
-    }
-
-    public void filterQuestionsWithSubject(Subject subject) {
-        Vector<String> questionIds;
-        if (subject.get_subjectName().contentEquals("All subjects")) {
-            questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
-        } else {
-            questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());
-        }
-        Koeko.questionSendingControllerSingleton.populateTree(questionIds);
-    }
-
-    public void createSubject() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Subject");
+        stage.setTitle("Create a New Class");
         stage.setScene(new Scene(root1));
         stage.show();
     }

@@ -71,6 +71,9 @@ public class LeftBarController extends Window implements Initializable {
     @FXML private ComboBox chooseTestCombo;
     @FXML public Button editEvalButton;
 
+    @FXML private TreeView<Classroom> classesTree;
+    public TreeItem<Classroom> rootClassSingleton;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.leftBarController = this;
         ipAddresses = new ArrayList<>();
@@ -95,14 +98,14 @@ public class LeftBarController extends Window implements Initializable {
         rootSubjectSingleton = new TreeItem<>(subject);
         rootSubjectSingleton.setExpanded(true);
         subjectsTree.setShowRoot(true);
-        Task<Void> loadQuestions = new Task<Void>() {
+        Task<Void> loadSubjects = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 populateSubjectTree(rootSubjectSingleton);
                 return null;
             }
         };
-        new Thread(loadQuestions).start();
+        new Thread(loadSubjects).start();
         subjectsTree.setRoot(rootSubjectSingleton);
         subjectsTree.setCellFactory(stringTreeView -> {
             SubjectTreeCell treeCell = new SubjectTreeCell();
@@ -174,6 +177,7 @@ public class LeftBarController extends Window implements Initializable {
             }
         });
 
+        ClassesTreeTasks.populateClassesTree(classesTree);
     }
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
@@ -430,24 +434,6 @@ public class LeftBarController extends Window implements Initializable {
         } else {
             promptGenericPopUp("No class is currently selected", "No Class");
         }
-    }
-
-    public void createClass() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        CreateClassController controller = fxmlLoader.<CreateClassController>getController();
-        controller.initializeParameters(chooseClassComboBox);
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Class");
-        stage.setScene(new Scene(root1));
-        stage.show();
     }
 
     public void saveStudentsToClass() {

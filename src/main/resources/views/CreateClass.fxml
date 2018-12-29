@@ -28,7 +28,7 @@
             </HBox>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label text="Level of the class:">
+                  <Label fx:id="classLevelLabel" text="Level of the class:">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>
@@ -42,7 +42,7 @@
             </HBox>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label text="Year of the class:">
+                  <Label fx:id="classYearLabel" text="Year of the class:">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>

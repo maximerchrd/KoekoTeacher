@@ -1,5 +1,6 @@
 package koeko.database_management;
 
+import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 
 import java.sql.Connection;
@@ -109,6 +110,31 @@ public class DbTableClasses {
         }
         return groups;
     }
+    static public ArrayList<Classroom> getClassroomGroupsFromClass(String className) {
+        ArrayList<Classroom> groups = new ArrayList<>();
+        Connection c = null;
+        Statement stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT CLASS_NAME2 FROM class_class_relation WHERE CLASS_NAME1='" + className + "';";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                Classroom classroom = new Classroom();
+                classroom.setClassName(rs.getString("CLASS_NAME2"));
+                groups.add(classroom);
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        return groups;
+    }
     static public List<String> getAllClasses() {
         List<String> classes = new ArrayList<>();
         Connection c = null;
@@ -133,6 +159,35 @@ public class DbTableClasses {
         }
         return classes;
     }
+
+    static public ArrayList<Classroom> getAllClassrooms() {
+        ArrayList<Classroom> classes = new ArrayList<>();
+        Connection c = null;
+        Statement stmt = null;
+        stmt = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
+            c.setAutoCommit(false);
+            stmt = c.createStatement();
+            String query = "SELECT NAME FROM classes WHERE TYPE=0;";
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                Classroom classroom = new Classroom();
+                classroom.setClassName(rs.getString("NAME"));
+
+                classes.add(classroom);
+            }
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        return classes;
+    }
+
     static public ArrayList<Student> getStudentsInClass(String className) {
         ArrayList<Student> classes = new ArrayList<>();
         Connection c = null;
