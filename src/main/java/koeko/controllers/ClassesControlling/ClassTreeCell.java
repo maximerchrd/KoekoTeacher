@@ -15,12 +15,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.CreateClassController;
+import koeko.controllers.QuestionSendingController;
 import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
 import koeko.controllers.SubjectsBrowsing.EditSubjectController;
-import koeko.database_management.DbTableQuestionGeneric;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableRelationSubjectSubject;
-import koeko.database_management.DbTableSubject;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
 import koeko.view.Subject;
@@ -47,7 +45,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
                 Button buttonEdit = new Button();
                 buttonEdit.setGraphic(editImage);
                 buttonEdit.setTooltip(
-                        new Tooltip("Edit subject")
+                        new Tooltip("Edit class / group")
                 );
                 buttonEdit.setOnAction((event) -> {
                     editItem(item);
@@ -57,7 +55,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
                 Button buttonDelete = new Button();
                 buttonDelete.setGraphic(deleteImage);
                 buttonDelete.setTooltip(
-                        new Tooltip("Delete subject")
+                        new Tooltip("Delete class / group")
                 );
                 buttonDelete.setOnAction((event) -> {
                     deleteItem(item, this);
@@ -81,7 +79,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
             Button buttonCreateSubject = new Button();
             buttonCreateSubject.setGraphic(linkImage);
             buttonCreateSubject.setTooltip(
-                    new Tooltip("Add child subject")
+                    new Tooltip("Add class / group")
             );
             buttonCreateSubject.setOnAction((event) -> {
                 createClass(this);
@@ -105,7 +103,12 @@ public class ClassTreeCell extends TreeCell<Classroom> {
     }
 
     private void deleteItem(Classroom classroom, ClassTreeCell treeCell) {
-
+        if (treeCell.getTreeItem().getChildren().size() == 0) {
+            DbTableClasses.deleteGroup(classroom.getClassName());
+            treeCell.getTreeItem().getParent().getChildren().remove(treeCell.getTreeItem());
+        } else {
+            Koeko.leftBarController.promptGenericPopUp("You can't delete a class with sub-groups.", "Illegal operation");
+        }
     }
 
     public void createClass(ClassTreeCell classroomClassTreeCell) {
