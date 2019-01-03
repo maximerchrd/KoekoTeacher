@@ -78,6 +78,21 @@ public class DbUtils {
         }
     }
 
+    static public void updateWithFourParam(String sql, String param1, String param2, String param3, String param4) {
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1,param1);
+            pstmt.setString(2,param2);
+            pstmt.setString(3,param3);
+            pstmt.setString(4,param4);
+            pstmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     static public void updateWithFiveParam(String sql, String param1, String param2, String param3, String param4, String param5) {
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement pstmt = c.prepareStatement(sql)) {

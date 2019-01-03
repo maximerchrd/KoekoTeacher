@@ -35,17 +35,14 @@ public class DbTableHomework {
     static public void insertHomework(Homework homework) {
         String sql = "INSERT OR REPLACE INTO " + KEY_TABLE_HOMEWORK + " (" + KEY_NAME + "," +
                 KEY_IDCODE + "," + KEY_DUEDATE + ") VALUES(?,?,?)";
-        try (Connection c = Utilities.getDbConnection();
-             PreparedStatement stmt = c.prepareStatement(sql)) {
-            stmt.setString(1, homework.getName());
-            stmt.setString(2, homework.getIdCode());
-            stmt.setString(3, homework.getDueDate().toString());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        DbUtils.updateWithThreeParam(sql, homework.getName(), homework.getIdCode(), homework.getDueDate().toString());
+    }
+
+    static public void updateHomework(Homework homework, String oldName) {
+        String sql = "UPDATE " + KEY_TABLE_HOMEWORK + " SET " + KEY_NAME + "=?, " + KEY_IDCODE + "=?, " + KEY_DUEDATE
+                + "=? WHERE " + KEY_NAME + "=?";
+        DbUtils.updateWithFourParam(sql, homework.getName(), homework.getIdCode(), homework.getDueDate().toString(),
+                oldName);
     }
 
     static public Boolean checkIfNameAlreadyExists(String homeworkName) {
@@ -113,5 +110,10 @@ public class DbTableHomework {
         }
         homeworks.addAll(oldHomeworks);
         return homeworks;
+    }
+
+    static public void deleteHomework(String homeworkName) {
+        String sql = "DELETE FROM " + KEY_TABLE_HOMEWORK + " WHERE " + KEY_NAME + " = ?";
+        DbUtils.updateWithOneParam(sql, homeworkName);
     }
 }
