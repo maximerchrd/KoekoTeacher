@@ -61,6 +61,7 @@ public class DBManager {
 		DBTableSyncOp.createTableSyncOp(c, stmt);
 		DbTableLogs.createTableClasses(c, stmt);
 		DbTableSubnetResult.createTableSubnetResults();
+		DbTableHomework.createTableHomeworks();
 		try {
 			stmt.close();
 			c.close();

@@ -1,4 +1,4 @@
-package koeko.controllers.LeftBar;
+package koeko.controllers.LeftBar.ClassesControlling;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
@@ -8,12 +8,10 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import koeko.Koeko;
-import koeko.controllers.ClassesControlling.ClassTreeCell;
-import koeko.controllers.SubjectsBrowsing.SubjectTreeCell;
+import koeko.controllers.LeftBar.ClassesControlling.ClassTreeCell;
 import koeko.database_management.DbTableClasses;
 import koeko.database_management.DbTableRelationSubjectSubject;
 import koeko.students_management.Classroom;
-import koeko.view.Subject;
 
 import java.util.ArrayList;
 

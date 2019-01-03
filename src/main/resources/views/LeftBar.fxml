@@ -70,6 +70,23 @@
                                 </AnchorPane>
                             </content>
                         </TitledPane>
+                  <TitledPane animated="false" text="Manage Homeworks">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                           <children>
+                              <VBox spacing="15.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#createHomework" prefHeight="27.0" prefWidth="193.0" text="Create Homework" />
+                                    <ListView fx:id="homeworksList" />
+                                 </children>
+                                 <padding>
+                                    <Insets top="15.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </TitledPane>
                     </panes>
                     <VBox.margin>
                         <Insets left="5.0" top="20.0" />

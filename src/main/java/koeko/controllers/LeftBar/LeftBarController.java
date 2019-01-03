@@ -7,12 +7,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
@@ -25,9 +22,11 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
-import koeko.controllers.CreateClassController;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.GenericPopUpController;
+import koeko.controllers.LeftBar.ClassesControlling.ClassesTreeTasks;
+import koeko.controllers.LeftBar.HomeworkControlling.Homework;
+import koeko.controllers.LeftBar.HomeworkControlling.HomeworkListTasks;
 import koeko.controllers.StudentsVsQuestions.ChooseTestController;
 import koeko.controllers.StudentsVsQuestions.CreateStudentController;
 import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
@@ -73,6 +72,8 @@ public class LeftBarController extends Window implements Initializable {
 
     @FXML private TreeView<Classroom> classesTree;
     public TreeItem<Classroom> rootClassSingleton;
+
+    @FXML public ListView<Homework> homeworksList;
 
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.leftBarController = this;
@@ -178,6 +179,8 @@ public class LeftBarController extends Window implements Initializable {
         });
 
         ClassesTreeTasks.populateClassesTree(classesTree);
+
+        HomeworkListTasks.initHomeworkList(homeworksList);
     }
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
@@ -614,5 +617,22 @@ public class LeftBarController extends Window implements Initializable {
             stage.setScene(new Scene(root1));
             stage.show();
         }
+    }
+
+    public void createHomework() {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateHomework.fxml"));
+        Parent root1 = null;
+        try {
+            root1 = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Create a New Homework");
+        stage.setScene(new Scene(root1));
+        stage.show();
     }
 }

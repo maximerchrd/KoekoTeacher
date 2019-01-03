@@ -1,4 +1,4 @@
-package koeko.controllers.ClassesControlling;
+package koeko.controllers.LeftBar.ClassesControlling;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,25 +9,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.CreateClassController;
-import koeko.controllers.EditGroupController;
-import koeko.controllers.QuestionSendingController;
-import koeko.controllers.SubjectsBrowsing.CreateSubjectController;
-import koeko.controllers.SubjectsBrowsing.EditSubjectController;
 import koeko.database_management.*;
-import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Classroom;
-import koeko.students_management.Student;
-import koeko.view.Subject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Vector;
 
 public class ClassTreeCell extends TreeCell<Classroom> {
     private double imageSize = 60;

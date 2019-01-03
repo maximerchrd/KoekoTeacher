@@ -1,8 +1,6 @@
-package koeko.controllers.ClassesControlling;
+package koeko.controllers.LeftBar.ClassesControlling;
 
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
-import koeko.controllers.ClassesControlling.ClassTreeCell;
 import koeko.database_management.DbTableClasses;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
