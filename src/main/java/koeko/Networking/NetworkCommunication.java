@@ -1070,6 +1070,8 @@ public class NetworkCommunication {
                             System.out.println("Trying to send ip through udp: Network is down");
                         } else if (e.toString().contains("Host is down")) {
                             System.out.println("Trying to send ip through udp: Host is down");
+                        } else if (e.toString().contains("Can't assign requested address")) {
+                            System.out.println("Can't assign requested address");
                         } else {
                             e.printStackTrace();
                         }

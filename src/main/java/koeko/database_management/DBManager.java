@@ -62,6 +62,7 @@ public class DBManager {
 		DbTableLogs.createTableClasses(c, stmt);
 		DbTableSubnetResult.createTableSubnetResults();
 		DbTableHomework.createTableHomeworks();
+		DbTableRelationHomeworkStudent.createTableHomeworkStudentRelation();
 		try {
 			stmt.close();
 			c.close();
