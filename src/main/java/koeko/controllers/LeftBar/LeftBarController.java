@@ -1,7 +1,9 @@
 package koeko.controllers.LeftBar;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -35,6 +37,8 @@ import koeko.controllers.SubjectsBrowsing.SubjectTreeCell;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
+import koeko.questions_management.QuestionMultipleChoice;
+import koeko.questions_management.QuestionShortAnswer;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import koeko.view.Subject;
@@ -181,6 +185,8 @@ public class LeftBarController extends Window implements Initializable {
         ClassesTreeTasks.populateClassesTree(classesTree);
 
         HomeworkListTasks.initHomeworkList(homeworksList);
+
+        homeworksList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> displayQuestionsCorrespondingToHomework());
     }
 
     private void getAndDisplayIpAddress() throws SocketException, UnknownHostException {
@@ -634,5 +640,26 @@ public class LeftBarController extends Window implements Initializable {
         stage.setTitle("Create a New Homework");
         stage.setScene(new Scene(root1));
         stage.show();
+    }
+
+    private void displayQuestionsCorrespondingToHomework() {
+        if (DbTableHomework.checkIfNameAlreadyExists(homeworksList.getSelectionModel().getSelectedItem().getName())) {
+            ArrayList<String> questionIds = DbTableRelationHomeworkQuestion.getQuestionIdsFromHomeworkName(homeworksList.getSelectionModel().getSelectedItem().getName());
+            Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().clear();
+            Koeko.studentGroupsAndClass.get(0).getActiveIDs().clear();
+            for (String questionId : questionIds) {
+                QuestionGeneric questionGeneric;
+                QuestionMultipleChoice questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionId);
+                if (questionMultipleChoice.getQUESTION().length() == 0) {
+                    QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionId);
+                    questionGeneric = new QuestionGeneric(questionShortAnswer);
+                } else {
+                    questionGeneric = new QuestionGeneric(questionMultipleChoice);
+                }
+                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
+                Koeko.studentGroupsAndClass.get(0).getActiveIDs().add(questionId);
+            }
+            Koeko.questionSendingControllerSingleton.readyQuestionsList.refresh();
+        }
     }
 }

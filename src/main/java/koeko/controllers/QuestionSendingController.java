@@ -542,6 +542,12 @@ public class QuestionSendingController extends Window implements Initializable {
         } else {
             System.out.println("Trying to broadcast question or test but ID == 0.");
         }
+
+        //add question to homework
+        if (Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedIndex() >= 0) {
+            DbTableRelationHomeworkQuestion.insertHomeworkQuestionRelation(Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedItem().getName(),
+                    questionGeneric.getGlobalID());
+        }
     }
 
     public void activateQuestionForStudents() {
@@ -656,6 +662,12 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void deactivateQuestion(ListCell<QuestionGeneric> questionCell) {
+        //remove question from homework
+        if (Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedIndex() >= 0) {
+            DbTableRelationHomeworkQuestion.deleteHomeworkQuestionRelation(Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedItem().getName(),
+                    questionCell.getItem().getGlobalID());
+        }
+
         Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
         if (group < 1) {
             group = 0;

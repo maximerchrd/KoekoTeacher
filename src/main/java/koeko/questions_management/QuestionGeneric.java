@@ -27,6 +27,23 @@ public class QuestionGeneric {
         imagePath = "";
         activated = false;
     }
+
+    public QuestionGeneric(QuestionShortAnswer questionShortAnswer) {
+        globalID = questionShortAnswer.getID();
+        intTypeOfQuestion = QuestionGeneric.SHRTAQ;
+        question = questionShortAnswer.getQUESTION();
+        imagePath = questionShortAnswer.getIMAGE();
+        activated = false;
+    }
+
+    public QuestionGeneric(QuestionMultipleChoice questionMultipleChoice) {
+        globalID = questionMultipleChoice.getID();
+        intTypeOfQuestion = QuestionGeneric.MCQ;
+        question = questionMultipleChoice.getQUESTION();
+        imagePath = questionMultipleChoice.getIMAGE();
+        activated = false;
+    }
+
     public QuestionGeneric(String globalId, int indexinlist) {
         globalID = globalId;
         indexInList = indexinlist;
