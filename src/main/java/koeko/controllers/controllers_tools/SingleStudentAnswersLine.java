@@ -1,6 +1,7 @@
 package koeko.controllers.controllers_tools;
 
 import javafx.beans.property.SimpleStringProperty;
+import koeko.students_management.Student;
 
 import java.util.ArrayList;
 
@@ -8,30 +9,36 @@ import java.util.ArrayList;
  * Created by maximerichard on 12.03.18.
  */
 public class SingleStudentAnswersLine {
-    private final SimpleStringProperty Student = new SimpleStringProperty("");
+    private final Student Student = new Student();
     private final SimpleStringProperty Status = new SimpleStringProperty("");
     private final SimpleStringProperty Evaluation = new SimpleStringProperty("");
     private final ArrayList<SimpleStringProperty> Answers;
 
 
 
-    public SingleStudentAnswersLine(String student, String status, String evaluation) {
+    public SingleStudentAnswersLine(Student student, String status, String evaluation) {
         setStudent(student);
         setStatus(status);
         setEvaluation(evaluation);
         Answers = new ArrayList<>();
     }
 
-    public String getStudent() {
-        return Student.get();
+    public String getStudentName() {
+        return Student.getName();
     }
 
-    public SimpleStringProperty studentProperty() {
+    public Student getStudentObject() {
         return Student;
     }
 
-    public void setStudent(String student) {
-        this.Student.set(student);
+    public SimpleStringProperty studentProperty() {
+        SimpleStringProperty simpleStringProperty = new SimpleStringProperty(Student.getName());
+        return simpleStringProperty;
+    }
+
+    public void setStudent(Student student) {
+        this.Student.setName(student.getName());
+        this.Student.setStudentID(student.getStudentID());
     }
 
     public String getStatus() {

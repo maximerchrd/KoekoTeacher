@@ -30,6 +30,7 @@ public class Student {
     private Test activeTest;
     private Boolean connected = false;
     private ArrayList<String> deviceQuestions;
+    private Boolean homeworkChecked = false;
 
 
     //constructors
@@ -110,6 +111,9 @@ public class Student {
     public void setDeviceQuestions(ArrayList<String> deviceQuestions) {
         this.deviceQuestions = deviceQuestions;
     }
+    public void setHomeworkChecked(Boolean homeworkChecked) {
+        this.homeworkChecked = homeworkChecked;
+    }
 
     //getters
     public Test getActiveTest() {
@@ -147,6 +151,9 @@ public class Student {
     }
     public String getStudentID() {
         return studentID;
+    }
+    public Boolean getHomeworkChecked() {
+        return homeworkChecked;
     }
 
     public ArrayList<String> getDeviceQuestions() {

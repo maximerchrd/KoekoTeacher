@@ -442,7 +442,7 @@ public class LeftBarController extends Window implements Initializable {
     public void saveStudentsToClass() {
         if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
             for (int i = 0; i < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudent();
+                String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentName();
                 String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
                 DbTableRelationClassStudent.addClassStudentRelation(className, studentName);
             }
@@ -453,11 +453,11 @@ public class LeftBarController extends Window implements Initializable {
         removeStudentFromClass(0);
     }
     public void removeStudentFromClass(Integer group) {
-        if (!Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
+        if (!Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudentName().contentEquals("CLASS")) {
             //adapt table height
             Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(group).setPrefHeight(Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(group).getPrefHeight() - cellHeight * 1.1);
 
-            String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
+            String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudentName();
             if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
                 String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
                 try {
@@ -513,11 +513,11 @@ public class LeftBarController extends Window implements Initializable {
                     new EventHandler<TableColumn.CellEditEvent<SingleStudentAnswersLine, String>>() {
                         @Override
                         public void handle(TableColumn.CellEditEvent<SingleStudentAnswersLine, String> t) {
-                            System.out.println(t.getRowValue().getStudent());
+                            System.out.println(t.getRowValue().getStudentName());
                             System.out.println(t.getTableColumn().getText());
                             String idObjective = DbTableLearningObjectives.getObjectiveIdFromName(t.getTableColumn().getText());
                             DbTableIndividualQuestionForStudentResult.addIndividualObjectiveForStudentResult(idObjective,
-                                    t.getRowValue().getStudent(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+                                    t.getRowValue().getStudentName(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
                         }
                     }
             );
@@ -544,7 +544,7 @@ public class LeftBarController extends Window implements Initializable {
             for (int j = 0; j < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().size(); j++) {
                 SingleStudentAnswersLine singleStudentAnswersLine = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(j);
                 for (int i = 0; i < objectivesIDs.size(); i++) {
-                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
+                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudentName(),
                             String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
                     singleStudentAnswersLine.setAnswer(eval, i);
                 }
@@ -563,7 +563,7 @@ public class LeftBarController extends Window implements Initializable {
         String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
         if (test != null && !test.contentEquals("No test")) {
             for (int i = 0; i < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudent();
+                String studentName = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentName();
                 for (int j = 3; j < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getColumns().size(); j++) {
                     String objective = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getColumns().get(j).getText();
                     String evaluation = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();

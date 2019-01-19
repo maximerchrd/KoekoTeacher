@@ -4,20 +4,22 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
-import koeko.controllers.LeftBar.ClassesControlling.EditClassController;
 import koeko.database_management.DbTableHomework;
-import koeko.questions_management.QuestionGeneric;
+import koeko.database_management.DbTableRelationHomeworkStudent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class HomeworkListCell extends ListCell<Homework> {
 
@@ -29,6 +31,7 @@ public class HomeworkListCell extends ListCell<Homework> {
             setGraphic(null);
             setStyle("");
         } else {
+            VBox vBox = new VBox();
             HBox hBox = new HBox();
             hBox.setSpacing(5);
             Button buttonDelete = new javafx.scene.control.Button("X");
@@ -50,8 +53,47 @@ public class HomeworkListCell extends ListCell<Homework> {
             });
             hBox.getChildren().addAll(buttonDelete, buttonEdit);
 
+            HBox hBox2 = new HBox();
+            CheckBox addStudentCheckBox = new CheckBox("Add Students");
+            addStudentCheckBox.setTooltip(
+                    new Tooltip("Add students to this homework")
+            );
+            addStudentCheckBox.setOnAction((event) -> {
+                toggleAddingStudents(homework.getName());
+            });
+
+            hBox2.getChildren().addAll(addStudentCheckBox);
+
+            vBox.getChildren().addAll(hBox, hBox2);
             setText(homework.getName());
-            setGraphic(hBox);
+            setGraphic(vBox);
+        }
+    }
+
+    private void toggleAddingStudents(String homeworkName) {
+        if (!Koeko.studentsVsQuestionsTableControllerSingleton.studentsCheckBoxes) {
+            ArrayList<String> studentIds = DbTableRelationHomeworkStudent.getStudentIdsFromHomeworkName(homeworkName);
+            for (int i = 0; i < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                if (studentIds.contains(Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentObject().getStudentID())) {
+                    Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentObject().setHomeworkChecked(true);
+                } else {
+                    Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentObject().setHomeworkChecked(false);
+                }
+            }
+            Koeko.studentsVsQuestionsTableControllerSingleton.studentsCheckBoxes = true;
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).refresh();
+        } else {
+            for (int i = 0; i < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().size() - 1; i++) {
+                if (Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getStudentObject().getHomeworkChecked()) {
+                    DbTableRelationHomeworkStudent.insertHomeworkStudentRelation(homeworkName, Koeko.studentsVsQuestionsTableControllerSingleton.
+                            tableViewArrayList.get(0).getItems().get(i).getStudentObject().getStudentID());
+                } else {
+                    DbTableRelationHomeworkStudent.deleteHomeworkStudentRelation(homeworkName, Koeko.studentsVsQuestionsTableControllerSingleton.
+                            tableViewArrayList.get(0).getItems().get(i).getStudentObject().getStudentID());
+                }
+            }
+            Koeko.studentsVsQuestionsTableControllerSingleton.studentsCheckBoxes = false;
+            Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).refresh();
         }
     }
 

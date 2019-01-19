@@ -1,18 +1,15 @@
 package koeko.controllers.StudentsVsQuestions;
 
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
-import koeko.controllers.CreateClassController;
-import koeko.controllers.EditEvaluationController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
@@ -51,6 +48,7 @@ import java.util.*;
  * Created by maximerichard on 12.03.18.
  */
 public class StudentsVsQuestionsTableController extends Window implements Initializable {
+    public Boolean studentsCheckBoxes = false;
     private final Double cellHeight = 25.0;
     //private ArrayList<String> questions;
     //private ArrayList<Integer> questionsIDs;
@@ -250,15 +248,15 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
         //fill an array containing the names already present in the table
         ArrayList<String> studentNames = new ArrayList<>();
-        for (SingleStudentAnswersLine singleStudentAnswersLine: tableViewArrayList.get(group).getItems()) studentNames.add(singleStudentAnswersLine.getStudent());
+        for (SingleStudentAnswersLine singleStudentAnswersLine: tableViewArrayList.get(group).getItems()) studentNames.add(singleStudentAnswersLine.getStudentName());
         if (!studentNames.contains(UserStudent.getName())) {
             Koeko.studentGroupsAndClass.get(group).addStudentIfNotInClass(UserStudent);
             //for (int k = 0; k < 10; k++) {
             SingleStudentAnswersLine singleStudentAnswersLine;
             if (connection) {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "connected / Sync : No", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent, "connected / Sync : No", "0");
             } else {
-                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent.getName(), "disconnected / Sync : No", "0");
+                singleStudentAnswersLine = new SingleStudentAnswersLine(UserStudent, "disconnected / Sync : No", "0");
             }
             for (int i = 0; i < tableViewArrayList.get(group).getItems().get(0).getAnswers().size(); i++) {
                 singleStudentAnswersLine.addAnswer();
@@ -289,7 +287,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             if (connection) {
                 int indexStudent = -1;
                 for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
-                    if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(UserStudent.getName())) {
+                    if (tableViewArrayList.get(group).getItems().get(i).getStudentName().contentEquals(UserStudent.getName())) {
                         indexStudent = i;
                     }
                 }
@@ -324,7 +322,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
             Integer indexRow = -1;
             for (int i = 0; i < tableViewArrayList.get(group).getItems().size(); i++) {
-                if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student)) {
+                if (tableViewArrayList.get(group).getItems().get(i).getStudentName().contentEquals(student)) {
                     indexRow = i;
                 }
             }
@@ -415,7 +413,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     public void userDisconnected(Student student, Integer group) {
         int indexStudent = -1;
         for (int i = 0; i < tableViewArrayList.get(group).getItems().size() - 1; i++) {
-            if (tableViewArrayList.get(group).getItems().get(i).getStudent().contentEquals(student.getName())) indexStudent = i;
+            if (tableViewArrayList.get(group).getItems().get(i).getStudentName().contentEquals(student.getName())) indexStudent = i;
         }
         System.out.println("user disconnected: " + student.getName() + "; index in table: " + indexStudent);
         if (indexStudent >= 0) {
@@ -493,7 +491,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 //    public void saveStudentsToClass() {
 //        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
 //            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudentName();
 //                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
 //                DbTableRelationClassStudent.addClassStudentRelation(className, studentName);
 //            }
@@ -504,11 +502,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 //        removeStudentFromClass(0);
 //    }
 //    public void removeStudentFromClass(Integer group) {
-//        if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent().contentEquals("CLASS")) {
+//        if (!tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudentName().contentEquals("CLASS")) {
 //            //adapt table height
 //            tableViewArrayList.get(group).setPrefHeight(tableViewArrayList.get(group).getPrefHeight() - cellHeight * 1.1);
 //
-//            String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudent();
+//            String studentName = tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudentName();
 //            if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
 //                String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
 //                try {
@@ -587,7 +585,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.getColumns().add(columnEvaluation);
 
         //add summary linestudentsQuestionsTable.setFixedCellSize(cellHeight);
-        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");
+        Student classStudent = new Student();
+        classStudent.setName("CLASS");
+        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine(classStudent, "0", "0.0");
         studentsQuestionsTable.setPrefHeight(cellHeight * 4);
         studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
 
@@ -654,7 +654,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 //        String test = chooseTestCombo.getSelectionModel().getSelectedItem().toString();
 //        if (test != null && !test.contentEquals("No test")) {
 //            for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudent();
+//                String studentName = tableViewArrayList.get(0).getItems().get(i).getStudentName();
 //                for (int j = 3; j < tableViewArrayList.get(0).getColumns().size(); j++) {
 //                    String objective = tableViewArrayList.get(0).getColumns().get(j).getText();
 //                    String evaluation = tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
@@ -701,11 +701,11 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 //                    new EventHandler<TableColumn.CellEditEvent<SingleStudentAnswersLine, String>>() {
 //                        @Override
 //                        public void handle(TableColumn.CellEditEvent<SingleStudentAnswersLine, String> t) {
-//                            System.out.println(t.getRowValue().getStudent());
+//                            System.out.println(t.getRowValue().getStudentName());
 //                            System.out.println(t.getTableColumn().getText());
 //                            String idObjective = DbTableLearningObjectives.getObjectiveIdFromName(t.getTableColumn().getText());
 //                            DbTableIndividualQuestionForStudentResult.addIndividualObjectiveForStudentResult(idObjective,
-//                                    t.getRowValue().getStudent(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
+//                                    t.getRowValue().getStudentName(),t.getNewValue(),"CERTIFICATIVE", chooseTestCombo.getSelectionModel().getSelectedItem().toString());
 //                        }
 //                    }
 //            );
@@ -732,7 +732,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 //            for (int j = 0; j < tableViewArrayList.get(0).getItems().size(); j++) {
 //                SingleStudentAnswersLine singleStudentAnswersLine = tableViewArrayList.get(0).getItems().get(j);
 //                for (int i = 0; i < objectivesIDs.size(); i++) {
-//                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudent(),
+//                    String eval = DbTableIndividualQuestionForStudentResult.getResultForStudentForObjectiveInTest(singleStudentAnswersLine.getStudentName(),
 //                            String.valueOf(objectivesIDs.get(i)), chooseTestCombo.getSelectionModel().getSelectedItem().toString());
 //                    singleStudentAnswersLine.setAnswer(eval, i);
 //                }
@@ -754,9 +754,13 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList = new ArrayList<>();
         studentIdToStatusReceptionMap = Collections.synchronizedMap(new LinkedHashMap<>());
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
-        TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>("Student");
+        TableColumn<SingleStudentAnswersLine, Student> columnStudent = new TableColumn<>("Student");
         columnStudent.setPrefWidth(180);
-        columnStudent.setCellValueFactory(new PropertyValueFactory<>("Student"));
+        columnStudent.setCellValueFactory( p -> new SimpleObjectProperty(p.getValue().getStudentObject()));
+        columnStudent.setCellFactory(param -> {
+            StudentTableCell studentTableCell = new StudentTableCell();
+            return studentTableCell;
+        } );
         studentsQuestionsTable.getColumns().add(columnStudent);
         TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("Status");
         columnStatus.setPrefWidth(180);
@@ -795,7 +799,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList.add(studentsQuestionsTable);
 
         //add summary line
-        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine("CLASS", "0", "0.0");
+        Student classStudent = new Student();
+        classStudent.setName("CLASS");
+        SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine(classStudent, "0", "0.0");
         tableViewArrayList.get(0).getItems().add(singleStudentAnswersLine);
 
         //initialize other members
@@ -848,7 +854,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 if (status == 0 && statusQuestionsReceived == 1) {
                     int indexStudent = -1;
                     for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                        if (tableViewArrayList.get(0).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                        if (tableViewArrayList.get(0).getItems().get(i).getStudentName().contentEquals(student.getName())) {
                             indexStudent = i;
                         }
                     }
@@ -860,7 +866,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 } else if (status == 1 && statusQuestionsReceived == 0) {
                     int indexStudent = -1;
                     for (int i = 0; i < tableViewArrayList.get(0).getItems().size() - 1; i++) {
-                        if (tableViewArrayList.get(0).getItems().get(i).getStudent().contentEquals(student.getName())) {
+                        if (tableViewArrayList.get(0).getItems().get(i).getStudentName().contentEquals(student.getName())) {
                             indexStudent = i;
                         }
                     }

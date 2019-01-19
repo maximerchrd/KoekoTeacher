@@ -29,6 +29,24 @@ public class DbTableRelationHomeworkStudent {
         }
     }
 
+    static public ArrayList<String> getStudentIdsFromHomeworkName(String homeworkName) {
+        ArrayList<String> studentIds = new ArrayList<>();
+        String sql = "SELECT " + KEY_STUDENT_ID + " FROM " + KEY_TABLE_HOMEWORK_STUDENT + " WHERE " + KEY_HOMEWORK_NAME + "=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, homeworkName);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                studentIds.add(rs.getString(KEY_STUDENT_ID));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return studentIds;
+    }
+
     static public void insertHomeworkStudentRelation(String homeworkName, String studenId) {
         String sql = "INSERT OR REPLACE INTO " + KEY_TABLE_HOMEWORK_STUDENT + " (" + KEY_HOMEWORK_NAME + "," +
                 KEY_STUDENT_ID + ") VALUES(?,?)";
