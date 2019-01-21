@@ -54,7 +54,7 @@ public class DBManager {
 		DbTableRelationSubjectSubject.createTableRelationSubjectSubject(c,stmt);
 		DbTableRelationClassClass.createTableRelationClassClass(c,stmt);
 		DbTableRelationClassQuestion.createTableRelationClassQuestion(c,stmt);
-		DbTableSettings.createTableSettings(c,stmt);
+		DbTableSettings.createTableSettings(c);
 		DbTableRelationObjectiveTest.createTableRelationObjectiveTest(c,stmt);
 		DbTableProfessor.createTableProfessor(c, stmt);
 		DbTableRelationQuestionQuestion.createTableRelationQuestionQuestion(c, stmt);

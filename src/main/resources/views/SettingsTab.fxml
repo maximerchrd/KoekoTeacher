@@ -69,6 +69,7 @@
                   </Button>
                </children>
             </HBox>
+            <Button mnemonicParsing="false" onAction="#requestHomeworkKey" text="Request New Homework Key" />
          </children></VBox>
    </children>
 </AnchorPane>

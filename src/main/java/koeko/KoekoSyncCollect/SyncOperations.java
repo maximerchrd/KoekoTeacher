@@ -120,6 +120,18 @@ public class SyncOperations {
         }
     }
 
+    static public void RequestNewHomeworkKey(InetAddress serverAddress, int serverPort) throws Exception {
+        // Create the connection to the server for synchronisation
+        InitializeTransfer(serverAddress, serverPort);
+
+        Professor professor = DbTableProfessor.getProfessor();
+        if (professor == null) {
+            Koeko.leftBarController.promptGenericPopUp("Enter your pseudo before synchronizing.", "Create teacher");
+        } else {
+            boolean bOK = _tcpcom.RequestHomeworkKey(professor.get_muid());
+        }
+    }
+
 
     private static Connection ConnectToMySQL() {
         // Connexion à mysql

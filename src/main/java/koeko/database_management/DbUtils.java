@@ -28,6 +28,40 @@ public class DbUtils {
         return strings;
     }
 
+    static public ArrayList<String> getArrayStringWithOneParam(String sql, String param1) {
+        ArrayList<String> strings = new ArrayList<>();
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1,param1);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                strings.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return strings;
+    }
+
+    static public String getStringValueWithOneParam(String sql, String param1) {
+        String returnValue = "";
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1,param1);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                returnValue = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return returnValue;
+    }
+
     static public void updateWithNoParam(String sql) {
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement pstmt = c.prepareStatement(sql)) {

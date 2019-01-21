@@ -8,6 +8,7 @@ import koeko.view.QuestionView;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class TCPCommunication {
 
@@ -27,6 +28,7 @@ public class TCPCommunication {
     String cstrByeByeDude = "BYEB";
     String cstrDescStep00 = "DSC0";
     String cstrDescStep01 = "DSC1";
+    String cstrReqHowoKey = "HWKY";
 
     private Socket _socket;
     private String _imagePath;
@@ -445,5 +447,33 @@ public class TCPCommunication {
             e.printStackTrace();
             System.exit(0);
         }
+    }
+
+    public boolean RequestHomeworkKey(String muid) {
+        boolean bOK = true;
+
+        try {
+            SendCommande(cstrReqHowoKey);
+
+            byte[] hwKeyBytes = new byte[40]; //IMPORTANT: if change byte size here, also change on KOEKO TEACHER
+            int size = _inStream.read(hwKeyBytes);
+            if (size > 0) {
+                hwKeyBytes = Arrays.copyOfRange(hwKeyBytes, 0, size);
+                String hwKey = new String(hwKeyBytes);
+                if (hwKey.length() == DbTableSettings.homeworkKeysLength) {
+                    DbTableSettings.insertHomeworkKey(hwKey);
+                } else {
+                    bOK = false;
+                }
+            } else {
+                bOK = false;
+                System.err.println("Reading from Server: size smaller or equal to 0");
+            }
+            EndSynchronisation();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return bOK;
     }
 }

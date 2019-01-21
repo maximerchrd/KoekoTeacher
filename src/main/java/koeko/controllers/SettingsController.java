@@ -90,59 +90,53 @@ public class SettingsController implements Initializable {
     }
 
     public void syncWithServer() {
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
-                    setUserName();
-                    setLanguage();
-                    Boolean success = true;
-                    if (synchronizationKeyTextField.getText().length() == 20) {
-                        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
-                    }
-                    try {
-                        SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, false);
-                    } catch (Exception e) {
-                        success = false;
-                        e.printStackTrace();
-                    }
-                    if (success) {
-                        Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
-                    } else {
-                        Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
-                    }
-                } else {
-                    Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
+        Platform.runLater(() -> {
+            if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
+                setUserName();
+                setLanguage();
+                Boolean success = true;
+                if (synchronizationKeyTextField.getText().length() == 20) {
+                    DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
                 }
+                try {
+                    SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, false);
+                } catch (Exception e) {
+                    success = false;
+                    e.printStackTrace();
+                }
+                if (success) {
+                    Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                } else {
+                    Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
+                }
+            } else {
+                Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
             }
         });
     }
 
     public void resetAndSync() {
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
-                    setUserName();
-                    setLanguage();
-                    Boolean success = true;
-                    if (synchronizationKeyTextField.getText().length() == 20) {
-                        DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
-                    }
-                    try {
-                        SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, true);
-                    } catch (Exception e) {
-                        success = false;
-                        e.printStackTrace();
-                    }
-                    if (success) {
-                        Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
-                    } else {
-                        Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
-                    }
-                } else {
-                    Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
+        Platform.runLater(() -> {
+            if (languageCombobox.getSelectionModel().getSelectedItem() != null) {
+                setUserName();
+                setLanguage();
+                Boolean success = true;
+                if (synchronizationKeyTextField.getText().length() == 20) {
+                    DbTableProfessor.setProfessorSyncKey(teacherName.getText(), synchronizationKeyTextField.getText());
                 }
+                try {
+                    SyncOperations.SyncAll(InetAddress.getByName(serverAddress), serverPort, true);
+                } catch (Exception e) {
+                    success = false;
+                    e.printStackTrace();
+                }
+                if (success) {
+                    Koeko.leftBarController.promptGenericPopUp("Synchronization succeeded", "Synchronization");
+                } else {
+                    Koeko.leftBarController.promptGenericPopUp("Synchronization failed", "Synchronization");
+                }
+            } else {
+                Koeko.leftBarController.promptGenericPopUp("Choose a language before synchronizing", "Language");
             }
         });
     }
@@ -182,6 +176,14 @@ public class SettingsController implements Initializable {
 
         if (DbTableProfessor.getProfessor() == null) {
             DbTableProfessor.addProfessor(teacherName.getText(), teacherName.getText(), teacherName.getText());
+        }
+    }
+
+    public void requestHomeworkKey() {
+        try {
+            SyncOperations.RequestNewHomeworkKey(InetAddress.getByName(serverAddress), serverPort);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
