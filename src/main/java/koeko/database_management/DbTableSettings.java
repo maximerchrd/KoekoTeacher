@@ -31,7 +31,7 @@ public class DbTableSettings {
         }
 
         insertNewSetting(nearbyModeKey, "0");
-        insertNewSetting(correctionModeKey, "0");
+        insertNewSetting(correctionModeKey, "1");
         insertNewSetting(forcedSyncKey, "0");
         insertNewSetting(uiModeKey, "0");
         insertNewSetting(teacherNameKey, "No Name");

@@ -3,6 +3,7 @@ package koeko.controllers.LeftBar.HomeworkControlling;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -13,6 +14,7 @@ import javafx.stage.Window;
 import koeko.Koeko;
 import koeko.controllers.LeftBar.LeftBarController;
 import koeko.database_management.DbTableHomework;
+import koeko.database_management.DbTableSettings;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,9 +24,11 @@ public class CreateHomeworkController extends Window implements Initializable {
     @FXML
     private TextField homeworkName;
     @FXML private DatePicker datePicker;
+    @FXML private ComboBox homeworkKeyCombobox;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        homeworkKeyCombobox.getItems().addAll(DbTableSettings.getHomeworkKeys());
     }
 
     public void saveHomework() {
@@ -32,6 +36,7 @@ public class CreateHomeworkController extends Window implements Initializable {
             if (!DbTableHomework.checkIfNameAlreadyExists(homeworkName.getText())) {
                 Homework homework = new Homework();
                 homework.setName(homeworkName.getText());
+                homework.setIdCode(homeworkKeyCombobox.getSelectionModel().getSelectedItem().toString());
                 homework.setDueDate(datePicker.getValue());
                 DbTableHomework.insertHomework(homework);
                 Koeko.leftBarController.homeworksList.getItems().add(homework);

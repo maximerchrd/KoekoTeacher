@@ -3,6 +3,7 @@ package koeko.controllers.LeftBar.HomeworkControlling;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -13,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import koeko.Koeko;
 import koeko.database_management.DbTableHomework;
+import koeko.database_management.DbTableSettings;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -23,9 +25,11 @@ public class EditHomeworkController extends Window implements Initializable {
     @FXML
     private TextField homeworkName;
     @FXML private DatePicker datePicker;
+    @FXML private ComboBox homeworkKeyCombobox;
 
-    String oldName = "";
-    HomeworkListCell homeworkListCell;
+    private String oldName = "";
+    private HomeworkListCell homeworkListCell;
+    private Homework homework;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -36,12 +40,18 @@ public class EditHomeworkController extends Window implements Initializable {
         datePicker.setValue(pDate);
         oldName = pname;
         homeworkListCell = phomeworkListCell;
+        homework = DbTableHomework.getHomeworkWithName(pname);
+        homeworkKeyCombobox.getItems().addAll(DbTableSettings.getHomeworkKeys());
+        if (homework.getIdCode() != null && homework.getIdCode().length() > 0) {
+            homeworkKeyCombobox.getSelectionModel().select(homework.getIdCode());
+        }
     }
 
     public void saveHomework() {
-        if (!DbTableHomework.checkIfNameAlreadyExists(homeworkName.getText())) {
+        if (oldName.contentEquals(homeworkName.getText()) || !DbTableHomework.checkIfNameAlreadyExists(homeworkName.getText())) {
             homeworkListCell.getItem().setName(homeworkName.getText());
             homeworkListCell.getItem().setDueDate(datePicker.getValue());
+            homeworkListCell.getItem().setIdCode(homeworkKeyCombobox.getSelectionModel().getSelectedItem().toString());
             homeworkListCell.updateItem(homeworkListCell.getItem(), false);
             DbTableHomework.updateHomework(homeworkListCell.getItem(), oldName);
             Stage stage = (Stage) homeworkName.getScene().getWindow();

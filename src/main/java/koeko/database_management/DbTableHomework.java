@@ -112,6 +112,29 @@ public class DbTableHomework {
         return homeworks;
     }
 
+    static public Homework getHomeworkWithName(String hwName) {
+        Homework homework = new Homework();
+        String sql = "SELECT * FROM " + KEY_TABLE_HOMEWORK + " WHERE " + KEY_NAME + "=?";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, hwName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                homework.setName(hwName);
+                homework.setIdCode(rs.getString(KEY_IDCODE));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
+                homework.setDueDate(date);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return homework;
+    }
+
     static public void deleteHomework(String homeworkName) {
         String sql = "DELETE FROM " + KEY_TABLE_HOMEWORK + " WHERE " + KEY_NAME + " = ?";
         DbUtils.updateWithOneParam(sql, homeworkName);
