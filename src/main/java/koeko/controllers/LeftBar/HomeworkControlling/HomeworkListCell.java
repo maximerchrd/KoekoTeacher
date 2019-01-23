@@ -17,6 +17,7 @@ import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.database_management.DbTableHomework;
 import koeko.database_management.DbTableRelationHomeworkStudent;
+import koeko.view.Homework;
 
 import java.io.IOException;
 import java.util.ArrayList;

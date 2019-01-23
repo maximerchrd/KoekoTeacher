@@ -48,11 +48,19 @@ public class DbTableRelationHomeworkQuestion {
         String sql = "INSERT OR REPLACE INTO " + KEY_TABLE_HOMEWORK_QUESTION + " (" + KEY_HOMEWORK_NAME + "," +
                 KEY_QUESTION_ID + ") VALUES(?,?)";
         DbUtils.updateWithTwoParam(sql, homeworkName, questionId);
+        DbTableHomework.updateHomeworkTimestamp(homeworkName);
     }
 
     static public void deleteHomeworkQuestionRelation(String homeworkName, String questionId) {
         String sql = "DELETE FROM " + KEY_TABLE_HOMEWORK_QUESTION + " WHERE " + KEY_HOMEWORK_NAME + " = ? AND "
                 + KEY_QUESTION_ID + "=?";
         DbUtils.updateWithTwoParam(sql, homeworkName, questionId);
+        DbTableHomework.updateHomeworkTimestamp(homeworkName);
+    }
+
+    static public void updateHomeworkName(String newname, String oldname) {
+        String sql = "UPDATE " + KEY_TABLE_HOMEWORK_QUESTION + " SET " + KEY_HOMEWORK_NAME + "=? WHERE " + KEY_HOMEWORK_NAME
+                + "=?";
+        DbUtils.updateWithTwoParam(sql, newname, oldname);
     }
 }

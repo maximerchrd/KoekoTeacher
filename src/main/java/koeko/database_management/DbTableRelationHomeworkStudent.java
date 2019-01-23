@@ -1,14 +1,11 @@
 package koeko.database_management;
 
-import koeko.controllers.LeftBar.HomeworkControlling.Homework;
 import koeko.view.Utilities;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class DbTableRelationHomeworkStudent {

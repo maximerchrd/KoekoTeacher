@@ -5,16 +5,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import koeko.Koeko;
 import koeko.database_management.DbTableHomework;
 import koeko.database_management.DbTableSettings;
+import koeko.view.Homework;
 
 import java.net.URL;
 import java.time.LocalDate;

@@ -12,9 +12,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import koeko.Koeko;
-import koeko.controllers.LeftBar.LeftBarController;
 import koeko.database_management.DbTableHomework;
 import koeko.database_management.DbTableSettings;
+import koeko.view.Homework;
 
 import java.net.URL;
 import java.util.ResourceBundle;

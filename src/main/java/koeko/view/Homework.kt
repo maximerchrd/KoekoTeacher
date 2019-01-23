@@ -1,8 +1,10 @@
-package koeko.controllers.LeftBar.HomeworkControlling
+package koeko.view
 
+import java.io.Serializable
 import java.time.LocalDate
 
-class Homework {
+class Homework : Serializable {
+    var uid = ""
     var name = ""
     var idCode = ""
     var dueDate = LocalDate.now()

@@ -1,9 +1,7 @@
 package koeko.controllers.LeftBar;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -27,7 +25,7 @@ import koeko.Networking.NetworkCommunication;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.GenericPopUpController;
 import koeko.controllers.LeftBar.ClassesControlling.ClassesTreeTasks;
-import koeko.controllers.LeftBar.HomeworkControlling.Homework;
+import koeko.view.Homework;
 import koeko.controllers.LeftBar.HomeworkControlling.HomeworkListTasks;
 import koeko.controllers.StudentsVsQuestions.ChooseTestController;
 import koeko.controllers.StudentsVsQuestions.CreateStudentController;

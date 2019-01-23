@@ -2,6 +2,7 @@ package koeko.controllers.LeftBar.HomeworkControlling;
 
 import javafx.scene.control.*;
 import koeko.database_management.DbTableHomework;
+import koeko.view.Homework;
 
 import java.util.ArrayList;
 

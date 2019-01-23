@@ -275,7 +275,7 @@ public class DbTableRelationQuestionSubject {
         try (Connection c = Utilities.getDbConnection();
                     PreparedStatement stmt = c.prepareStatement(query)) {
             stmt.setString(1, questionId);
-            ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 String sbjMUID = rs.getString("IDENTIFIER");
                 int level = rs.getInt("SUBJECT_LEVEL");

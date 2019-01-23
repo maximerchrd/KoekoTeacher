@@ -96,6 +96,15 @@ public class SyncOperations {
                 }
             }
 
+            //Send homeworks
+            ArrayList<Homework> homeworks = DbTableHomework.getHomeworksForSyncing();
+            for (Homework homework : homeworks) {
+                String uid = _tcpcom.SendSerializableObject(homework);
+                if (uid != null && uid.length() == 15 && !uid.contentEquals(homework.getUid())) {
+                    DbTableHomework.setHomeworkUID(uid, homework.getName());
+                }
+            }
+
             //Send the logs
             ArrayList<Log> logsToSend = DbTableLogs.getLogs(0);
             for (Log logToSend : logsToSend) {
@@ -149,7 +158,6 @@ public class SyncOperations {
             connect = DriverManager.getConnection(connectionString, properties);
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
         return connect;
     }
@@ -163,7 +171,6 @@ public class SyncOperations {
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
@@ -185,7 +192,6 @@ public class SyncOperations {
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
@@ -198,7 +204,6 @@ public class SyncOperations {
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
@@ -214,7 +219,6 @@ public class SyncOperations {
                 }
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-                System.exit(0);
             }
         }
     }
@@ -228,7 +232,6 @@ public class SyncOperations {
             }
         } catch ( Exception e ) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
@@ -244,7 +247,6 @@ public class SyncOperations {
                 }
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-                System.exit(0);
             }
         }
     }
@@ -258,7 +260,6 @@ public class SyncOperations {
                 }
             } catch ( Exception e ) {
                 System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-                System.exit(0);
             }
         }
     }

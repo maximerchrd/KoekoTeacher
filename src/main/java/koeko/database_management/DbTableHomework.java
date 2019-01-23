@@ -1,29 +1,29 @@
 package koeko.database_management;
 
-import koeko.controllers.LeftBar.HomeworkControlling.Homework;
+import koeko.view.Homework;
 import koeko.view.Utilities;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class DbTableHomework {
     static private String KEY_TABLE_HOMEWORK = "homework";
+    static private String KEY_UID = "HW_UID";
     static private String KEY_NAME = "name";
     static private String KEY_IDCODE= "id_code";
     static private String KEY_DUEDATE = "due_date";
+    static private String KEY_MODIF_DATE = "modif_date";
 
     static public void createTableHomeworks() {
         String sql = "CREATE TABLE IF NOT EXISTS " + KEY_TABLE_HOMEWORK +
                 " (ID       INTEGER PRIMARY KEY AUTOINCREMENT," +
+                KEY_UID + " TEXT, " +
                 KEY_NAME + " TEXT  NOT NULL, " +
                 KEY_IDCODE + " TEXT, " +
-                KEY_DUEDATE + " TEXT) ";
+                KEY_DUEDATE + " TEXT, " +
+                KEY_MODIF_DATE + " TEXT) ";
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement stmt = c.prepareStatement(sql)) {
             stmt.executeUpdate();
@@ -33,16 +33,17 @@ public class DbTableHomework {
     }
 
     static public void insertHomework(Homework homework) {
-        String sql = "INSERT OR REPLACE INTO " + KEY_TABLE_HOMEWORK + " (" + KEY_NAME + "," +
-                KEY_IDCODE + "," + KEY_DUEDATE + ") VALUES(?,?,?)";
-        DbUtils.updateWithThreeParam(sql, homework.getName(), homework.getIdCode(), homework.getDueDate().toString());
+        String sql = "INSERT OR REPLACE INTO " + KEY_TABLE_HOMEWORK + " (" + KEY_UID + "," + KEY_NAME + "," +
+                KEY_IDCODE + "," + KEY_DUEDATE + "," + KEY_MODIF_DATE + ") VALUES(?,?,?,?,?)";
+        DbUtils.updateWithFiveParam(sql, homework.getUid(), homework.getName(), homework.getIdCode(), homework.getDueDate().toString(), Utilities.TimestampForNowAsString());
     }
 
     static public void updateHomework(Homework homework, String oldName) {
         String sql = "UPDATE " + KEY_TABLE_HOMEWORK + " SET " + KEY_NAME + "=?, " + KEY_IDCODE + "=?, " + KEY_DUEDATE
-                + "=? WHERE " + KEY_NAME + "=?";
-        DbUtils.updateWithFourParam(sql, homework.getName(), homework.getIdCode(), homework.getDueDate().toString(),
-                oldName);
+                + "=?," + KEY_MODIF_DATE + "=?  WHERE " + KEY_NAME + "=?";
+        DbUtils.updateWithFiveParam(sql, homework.getName(), homework.getIdCode(), homework.getDueDate().toString(),
+                Utilities.TimestampForNowAsString(), oldName);
+        DbTableRelationHomeworkQuestion.updateHomeworkName(homework.getName(), oldName);
     }
 
     static public Boolean checkIfNameAlreadyExists(String homeworkName) {
@@ -73,6 +74,7 @@ public class DbTableHomework {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Homework homework = new Homework();
+                homework.setUid(rs.getString(KEY_UID));
                 homework.setName(rs.getString(KEY_NAME));
                 homework.setIdCode(rs.getString(KEY_IDCODE));
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -121,6 +123,7 @@ public class DbTableHomework {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 homework.setName(hwName);
+                homework.setUid(rs.getString(KEY_UID));
                 homework.setIdCode(rs.getString(KEY_IDCODE));
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
@@ -138,5 +141,48 @@ public class DbTableHomework {
     static public void deleteHomework(String homeworkName) {
         String sql = "DELETE FROM " + KEY_TABLE_HOMEWORK + " WHERE " + KEY_NAME + " = ?";
         DbUtils.updateWithOneParam(sql, homeworkName);
+    }
+
+    public static ArrayList<Homework> getHomeworksForSyncing() {
+        ArrayList<Homework> homeworks = new ArrayList<>();
+        String sql = "SELECT * FROM " + KEY_TABLE_HOMEWORK;
+        Timestamp lastSync = Utilities.StringToTimestamp(DBTableSyncOp.GetLastSyncOp());
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement stmt = c.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                if (rs.getString(KEY_IDCODE) != null && rs.getString(KEY_IDCODE).length() > 0 &&
+                        lastSync.before(Utilities.StringToTimestamp(rs.getString(KEY_MODIF_DATE)))) {
+                    Homework homework = new Homework();
+                    homework.setUid(rs.getString(KEY_UID));
+                    homework.setName(rs.getString(KEY_NAME));
+                    homework.setIdCode(rs.getString(KEY_IDCODE));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
+                    homework.setDueDate(date);
+                    homeworks.add(homework);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (Homework homework : homeworks) {
+            homework.setQuestions(DbTableRelationHomeworkQuestion.getQuestionIdsFromHomeworkName(homework.getName()));
+        }
+
+        return homeworks;
+    }
+
+    public static void setHomeworkUID(String uid, String name) {
+        String sql = "UPDATE " + KEY_TABLE_HOMEWORK + " SET " + KEY_UID + "=? WHERE " + KEY_NAME + "=?";
+        DbUtils.updateWithTwoParam(sql, uid, name);
+    }
+
+    public static void updateHomeworkTimestamp(String hwName) {
+        String sql = "UPDATE " + KEY_TABLE_HOMEWORK + " SET " + KEY_MODIF_DATE + "=? WHERE " + KEY_NAME + "=?";
+        DbUtils.updateWithTwoParam(sql, Utilities.TimestampForNowAsString(), hwName);
     }
 }
