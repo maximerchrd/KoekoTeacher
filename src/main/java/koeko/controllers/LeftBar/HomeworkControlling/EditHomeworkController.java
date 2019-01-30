@@ -49,7 +49,7 @@ public class EditHomeworkController extends Window implements Initializable {
     public void saveHomework() {
         if (oldName.contentEquals(homeworkName.getText()) || !DbTableHomework.checkIfNameAlreadyExists(homeworkName.getText())) {
             homeworkListCell.getItem().setName(homeworkName.getText());
-            homeworkListCell.getItem().setDueDate(datePicker.getValue());
+            homeworkListCell.getItem().setDueDate(datePicker.getValue().toString());
             homeworkListCell.getItem().setIdCode(homeworkKeyCombobox.getSelectionModel().getSelectedItem().toString());
             homeworkListCell.updateItem(homeworkListCell.getItem(), false);
             DbTableHomework.updateHomework(homeworkListCell.getItem(), oldName);

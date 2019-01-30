@@ -37,7 +37,7 @@ public class CreateHomeworkController extends Window implements Initializable {
                 Homework homework = new Homework();
                 homework.setName(homeworkName.getText());
                 homework.setIdCode(homeworkKeyCombobox.getSelectionModel().getSelectedItem().toString());
-                homework.setDueDate(datePicker.getValue());
+                homework.setDueDate(datePicker.getValue().toString());
                 DbTableHomework.insertHomework(homework);
                 Koeko.leftBarController.homeworksList.getItems().add(homework);
                 Koeko.leftBarController.homeworksList.getSelectionModel().select(homework);

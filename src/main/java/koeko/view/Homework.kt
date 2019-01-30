@@ -7,7 +7,7 @@ class Homework : Serializable {
     var uid = ""
     var name = ""
     var idCode = ""
-    var dueDate = LocalDate.now()
+    var dueDate = ""
     var questions = ArrayList<String>()
     var resources = ArrayList<String>()
 }

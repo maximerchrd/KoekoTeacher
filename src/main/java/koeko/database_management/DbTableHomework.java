@@ -79,11 +79,11 @@ public class DbTableHomework {
                 homework.setIdCode(rs.getString(KEY_IDCODE));
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
-                homework.setDueDate(date);
+                homework.setDueDate(date.toString());
                 Boolean inserted = false;
-                if (homework.getDueDate().isBefore(LocalDate.now())) {
+                if (date.isBefore(LocalDate.now())) {
                     for (int i = 0; i < oldHomeworks.size(); i++) {
-                        if (homework.getDueDate().isAfter(oldHomeworks.get(i).getDueDate())) {
+                        if (date.isAfter(LocalDate.parse(oldHomeworks.get(i).getDueDate(), formatter))) {
                             oldHomeworks.add(i, homework);
                             inserted = true;
                             break;
@@ -94,7 +94,7 @@ public class DbTableHomework {
                     }
                 } else {
                     for (int i = 0; i < homeworks.size(); i++) {
-                        if (homework.getDueDate().isBefore(homeworks.get(i).getDueDate())) {
+                        if (date.isBefore(LocalDate.parse(homeworks.get(i).getDueDate(), formatter))) {
                             homeworks.add(i, homework);
                             inserted = true;
                             break;
@@ -127,7 +127,7 @@ public class DbTableHomework {
                 homework.setIdCode(rs.getString(KEY_IDCODE));
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
-                homework.setDueDate(date);
+                homework.setDueDate(date.toString());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -159,7 +159,7 @@ public class DbTableHomework {
                     homework.setIdCode(rs.getString(KEY_IDCODE));
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                     LocalDate date = LocalDate.parse(rs.getString(KEY_DUEDATE), formatter);
-                    homework.setDueDate(date);
+                    homework.setDueDate(date.toString());
                     homeworks.add(homework);
                 }
             }

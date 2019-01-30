@@ -20,6 +20,8 @@ import koeko.database_management.DbTableRelationHomeworkStudent;
 import koeko.view.Homework;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class HomeworkListCell extends ListCell<Homework> {
@@ -107,7 +109,9 @@ public class HomeworkListCell extends ListCell<Homework> {
             e.printStackTrace();
         }
         EditHomeworkController controller = fxmlLoader.getController();
-        controller.initParams(homeworkListCell.getItem().getName(), homeworkListCell.getItem().getDueDate(), homeworkListCell);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(homeworkListCell.getItem().getDueDate(), formatter);
+        controller.initParams(homeworkListCell.getItem().getName(), date, homeworkListCell);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
