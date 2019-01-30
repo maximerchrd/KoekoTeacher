@@ -543,6 +543,8 @@ public class NetworkCommunication {
                             writer.flush();
                         } else if (answerString.split("///")[0].contentEquals("REQUEST")) {
                             sendResourceWithId(answerString.split("///")[2], answerString.split("///")[1]);
+                        } else if (answerString.split("///")[0].contentEquals("RESULT")) {
+                            ReceptionProtocol.receivedRESULT(answerString, answerInStream, arg_student.getStudentID());
                         }
                     } else {
                         System.out.println("Communication over?");

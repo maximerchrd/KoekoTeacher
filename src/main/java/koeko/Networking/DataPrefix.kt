@@ -54,6 +54,7 @@ class DataPrefix {
 }
 
 object DataPref {
+    const val size = 80
     const val multq = "MULTQ"
     const val shrta = "SHRTA"
     const val qid = "QID"

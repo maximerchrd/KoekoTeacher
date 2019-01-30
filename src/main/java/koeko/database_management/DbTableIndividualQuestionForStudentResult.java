@@ -4,6 +4,7 @@ import koeko.controllers.ResultsTable.SingleResultForTable;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.questions_management.QuestionShortAnswer;
 import koeko.students_management.Student;
+import koeko.view.Result;
 import koeko.view.Utilities;
 
 import java.io.FileNotFoundException;
@@ -15,12 +16,31 @@ import java.util.*;
  * Created by maximerichard on 24.11.17.
  */
 public class DbTableIndividualQuestionForStudentResult {
+    static public final int type2ClassroomActivity = 0;
+    static public final int type2Homework = 2;
+    static public final int type2FreePractice = 3;
+    static private final String TABLE_NAME = "individual_question_for_student_result";
+    static private final String KEY_QUESTION_TYPE = "QUESTION_TYPE";
+    static private final String KEY_QUESTION_TYPE2 = "QUESTION_TYPE2";
+    static private final String KEY_ID_GLOBAL = "ID_GLOBAL";
+    static private final String KEY_ID_STUDENT_GLOBAL = "ID_STUDENT_GLOBAL";
+    static private final String KEY_DATE = "DATE";
+    static private final String KEY_ANSWERS = "ANSWERS";
+    static private final String KEY_TIME_FOR_SOLVING = "TIME_FOR_SOLVING";
+    static private final String KEY_QUESTION_WEIGHT = "QUESTION_WEIGHT";
+    static private final String KEY_EVAL_TYPE = "EVAL_TYPE";
+    static private final String KEY_QUANTITATIVE_EVAL = "QUANTITATIVE_EVAL";
+    static private final String KEY_QUALITATIVE_EVAL = "QUALITATIVE_EVAL";
+    static private final String KEY_TEST_BELONGING = "TEST_BELONGING";
+    static private final String KEY_WEIGHTS_OF_ANSWERS = "WEIGHTS_OF_ANSWERS";
+
     static public void createTableDirectEvaluationOfObjective(Connection connection, Statement statement) {
         try {
             statement = connection.createStatement();
             String sql = "CREATE TABLE IF NOT EXISTS individual_question_for_student_result " +
                     "(ID_DIRECT_EVAL        INTEGER PRIMARY KEY AUTOINCREMENT," +
                     " QUESTION_TYPE             INT, " +        //0: Question Multiple Choice; 1: Question Short Answer; 2: Objective
+                    " QUESTION_TYPE2             INT, " +
                     " ID_GLOBAL             INT    NOT NULL, " +
                     " ID_STUDENT_GLOBAL     INT    NOT NULL, " +
                     " DATE                  TEXT    NOT NULL, " +
@@ -560,5 +580,34 @@ public class DbTableIndividualQuestionForStudentResult {
         } else {
             return finalScore;
         }
+    }
+
+    public static void addResult(Result result, String studentId) {
+        String sql = "INSERT INTO " + TABLE_NAME + " (" + KEY_ANSWERS + "," + KEY_DATE + "," + KEY_EVAL_TYPE + "," +
+                KEY_ID_GLOBAL + "," + KEY_ID_STUDENT_GLOBAL + "," + KEY_QUALITATIVE_EVAL + "," + KEY_QUANTITATIVE_EVAL + "," + KEY_QUESTION_TYPE + "," +
+                KEY_QUESTION_TYPE2 + "," + KEY_QUESTION_WEIGHT + "," + KEY_TEST_BELONGING + "," + KEY_TIME_FOR_SOLVING + "," +
+                KEY_WEIGHTS_OF_ANSWERS + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        try (Connection c = Utilities.getDbConnection();
+                PreparedStatement stmt = c.prepareStatement(sql)) {
+            stmt.setString(1, result.getAnswers());
+            stmt.setString(2, result.getDate());
+            stmt.setString(3, result.getEvalType());
+            stmt.setString(4, result.getResourceUid());
+            stmt.setString(5, studentId);
+            stmt.setString(6, result.getQualitativeEval());
+            stmt.setString(7, result.getQuantitativeEval());
+            stmt.setInt(8, result.getType1());
+            stmt.setInt(9, result.getType2());
+            stmt.setString(10, String.valueOf(result.getResourceWeight()));
+            stmt.setString(11, result.getTestBelonging());
+            stmt.setInt(12, result.getTimeForSolving());
+            stmt.setString(13, result.getAnswersWeights());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
