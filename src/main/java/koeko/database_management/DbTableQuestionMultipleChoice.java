@@ -374,14 +374,19 @@ public class DbTableQuestionMultipleChoice {
 
     static public Vector<QuestionView> getQuestionsMultipleChoiceView() {
         Vector<QuestionView> questions = new Vector<>();
-        String query = "SELECT * FROM multiple_choice_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
+        String query = "SELECT * FROM multiple_choice_questions";
+        Timestamp lastSyncTime = DbTableSettings.getLastSyncAsTimestamp();
         try (Connection c = Utilities.getDbConnection();
                 PreparedStatement stmt = c.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                QuestionView qcm = new QuestionView();
-                QuestionMultipleChoiceViewFromRecord(qcm, rs);
-                questions.add(qcm);
+                Timestamp questUpdTime = DbUtils.getModifDateAsTimestamp(rs);
+                if (questUpdTime.after(lastSyncTime) || rs.getString("IDENTIFIER") == null ||
+                        rs.getString("IDENTIFIER").length() < 15) {
+                    QuestionView qcm = new QuestionView();
+                    QuestionMultipleChoiceViewFromRecord(qcm, rs);
+                    questions.add(qcm);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

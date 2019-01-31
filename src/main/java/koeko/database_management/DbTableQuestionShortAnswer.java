@@ -218,23 +218,27 @@ public class DbTableQuestionShortAnswer {
 
     static public Vector<QuestionView> getQuestionViews() {
         Vector<QuestionView> questionViews = new Vector<>();
-
-        String sql = "SELECT * FROM short_answer_questions WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop) OR LENGTH(TRIM(IDENTIFIER))<15;";
+        Timestamp lastSyncTime = DbTableSettings.getLastSyncAsTimestamp();
+        String sql = "SELECT * FROM short_answer_questions";
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                QuestionView questionMultipleChoiceView = new QuestionView();
-                questionMultipleChoiceView.setID(rs.getString("ID_GLOBAL"));
-                questionMultipleChoiceView.setTYPE(1);
-                questionMultipleChoiceView.setQUESTION(rs.getString("QUESTION"));
-                questionMultipleChoiceView.setQCM_MUID(rs.getString("IDENTIFIER"));
-                questionMultipleChoiceView.setIMAGE(rs.getString("IMAGE_PATH"));
-                questionMultipleChoiceView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
-                questionMultipleChoiceView.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
-                questionViews.add(questionMultipleChoiceView);
+                Timestamp modifDate = DbUtils.getModifDateAsTimestamp(rs);
+                if (modifDate.after(lastSyncTime) || rs.getString("IDENTIFIER") == null ||
+                        rs.getString("IDENTIFIER").length() < 15) {
+                    QuestionView questionMultipleChoiceView = new QuestionView();
+                    questionMultipleChoiceView.setID(rs.getString("ID_GLOBAL"));
+                    questionMultipleChoiceView.setTYPE(1);
+                    questionMultipleChoiceView.setQUESTION(rs.getString("QUESTION"));
+                    questionMultipleChoiceView.setQCM_MUID(rs.getString("IDENTIFIER"));
+                    questionMultipleChoiceView.setIMAGE(rs.getString("IMAGE_PATH"));
+                    questionMultipleChoiceView.setQCM_UPD_TMS(rs.getTimestamp("MODIF_DATE"));
+                    questionMultipleChoiceView.setTimerSeconds(rs.getInt("TIMER_SECONDS"));
+                    questionViews.add(questionMultipleChoiceView);
+                }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

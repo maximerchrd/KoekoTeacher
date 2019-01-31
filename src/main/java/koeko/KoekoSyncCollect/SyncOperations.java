@@ -124,7 +124,7 @@ public class SyncOperations {
             System.out.println("Ending synchronization");
 
             // Take note of last sync
-            DBTableSyncOp.SetLastSyncOp(Utilities.TimestampForNowAsString());
+            DbTableSettings.insertSyncTime(Utilities.TimestampForNowAsString());
             System.out.println("Marking sync time");
         }
     }

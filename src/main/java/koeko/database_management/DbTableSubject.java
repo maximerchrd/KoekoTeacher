@@ -4,6 +4,7 @@ import koeko.view.Utilities;
 
 import javax.rmi.CORBA.Util;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
@@ -327,30 +328,23 @@ public class DbTableSubject {
         Statement stmt = null;
         stmt = null;
         try {
+            Timestamp lastSyncTime = DbTableSettings.getLastSyncAsTimestamp();
+
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
             c.setAutoCommit(false);
             stmt = c.createStatement();
-            String query = "SELECT * FROM subjects WHERE MODIF_DATE > (SELECT LAST_TS FROM syncop);";
+            String query = "SELECT * FROM subjects";
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String sbjName = rs.getString("SUBJECT");
-                int sbjId = rs.getInt("ID_SUBJECT");
-                String sbjMUID = rs.getString("IDENTIFIER");
-                Timestamp sbjUPD_DTS;
-                if (rs.getString("MODIF_DATE") != null) {
-                    try {
-                        sbjUPD_DTS = Timestamp.valueOf(rs.getString("MODIF_DATE"));
-                    } catch(IllegalArgumentException e) {
-                        sbjUPD_DTS = new Timestamp(0);
-                        System.out.println(rs.getString("MODIF_DATE"));
-                        e.printStackTrace();
-                    }
-                } else {
-                    sbjUPD_DTS = new Timestamp(0);
+                Timestamp sbjUPD_DTS = DbUtils.getModifDateAsTimestamp(rs);
+                if (sbjUPD_DTS.after(lastSyncTime)) {
+                    String sbjName = rs.getString("SUBJECT");
+                    int sbjId = rs.getInt("ID_SUBJECT");
+                    String sbjMUID = rs.getString("IDENTIFIER");
+                    Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
+                    subjects.add(sbj);
                 }
-                Subject sbj = new Subject(sbjName, sbjId, sbjMUID, sbjUPD_DTS);
-                subjects.add(sbj);
             }
             stmt.close();
             c.commit();

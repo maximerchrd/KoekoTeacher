@@ -124,18 +124,21 @@ public class DbTableLearningObjectives {
     static public Vector<Objective> getObjectives(String language) {
         Vector<Objective> objectives = new Vector<>();
         String sql = 	"SELECT * FROM learning_objectives";
+        Timestamp lastSyncTime = DbTableSettings.getLastSyncAsTimestamp();
         try (Connection conn = Utilities.getDbConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Objective newObj = new Objective();
-                newObj.set_objectiveMUID(rs.getString("IDENTIFIER"));
-                newObj.set_objectiveName(rs.getString("OBJECTIVE"));
-                newObj.set_objectiveLevel(rs.getInt("LEVEL_COGNITIVE_ABILITY"));
-                newObj.set_objectiveLanguage(language);
-                objectives.add(newObj);
+                Timestamp objUPD_DTS = DbUtils.getModifDateAsTimestamp(rs);
+                if (objUPD_DTS.after(lastSyncTime)) {
+                    Objective newObj = new Objective();
+                    newObj.set_objectiveMUID(rs.getString("IDENTIFIER"));
+                    newObj.set_objectiveName(rs.getString("OBJECTIVE"));
+                    newObj.set_objectiveLevel(rs.getInt("LEVEL_COGNITIVE_ABILITY"));
+                    newObj.set_objectiveLanguage(language);
+                    objectives.add(newObj);
+                }
             }
 
         } catch (SQLException e) {

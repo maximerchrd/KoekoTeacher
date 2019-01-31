@@ -2,10 +2,7 @@ package koeko.database_management;
 
 import koeko.view.Utilities;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class DbUtils {
@@ -141,5 +138,21 @@ public class DbUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static public Timestamp getModifDateAsTimestamp(ResultSet rs) throws SQLException {
+        Timestamp modifDate;
+        if (rs.getString("MODIF_DATE") != null) {
+            try {
+                modifDate = Timestamp.valueOf(rs.getString("MODIF_DATE"));
+            } catch(IllegalArgumentException e) {
+                modifDate = new Timestamp(0);
+                System.out.println(rs.getString("MODIF_DATE"));
+                e.printStackTrace();
+            }
+        } else {
+            modifDate = new Timestamp(0);
+        }
+        return modifDate;
     }
 }

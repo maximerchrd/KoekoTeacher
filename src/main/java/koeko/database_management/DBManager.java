@@ -58,7 +58,6 @@ public class DBManager {
 		DbTableRelationObjectiveTest.createTableRelationObjectiveTest(c,stmt);
 		DbTableProfessor.createTableProfessor(c, stmt);
 		DbTableRelationQuestionQuestion.createTableRelationQuestionQuestion(c, stmt);
-		DBTableSyncOp.createTableSyncOp(c, stmt);
 		DbTableLogs.createTableClasses(c, stmt);
 		DbTableSubnetResult.createTableSubnetResults();
 		DbTableHomework.createTableHomeworks();

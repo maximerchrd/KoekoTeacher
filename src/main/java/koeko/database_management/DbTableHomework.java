@@ -146,7 +146,7 @@ public class DbTableHomework {
     public static ArrayList<Homework> getHomeworksForSyncing() {
         ArrayList<Homework> homeworks = new ArrayList<>();
         String sql = "SELECT * FROM " + KEY_TABLE_HOMEWORK;
-        Timestamp lastSync = Utilities.StringToTimestamp(DBTableSyncOp.GetLastSyncOp());
+        Timestamp lastSync = Utilities.StringToTimestamp(DbTableSettings.getLastSyncTime());
         try (Connection c = Utilities.getDbConnection();
              PreparedStatement stmt = c.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
