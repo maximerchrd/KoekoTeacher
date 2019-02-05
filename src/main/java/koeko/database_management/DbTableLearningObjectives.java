@@ -1,9 +1,11 @@
 package koeko.database_management;
 
+import koeko.questions_management.ObjectiveTransferable;
 import koeko.view.Objective;
 import koeko.view.Utilities;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -96,6 +98,29 @@ public class DbTableLearningObjectives {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 objectives.add(rs.getString("OBJECTIVE"));
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+        }
+
+        return objectives;
+    }
+
+    static public ArrayList<ObjectiveTransferable> getObjectiveObjectsForQuestionID(String questionID) {
+        ArrayList<ObjectiveTransferable> objectives = new ArrayList<>();
+        String query = "SELECT OBJECTIVE FROM learning_objectives " +
+                "INNER JOIN question_objective_relation ON learning_objectives.ID_OBJECTIVE_GLOBAL = question_objective_relation.ID_OBJECTIVE_GLOBAL " +
+                "INNER JOIN generic_questions ON generic_questions.ID_GLOBAL = question_objective_relation.ID_GLOBAL " +
+                "WHERE generic_questions.ID_GLOBAL = ?";
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, questionID);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                ObjectiveTransferable objective = new ObjectiveTransferable();
+                objective.set_objectiveName(rs.getString("OBJECTIVE"));
+                objective.setQuestionId(questionID);
+                objectives.add(objective);
             }
         } catch ( Exception e ) {
             e.printStackTrace();

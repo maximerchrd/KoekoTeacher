@@ -571,7 +571,11 @@ public class LeftBarController extends Window implements Initializable {
                 for (int j = 3; j < Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getColumns().size(); j++) {
                     String objective = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getColumns().get(j).getText();
                     String evaluation = Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(i).getAnswers().get(j - 3).getValue();
-                    NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
+                    try {
+                        NetworkCommunication.networkCommunicationSingleton.sendTestEvaluation(studentName, test, objective, evaluation);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

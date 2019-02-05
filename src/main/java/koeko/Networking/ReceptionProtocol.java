@@ -3,6 +3,8 @@ package koeko.Networking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.util.ArrayUtils;
 import koeko.Koeko;
+import koeko.Networking.OtherTransferables.ShortCommand;
+import koeko.Networking.OtherTransferables.ShortCommands;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.questions_management.Test;
@@ -22,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ReceptionProtocol {
     static private AtomicBoolean startingNearby = new AtomicBoolean(false);
 
-    static public Student receivedCONN(Student arg_student, String answerString, Classroom aClass) {
+    static public Student receivedCONN(Student arg_student, String answerString, Classroom aClass) throws IOException {
         Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), answerString.split("///")[1]);
         if (student == null) {
             student = arg_student;
@@ -59,7 +61,9 @@ public class ReceptionProtocol {
             Koeko.gameControllerSingleton.addStudent(student);
         }
 
-        NetworkCommunication.networkCommunicationSingleton.sendString(arg_student, "CONNECTED///");
+        ShortCommand shortCommand = new ShortCommand();
+        shortCommand.setCommand(ShortCommands.connected);
+        NetworkCommunication.networkCommunicationSingleton.sendTransferableObjectWithoutId(shortCommand, arg_student);
         activateNearbyIfNecessary(0);
 
         return student;
@@ -130,7 +134,7 @@ public class ReceptionProtocol {
         }
     }
 
-    private static void activateNearbyIfNecessary(int trials) {
+    private static void activateNearbyIfNecessary(int trials) throws IOException {
         if (!startingNearby.get()) {
             startingNearby.set(true);
             NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();

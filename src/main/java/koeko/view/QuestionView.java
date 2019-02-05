@@ -3,7 +3,7 @@ package koeko.view;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class QuestionView implements Serializable {
+public class QuestionView extends TransferableObject implements Serializable {
     private String ID;
     private int TYPE;   //0: MCQ; 1: SHRTAQ; 2: TEST
     private String SUBJECT;
@@ -40,6 +40,7 @@ public class QuestionView implements Serializable {
 
 
     public QuestionView()	{
+        super(TransferPrefix.resource);
         ID="0";
         TYPE=-1;
         SUBJECT="";
@@ -68,6 +69,7 @@ public class QuestionView implements Serializable {
 
     public void setID(String ID) {
         this.ID = ID;
+        setObjectId(ID);
     }
 
     public int getTYPE() {
@@ -204,6 +206,8 @@ public class QuestionView implements Serializable {
 
     public void setIMAGE(String IMAGE) {
         this.IMAGE = IMAGE;
+        getFiles().clear();
+        getFiles().add(IMAGE);
     }
 
     public String getLANGUAGE() {

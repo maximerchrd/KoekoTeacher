@@ -1,12 +1,15 @@
 package koeko.questions_management;
 
+import koeko.view.TransferPrefix;
+import koeko.view.TransferableObject;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 /**
  * Created by maximerichard on 15.01.18.
  */
-public class Test {
+public class Test extends TransferableObject {
     private String testName;
     private String idTest;
     private String mediaFileName;
@@ -23,6 +26,7 @@ public class Test {
     private String updateTime;
 
     public Test() {
+        super(TransferPrefix.resource);
         this.testName = "";
         this.idTest = "-1";
         this.idsQuestions = new ArrayList<String>();

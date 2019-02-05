@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -39,7 +40,11 @@ public class EditEvaluationController implements Initializable {
     public void saveNewEvaluation() {
         DbTableIndividualQuestionForStudentResult.setEvalForQuestionAndStudentIDs(Double.valueOf(newEval.getText()),
                 identifier);
-        NetworkCommunication.networkCommunicationSingleton.updateEvaluation(Double.valueOf(newEval.getText()), globalID, studentID);
+        try {
+            NetworkCommunication.networkCommunicationSingleton.updateEvaluation(Double.valueOf(newEval.getText()), globalID, studentID);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Stage stage = (Stage) currentEval.getScene().getWindow();
         stage.close();
     }

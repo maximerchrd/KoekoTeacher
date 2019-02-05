@@ -204,12 +204,8 @@ public class functionalTesting {
         ArrayList<Student> students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
         for (int i = 0; i < students.size(); i++) {
             for (String id : questionPack) {
-                try {
-                    NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(id, students.get(i));
-                    //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(id, students.get(i));
+                //NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(1000 + j, students.get(i));
             }
         }
     }

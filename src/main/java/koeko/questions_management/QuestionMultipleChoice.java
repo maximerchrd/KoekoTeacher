@@ -62,7 +62,7 @@ public class QuestionMultipleChoice {
 	}
 	public QuestionMultipleChoice(String lEVEL, String qUESTION, String oPT0, String oPT1, String oPT2, String oPT3, String oPT4,
 								  String oPT5, String oPT6, String oPT7, String oPT8, String oPT9, String iMAGE) {
-		
+		ID = "0";
 		LEVEL = lEVEL;
 		QUESTION = qUESTION;
 		OPT0 = oPT0;

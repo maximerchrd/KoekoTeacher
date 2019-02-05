@@ -1,8 +1,8 @@
 package koeko.Networking;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import koeko.Koeko;
+import koeko.Networking.OtherTransferables.*;
 import koeko.Tools.FilesHandler;
 import koeko.controllers.Game.Game;
 import koeko.controllers.Game.GameView;
@@ -11,9 +11,7 @@ import koeko.controllers.LearningTrackerController;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
-import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.QuestionMultipleChoice;
-import koeko.questions_management.Test;
+import koeko.questions_management.*;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import javafx.application.Platform;
@@ -22,12 +20,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import koeko.view.QuestionView;
-import koeko.view.Utilities;
+import koeko.view.*;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -178,14 +174,15 @@ public class NetworkCommunication {
         for (Student student : students) {
             if (student.getOutputStream() != null) {
                 if (!handledOutputStreams.contains(student.getOutputStream())) {
-                    byte[] idBytearraystring = new byte[prefixSize];
-                    String questIDString = "QID:MLT///" + String.valueOf(QuestID) + "///" + String.valueOf(SettingsController.correctionMode) + "///";
-                    byte[] prefixBytesArray = questIDString.getBytes(Charset.forName("UTF-8"));
-                    for (int i = 0; i < prefixBytesArray.length && i < prefixSize; i++) {
-                        idBytearraystring[i] = prefixBytesArray[i];
+                    QuestionIdentifier questionIdentifier = new QuestionIdentifier();
+                    questionIdentifier.setPrefix(TransferPrefix.stateUpdate);
+                    questionIdentifier.setIdentifier(QuestID);
+                    questionIdentifier.setCorrectionMode(SettingsController.correctionMode);
+                    try {
+                        sendTransferableObjectWithoutId(questionIdentifier, student);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    System.out.println("sending question: " + new String(idBytearraystring) + " to single student");
-                    writeToOutputStream(student, idBytearraystring);
 
                     //if Nearby activated (layers), try to prevent sending twice to same outputStream
                     if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(student.getOutputStream())) {
@@ -198,89 +195,145 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
+//    public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
+//        QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
+//        if (questionMultipleChoice.getQUESTION().length() > 0) {
+//            ObjectMapper mapper = new ObjectMapper();
+//            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionMultipleChoice);
+//
+//            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
+//            int intfileLength = 0;
+//            File imageFile = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+//            if (!questionMultipleChoice.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+//                sendMediaFile(imageFile, student);
+//            }
+//
+//            //writing of the first 80 bytes
+//            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
+//            int textbyteslength = bytearraytext.length;
+//            DataPrefix dataPrefix = new DataPrefix(DataPref.multq, String.valueOf(textbyteslength), "", "");
+//            String stringPrefix = dataPrefix.parseToString();
+//            byte[] prefixBytes = new byte[prefixSize];
+//            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
+//                prefixBytes[i] = stringPrefix.getBytes()[i];
+//            }
+//            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
+//            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
+//
+//
+//            writeToOutputStream(student, questionID, wholeBytesArray);
+//            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
+//
+//            networkStateSingleton.getQuestionIdsToSend().add(questionID);
+//            sendOnlyId(student, questionID);
+//        }
+//    }
+
+    public void sendMultipleChoiceWithID(String questionID, Student student) {
         QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
+        questionMultipleChoice.setPrefix(TransferPrefix.resource);
         if (questionMultipleChoice.getQUESTION().length() > 0) {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionMultipleChoice);
-
-            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
-            int intfileLength = 0;
-            File imageFile = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
-            if (!questionMultipleChoice.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-                sendMediaFile(imageFile, student);
-            }
-
-            //writing of the first 80 bytes
-            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
-            int textbyteslength = bytearraytext.length;
-            DataPrefix dataPrefix = new DataPrefix(DataPref.multq, String.valueOf(textbyteslength), "", "");
-            String stringPrefix = dataPrefix.parseToString();
-            byte[] prefixBytes = new byte[prefixSize];
-            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
-                prefixBytes[i] = stringPrefix.getBytes()[i];
-            }
-            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
-            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
-
-            //for testing
-            if (functionalTesting.transferRateTesting) {
-                NetworkCommunication.fileLength = intfileLength;
-                NetworkCommunication.sendingStartTime = System.nanoTime();
-            }
-
-            writeToOutputStream(student, questionID, wholeBytesArray);
-            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
-
-            networkStateSingleton.getQuestionIdsToSend().add(questionID);
-            sendOnlyId(student, questionID);
+            sendTransferableObjectWithId(questionMultipleChoice, student, questionID);
+            sendSubjectsAndObjectsWithQuestionId(questionID, student);
         }
     }
 
-    public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
+    public void sendShortAnswerQuestionWithID(String questionID, Student student) {
         QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
-
+        questionShortAnswer.setPrefix(TransferPrefix.resource);
         if (questionShortAnswer.getQUESTION().length() > 0) {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionShortAnswer);
-
-            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
-            int intfileLength = 0;
-            File imageFile = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
-            if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-                sendMediaFile(imageFile, student);
-            }
-
-            //writing of the first 80 bytes
-            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
-            int textbyteslength = bytearraytext.length;
-            DataPrefix dataPrefix = new DataPrefix(DataPref.shrta, String.valueOf(textbyteslength), "", "");
-            String stringPrefix = dataPrefix.parseToString();
-            byte[] prefixBytes = new byte[prefixSize];
-            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
-                prefixBytes[i] = stringPrefix.getBytes()[i];
-            }
-            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
-            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
-
-            writeToOutputStream(student, questionID, wholeBytesArray);
-            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
-
-            networkStateSingleton.getQuestionIdsToSend().add(questionID);
-            sendOnlyId(student, questionID);
+            sendTransferableObjectWithId(questionShortAnswer, student, questionID);
+            sendSubjectsAndObjectsWithQuestionId(questionID, student);
         }
     }
+
+    private void sendSubjectsAndObjectsWithQuestionId(String questionId, Student student) {
+        ArrayList<SubjectTransferable> subjects = DbTableSubject.getSubjectsObjectsForQuestionID(questionId);
+        for (SubjectTransferable subject : subjects) {
+            subject.setPrefix(TransferPrefix.resource);
+            sendTransferableObjectWithId(subject, student, questionId);
+        }
+        ArrayList<ObjectiveTransferable> objectives = DbTableLearningObjectives.getObjectiveObjectsForQuestionID(questionId);
+        for (ObjectiveTransferable objective : objectives) {
+            objective.setPrefix(TransferPrefix.resource);
+            sendTransferableObjectWithId(objective, student, questionId);
+        }
+    }
+
+    public void sendTransferableObjectWithId(TransferableObject transferableObject, Student student, String objectId) {
+        int intfileLength = 0;
+        for (String file : transferableObject.getFiles()) {
+            File imageFile = new File(FilesHandler.mediaDirectory + file);
+            intfileLength = Long.valueOf(imageFile.length()).intValue();
+            if (!file.equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+                sendMediaFile(imageFile, student);
+            }
+        }
+
+        //for testing
+        if (functionalTesting.transferRateTesting) {
+            NetworkCommunication.fileLength = intfileLength;
+            NetworkCommunication.sendingStartTime = System.nanoTime();
+        }
+
+        writeToOutputStream(student, objectId, transferableObject.objectToByteArray());
+        networkStateSingleton.getQuestionIdsToSend().add(objectId);
+        sendOnlyId(student, objectId);
+    }
+
+    public void sendTransferableObjectWithoutId(TransferableObject transferableObject, Student student) throws IOException {
+        for (String file : transferableObject.getFiles()) {
+            int intfileLength = 0;
+            File imageFile = new File(FilesHandler.mediaDirectory + file);
+            if (!file.equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+                sendMediaFile(imageFile, student);
+            }
+        }
+
+        writeToOutputStream(student, transferableObject.objectToByteArray());
+    }
+
+//    public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
+//        QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
+//
+//        if (questionShortAnswer.getQUESTION().length() > 0) {
+//            ObjectMapper mapper = new ObjectMapper();
+//            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionShortAnswer);
+//
+//            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
+//            int intfileLength = 0;
+//            File imageFile = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
+//            if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
+//                sendMediaFile(imageFile, student);
+//            }
+//
+//            //writing of the first 80 bytes
+//            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
+//            int textbyteslength = bytearraytext.length;
+//            DataPrefix dataPrefix = new DataPrefix(DataPref.shrta, String.valueOf(textbyteslength), "", "");
+//            String stringPrefix = dataPrefix.parseToString();
+//            byte[] prefixBytes = new byte[prefixSize];
+//            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
+//                prefixBytes[i] = stringPrefix.getBytes()[i];
+//            }
+//            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
+//            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
+//
+//            writeToOutputStream(student, questionID, wholeBytesArray);
+//            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
+//
+//            networkStateSingleton.getQuestionIdsToSend().add(questionID);
+//            sendOnlyId(student, questionID);
+//        }
+//    }
 
     public ArrayList<String> sendTestWithID(String testID, Student student) {
         Test testToSend = new Test();
         try {
             testToSend = DbTableTest.getTestWithID(testID);
             testToSend.setMedalsInstructions(DbTableTest.getMedals(testToSend.getTestName()));
-            byte[] bytesArray = DataConversion.testToBytesArray(testToSend);
-            writeToOutputStream(student, bytesArray);
-        } catch (JsonProcessingException e1) {
-            e1.printStackTrace();
-        } catch (Exception e) {
+            sendTest(testToSend, student);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -295,29 +348,52 @@ public class NetworkCommunication {
         return testToSend.getIdsQuestions();
     }
 
-    public void sendTestEvaluation(String studentName, String test, String objective, String evaluation) {
+    private void sendTest(Test test, Student student) throws IOException {
+        TestView testView = new TestView();
+        testView.setIdTest(test.getIdTest());
+        testView.setTestName(test.getTestName());
+        testView.setTestMode(test.getTestMode());
+
+        String objectives = "";
+        for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
+            objectives += test.getObjectivesIDs().get(i) + "/|/";
+            objectives += test.getObjectives().get(i) + "|||";
+        }
+        testView.setObjectives(objectives);
+        testView.setMedalInstructions(test.getMedalsInstructions());
+        //shorten media file name
+        if (test.getSendMediaFile() == 1 && test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
+            testView.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
+        }
+
+        String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
+        testView.setTestMap(testMap);
+        testView.setUpdateTime(test.getUpdateTime());
+
+        //insert the question ids into the test
+        ArrayList<String> questionIDs = new ArrayList<>();
+        String[] questionMapIDs = testMap.split("\\|\\|\\|");
+        for (int i = 0; i < questionMapIDs.length; i++) {
+            if (!questionMapIDs[i].contentEquals("")) {
+                questionIDs.add(questionMapIDs[i].split(";;;")[0]);
+            }
+        }
+        test.setIdsQuestions(questionIDs);
+
+        sendTransferableObjectWithoutId(testView, student);
+    }
+
+    public void sendTestEvaluation(String studentName, String test, String objective, String evaluation) throws IOException {
         Student student = aClass.getStudentWithName(studentName);
         if (student.getOutputStream() != null) {
-            String testId = DbTableTest.getTestIdWithName(test);
-            String objectiveId = DbTableLearningObjectives.getObjectiveIdFromName(objective);
-            String toSend = testId + "///" + test + "///" + objectiveId + "///" + objective + "///" + evaluation + "///";
-            System.out.println("Sending string: " + toSend);
-            try {
-                byte[] bytesArray = toSend.getBytes();
-                String prefix = "OEVAL:" + bytesArray.length + "///";
-                byte[] bytesPrefix = new byte[prefixSize];
-                byte[] bytesPrefixString = prefix.getBytes();
-                for (int i = 0; i < bytesPrefixString.length; i++) {
-                    bytesPrefix[i] = bytesPrefixString[i];
-                }
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                outputStream.write(bytesPrefix);
-                outputStream.write(bytesArray);
-                byte wholeBytesArray[] = outputStream.toByteArray();
-                writeToOutputStream(student, wholeBytesArray);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Evaluation evaluationObject = new Evaluation();
+            evaluationObject.setEvaluationType(EvaluationTypes.objectiveEvaluation);
+            evaluationObject.setEvaluation(Double.parseDouble(evaluation));
+            evaluationObject.setIdentifier(DbTableLearningObjectives.getObjectiveIdFromName(objective));
+            evaluationObject.setName(objective);
+            evaluationObject.setTestIdentifier(DbTableTest.getTestIdWithName(test));
+            evaluationObject.setTestName(test);
+            sendTransferableObjectWithoutId(evaluationObject, student);
         }
     }
 
@@ -616,8 +692,6 @@ public class NetworkCommunication {
             sendQuestionID(resourceId, singleStudent);
         } catch (NumberFormatException e) {
             System.err.println("Received request but resource id not in number format");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -638,38 +712,20 @@ public class NetworkCommunication {
             networkStateSingleton.getQuestionIdsToSend().add(mediaName);
             sendOnlyId(student, mediaName);
 
-            String infoString = "FILE///" + mediaName + "///" + fileData.length + "///";
-            byte[] infoPrefix = new byte[prefixSize];
-            for (int i = 0; i < infoPrefix.length && i < infoString.getBytes().length; i++) {
-                infoPrefix[i] = infoString.getBytes()[i];
-            }
-            byte[] allData = Arrays.copyOf(infoPrefix, infoPrefix.length + fileData.length);
-            System.arraycopy(fileData, 0, allData, infoPrefix.length, fileData.length);
-            writeToOutputStream(student, mediaName, allData);
-
+            TransferableObject fileTransferable = new TransferableObject(TransferPrefix.file);
+            fileTransferable.setObjectId(mediaName);
+            fileTransferable.setFileBytes(fileData);
+            sendTransferableObjectWithId(fileTransferable, student, fileTransferable.getObjectId());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void sendEvaluation(double evaluation, String questionID, Student student) {
-        String evalToSend = "EVAL///" + evaluation + "///" + questionID + "///";
-        System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[prefixSize];
-        int bytes_length = 0;
-        try {
-            bytes_length = evalToSend.getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < bytes_length; i++) {
-            try {
-                bytes[i] = evalToSend.getBytes("UTF-8")[i];
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        writeToOutputStream(student, bytes);
+    public void sendEvaluation(double evaluation, String questionID, Student student) throws IOException {
+        Evaluation eval = new Evaluation();
+        eval.setEvaluation(evaluation);
+        eval.setIdentifier(questionID);
+        sendTransferableObjectWithoutId(eval, student);
 
         /**
          * CODE USED FOR TESTING
@@ -679,54 +735,30 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendGameScore(Student student, Double teamOneScore, Double teamTwoScore) {
-        String scoreString = "GAMESCORE///" + teamOneScore + "///" + teamTwoScore + "///";
-        byte[] prefixBytes = buildPrefixBytes(scoreString);
-        writeToOutputStream(student, prefixBytes);
+    public void sendGameScore(Student student, Double teamOneScore, Double teamTwoScore) throws IOException {
+        ShortCommand shortCommand = new ShortCommand();
+        shortCommand.setCommand(ShortCommands.gameScore);
+        shortCommand.setOptionalArgument1(teamOneScore.toString());
+        shortCommand.setOptionalArgument2(teamTwoScore.toString());
+        sendTransferableObjectWithoutId(shortCommand, student);
     }
 
-    public void updateEvaluation(double evaluation, String questionID, String studentID) {
+    public void updateEvaluation(double evaluation, String questionID, String studentID) throws IOException {
         Student student = aClass.getStudentWithID(studentID);
-        String evalToSend = "";
-
-        evalToSend += "UPDEV///" + evaluation + "///" + questionID + "///";
-        System.out.println("sending: " + evalToSend);
-        byte[] bytes = new byte[prefixSize];
-        int bytes_length = 0;
-        try {
-            bytes_length = evalToSend.getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < bytes_length; i++) {
-            try {
-                bytes[i] = evalToSend.getBytes("UTF-8")[i];
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        writeToOutputStream(student, bytes);
+        Evaluation eval = new Evaluation();
+        eval.setEvaluation(evaluation);
+        eval.setIdentifier(questionID);
+        eval.setEvalUpdate(true);
+        sendTransferableObjectWithoutId(eval, student);
     }
 
-    public void sendCorrection(String questionID) {
-        String messageToSend = "CORR///";
-        messageToSend += String.valueOf(questionID) + "///" + UUID.randomUUID().toString().substring(0, 4) + "///";
-        byte[] bytes = new byte[prefixSize];
-        int bytes_length = 0;
-        try {
-            bytes_length = messageToSend.getBytes("UTF-8").length;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < bytes_length; i++) {
-            try {
-                bytes[i] = messageToSend.getBytes("UTF-8")[i];
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
+    public void sendCorrection(String questionID) throws IOException {
+        ShortCommand shortCommand = new ShortCommand();
+        shortCommand.setCommand(ShortCommands.correction);
+        shortCommand.setOptionalArgument1(questionID);
+        shortCommand.setOptionalArgument2(UUID.randomUUID().toString().substring(0, 4));
         for (Student student : aClass.getStudents()) {
-            writeToOutputStream(student, bytes);
+            sendTransferableObjectWithoutId(shortCommand, student);
         }
     }
 
@@ -804,16 +836,17 @@ public class NetworkCommunication {
     public void sendActiveIds(Student student) {
         //send a list of the ids to sync
         if (network_solution == 1) {
-            String idsToSync = "";
+            SyncedIds syncedIds = new SyncedIds();
+            syncedIds.setPrefix(TransferPrefix.stateUpdate);
             for (String id : networkStateSingleton.getQuestionIdsToSend()) {
-                idsToSync += id + "|";
+                syncedIds.getIds().add(id);
             }
 
-            String stringPrefix = "SYNCIDS///" + idsToSync.getBytes().length + "///";
-            byte[] prefix = buildPrefixBytes(stringPrefix);
-            byte[] wholeBytesArray = Arrays.copyOf(prefix, prefix.length + idsToSync.getBytes().length);
-            System.arraycopy(idsToSync.getBytes(), 0, wholeBytesArray, prefix.length, idsToSync.getBytes().length);
-            writeToOutputStream(student, wholeBytesArray);
+            try {
+                sendTransferableObjectWithoutId(syncedIds, student);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         //send the active questions
@@ -857,15 +890,13 @@ public class NetworkCommunication {
 
     private void sendOnlyId(Student student, String id) {
         if (network_solution == 1) {
-            id += "|";
-            byte[] prefix = new byte[prefixSize];
-            String stringPrefix = "SYNCIDS///" + id.getBytes().length + "///";
-            for (int i = 0; i < stringPrefix.getBytes().length; i++) {
-                prefix[i] = stringPrefix.getBytes()[i];
+            SyncedIds syncedIds = new SyncedIds();
+            syncedIds.getIds().add(id);
+            try {
+                sendTransferableObjectWithoutId(syncedIds, student);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            byte[] wholeBytesArray = Arrays.copyOf(prefix, prefix.length + id.getBytes().length);
-            System.arraycopy(id.getBytes(), 0, wholeBytesArray, prefix.length, id.getBytes().length);
-            writeToOutputStream(student, wholeBytesArray);
         }
     }
 
@@ -883,12 +914,7 @@ public class NetworkCommunication {
                 for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
                     if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
                         GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
-                        ObjectMapper mapper = new ObjectMapper();
-                        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                        String prefix = "GAME///" + jsonString.getBytes().length + "///1///";
-                        byte[] prefixByte = buildPrefixBytes(prefix);
-                        byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
-                        writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                        sendTransferableObjectWithoutId(gameView, student);
                     }
                 }
             }
@@ -897,17 +923,13 @@ public class NetworkCommunication {
                 for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                     if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
                         GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
-                        ObjectMapper mapper = new ObjectMapper();
-                        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(gameView);
-                        String prefix = "GAME///" + jsonString.getBytes().length + "///2///";
-                        ;
-                        byte[] prefixByte = buildPrefixBytes(prefix);
-                        byte[] wholeByte = appendContentToPrefix(prefixByte, jsonString.getBytes());
-                        writeToOutputStream(studentCellView.getStudent(), wholeByte);
+                        sendTransferableObjectWithoutId(gameView, student);
                     }
                 }
             }
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -1090,17 +1112,20 @@ public class NetworkCommunication {
         }
     }
 
-    public void activateSubnet(DeviceInfo advertiser, DeviceInfo discoverer) {
+    public void activateSubnet(DeviceInfo advertiser, DeviceInfo discoverer) throws IOException {
         SubNet subNet = networkStateSingleton.activateAndGetNextSubnet(advertiser, discoverer);
-        String activationString = "ADVER///";
+        ShortCommand shortCommandAdver = new ShortCommand();
+        shortCommandAdver.setCommand(ShortCommands.advertiser);
         Student advertiserStudent = aClass.getStudentWithUniqueID(subNet.getAdvertiser().getUniqueId());
-        writeToOutputStream(advertiserStudent, buildPrefixBytes(activationString));
+        sendTransferableObjectWithoutId(shortCommandAdver, advertiserStudent);
         System.out.println("activating: " + advertiserStudent.getName() + " as advertiser");
 
-        String activationStringDiscoverer = "DISCOV///" + subNet.getName() + "///" +
-                subNet.getPassword() + "///";
+        ShortCommand shortCommandDiscov = new ShortCommand();
+        shortCommandDiscov.setCommand(ShortCommands.discoverer);
+        shortCommandDiscov.setOptionalArgument1(subNet.getName());
+        shortCommandDiscov.setOptionalArgument2(subNet.getPassword());
         Student discovererStudent = aClass.getStudentWithUniqueID(subNet.getDiscoverer().getUniqueId());
-        writeToOutputStream(discovererStudent, buildPrefixBytes(activationStringDiscoverer));
+        sendTransferableObjectWithoutId(shortCommandDiscov, discovererStudent);
         System.out.println("activating: " + discovererStudent.getName() + " as discoverer");
     }
 }

@@ -18,63 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DataConversion {
-    static public byte[] testToBytesArray(Test test) throws JsonProcessingException {
-        TestView testView = new TestView();
-        testView.setIdTest(test.getIdTest());
-        testView.setTestName(test.getTestName());
-        testView.setTestMode(test.getTestMode());
-
-        String objectives = "";
-        for (int i = 0; i < test.getObjectives().size() && i < test.getObjectivesIDs().size(); i++) {
-            objectives += test.getObjectivesIDs().get(i) + "/|/";
-            objectives += test.getObjectives().get(i) + "|||";
-        }
-        testView.setObjectives(objectives);
-        testView.setMedalInstructions(test.getMedalsInstructions());
-        //shorten media file name
-        if (test.getSendMediaFile() == 1 && test.getMediaFileName() != null && test.getMediaFileName().length() > 14) {
-            testView.setMediaFileName(test.getMediaFileName().substring(test.getMediaFileName().length() - 14, test.getMediaFileName().length()));
-        }
-
-        String testMap = DbTableRelationQuestionQuestion.getFormattedQuestionsLinkedToTest(test.getTestName());
-        testView.setTestMap(testMap);
-        testView.setUpdateTime(test.getUpdateTime());
-
-        //insert the question ids into the test
-        ArrayList<String> questionIDs = new ArrayList<>();
-        String[] questionMapIDs = testMap.split("\\|\\|\\|");
-        for (int i = 0; i < questionMapIDs.length; i++) {
-            if (!questionMapIDs[i].contentEquals("")) {
-                questionIDs.add(questionMapIDs[i].split(";;;")[0]);
-            }
-        }
-        test.setIdsQuestions(questionIDs);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testView);
-
-        byte[] bytearraytest = jsonString.getBytes();
-        String textDataSize = String.valueOf(bytearraytest.length);
-        String prefix = "TEST///" + textDataSize + "///";
-        byte[] byteArrayPrefix = prefix.getBytes();
-        byte[] wholeByteArray = new byte[80];
-        for (int i = 0; i < byteArrayPrefix.length; i++) {
-            wholeByteArray[i] = byteArrayPrefix[i];
-        }
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-        try {
-            outputStream.write(wholeByteArray);
-            outputStream.write(bytearraytest);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        wholeByteArray = outputStream.toByteArray( );
-
-        return  wholeByteArray;
-    }
-
     static public byte[] testEvalToBytesArray(String evalToSend) {
         byte[] bytearraytesteval = evalToSend.getBytes();
         String textDataSize = String.valueOf(bytearraytesteval.length);

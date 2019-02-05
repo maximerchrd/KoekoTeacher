@@ -1,10 +1,12 @@
 package koeko.database_management;
+import koeko.questions_management.SubjectTransferable;
 import koeko.view.Subject;
 import koeko.view.Utilities;
 
 import javax.rmi.CORBA.Util;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
 
@@ -164,6 +166,31 @@ public class DbTableSubject {
 
         return subjects;
     }
+
+    static public ArrayList<SubjectTransferable> getSubjectsObjectsForQuestionID(String questionID) {
+        ArrayList<SubjectTransferable> subjects = new ArrayList<>();
+        String query = "SELECT SUBJECT FROM subjects " +
+                "INNER JOIN question_subject_relation ON subjects.ID_SUBJECT_GLOBAL = question_subject_relation.ID_SUBJECT_GLOBAL " +
+                "INNER JOIN generic_questions ON generic_questions.ID_GLOBAL = question_subject_relation.ID_GLOBAL " +
+                "WHERE generic_questions.ID_GLOBAL = ?";
+        try (Connection c = Utilities.getDbConnection();
+             PreparedStatement stmt = c.prepareStatement(query)) {
+            stmt.setString(1, questionID);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                SubjectTransferable subject = new SubjectTransferable();
+                subject.set_subjectName(rs.getString("SUBJECT"));
+                subject.setQuestionId(questionID);
+                subjects.add(subject);
+            }
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+
+        return subjects;
+    }
+
     static public Vector<String> getAllSubjectsAsStrings() {
         Vector<String> subjects = new Vector<>();
         String query = "SELECT SUBJECT FROM subjects";

@@ -718,7 +718,11 @@ public class QuestionSendingController extends Window implements Initializable {
     }
 
     public void sendCorrection() {
-        NetworkCommunication.networkCommunicationSingleton.sendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+        try {
+            NetworkCommunication.networkCommunicationSingleton.sendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void importQuestions() {
@@ -1596,27 +1600,19 @@ public class QuestionSendingController extends Window implements Initializable {
 
     private void broadcastQuestionMultipleChoice(QuestionMultipleChoice questionMultipleChoice, Boolean actualSending) {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestMultChoice(questionMultipleChoice);
-        try {
-            System.out.println("broadcasting questions");
-            if (actualSending) {
-                NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
-            }
-            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
-        } catch (IOException e) {
-            e.printStackTrace();
+        System.out.println("broadcasting questions");
+        if (actualSending) {
+            NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
         }
+        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
     }
 
     private void broadcastQuestionShortAnswer(QuestionShortAnswer questionShortAnswer, Boolean actualSending) {
         NetworkCommunication.networkCommunicationSingleton.getClassroom().addQuestShortAnswer(questionShortAnswer);
-        try {
-            if (actualSending) {
-                NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
-            }
-            NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (actualSending) {
+            NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
         }
+        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
     }
 
     private void popUpIfQuestionCollision() {

@@ -15,6 +15,7 @@ import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.database_management.DBManager;
+import koeko.questions_management.QuestionMultipleChoice;
 import koeko.students_management.Classroom;
 import javafx.application.Application;
 import javafx.application.Platform;

@@ -1,12 +1,14 @@
 package koeko.view;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  * Created by maximerichard on 07.09.18.
  */
-public class TestView {
+public class TestView extends TransferableObject {
     private String testName;
     private String idTest;
     private String testMap;
@@ -15,6 +17,10 @@ public class TestView {
     private String mediaFileName;
     private String objectives;
     private String updateTime;
+
+    public TestView() {
+        super(TransferPrefix.resource);
+    }
 
 
     //getters

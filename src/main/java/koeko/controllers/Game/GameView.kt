@@ -1,12 +1,15 @@
 package koeko.controllers.Game
 
-class GameView {
+import koeko.view.TransferPrefix
+import koeko.view.TransferableObject
+
+class GameView : TransferableObject {
     var gameType = -1
     var endScore = 30
     var theme = 0
     var team = 0
 
-    constructor(gameType: Int = -1, endScore: Int = 30, theme: Int = 0, team: Int = 0) {
+    constructor(gameType: Int = -1, endScore: Int = 30, theme: Int = 0, team: Int = 0) : super(groupPrefix = TransferPrefix.resource) {
         this.gameType = gameType
         this.endScore = endScore
         this.theme = theme

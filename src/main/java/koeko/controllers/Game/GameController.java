@@ -15,6 +15,7 @@ import koeko.students_management.Student;
 import org.jetbrains.annotations.NotNull;
 import sun.nio.ch.Net;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -190,7 +191,7 @@ public class GameController extends Window implements Initializable {
         }
     }
 
-    public void scoreIncreased(Double scoreIncrease, Game game, Student student) {
+    public void scoreIncreased(Double scoreIncrease, Game game, Student student) throws IOException {
         double scoreIncrease2 = scoreIncrease / 100;
         Boolean isInTeamOne = false;
         for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
