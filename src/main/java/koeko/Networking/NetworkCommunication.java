@@ -195,55 +195,23 @@ public class NetworkCommunication {
         }
     }
 
-//    public void sendMultipleChoiceWithID(String questionID, Student student) throws IOException {
-//        QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
-//        if (questionMultipleChoice.getQUESTION().length() > 0) {
-//            ObjectMapper mapper = new ObjectMapper();
-//            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionMultipleChoice);
-//
-//            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
-//            int intfileLength = 0;
-//            File imageFile = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
-//            if (!questionMultipleChoice.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-//                sendMediaFile(imageFile, student);
-//            }
-//
-//            //writing of the first 80 bytes
-//            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
-//            int textbyteslength = bytearraytext.length;
-//            DataPrefix dataPrefix = new DataPrefix(DataPref.multq, String.valueOf(textbyteslength), "", "");
-//            String stringPrefix = dataPrefix.parseToString();
-//            byte[] prefixBytes = new byte[prefixSize];
-//            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
-//                prefixBytes[i] = stringPrefix.getBytes()[i];
-//            }
-//            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
-//            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
-//
-//
-//            writeToOutputStream(student, questionID, wholeBytesArray);
-//            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
-//
-//            networkStateSingleton.getQuestionIdsToSend().add(questionID);
-//            sendOnlyId(student, questionID);
-//        }
-//    }
-
     public void sendMultipleChoiceWithID(String questionID, Student student) {
         QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
-        questionMultipleChoice.setPrefix(TransferPrefix.resource);
         if (questionMultipleChoice.getQUESTION().length() > 0) {
             sendTransferableObjectWithId(questionMultipleChoice, student, questionID);
             sendSubjectsAndObjectsWithQuestionId(questionID, student);
+        } else {
+            System.err.println("Sending empty question");
         }
     }
 
     public void sendShortAnswerQuestionWithID(String questionID, Student student) {
         QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
-        questionShortAnswer.setPrefix(TransferPrefix.resource);
         if (questionShortAnswer.getQUESTION().length() > 0) {
             sendTransferableObjectWithId(questionShortAnswer, student, questionID);
             sendSubjectsAndObjectsWithQuestionId(questionID, student);
+        } else {
+            System.err.println("Sending empty question");
         }
     }
 
@@ -292,40 +260,6 @@ public class NetworkCommunication {
 
         writeToOutputStream(student, transferableObject.objectToByteArray());
     }
-
-//    public void sendShortAnswerQuestionWithID(String questionID, Student student) throws IOException {
-//        QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
-//
-//        if (questionShortAnswer.getQUESTION().length() > 0) {
-//            ObjectMapper mapper = new ObjectMapper();
-//            String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(questionShortAnswer);
-//
-//            // send file : the sizes of the file and of the text are given in the first 80 bytes (separated by ":")
-//            int intfileLength = 0;
-//            File imageFile = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
-//            if (!questionShortAnswer.getIMAGE().equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
-//                sendMediaFile(imageFile, student);
-//            }
-//
-//            //writing of the first 80 bytes
-//            byte[] bytearraytext = jsonString.getBytes(Charset.forName("UTF-8"));
-//            int textbyteslength = bytearraytext.length;
-//            DataPrefix dataPrefix = new DataPrefix(DataPref.shrta, String.valueOf(textbyteslength), "", "");
-//            String stringPrefix = dataPrefix.parseToString();
-//            byte[] prefixBytes = new byte[prefixSize];
-//            for (int i = 0; i < stringPrefix.getBytes().length && i < prefixSize; i++) {
-//                prefixBytes[i] = stringPrefix.getBytes()[i];
-//            }
-//            byte[] wholeBytesArray = Arrays.copyOf(prefixBytes, prefixBytes.length + bytearraytext.length);
-//            System.arraycopy(bytearraytext, 0, wholeBytesArray, prefixBytes.length, bytearraytext.length);
-//
-//            writeToOutputStream(student, questionID, wholeBytesArray);
-//            writeToOutputStream(student, questionID, DataConversion.getBytesSubNObjForQuestion(questionID));
-//
-//            networkStateSingleton.getQuestionIdsToSend().add(questionID);
-//            sendOnlyId(student, questionID);
-//        }
-//    }
 
     public ArrayList<String> sendTestWithID(String testID, Student student) {
         Test testToSend = new Test();
