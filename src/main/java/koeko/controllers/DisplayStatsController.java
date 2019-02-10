@@ -158,13 +158,13 @@ public class DisplayStatsController implements Initializable {
         if (valuesType.contentEquals(chartType1)) {
             categoryXAxis.setLabel("Subjects");
             numberYAxis.setLabel("Evaluation [%]");
-            Result studentResultsPerSubject = DbTableStudents.getStudentResultsPerSubjectPerTimeStep(student.toString(), timeStep);
+            Result studentResultsPerSubject = DbTableStudents.getStudentResultsPerSubjectPerTimeStep(student, timeStep);
             Vector<String> subjects = studentResultsPerSubject.getXaxisValues();
             putResultsIntoSeries(student, timeStep, series1, studentResultsPerSubject, subjects);
         } else if (valuesType.contentEquals(chartType2)) {
             categoryXAxis.setLabel("Learning objectives");
             numberYAxis.setLabel("Evaluation [%]");
-            Result studentResultsPerObjective = DbTableStudents.getStudentResultsPerObjectivePerTimeStep(student.toString(), timeStep);
+            Result studentResultsPerObjective = DbTableStudents.getStudentResultsPerObjectivePerTimeStep(student, timeStep);
             Vector<String> objectives = studentResultsPerObjective.getXaxisValues();
             putResultsIntoSeries(student, timeStep, series1, studentResultsPerObjective, objectives);
         } else if (valuesType.contentEquals(chartType3)) {

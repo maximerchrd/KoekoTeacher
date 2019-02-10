@@ -336,21 +336,32 @@ public class NetworkCommunication {
      *
      * @throws IOException
      */
-    private void listenForClient(final Student arg_student) throws IOException {
+    private void listenForClient(final Student arg_student) {
         final InputStream answerInStream = arg_student.getInputStream();
         Thread listeningthread = new Thread(() -> {
             int bytesread = 0;
             Boolean ableToRead = true;
             while (bytesread >= 0 && ableToRead) {
                 try {
-                    byte[] in_bytearray = new byte[1000];
-                    bytesread = answerInStream.read(in_bytearray);
-                    if (bytesread > 1000) {
-                        System.out.println("Answer too large for bytearray: " + bytesread + " bytes read");
-                    }
+                    byte[] in_bytearray = new byte[TransferPrefix.prefixSize];
+                    bytesread = answerInStream.read(in_bytearray, 0, TransferPrefix.prefixSize);
                     if (bytesread >= 0) {
                         String answerString = new String(in_bytearray, 0, bytesread, "UTF-8");
                         System.out.println(arg_student.getName() + ":" + System.nanoTime() / 1000000000 + ":" + bytesread + " message:" + answerString);
+                        ClientToServerTransferable transferablePrefix = ClientToServerTransferable.Companion.stringToTransferable(answerString);
+
+                        switch (transferablePrefix.getPrefix()) {
+                            case CtoSPrefix.connectionPrefix:
+                                ReceptionProtocol.receivedCONN(arg_student, aClass, transferablePrefix, answerInStream);
+                                break;
+                            case CtoSPrefix.unableToReadPrefix:
+                                System.out.println("Communication over?");
+                                break;
+                            default:
+                                System.err.println("Implement informing user that the app might need update");
+
+                        }
+
                         if (answerString.split("///")[0].contains("ANSW")) {
                             //arg_student.setName(answerString.split("///")[2]);
                             double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
@@ -421,16 +432,16 @@ public class NetworkCommunication {
                                 Koeko.gameControllerSingleton.scoreIncreased(eval, game, arg_student);
                             }
                         } else if (answerString.split("///")[0].contentEquals("CONN")) {
-                            Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
-
-                            //copy some basic informations because arg_student is used to write the answer into the table
-                            //Student.essentialCopyStudent(student, arg_student);
-
-                            //if RESIDS were merged with CONN
-                            if (answerString.contains("RESIDS")) {
-                                String substring = answerString.substring(answerString.indexOf("RESIDS"));
-                                ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
-                            }
+//                            Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
+//
+//                            //copy some basic informations because arg_student is used to write the answer into the table
+//                            //Student.essentialCopyStudent(student, arg_student);
+//
+//                            //if RESIDS were merged with CONN
+//                            if (answerString.contains("RESIDS")) {
+//                                String substring = answerString.substring(answerString.indexOf("RESIDS"));
+//                                ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
+//                            }
                         } else if (answerString.split("///")[0].contains("RESIDS")) {
                             ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                         } else if (answerString.split("///")[0].contains("DISC")) {
@@ -1030,6 +1041,8 @@ public class NetworkCommunication {
                             System.out.println("Trying to send ip through udp: Host is down");
                         } else if (e.toString().contains("Can't assign requested address")) {
                             System.out.println("Can't assign requested address");
+                        } else if (e.toString().contains("No route to host")) {
+                            System.out.println("No route to host");
                         } else {
                             e.printStackTrace();
                         }

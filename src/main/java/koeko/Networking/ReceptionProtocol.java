@@ -3,6 +3,7 @@ package koeko.Networking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.util.ArrayUtils;
 import koeko.Koeko;
+import koeko.Networking.OtherTransferables.ClientToServerTransferable;
 import koeko.Networking.OtherTransferables.ShortCommand;
 import koeko.Networking.OtherTransferables.ShortCommands;
 import koeko.controllers.SettingsController;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,8 +26,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ReceptionProtocol {
     static private AtomicBoolean startingNearby = new AtomicBoolean(false);
 
-    static public Student receivedCONN(Student arg_student, String answerString, Classroom aClass) throws IOException {
-        Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), answerString.split("///")[1]);
+    static public Student receivedCONN(Student arg_student, Classroom aClass, ClientToServerTransferable transferable,
+                                       InputStream inputStream) throws IOException {
+        byte[] dictionaryBytes = ReceptionProtocol.readDataIntoArray(transferable.getSize(), inputStream);
+        ObjectMapper objectMapper = new ObjectMapper();
+        LinkedHashMap<String, String> dictionary = objectMapper.readValue(dictionaryBytes, LinkedHashMap.class);
+        Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), dictionary.get("uuid"));
         if (student == null) {
             student = arg_student;
         } else {
@@ -33,16 +39,16 @@ public class ReceptionProtocol {
             student.setOutputStream(arg_student.getOutputStream());
         }
         student.setConnected(true);
-        student.setUniqueDeviceID(answerString.split("///")[1]);
-        student.setName(answerString.split("///")[2]);
-        String studentID = DbTableStudents.addStudent(answerString.split("///")[1], answerString.split("///")[2]);
+        student.setUniqueDeviceID(dictionary.get("uuid"));
+        student.setName(dictionary.get("name"));
+        String studentID = DbTableStudents.addStudent(dictionary.get("uuid"), dictionary.get("name"));
         if (studentID.contentEquals("-2")) {
             NetworkCommunication.networkCommunicationSingleton.popUpIfStudentIdentifierCollision(student.getName());
         }
         student.setStudentID(studentID);
 
         //get the device infos if android
-        extractInfos(answerString, student);
+        //extractInfos(answerString, student);
 
         NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
         networkState.getStudentsToConnectionStatus().add(student.getUniqueDeviceID());
@@ -218,5 +224,35 @@ public class ReceptionProtocol {
                 objectSize = 0;
             }
         } while (objectSize > 0);
+    }
+
+    private static byte[] readDataIntoArray(int expectedSize, InputStream inputStream) {
+        byte[] arrayToReadInto = new byte[expectedSize];
+        int bytesReadAlready = 0;
+        int totalBytesRead = 0;
+        do {
+            try {
+                bytesReadAlready = inputStream.read(arrayToReadInto, totalBytesRead, expectedSize - totalBytesRead);
+                System.out.println("number of bytes read:" + Integer.toString(bytesReadAlready));
+            } catch (IOException e) {
+                if (e.toString().contains("Socket closed")) {
+                    System.out.println("Reading data stream: input stream was closed");
+                } else {
+                    e.printStackTrace();
+                    if (e.toString().contains("ETIMEDOUT")) {
+                        System.out.println("readDataIntoArray: SocketException: ETIMEDOUT, trying to reconnect");
+                        //prevent disconnection by signaling that we were trying to reconnect to the reading loop
+                        arrayToReadInto = "RECONNECTION".getBytes();
+                        bytesReadAlready = 0;
+                    }
+                }
+            }
+            if (bytesReadAlready >= 0) {
+                totalBytesRead += bytesReadAlready;
+            }
+        }
+        while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on client side
+
+        return arrayToReadInto;
     }
 }
