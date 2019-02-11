@@ -50,7 +50,7 @@ public class NetworkCommunication {
     private Vector<String> disconnectiongStudents;
     private ArrayList<ArrayList<String>> questionIdsForGroups;
     private ArrayList<ArrayList<String>> studentNamesForGroups;
-    private NetworkState networkStateSingleton;
+    public NetworkState networkStateSingleton;
     private BlockingQueue<PayloadForSending> sendingQueue;
     private AtomicBoolean queueIsFinished;
     private PrintWriter writer;
@@ -195,24 +195,28 @@ public class NetworkCommunication {
         }
     }
 
-    public void sendMultipleChoiceWithID(String questionID, Student student) {
+    public Boolean sendMultipleChoiceWithID(String questionID, Student student) {
+        Boolean questionSent = true;
         QuestionView questionMultipleChoice = DbTableQuestionMultipleChoice.getQuestionMultipleChoiceView(questionID);
         if (questionMultipleChoice.getQUESTION().length() > 0) {
             sendTransferableObjectWithId(questionMultipleChoice, student, questionID);
             sendSubjectsAndObjectsWithQuestionId(questionID, student);
         } else {
-            System.err.println("Sending empty question");
+            questionSent = false;
         }
+        return questionSent;
     }
 
-    public void sendShortAnswerQuestionWithID(String questionID, Student student) {
+    public Boolean sendShortAnswerQuestionWithID(String questionID, Student student) {
+        Boolean questionSent = true;
         QuestionView questionShortAnswer = DbTableQuestionShortAnswer.getQuestionViewWithId(questionID);
         if (questionShortAnswer.getQUESTION().length() > 0) {
             sendTransferableObjectWithId(questionShortAnswer, student, questionID);
             sendSubjectsAndObjectsWithQuestionId(questionID, student);
         } else {
-            System.err.println("Sending empty question");
+            questionSent = false;
         }
+        return questionSent;
     }
 
     private void sendSubjectsAndObjectsWithQuestionId(String questionId, Student student) {
@@ -357,6 +361,12 @@ public class NetworkCommunication {
                             case CtoSPrefix.resourceIdsPrefix:
                                 ReceptionProtocol.receivedRESIDS(transferablePrefix, answerInStream, networkStateSingleton, arg_student);
                                 break;
+                            case CtoSPrefix.okPrefix:
+                                ReceptionProtocol.receivedOk(transferablePrefix);
+                                break;
+                            case CtoSPrefix.accuserReceptionPrefix:
+                                ReceptionProtocol.receivedReception();
+                                break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
                                 break;
@@ -434,19 +444,6 @@ public class NetworkCommunication {
                             for (Game game : Koeko.activeGames) {
                                 Koeko.gameControllerSingleton.scoreIncreased(eval, game, arg_student);
                             }
-                        } else if (answerString.split("///")[0].contentEquals("CONN")) {
-//                            Student student = ReceptionProtocol.receivedCONN(arg_student, answerString, aClass);
-//
-//                            //copy some basic informations because arg_student is used to write the answer into the table
-//                            //Student.essentialCopyStudent(student, arg_student);
-//
-//                            //if RESIDS were merged with CONN
-//                            if (answerString.contains("RESIDS")) {
-//                                String substring = answerString.substring(answerString.indexOf("RESIDS"));
-//                                ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
-//                            }
-                        } else if (answerString.split("///")[0].contains("RESIDS")) {
-                            //ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                         } else if (answerString.split("///")[0].contains("DISC")) {
                             networkStateSingleton.disconnectDevice(answerString.split("///")[1]);
                             Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
@@ -493,7 +490,7 @@ public class NetworkCommunication {
                                 studentDisconnectionQThread.start();
                             }
                         } else if (answerString.split("///")[0].contains("OK")) {
-                            String uuid = "";
+                            /*String uuid = "";
                             if (answerString.split("///")[0].split(":").length > 1) {
                                 uuid = answerString.split("///")[0].split(":")[1];
                             } else {
@@ -519,7 +516,7 @@ public class NetworkCommunication {
                                 System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
                                         "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
                                         + "MB/s");
-                            }
+                            }*/
                         } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
                             int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
                             functionalTesting.nbAccuseReception += nbAccuses;
@@ -803,8 +800,11 @@ public class NetworkCommunication {
             try {
                 for (String activeID : activeIDs) {
                     if (Long.valueOf(activeID) > 0) {
-                        sendMultipleChoiceWithID(activeID, student);
-                        sendShortAnswerQuestionWithID(activeID, student);
+                        if (!sendMultipleChoiceWithID(activeID, student)) {
+                            if (!sendShortAnswerQuestionWithID(activeID, student)) {
+                                System.err.println("Couldn't find question corresponding to activeID");
+                            }
+                        }
                     } else {
                         //send test object
                         sendTestWithID(QuestionGeneric.changeIdSign(activeID), student);
@@ -832,7 +832,7 @@ public class NetworkCommunication {
                 sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
             }
         } else {
-            System.err.println("student with id: " + student.getUniqueDeviceID() + " not in studentsToActiveIdMap");
+            System.err.println("student with id: \"" + student.getUniqueDeviceID() + "\" not in studentsToActiveIdMap");
         }
     }
 

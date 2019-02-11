@@ -8,6 +8,7 @@ import koeko.Networking.OtherTransferables.ShortCommand;
 import koeko.Networking.OtherTransferables.ShortCommands;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
+import koeko.functionalTesting;
 import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
@@ -255,5 +256,39 @@ public class ReceptionProtocol {
         while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on client side
 
         return arrayToReadInto;
+    }
+
+    public static void receivedOk(ClientToServerTransferable transferablePrefix) {
+        String uuid = transferablePrefix.getOptionalArgument1();
+        if (uuid.length() == 0) {
+            System.err.println("Received OK but no student identifier associated!");
+        }
+        if (!uuid.contentEquals("no identifier")) {
+            NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).add(transferablePrefix.getOptionalArgument2());
+            if (NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getStudentsToSyncedIdsMap().
+                    get(uuid).containsAll(NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getQuestionIdsToSend())) {
+                Student student = NetworkCommunication.networkCommunicationSingleton.aClass.getStudentWithUniqueID(uuid);
+                if (student != null) {
+                    NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
+                }
+            }
+        }
+
+        //For sending speed testing, provided that we only send one question multiple choice
+        if (functionalTesting.transferRateTesting) {
+            Long sendingTime = System.nanoTime() - NetworkCommunication.sendingStartTime;
+            Double sendingTimeDouble = sendingTime / 1000000000.0;
+            System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
+                    "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
+                    + "MB/s");
+        }
+    }
+
+    public static void receivedReception() {
+        functionalTesting.nbAccuseReception++;
+        System.out.println(functionalTesting.nbAccuseReception);
+        if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
+            functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
+        }
     }
 }

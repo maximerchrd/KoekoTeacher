@@ -6,10 +6,12 @@ class ClientToServerTransferable {
     var prefix = -1
     var size = -1
     var optionalArgument1 = ""
+    var optionalArgument2 = ""
     var fileBytes = ByteArray(0)
     
     fun getTransferableBytes() : ByteArray {
-        var prefixString = prefix.toString() + TransferPrefix.delimiter + size + TransferPrefix.delimiter + optionalArgument1
+        var prefixString = prefix.toString() + TransferPrefix.delimiter + size + TransferPrefix.delimiter + optionalArgument1 +
+                TransferPrefix.delimiter + optionalArgument2 + TransferPrefix.delimiter
         var prefixUsefulBytes = prefixString.toByteArray()
         var prefixBytes = ByteArray(TransferPrefix.prefixSize)
         for (i in 0..prefixUsefulBytes.size) {
@@ -24,6 +26,7 @@ class ClientToServerTransferable {
             val prefixString = prefix.split(TransferPrefix.delimiter)[0]
             val sizeString = prefix.split(TransferPrefix.delimiter)[1]
             transferable.optionalArgument1 = prefix.split(TransferPrefix.delimiter)[2]
+            transferable.optionalArgument2 = prefix.split(TransferPrefix.delimiter)[3]
 
             try {
                 transferable.prefix = prefixString.toInt()
