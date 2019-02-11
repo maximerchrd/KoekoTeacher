@@ -1,5 +1,7 @@
 package koeko.questions_management;
 
+import koeko.database_management.DbUtils;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -191,27 +193,15 @@ public class QuestionMultipleChoice {
 	}
 
 	public String computeShortHashCode() {
-		String hash = "";
-		String stringToHash = LEVEL + QUESTION + OPTIONSNUMBER + NB_CORRECT_ANS + OPT0 + OPT1 + OPT2 + OPT3 + OPT4
-				+ OPT5 + OPT6 + OPT7 + OPT8 + OPT9 + IMAGE;
+		String stringToHash = LEVEL + QUESTION + NB_CORRECT_ANS + OPT0 + OPT1 + OPT2 + OPT3 + OPT4
+				+ OPT5 + OPT6 + OPT7 + OPT8 + OPT9 + IMAGE + timerSeconds;
 		for (String subject : subjects) {
 			stringToHash += subject;
 		}
 		for (String objective : objectives) {
 			stringToHash += objective;
 		}
-		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-			messageDigest.update(stringToHash.getBytes());
-			hash = String.format("%064x", new BigInteger(1, messageDigest.digest()));
-			if (hash.length() > 20) {
-				hash = hash.substring(hash.length() - 18);
-			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-
-		return hash;
+		return DbUtils.getHashCode(stringToHash);
 	}
 
 	public String getIMAGE() {

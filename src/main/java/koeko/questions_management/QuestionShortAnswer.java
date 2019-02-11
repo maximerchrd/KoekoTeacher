@@ -1,5 +1,7 @@
 package koeko.questions_management;
 
+import koeko.database_management.DbUtils;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -42,8 +44,7 @@ public class QuestionShortAnswer {
 	}
 
 	public String computeShortHashCode() {
-		String hash = "";
-		String stringToHash = QUESTION + IMAGE;
+		String stringToHash = QUESTION + IMAGE + timerSeconds;
 		for (String answer : ANSWERS) {
 			stringToHash += answer;
 		}
@@ -57,18 +58,8 @@ public class QuestionShortAnswer {
 				stringToHash += objective;
 			}
 		}
-		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-			messageDigest.update(stringToHash.getBytes());
-			hash = String.format("%064x", new BigInteger(1, messageDigest.digest()));
-			if (hash.length() > 20) {
-				hash = hash.substring(hash.length() - 18);
-			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
 
-		return hash;
+		return DbUtils.getHashCode(stringToHash);
 	}
 
 	public String getID()

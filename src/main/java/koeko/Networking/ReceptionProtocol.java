@@ -117,27 +117,28 @@ public class ReceptionProtocol {
         }
     }
 
-    public static void receivedRESIDS(String answerString, NetworkState networkState, Student student) {
-        if (SettingsController.forceSync == 0 && answerString.split("///").length >= 3) {
-            String[] resourceIds = answerString.split("///")[2].split("\\|");
-            for (int i = 0; i < resourceIds.length; i++) {
-                if (resourceIds[i].split(";").length > 1) {
-                    String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resourceIds[i].split(";")[0]);
-                    String studentsHash = resourceIds[i].split(";")[1];
+    public static void receivedRESIDS(ClientToServerTransferable transferable, InputStream inputStream,
+                                      NetworkState networkState, Student student) throws IOException {
+        byte[] residsBytes = readDataIntoArray(transferable.getSize(), inputStream);
+        if (SettingsController.forceSync == 0) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ArrayList<String> resourceIds = objectMapper.readValue(residsBytes, ArrayList.class);
+            for (String resId : resourceIds) {
+                if (resId.split(";").length > 1) {
+                    String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resId.split(";")[0]);
+                    String studentsHash = resId.split(";")[1];
                     if (teachersHash != null && studentsHash != null && teachersHash.contentEquals(studentsHash)) {
-                        networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
-                                .add(resourceIds[i].split(";")[0]);
+                        networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1())
+                                .add(resId.split(";")[0]);
                     }
                 } else {
-                    networkState.getStudentsToSyncedIdsMap().get(answerString.split("///")[1])
-                            .add(resourceIds[i].split(";")[0]);
+                    networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1())
+                            .add(resId.split(";")[0]);
                 }
             }
         }
 
-        if (answerString.contains("ENDTRSM")) {
-            NetworkCommunication.networkCommunicationSingleton.sendActiveIds(student);
-        }
+        NetworkCommunication.networkCommunicationSingleton.sendActiveIds(student);
     }
 
     private static void activateNearbyIfNecessary(int trials) throws IOException {

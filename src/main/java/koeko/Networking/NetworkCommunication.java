@@ -354,6 +354,9 @@ public class NetworkCommunication {
                             case CtoSPrefix.connectionPrefix:
                                 ReceptionProtocol.receivedCONN(arg_student, aClass, transferablePrefix, answerInStream);
                                 break;
+                            case CtoSPrefix.resourceIdsPrefix:
+                                ReceptionProtocol.receivedRESIDS(transferablePrefix, answerInStream, networkStateSingleton, arg_student);
+                                break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
                                 break;
@@ -443,7 +446,7 @@ public class NetworkCommunication {
 //                                ReceptionProtocol.receivedRESIDS(substring, networkStateSingleton, arg_student);
 //                            }
                         } else if (answerString.split("///")[0].contains("RESIDS")) {
-                            ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
+                            //ReceptionProtocol.receivedRESIDS(answerString, networkStateSingleton, arg_student);
                         } else if (answerString.split("///")[0].contains("DISC")) {
                             networkStateSingleton.disconnectDevice(answerString.split("///")[1]);
                             Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());

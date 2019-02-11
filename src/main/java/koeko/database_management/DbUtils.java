@@ -155,4 +155,14 @@ public class DbUtils {
         }
         return modifDate;
     }
+
+    static public String getHashCode(String sequence) {
+        char[] seq = sequence.toCharArray();
+        int hash = 5381;
+        for (int i = 0; i < sequence.length(); i++) {
+            hash = (hash % 60606060) * 33 + (int)seq[i];
+        }
+
+        return String.valueOf(hash);
+    }
 }
