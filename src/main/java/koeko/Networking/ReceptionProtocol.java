@@ -70,7 +70,7 @@ public class ReceptionProtocol {
 
         ShortCommand shortCommand = new ShortCommand();
         shortCommand.setCommand(ShortCommands.connected);
-        NetworkCommunication.networkCommunicationSingleton.sendTransferableObjectWithoutId(shortCommand, arg_student);
+        NetworkCommunication.networkCommunicationSingleton.sendTransferableObjectWithoutId(shortCommand, student);
         activateNearbyIfNecessary(0);
 
         return student;

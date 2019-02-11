@@ -356,7 +356,7 @@ public class NetworkCommunication {
 
                         switch (transferablePrefix.getPrefix()) {
                             case CtoSPrefix.connectionPrefix:
-                                ReceptionProtocol.receivedCONN(arg_student, aClass, transferablePrefix, answerInStream);
+                                arg_student.copyStudent(ReceptionProtocol.receivedCONN(arg_student, aClass, transferablePrefix, answerInStream));
                                 break;
                             case CtoSPrefix.resourceIdsPrefix:
                                 ReceptionProtocol.receivedRESIDS(transferablePrefix, answerInStream, networkStateSingleton, arg_student);

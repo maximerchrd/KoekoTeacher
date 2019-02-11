@@ -156,6 +156,22 @@ public class Student {
         return homeworkChecked;
     }
 
+    public void copyStudent(Student student) {
+        this.setHomeworkChecked(student.getHomeworkChecked());
+        this.setName(student.getName());
+        this.setStudentID(student.getStudentID());
+        this.setConnected(student.getConnected());
+        this.setActiveTest(student.getActiveTest());
+        this.setActiveTestID(student.getActiveTestID());
+        this.setUniqueDeviceID(student.getUniqueDeviceID());
+        this.setInetAddress(student.getInetAddress());
+        this.setInputStream(student.getInputStream());
+        this.setOutputStream(student.getOutputStream());
+        this.setPort(student.getPort());
+        this.setTestQuestions(student.getTestQuestions());
+        this.setDeviceQuestions(student.getDeviceQuestions());
+    }
+
     public ArrayList<String> getDeviceQuestions() {
         /*if (deviceQuestions.size() == 0) {
             Vector<String> IDs = DbTableRelationQuestionStudent.getQuestionsIdsForStudent(this.mName);
