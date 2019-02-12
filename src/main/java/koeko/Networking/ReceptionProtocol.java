@@ -379,6 +379,59 @@ public class ReceptionProtocol {
             NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
     }
 
+    public static Boolean receivedDisconnection(ClientToServerTransferable transferablePrefix, Student arg_student,
+                                                InputStream inputStream) throws IOException {
+        byte[] nameBytes = readDataIntoArray(transferablePrefix.getSize(), inputStream);
+        String studentName = new String(nameBytes);
+        Boolean ableToRead = true;
+        NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.disconnectDevice(transferablePrefix.getOptionalArgument1());
+        Student student = NetworkCommunication.networkCommunicationSingleton.aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
+        student.setUniqueDeviceID(transferablePrefix.getOptionalArgument1());
+        student.setName(studentName);
+        student.setConnected(false);
+        if (transferablePrefix.getOptionalArgument2().contains("close-connection")) {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                    .add(student.getUniqueDeviceID());
+            NetworkCommunication.networkCommunicationSingleton.learningTrackerController.userDisconnected(student);
+
+            System.out.println("Student device really disconnecting. We should close the connection");
+            arg_student.getOutputStream().flush();
+            arg_student.getOutputStream().close();
+            arg_student.setOutputStream(null);
+            arg_student.getInputStream().close();
+            arg_student.setInputStream(null);
+            ableToRead = false;
+        } else if (transferablePrefix.getOptionalArgument2().contains("locked")) {
+            NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.remove(student.getUniqueDeviceID());
+            arg_student.getOutputStream().flush();
+            arg_student.getOutputStream().close();
+            arg_student.setOutputStream(null);
+            arg_student.getInputStream().close();
+            arg_student.setInputStream(null);
+            ableToRead = false;
+        } else {
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
+                    .add(student.getUniqueDeviceID());
+            NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.add(student.getUniqueDeviceID());
+            Thread studentDisconnectionQThread = new Thread() {
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.contains(student.getUniqueDeviceID())) {
+                        NetworkCommunication.networkCommunicationSingleton.learningTrackerController.userDisconnected(student);
+                        NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.remove(student.getUniqueDeviceID());
+                    }
+                }
+            };
+            studentDisconnectionQThread.start();
+        }
+
+        return ableToRead;
+    }
+
     private static ObjectMapper getObjectMapper() {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();

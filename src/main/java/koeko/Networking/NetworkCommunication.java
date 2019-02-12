@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NetworkCommunication {
     static public NetworkCommunication networkCommunicationSingleton;
     static final public int prefixSize = 80;
-    private LearningTrackerController learningTrackerController = null;
+    protected LearningTrackerController learningTrackerController = null;
     public Classroom aClass = null;
 
     static public int network_solution = 0; //0: all devices connected to same wifi router; 1: 3 layers with nearby connections
@@ -47,7 +47,7 @@ public class NetworkCommunication {
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
     final private int PORTNUMBER = 9090;
-    private Vector<String> disconnectiongStudents;
+    protected Vector<String> disconnectiongStudents;
     protected ArrayList<ArrayList<String>> questionIdsForGroups;
     protected ArrayList<ArrayList<String>> studentNamesForGroups;
     public NetworkState networkStateSingleton;
@@ -372,6 +372,9 @@ public class NetworkCommunication {
                                 break;
                             case CtoSPrefix.activeIdPrefix:
                                 ReceptionProtocol.receivedActiveId(transferablePrefix, arg_student);
+                                break;
+                            case CtoSPrefix.disconnectionPrefix:
+                                ableToRead = ReceptionProtocol.receivedDisconnection(transferablePrefix, arg_student, answerInStream);
                                 break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
