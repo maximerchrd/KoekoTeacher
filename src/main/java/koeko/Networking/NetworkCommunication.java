@@ -48,8 +48,8 @@ public class NetworkCommunication {
     private BufferedInputStream bis = null;
     final private int PORTNUMBER = 9090;
     private Vector<String> disconnectiongStudents;
-    private ArrayList<ArrayList<String>> questionIdsForGroups;
-    private ArrayList<ArrayList<String>> studentNamesForGroups;
+    protected ArrayList<ArrayList<String>> questionIdsForGroups;
+    protected ArrayList<ArrayList<String>> studentNamesForGroups;
     public NetworkState networkStateSingleton;
     private BlockingQueue<PayloadForSending> sendingQueue;
     private AtomicBoolean queueIsFinished;
@@ -367,6 +367,12 @@ public class NetworkCommunication {
                             case CtoSPrefix.accuserReceptionPrefix:
                                 ReceptionProtocol.receivedReception();
                                 break;
+                            case CtoSPrefix.answerPrefix:
+                                ReceptionProtocol.receivedAnswer(transferablePrefix, answerInStream, arg_student);
+                                break;
+                            case CtoSPrefix.activeIdPrefix:
+                                ReceptionProtocol.receivedActiveId(transferablePrefix, arg_student);
+                                break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
                                 break;
@@ -376,7 +382,6 @@ public class NetworkCommunication {
                         }
 
                         if (answerString.split("///")[0].contains("ANSW")) {
-                            //arg_student.setName(answerString.split("///")[2]);
                             double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
                                     arg_student.getStudentID(), answerString.split("///")[3], answerString.split("///")[0]);
                             sendEvaluation(eval, answerString.split("///")[5], arg_student);

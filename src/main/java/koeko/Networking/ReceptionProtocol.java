@@ -3,16 +3,20 @@ package koeko.Networking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.util.ArrayUtils;
 import koeko.Koeko;
+import koeko.Networking.OtherTransferables.Answer;
 import koeko.Networking.OtherTransferables.ClientToServerTransferable;
 import koeko.Networking.OtherTransferables.ShortCommand;
 import koeko.Networking.OtherTransferables.ShortCommands;
+import koeko.controllers.Game.Game;
 import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
+import koeko.questions_management.QuestionGeneric;
 import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import koeko.view.Result;
+import sun.nio.ch.Net;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +30,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ReceptionProtocol {
     static private AtomicBoolean startingNearby = new AtomicBoolean(false);
+    static private ObjectMapper objectMapper = null;
 
     static public Student receivedCONN(Student arg_student, Classroom aClass, ClientToServerTransferable transferable,
                                        InputStream inputStream) throws IOException {
         byte[] dictionaryBytes = ReceptionProtocol.readDataIntoArray(transferable.getSize(), inputStream);
-        ObjectMapper objectMapper = new ObjectMapper();
-        LinkedHashMap<String, String> dictionary = objectMapper.readValue(dictionaryBytes, LinkedHashMap.class);
+        LinkedHashMap<String, String> dictionary = getObjectMapper().readValue(dictionaryBytes, LinkedHashMap.class);
         Student student = aClass.getStudentWithIPAndUUID(arg_student.getInetAddress(), dictionary.get("uuid"));
         if (student == null) {
             student = arg_student;
@@ -122,8 +126,7 @@ public class ReceptionProtocol {
                                       NetworkState networkState, Student student) throws IOException {
         byte[] residsBytes = readDataIntoArray(transferable.getSize(), inputStream);
         if (SettingsController.forceSync == 0) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ArrayList<String> resourceIds = objectMapper.readValue(residsBytes, ArrayList.class);
+            ArrayList<String> resourceIds = getObjectMapper().readValue(residsBytes, ArrayList.class);
             for (String resId : resourceIds) {
                 if (resId.split(";").length > 1) {
                     String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resId.split(";")[0]);
@@ -218,8 +221,7 @@ public class ReceptionProtocol {
                 objectSize = Integer.valueOf(prefix.split("///")[1]);
                 byte[] jsonBytes = Arrays.copyOfRange(allBytes, DataPref.size, DataPref.size + objectSize);
                 String jsonString = new String(jsonBytes);
-                ObjectMapper objectMapper = new ObjectMapper();
-                Result result = objectMapper.readValue(jsonString, Result.class);
+                Result result = getObjectMapper().readValue(jsonString, Result.class);
                 DbTableIndividualQuestionForStudentResult.addResult(result, studentId);
                 allBytes = Arrays.copyOfRange(allBytes, DataPref.size + objectSize, allBytes.length);
             } else {
@@ -290,5 +292,97 @@ public class ReceptionProtocol {
         if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
             functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
         }
+    }
+
+    public static void receivedAnswer(ClientToServerTransferable transferablePrefix, InputStream answerInStream, Student arg_student) throws IOException {
+        byte[] answerObjectBytes = readDataIntoArray(transferablePrefix.getSize(), answerInStream);
+        Answer answer = getObjectMapper().readValue(answerObjectBytes, Answer.class);
+        String mergedAnswers = "";
+        for (String ans : answer.getAnswers()) {
+            mergedAnswers += ans + "|||";
+        }
+        double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answer.getQuestionId(),
+                arg_student.getStudentID(), mergedAnswers, answer.getQuestionType());
+        NetworkCommunication.networkCommunicationSingleton.sendEvaluation(eval, answer.getQuestionId(), arg_student);
+
+        //find out to which group the student and answer belong
+        Integer groupIndex = -1;
+        String questID = answer.getQuestionId();
+        for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
+            if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
+                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
+                groupIndex = i;
+                Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
+                        .remove(questID);
+            }
+        }
+
+        if (groupIndex == -1) {
+            groupIndex = 0;
+            for (int i = 0; i < NetworkCommunication.networkCommunicationSingleton.studentNamesForGroups.size(); i++) {
+                if (NetworkCommunication.networkCommunicationSingleton.studentNamesForGroups.get(i).contains(arg_student.getName()) &&
+                        NetworkCommunication.networkCommunicationSingleton.questionIdsForGroups.get(i).contains(questID)) {
+                    groupIndex = i;
+                    NetworkCommunication.networkCommunicationSingleton.questionIdsForGroups.get(i).remove(questID);
+                }
+            }
+        }
+
+        Koeko.studentsVsQuestionsTableControllerSingleton.addAnswerForUser(answer.getStudentName(), mergedAnswers, answer.getQuestion(), eval,
+                answer.getQuestionId(), groupIndex);
+        String nextQuestion = arg_student.getNextQuestionID(answer.getQuestionId());
+        System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
+        for (String testid : arg_student.getTestQuestions()) {
+            System.out.println(testid);
+        }
+        if (!nextQuestion.contentEquals("-1")) {
+            ArrayList<Student> singleStudent = new ArrayList<>();
+            singleStudent.add(arg_student);
+            NetworkCommunication.networkCommunicationSingleton.sendQuestionID(nextQuestion, singleStudent);
+        }
+
+        //set evaluation if question belongs to a test
+        if (arg_student.getActiveTest().getIdsQuestions().contains(questID)) {
+            System.out.println("inserting question evaluation for test");
+            int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
+            if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
+                arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
+            }
+            Boolean testCompleted = true;
+            for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                if (questEval < 0) {
+                    testCompleted = false;
+                }
+            }
+            if (testCompleted) {
+                Double testEval = 0.0;
+                for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
+                    testEval += questEval;
+                }
+                testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
+                arg_student.getActiveTest().setTestEvaluation(testEval);
+                DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
+            }
+        }
+
+        //increase score if a game is on
+        for (Game game : Koeko.activeGames) {
+            Koeko.gameControllerSingleton.scoreIncreased(eval, game, arg_student);
+        }
+    }
+
+    public static void receivedActiveId(ClientToServerTransferable transferablePrefix, Student arg_student) {
+            String activeID = transferablePrefix.getOptionalArgument1();
+            if (Long.valueOf(activeID) < 0) {
+                activeID = QuestionGeneric.changeIdSign(activeID);
+            }
+            NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
+    }
+
+    private static ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
+            objectMapper = new ObjectMapper();
+        }
+        return objectMapper;
     }
 }
