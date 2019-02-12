@@ -376,6 +376,9 @@ public class NetworkCommunication {
                             case CtoSPrefix.disconnectionPrefix:
                                 ableToRead = ReceptionProtocol.receivedDisconnection(transferablePrefix, arg_student, answerInStream);
                                 break;
+                            case CtoSPrefix.requestPrefix:
+                                sendResourceWithId(transferablePrefix.getOptionalArgument2(), transferablePrefix.getOptionalArgument1());
+                                break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
                                 break;
@@ -384,163 +387,7 @@ public class NetworkCommunication {
 
                         }
 
-                        if (answerString.split("///")[0].contains("ANSW")) {
-                            double eval = DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(answerString.split("///")[5],
-                                    arg_student.getStudentID(), answerString.split("///")[3], answerString.split("///")[0]);
-                            sendEvaluation(eval, answerString.split("///")[5], arg_student);
-
-                            //find out to which group the student and answer belong
-                            Integer groupIndex = -1;
-                            String questID = answerString.split("///")[5];
-                            for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
-                                if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
-                                        Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
-                                    groupIndex = i;
-                                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
-                                            .remove(questID);
-                                }
-                            }
-
-                            if (groupIndex == -1) {
-                                groupIndex = 0;
-                                for (int i = 0; i < studentNamesForGroups.size(); i++) {
-                                    if (studentNamesForGroups.get(i).contains(arg_student.getName()) && questionIdsForGroups.get(i).contains(questID)) {
-                                        groupIndex = i;
-                                        questionIdsForGroups.get(i).remove(questID);
-                                    }
-                                }
-                            }
-
-                            Koeko.studentsVsQuestionsTableControllerSingleton.addAnswerForUser(answerString.split("///")[2], answerString.split("///")[3], answerString.split("///")[4], eval,
-                                    answerString.split("///")[5], groupIndex);
-                            String nextQuestion = arg_student.getNextQuestionID(answerString.split("///")[5]);
-                            System.out.println("student: " + arg_student.getName() + ";former question: " + questID + "; nextQuestion:" + nextQuestion);
-                            for (String testid : arg_student.getTestQuestions()) {
-                                System.out.println(testid);
-                            }
-                            if (!nextQuestion.contentEquals("-1")) {
-                                ArrayList<Student> singleStudent = new ArrayList<>();
-                                singleStudent.add(arg_student);
-                                sendQuestionID(nextQuestion, singleStudent);
-                            }
-
-                            //set evaluation if question belongs to a test
-                            if (arg_student.getActiveTest().getIdsQuestions().contains(questID)) {
-                                System.out.println("inserting question evaluation for test");
-                                int questionIndex = arg_student.getActiveTest().getIdsQuestions().indexOf(questID);
-                                if (questionIndex < arg_student.getActiveTest().getQuestionsEvaluations().size() && questionIndex >= 0) {
-                                    arg_student.getActiveTest().getQuestionsEvaluations().set(questionIndex, eval);
-                                }
-                                Boolean testCompleted = true;
-                                for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
-                                    if (questEval < 0) {
-                                        testCompleted = false;
-                                    }
-                                }
-                                if (testCompleted) {
-                                    Double testEval = 0.0;
-                                    for (Double questEval : arg_student.getActiveTest().getQuestionsEvaluations()) {
-                                        testEval += questEval;
-                                    }
-                                    testEval = testEval / arg_student.getActiveTest().getQuestionsEvaluations().size();
-                                    arg_student.getActiveTest().setTestEvaluation(testEval);
-                                    DbTableIndividualQuestionForStudentResult.addIndividualTestEval(arg_student.getActiveTest().getIdTest(), arg_student.getName(), testEval);
-                                }
-                            }
-
-                            //increase score if a game is on
-                            for (Game game : Koeko.activeGames) {
-                                Koeko.gameControllerSingleton.scoreIncreased(eval, game, arg_student);
-                            }
-                        } else if (answerString.split("///")[0].contains("DISC")) {
-                            networkStateSingleton.disconnectDevice(answerString.split("///")[1]);
-                            Student student = aClass.getStudentWithUniqueID(arg_student.getUniqueDeviceID());
-                            student.setUniqueDeviceID(answerString.split("///")[1]);
-                            student.setName(answerString.split("///")[2]);
-                            student.setConnected(false);
-                            if (answerString.contains("close-connection")) {
-                                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                                        .add(student.getUniqueDeviceID());
-                                learningTrackerController.userDisconnected(student);
-
-                                System.out.println("Student device really disconnecting. We should close the connection");
-                                arg_student.getOutputStream().flush();
-                                arg_student.getOutputStream().close();
-                                arg_student.setOutputStream(null);
-                                arg_student.getInputStream().close();
-                                arg_student.setInputStream(null);
-                                ableToRead = false;
-                            } else if (answerString.contains("locked")) {
-                                disconnectiongStudents.remove(student.getUniqueDeviceID());
-                                arg_student.getOutputStream().flush();
-                                arg_student.getOutputStream().close();
-                                arg_student.setOutputStream(null);
-                                arg_student.getInputStream().close();
-                                arg_student.setInputStream(null);
-                                ableToRead = false;
-                            } else {
-                                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
-                                        .add(student.getUniqueDeviceID());
-                                disconnectiongStudents.add(student.getUniqueDeviceID());
-                                Thread studentDisconnectionQThread = new Thread() {
-                                    public void run() {
-                                        try {
-                                            Thread.sleep(1000);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if (disconnectiongStudents.contains(student.getUniqueDeviceID())) {
-                                            learningTrackerController.userDisconnected(student);
-                                            disconnectiongStudents.remove(student.getUniqueDeviceID());
-                                        }
-                                    }
-                                };
-                                studentDisconnectionQThread.start();
-                            }
-                        } else if (answerString.split("///")[0].contains("OK")) {
-                            /*String uuid = "";
-                            if (answerString.split("///")[0].split(":").length > 1) {
-                                uuid = answerString.split("///")[0].split(":")[1];
-                            } else {
-                                System.err.println("Received OK but no identifier associated!");
-                            }
-                            ArrayList<String> receptionArray = new ArrayList<String>(Arrays.asList(answerString.split("///")));
-                            for (String receivedString : receptionArray) {
-                                if (!receivedString.contains("OK:") && !uuid.contentEquals("no identifier")) {
-                                    networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).add(receivedString);
-                                    if (networkStateSingleton.getStudentsToSyncedIdsMap().get(uuid).containsAll(networkStateSingleton.getQuestionIdsToSend())) {
-                                        Student student = aClass.getStudentWithUniqueID(uuid);
-                                        if (student != null) {
-                                            networkStateSingleton.toggleSyncStateForStudent(student, NetworkState.STUDENT_SYNCED);
-                                        }
-                                    }
-                                }
-                            }
-
-                            //For sending speed testing, provided that we only send one question multiple choice
-                            if (functionalTesting.transferRateTesting) {
-                                Long sendingTime = System.nanoTime() - NetworkCommunication.sendingStartTime;
-                                Double sendingTimeDouble = sendingTime / 1000000000.0;
-                                System.out.println("Sending time: " + sendingTimeDouble + "; File size: " + NetworkCommunication.fileLength +
-                                        "; Sending Speed: " + String.format("%.2f", NetworkCommunication.fileLength / sendingTimeDouble / 1000000)
-                                        + "MB/s");
-                            }*/
-                        } else if (answerString.split("///")[0].contains("ACCUSERECEPTION")) {
-                            int nbAccuses = answerString.split("ACCUSERECEPTION", -1).length - 1;
-                            functionalTesting.nbAccuseReception += nbAccuses;
-                            System.out.println(functionalTesting.nbAccuseReception);
-                            if (functionalTesting.nbAccuseReception >= (functionalTesting.numberStudents * functionalTesting.numberOfQuestions)) {
-                                functionalTesting.endTimeQuestionSending = System.currentTimeMillis();
-                            }
-                        } else if (answerString.split("///")[0].contains("ACTID")) {
-                            if (answerString.split("///").length >= 2) {
-                                String activeID = answerString.split("///")[1];
-                                if (Long.valueOf(activeID) < 0) {
-                                    activeID = QuestionGeneric.changeIdSign(activeID);
-                                }
-                                networkStateSingleton.getStudentsToActiveIdMap().put(arg_student.getUniqueDeviceID(), activeID);
-                            }
-                        } else if (answerString.contains("ENDTRSM")) {
+                        if (answerString.contains("ENDTRSM")) {
                             sendActiveIds(arg_student);
                         } else if (answerString.split("///")[0].contentEquals("HOTSPOTIP")) {
                             for (SubNet subNet : networkStateSingleton.getSubNets()) {
@@ -570,8 +417,6 @@ public class NetworkCommunication {
                             String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
                             writer.println(timeStamp + "\t" + answerString.split("///")[1]);
                             writer.flush();
-                        } else if (answerString.split("///")[0].contentEquals("REQUEST")) {
-                            sendResourceWithId(answerString.split("///")[2], answerString.split("///")[1]);
                         } else if (answerString.split("///")[0].contentEquals("RESULT")) {
                             ReceptionProtocol.receivedRESULT(answerString, answerInStream, arg_student.getStudentID());
                         }
