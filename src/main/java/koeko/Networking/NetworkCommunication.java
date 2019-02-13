@@ -47,7 +47,6 @@ public class NetworkCommunication {
     private FileInputStream fis = null;
     private BufferedInputStream bis = null;
     final private int PORTNUMBER = 9090;
-    protected Vector<String> disconnectiongStudents;
     protected ArrayList<ArrayList<String>> questionIdsForGroups;
     protected ArrayList<ArrayList<String>> studentNamesForGroups;
     public NetworkState networkStateSingleton;
@@ -65,7 +64,6 @@ public class NetworkCommunication {
         networkCommunicationSingleton = this;
         questionIdsForGroups = new ArrayList<>();
         studentNamesForGroups = new ArrayList<>();
-        disconnectiongStudents = new Vector<>();
         networkStateSingleton = new NetworkState();
         this.sendingQueue = new LinkedBlockingQueue<>();
         queueIsFinished = new AtomicBoolean(true);
@@ -378,6 +376,9 @@ public class NetworkCommunication {
                                 break;
                             case CtoSPrefix.requestPrefix:
                                 sendResourceWithId(transferablePrefix.getOptionalArgument2(), transferablePrefix.getOptionalArgument1());
+                                break;
+                            case CtoSPrefix.homeworkResultPrefix:
+                                ReceptionProtocol.receivedHomeworkResults(transferablePrefix, arg_student, answerInStream);
                                 break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");

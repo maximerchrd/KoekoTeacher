@@ -61,7 +61,7 @@ object CtoSPrefix {
     const val gameTeamPrefix = 13
     const val reconnectedPrefix = 14
     const val requestPrefix = 15
-    const val resultPrefix = 16
+    const val homeworkResultPrefix = 16
 }
 
 

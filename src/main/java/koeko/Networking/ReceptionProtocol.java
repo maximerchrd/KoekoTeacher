@@ -21,10 +21,7 @@ import sun.nio.ch.Net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -311,7 +308,7 @@ public class ReceptionProtocol {
         String questID = answer.getQuestionId();
         for (int i = 0; i < Koeko.studentGroupsAndClass.size(); i++) {
             if (Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()) != null &&
-                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(String.valueOf(questID))) {
+                    Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName()).contains(questID)) {
                 groupIndex = i;
                 Koeko.studentGroupsAndClass.get(i).getOngoingQuestionsForStudent().get(arg_student.getName())
                         .remove(questID);
@@ -403,7 +400,6 @@ public class ReceptionProtocol {
             arg_student.setInputStream(null);
             ableToRead = false;
         } else if (transferablePrefix.getOptionalArgument2().contains("locked")) {
-            NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.remove(student.getUniqueDeviceID());
             arg_student.getOutputStream().flush();
             arg_student.getOutputStream().close();
             arg_student.setOutputStream(null);
@@ -413,24 +409,19 @@ public class ReceptionProtocol {
         } else {
             NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getStudentsToConnectionStatus()
                     .add(student.getUniqueDeviceID());
-            NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.add(student.getUniqueDeviceID());
-            Thread studentDisconnectionQThread = new Thread() {
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.contains(student.getUniqueDeviceID())) {
-                        NetworkCommunication.networkCommunicationSingleton.learningTrackerController.userDisconnected(student);
-                        NetworkCommunication.networkCommunicationSingleton.disconnectiongStudents.remove(student.getUniqueDeviceID());
-                    }
-                }
-            };
-            studentDisconnectionQThread.start();
+            NetworkCommunication.networkCommunicationSingleton.learningTrackerController.userDisconnected(student);
         }
 
         return ableToRead;
+    }
+
+    public static void receivedHomeworkResults(ClientToServerTransferable transferablePrefix, Student arg_student, InputStream answerInStream) throws IOException {
+        byte[] homeworkResults = readDataIntoArray(transferablePrefix.getSize(), answerInStream);
+        List<Result> results = Arrays.asList(getObjectMapper().readValue(homeworkResults, Result[].class));
+        for (Result result : results) {
+            DbTableIndividualQuestionForStudentResult.addResult(result, arg_student.getStudentID());
+            System.out.println("inserted homework result for resource: " + result.getResourceUid());
+        }
     }
 
     private static ObjectMapper getObjectMapper() {
