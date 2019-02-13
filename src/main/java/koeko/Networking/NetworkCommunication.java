@@ -380,46 +380,32 @@ public class NetworkCommunication {
                             case CtoSPrefix.homeworkResultPrefix:
                                 ReceptionProtocol.receivedHomeworkResults(transferablePrefix, arg_student, answerInStream);
                                 break;
+                            case CtoSPrefix.successPrefix:
+                                networkStateSingleton.subnetSuccess(transferablePrefix.getOptionalArgument1());
+                                break;
+                            case CtoSPrefix.failPrefix:
+                                networkStateSingleton.operationFailed(transferablePrefix.getOptionalArgument1());
+                                break;
+                            case CtoSPrefix.readyPrefix:
+                                Koeko.gameControllerSingleton.studentReady(transferablePrefix.getOptionalArgument1());
+                                break;
+                            case CtoSPrefix.gamesetPrefix:
+                                ReceptionProtocol.receivedGAMESET(transferablePrefix.getOptionalArgument2(), arg_student);
+                                break;
+                            case CtoSPrefix.gameTeamPrefix:
+                                ReceptionProtocol.receivedGameTeam(transferablePrefix, arg_student);
+                            case CtoSPrefix.hotspotIpPrefix:
+                                ReceptionProtocol.receivedHotspotIp(transferablePrefix);
+                                break;
+                            case CtoSPrefix.reconnectedPrefix:
+                                ReceptionProtocol.receivedReconnected(transferablePrefix, writer);
+                                break;
                             case CtoSPrefix.unableToReadPrefix:
                                 System.out.println("Communication over?");
                                 break;
                             default:
                                 System.err.println("Implement informing user that the app might need update");
 
-                        }
-
-                        if (answerString.contains("ENDTRSM")) {
-                            sendActiveIds(arg_student);
-                        } else if (answerString.split("///")[0].contentEquals("HOTSPOTIP")) {
-                            for (SubNet subNet : networkStateSingleton.getSubNets()) {
-                                if (subNet.getPassword().contentEquals(answerString.split("///")[2])) {
-                                    subNet.setIpAddress(answerString.split("///")[1]);
-                                }
-                            }
-                        } else if (answerString.split("///")[0].contentEquals("SUCCESS")) {
-                            networkStateSingleton.subnetSuccess(answerString.split("///")[1]);
-                            System.out.println("Received SUCCESS");
-                        } else if (answerString.split("///")[0].contentEquals("FAIL")) {
-                            networkStateSingleton.operationFailed(answerString.split("///")[1]);
-                            System.out.println("Received FAIL");
-                        } else if (answerString.split("///")[0].contentEquals("READY")) {
-                            Koeko.gameControllerSingleton.studentReady(answerString.split("///")[1]);
-                        } else if (answerString.split("///")[0].contentEquals("GAMESET")) {
-                            ReceptionProtocol.receivedGAMESET(answerString.split("///")[2], arg_student);
-                        } else if (answerString.split("///")[0].contentEquals("GAMETEAM")) {
-                            Platform.runLater(() -> {
-                                if (Koeko.gameControllerSingleton == null) {
-                                    Koeko.questionSendingControllerSingleton.openGameController();
-                                    Koeko.gameControllerSingleton.setQrMode();
-                                }
-                                Koeko.gameControllerSingleton.addPlayerFromQrCode(answerString.split("///")[1], answerString.split("///")[2], arg_student);
-                            });
-                        } else if (answerString.contains("RECONNECTED")) {
-                            String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                            writer.println(timeStamp + "\t" + answerString.split("///")[1]);
-                            writer.flush();
-                        } else if (answerString.split("///")[0].contentEquals("RESULT")) {
-                            ReceptionProtocol.receivedRESULT(answerString, answerInStream, arg_student.getStudentID());
                         }
                     } else {
                         System.out.println("Communication over?");

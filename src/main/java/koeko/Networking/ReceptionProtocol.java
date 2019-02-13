@@ -2,6 +2,7 @@ package koeko.Networking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.util.ArrayUtils;
+import javafx.application.Platform;
 import koeko.Koeko;
 import koeko.Networking.OtherTransferables.Answer;
 import koeko.Networking.OtherTransferables.ClientToServerTransferable;
@@ -21,6 +22,8 @@ import sun.nio.ch.Net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -422,6 +425,30 @@ public class ReceptionProtocol {
             DbTableIndividualQuestionForStudentResult.addResult(result, arg_student.getStudentID());
             System.out.println("inserted homework result for resource: " + result.getResourceUid());
         }
+    }
+
+    public static void receivedGameTeam(ClientToServerTransferable transferablePrefix, Student arg_student) {
+        Platform.runLater(() -> {
+            if (Koeko.gameControllerSingleton == null) {
+                Koeko.questionSendingControllerSingleton.openGameController();
+                Koeko.gameControllerSingleton.setQrMode();
+            }
+            Koeko.gameControllerSingleton.addPlayerFromQrCode(transferablePrefix.getOptionalArgument1(), transferablePrefix.getOptionalArgument2(), arg_student);
+        });
+    }
+
+    public static void receivedHotspotIp(ClientToServerTransferable transferablePrefix) {
+        for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.networkStateSingleton.getSubNets()) {
+            if (subNet.getPassword().contentEquals(transferablePrefix.getOptionalArgument2())) {
+                subNet.setIpAddress(transferablePrefix.getOptionalArgument1());
+            }
+        }
+    }
+
+    public static void receivedReconnected(ClientToServerTransferable transferablePrefix, PrintWriter writer) {
+        String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+        writer.println(timeStamp + "\t" + transferablePrefix.getOptionalArgument1());
+        writer.flush();
     }
 
     private static ObjectMapper getObjectMapper() {
