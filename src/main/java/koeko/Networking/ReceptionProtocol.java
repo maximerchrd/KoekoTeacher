@@ -53,7 +53,7 @@ public class ReceptionProtocol {
         student.setStudentID(studentID);
 
         //get the device infos if android
-        //extractInfos(answerString, student);
+        extractInfos(dictionary.get("deviceInfos"), student);
 
         NetworkState networkState = NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton();
         networkState.getStudentsToConnectionStatus().add(student.getUniqueDeviceID());
@@ -80,42 +80,43 @@ public class ReceptionProtocol {
         return student;
     }
 
-    private static void extractInfos(String answerString, Student student) {
-        if (answerString.split("///").length >= 4) {
-            String[] infos = answerString.split("///")[3].split(":");
-            if (infos.length >= 4) {
-                Integer sdklevel = 0;
-                Long googleServicesVersion = 0L;
-                Boolean ble = false;
-                Integer hotspotAvailable = 0;
-                String deviceModel = "";
-                try {
-                    sdklevel = Integer.valueOf(infos[1]);
+    private static void extractInfos(String info, Student student) {
+        if (info == null) {
+            info = "";
+        }
+        String[] infos = info.split(":");
+        if (infos.length >= 4) {
+            Integer sdklevel = 0;
+            Long googleServicesVersion = 0L;
+            Boolean ble = false;
+            Integer hotspotAvailable = 0;
+            String deviceModel = "";
+            try {
+                sdklevel = Integer.valueOf(infos[1]);
 
-                    if (infos[2].contentEquals("BLE")) {
-                        ble = true;
-                    }
-                    googleServicesVersion = Long.valueOf(infos[3]);
-                    hotspotAvailable = Integer.valueOf(infos[4]);
-                    deviceModel = infos[5];
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
+                if (infos[2].contentEquals("BLE")) {
+                    ble = true;
                 }
-                DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion,
-                        hotspotAvailable, deviceModel);
-
-                //don't classify device if he is reconnecting after verticalizing
-                for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets()) {
-                    if (subNet.getAdvertiser().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
-                    if (subNet.getDiscoverer().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
-                    for (DeviceInfo clientsInfos : subNet.getClients()) {
-                        if (clientsInfos.getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
-                    }
-                }
-                NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().classifiyNewDevice(deviceInfo);
+                googleServicesVersion = Long.valueOf(infos[3]);
+                hotspotAvailable = Integer.valueOf(infos[4]);
+                deviceModel = infos[5];
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
             }
+            DeviceInfo deviceInfo = new DeviceInfo(student.getUniqueDeviceID(), infos[0], sdklevel, ble, googleServicesVersion,
+                    hotspotAvailable, deviceModel);
+
+            //don't classify device if he is reconnecting after verticalizing
+            for (SubNet subNet : NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().getSubNets()) {
+                if (subNet.getAdvertiser().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                if (subNet.getDiscoverer().getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                for (DeviceInfo clientsInfos : subNet.getClients()) {
+                    if (clientsInfos.getUniqueId().contentEquals(deviceInfo.getUniqueId())) return;
+                }
+            }
+            NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton().classifiyNewDevice(deviceInfo);
         } else {
             NetworkCommunication.networkCommunicationSingleton.getNetworkStateSingleton()
                     .classifiyNewDevice(new DeviceInfo(student.getUniqueDeviceID(), "IOS", 0, false, 0L, 0, "IOS"));

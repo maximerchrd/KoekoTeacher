@@ -437,6 +437,7 @@ public class NetworkCommunication {
                     if (e1.toString().contains("Connection reset")) {
                         bytesread = -1;
                     }
+                    e1.printStackTrace();
                 }
             }
             writer.close();

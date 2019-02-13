@@ -1,6 +1,7 @@
 package koeko.Networking.OtherTransferables
 
 import koeko.view.TransferPrefix
+import java.lang.IndexOutOfBoundsException
 
 class ClientToServerTransferable {
     var prefix = -1
@@ -10,12 +11,13 @@ class ClientToServerTransferable {
     var fileBytes = ByteArray(0)
     
     fun getTransferableBytes() : ByteArray {
+        size = fileBytes.size
         var prefixString = prefix.toString() + TransferPrefix.delimiter + size + TransferPrefix.delimiter + optionalArgument1 +
                 TransferPrefix.delimiter + optionalArgument2 + TransferPrefix.delimiter
         var prefixUsefulBytes = prefixString.toByteArray()
         var prefixBytes = ByteArray(TransferPrefix.prefixSize)
-        for (i in 0..prefixUsefulBytes.size) {
-            prefixBytes[i] = prefixUsefulBytes[i]
+        (0 until prefixUsefulBytes.size).takeWhile { it < TransferPrefix.prefixSize }.forEach {
+            prefixBytes[it] = prefixUsefulBytes[it]
         }
         return prefixBytes + fileBytes
     }
@@ -23,16 +25,17 @@ class ClientToServerTransferable {
     companion object {
         fun stringToTransferable(prefix: String): ClientToServerTransferable {
             val transferable = ClientToServerTransferable()
-            val prefixString = prefix.split(TransferPrefix.delimiter)[0]
-            val sizeString = prefix.split(TransferPrefix.delimiter)[1]
-            transferable.optionalArgument1 = prefix.split(TransferPrefix.delimiter)[2]
-            transferable.optionalArgument2 = prefix.split(TransferPrefix.delimiter)[3]
-
             try {
+                val prefixString = prefix.split(TransferPrefix.delimiter)[0]
+                val sizeString = prefix.split(TransferPrefix.delimiter)[1]
+                transferable.optionalArgument1 = prefix.split(TransferPrefix.delimiter)[2]
+                transferable.optionalArgument2 = prefix.split(TransferPrefix.delimiter)[3]
                 transferable.prefix = prefixString.toInt()
                 transferable.size = sizeString.toInt()
             } catch (e: NumberFormatException) {
                 println(e.message)
+            } catch (e2: IndexOutOfBoundsException) {
+                println(e2.message)
             }
 
             return transferable
