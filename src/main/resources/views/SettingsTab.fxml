@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.chart.*?>
@@ -10,6 +11,12 @@
    <children>
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
          <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="381.0" text="Select Language:" />
+                  <ComboBox fx:id="appLanguageCombobox" onAction="#changeAppLanguage" prefWidth="150.0" promptText="Language" />
+               </children>
+            </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label prefHeight="29.0" prefWidth="381.0" text="Give a feedback to students when they answer the question:" />
@@ -30,6 +37,14 @@
                   </ToggleButton>
                </children>
             </HBox>
+            <Label text="WEB SYNCHRONIZATION">
+               <VBox.margin>
+                  <Insets bottom="15.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
             <HBox prefHeight="50.0" prefWidth="855.0">
                <children>
                   <Label prefWidth="160.0" text="User Name:" />

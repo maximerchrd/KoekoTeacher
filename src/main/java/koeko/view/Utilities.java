@@ -51,14 +51,16 @@ public class Utilities {
 
     public static void initCodeToLanguageMap() {
         Utilities.codeToLanguageMap.put("en", "English");
-        Utilities.codeToLanguageMap.put("de", "Deutsch");
+        //Utilities.codeToLanguageMap.put("de", "Deutsch");
         Utilities.codeToLanguageMap.put("fr", "Français");
+        Utilities.codeToLanguageMap.put("hy", "հայերեն");
     }
 
     public static void initLanguageToCodeMap() {
         Utilities.languageToCodeMap.put("English", "en");
-        Utilities.languageToCodeMap.put("Deutsch", "de");
+        //Utilities.languageToCodeMap.put("Deutsch", "de");
         Utilities.languageToCodeMap.put("Français", "fr");
+        Utilities.languageToCodeMap.put("հայերեն", "hy");
     }
 
 

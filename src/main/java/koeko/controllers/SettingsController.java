@@ -16,8 +16,10 @@ import javafx.scene.control.ToggleButton;
 import koeko.view.Professor;
 import koeko.view.Utilities;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class SettingsController implements Initializable {
@@ -40,6 +42,8 @@ public class SettingsController implements Initializable {
     private ComboBox languageCombobox;
     @FXML
     private TextField synchronizationKeyTextField;
+    @FXML
+    private ComboBox appLanguageCombobox;
 
     private String serverAddress = "127.0.0.1";
     private int serverPort = 50507;
@@ -177,12 +181,25 @@ public class SettingsController implements Initializable {
         if (DbTableProfessor.getProfessor() == null) {
             DbTableProfessor.addProfessor(teacherName.getText(), teacherName.getText(), teacherName.getText());
         }
+
+        appLanguageCombobox.setItems(data);
+        appLanguageCombobox.getSelectionModel().select(Utilities.codeToLanguageMap.get(DbTableSettings.getLanguage()));
     }
 
     public void requestHomeworkKey() {
         try {
             SyncOperations.RequestNewHomeworkKey(InetAddress.getByName(serverAddress), serverPort);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeAppLanguage() {
+        String languageCode = Utilities.languageToCodeMap.get(appLanguageCombobox.getSelectionModel().getSelectedItem().toString());
+        DbTableSettings.insertLanguage(languageCode);
+        try {
+            Koeko.loadView(new Locale(languageCode), getClass());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

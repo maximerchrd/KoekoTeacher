@@ -20,6 +20,7 @@ public class DbTableSettings {
     static private String teacherNameKey = "TeacherName";
     static private String homeworkKey = "HomeworkKey";
     static private String lastSyncTime = "LastSyncTime";
+    static private String language = "Language";
 
     static public void createTableSettings(Connection connection) {
         try {
@@ -41,6 +42,7 @@ public class DbTableSettings {
             insertNewSetting(uiModeKey, "0");
             insertNewSetting(teacherNameKey, "No Name");
             insertNewSetting(lastSyncTime, "2018-01-01 01:01:01.000000000");
+            insertNewSetting(language, "en");
         }
     }
 
@@ -110,6 +112,10 @@ public class DbTableSettings {
         return DbUtils.getArrayStringWithOneParam(sql, homeworkKey);
     }
 
+    static public String getLanguage() {
+        return getStringSetting(language);
+    }
+
     static public void insertNearbyMode(Integer nearbyMode) {
         String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey + "=?";
         DbUtils.updateWithTwoParam(sql, nearbyMode.toString(), nearbyModeKey);
@@ -142,5 +148,10 @@ public class DbTableSettings {
     static public void insertSyncTime(String paramLastSyncTime) {
         String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey + "=?";
         DbUtils.updateWithTwoParam(sql, paramLastSyncTime, lastSyncTime);
+    }
+
+    public static void insertLanguage(String languageCode) {
+        String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey +"=?";
+        DbUtils.updateWithTwoParam(sql, languageCode, language);
     }
 }

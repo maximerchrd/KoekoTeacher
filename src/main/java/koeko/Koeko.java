@@ -3,6 +3,8 @@ package koeko;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javafx.scene.Parent;
 import javafx.stage.*;
@@ -15,6 +17,7 @@ import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
 import koeko.database_management.DBManager;
+import koeko.database_management.DbTableSettings;
 import koeko.database_management.DbUtils;
 import koeko.questions_management.QuestionMultipleChoice;
 import koeko.students_management.Classroom;
@@ -35,13 +38,15 @@ public class Koeko extends Application {
     static public ArrayList<Classroom> studentGroupsAndClass;
     static public Boolean recordLogs = false;
     static public ArrayList<Game> activeGames = new ArrayList<>();
+    static public Stage mainStage;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Application.launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        mainStage = primaryStage;
         Boolean firstAppLaunch = false;
         File f = new File(DBManager.databaseName);
         if(!f.exists()) {
@@ -53,29 +58,11 @@ public class Koeko extends Application {
         dao.createDBIfNotExists();
         dao.createTablesIfNotExists();
 
-        primaryStage.setTitle("Koeko");
+        mainStage.setTitle("Koeko");
 
-        Scene scene = new Scene(new StackPane());
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/LearningTracker.fxml"));
-        scene.setRoot(loader.load());
-
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-
-        //set Stage boundaries to visible bounds of the main screen
-        primaryStage.setX(primaryScreenBounds.getMinX());
-        primaryStage.setY(primaryScreenBounds.getMinY());
-        primaryStage.setWidth(primaryScreenBounds.getWidth());
-        primaryStage.setHeight(primaryScreenBounds.getHeight());
-
-        //change UI mode (do it here because before, some elements are still null
-        Koeko.questionSendingControllerSingleton.changeUI();
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        FXMLLoader loader = loadView(new Locale(DbTableSettings.getLanguage()), getClass());
 
         //start server
-
         LearningTrackerController learningTrackerController = loader.getController();
         NetworkCommunication CommunicationWithClients = new NetworkCommunication(learningTrackerController);
         try {
@@ -86,12 +73,9 @@ public class Koeko extends Application {
 
 
 
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
-            }
+        mainStage.setOnCloseRequest(t -> {
+            Platform.exit();
+            System.exit(0);
         });
 
         if (firstAppLaunch) {
@@ -116,4 +100,27 @@ public class Koeko extends Application {
 //        }
     }
 
+    public static FXMLLoader loadView(Locale locale, Class currentClass) throws IOException {
+        Scene scene = new Scene(new StackPane());
+
+        FXMLLoader loader = new FXMLLoader(currentClass.getResource("/views/LearningTracker.fxml"));
+        loader.setResources(ResourceBundle.getBundle("bundles.LangBundle", locale));
+        scene.setRoot(loader.load());
+
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+
+        //set Stage boundaries to visible bounds of the main screen
+        mainStage.setX(primaryScreenBounds.getMinX());
+        mainStage.setY(primaryScreenBounds.getMinY());
+        mainStage.setWidth(primaryScreenBounds.getWidth());
+        mainStage.setHeight(primaryScreenBounds.getHeight());
+
+        //change UI mode (do it here because before, some elements are still null
+        Koeko.questionSendingControllerSingleton.changeUI();
+
+        mainStage.setScene(scene);
+        mainStage.show();
+
+        return loader;
+    }
 }

@@ -17,7 +17,7 @@
                         <Insets left="5.0" />
                     </VBox.margin>
                 </Label>
-                <Button mnemonicParsing="false" onAction="#refreshIP" prefWidth="193.0" text="Refresh IP address">
+                <Button mnemonicParsing="false" onAction="#refreshIP" prefWidth="193.0" text="%refresh_ip">
                     <VBox.margin>
                         <Insets left="5.0" top="5.0" />
                     </VBox.margin>

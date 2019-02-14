@@ -43,10 +43,7 @@ import koeko.view.Subject;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by maximerichard on 13.03.18.
@@ -77,8 +74,11 @@ public class LeftBarController extends Window implements Initializable {
 
     @FXML public ListView<Homework> homeworksList;
 
+    private ResourceBundle bundle;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.leftBarController = this;
+        bundle = resources;
         ipAddresses = new ArrayList<>();
 
         Task<Void> getIPTask = new Task<Void>() {
@@ -213,12 +213,12 @@ public class LeftBarController extends Window implements Initializable {
             }
         }
         if (ipAddresses.size() == 1) {
-            Platform.runLater(() -> labelIP.setText("students should connect \nto the following address:\n" + ipAddresses.get(0)));
+            Platform.runLater(() -> labelIP.setText(bundle.getString("label_ip") + ipAddresses.get(0)));
             if (Koeko.recordLogs) {
                 DbTableLogs.insertLog("IPs", ipAddresses.get(0));
             }
         } else if (ipAddresses.size() == 2) {
-            Platform.runLater(() -> labelIP.setText("students should connect \nto the following addresses:\n" + ipAddresses.get(0) +
+            Platform.runLater(() -> labelIP.setText(bundle.getString("label_ip") + ipAddresses.get(0) +
                     "\nand " + ipAddresses.get(1)));
             if (Koeko.recordLogs) {
                 DbTableLogs.insertLog("IPs", ipAddresses.get(0) + "/" + ipAddresses.get(1));
