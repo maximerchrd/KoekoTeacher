@@ -703,7 +703,7 @@ public class NetworkCommunication {
                 for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
                     if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
                         GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
-                        sendTransferableObjectWithoutId(gameView, student);
+                        sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
                     }
                 }
             }
@@ -712,7 +712,7 @@ public class NetworkCommunication {
                 for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
                     if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
                         GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
-                        sendTransferableObjectWithoutId(gameView, student);
+                        sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
                     }
                 }
             }
