@@ -7,6 +7,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import koeko.Koeko;
+import koeko.Networking.NetworkCommunication;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameCell extends ListCell<Game> {
     private double imageSize = 60;
@@ -39,12 +43,14 @@ public class GameCell extends ListCell<Game> {
             team1Plus.setOnAction(e -> {
                 Platform.runLater(() -> {
                     item.getTeamOne().increaseScore(null, 1.0);
+                    scoreChanged(item);
                     this.updateItem(item, false);
                 });
             });
             Button team1Minus = new Button("-");
             team1Minus.setOnAction(e -> {
                 item.getTeamOne().increaseScore(null, -1.0);
+                scoreChanged(item);
                 this.updateItem(item, false);
             });
             team1Vbox.getChildren().addAll(team1Score, team1Plus, team1Minus);
@@ -55,11 +61,13 @@ public class GameCell extends ListCell<Game> {
             Button team2Plus = new Button("+");
             team2Plus.setOnAction(e -> {
                 item.getTeamTwo().increaseScore(null, 1.0);
+                scoreChanged(item);
                 this.updateItem(item, false);
             });
             Button team2Minus = new Button("-");
             team2Minus.setOnAction(e -> {
                 item.getTeamTwo().increaseScore(null, -1.0);
+                scoreChanged(item);
                 this.updateItem(item, false);
             });
             team2Vbox.getChildren().addAll(team2Score, team2Plus, team2Minus);
@@ -80,5 +88,19 @@ public class GameCell extends ListCell<Game> {
         }
         Koeko.activeGames.remove(item);
         this.getListView().getItems().remove(this.getIndex());
+    }
+
+    private void scoreChanged(Game game) {
+        ArrayList<StudentCellView> allStudentsInGame = new ArrayList<>();
+        allStudentsInGame.addAll(game.getTeamOne().getStudentCellViews());
+        allStudentsInGame.addAll(game.getTeamTwo().getStudentCellViews());
+        for (StudentCellView studentCellView : allStudentsInGame) {
+            try {
+                NetworkCommunication.networkCommunicationSingleton.sendGameScore(studentCellView.getStudent(),
+                        game.getTeamOne().getTeamScore(), game.getTeamTwo().getTeamScore());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

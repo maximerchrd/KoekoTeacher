@@ -13,15 +13,12 @@ import koeko.controllers.SettingsController;
 import koeko.database_management.*;
 import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
-import koeko.questions_management.Test;
 import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import koeko.view.Result;
-import sun.nio.ch.Net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -193,42 +190,6 @@ public class ReceptionProtocol {
     public static void receivedGAMESET(String gameSetId, Student arg_student) {
         ArrayList<String> questionIds = DbTableRelationQuestionQuestion.getQuestionsLinkedToTestId(gameSetId);
         Koeko.gameControllerSingleton.activateQuestionIdsToTeam(questionIds, arg_student);
-    }
-
-    public static void receivedRESULT(String answerString, InputStream answerInStream, String studentId) throws IOException {
-        String sizeString = answerString.split("///")[1];
-        byte[] firstPart = Arrays.copyOfRange(answerString.getBytes(), 80, answerString.getBytes().length);
-        int size = Integer.parseInt(sizeString);
-        byte[] allBytes;
-        if (size > 920) {
-            byte[] newBytes = new byte[size - 920];
-            int sizeRead = 0;
-            while (sizeRead < size - 920) {
-                sizeRead += answerInStream.read(newBytes, sizeRead, size - 920);
-            }
-            byte[] combinedArray = new byte[firstPart.length + newBytes.length];
-            System.arraycopy(firstPart, 0, combinedArray, 0, firstPart.length);
-            System.arraycopy(newBytes, 0, combinedArray, firstPart.length, newBytes.length);
-            allBytes = combinedArray;
-        } else {
-            allBytes = firstPart;
-        }
-
-        int objectSize;
-        do {
-            byte[] prefixBytes = Arrays.copyOfRange(allBytes, 0, DataPref.size);
-            String prefix = new String(prefixBytes);
-            if (prefix.split("///").length > 1) {
-                objectSize = Integer.valueOf(prefix.split("///")[1]);
-                byte[] jsonBytes = Arrays.copyOfRange(allBytes, DataPref.size, DataPref.size + objectSize);
-                String jsonString = new String(jsonBytes);
-                Result result = getObjectMapper().readValue(jsonString, Result.class);
-                DbTableIndividualQuestionForStudentResult.addResult(result, studentId);
-                allBytes = Arrays.copyOfRange(allBytes, DataPref.size + objectSize, allBytes.length);
-            } else {
-                objectSize = 0;
-            }
-        } while (objectSize > 0);
     }
 
     private static byte[] readDataIntoArray(int expectedSize, InputStream inputStream) {
