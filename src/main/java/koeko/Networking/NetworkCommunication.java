@@ -667,7 +667,8 @@ public class NetworkCommunication {
         //activate the present question/test if it's not already done
         if (networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID()) != null) {
             if (!networkStateSingleton.getStudentsToActiveIdMap().get(student.getUniqueDeviceID())
-                    .contentEquals(networkStateSingleton.getActiveID())) {
+                    .contentEquals(networkStateSingleton.getActiveID()) && !networkStateSingleton.getActiveID().contentEquals("")) {
+                //TODO: check why networkStateSingleton.getActiveID() is sometimes empty
                 ArrayList<Student> singleStudent = new ArrayList<>();
                 singleStudent.add(student);
                 sendQuestionID(networkStateSingleton.getActiveID(), singleStudent);
