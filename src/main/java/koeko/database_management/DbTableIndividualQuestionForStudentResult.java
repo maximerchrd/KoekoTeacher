@@ -140,11 +140,10 @@ public class DbTableIndividualQuestionForStudentResult {
             }
         } else if (answerType.contains("ANSW1")) {
             QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(id_global);
+            String answer = answers.replace("|||", "");
             quantitative_evaluation = 0;
-            for (int i = 0; i < questionShortAnswer.getANSWER().size() && quantitative_evaluation == 0; i++) {
-                if (answers.contentEquals(questionShortAnswer.getANSWER().get(i))) {
-                    quantitative_evaluation = 100;
-                }
+            if (questionShortAnswer.getANSWER().contains(answer)) {
+                quantitative_evaluation = 100;
             }
         }
 

@@ -157,7 +157,7 @@ public class NetworkCommunication {
                 QuestionGeneric.changeIdSign(QuestID);
             }
         } catch (NumberFormatException e) {
-            System.err.println("sendQuestionID(): number format exception while sending " + QuestID);
+            System.err.println("sendQuestionID(): number format exception while sending: \"" + QuestID + "\"");
         }
         //set active id for network state
         networkStateSingleton.setActiveID(QuestID);
