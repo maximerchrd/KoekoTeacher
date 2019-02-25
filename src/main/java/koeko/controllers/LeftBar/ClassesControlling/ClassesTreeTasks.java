@@ -21,7 +21,7 @@ public class ClassesTreeTasks {
 
     static public void populateClassesTree(TreeView<Classroom> classroomTreeView) {
         Classroom classroom = new Classroom();
-        classroom.setClassName("All Classes");
+        classroom.setClassName("string.all_classes");
         Koeko.leftBarController.rootClassSingleton = new TreeItem<>(classroom);
         Koeko.leftBarController.rootClassSingleton.setExpanded(true);
         classroomTreeView.setShowRoot(true);

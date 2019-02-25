@@ -69,7 +69,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
         //create rootSubjectSingleton
         Subject subject = new Subject();
-        subject.set_subjectName("All subjects");
+        subject.set_subjectName("string.all_subjects");
         rootSubjectSingleton = new TreeItem<>(subject);
         rootSubjectSingleton.setExpanded(true);
         subjectsTree.setShowRoot(true);
@@ -339,7 +339,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
     public void filterQuestionsWithSubject() {
         Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
         Vector<String> questionIds;
-        if (subject.get_subjectName().contentEquals("All subjects")) {
+        if (subject.get_subjectName().contentEquals("string.all_subjects")) {
             questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
         } else {
             questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());

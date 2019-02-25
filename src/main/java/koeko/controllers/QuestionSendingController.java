@@ -87,24 +87,27 @@ public class QuestionSendingController extends Window implements Initializable {
     @FXML
     private Button activateQuestionForStudentsButton;
 
+    private ResourceBundle bundle;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
+        bundle = resources;
 
         //setup UI choicebox
         uiChoiceBox.setItems(FXCollections.observableArrayList(
-                "Basic Commands", "Advanced Commands")
+                "string.basic_commands", "string.advanced_commands")
         );
         int uiMode = DbTableSettings.getUIMode();
         uiChoiceBox.getSelectionModel().select(uiMode);
 
         //set tooltips for buttons
-        Tooltip tooltipcreateQuestion = new Tooltip("Create a new Question");
+        Tooltip tooltipcreateQuestion = new Tooltip(bundle.getString("string.create_question"));
         createQuestionButton.setTooltip(tooltipcreateQuestion);
-        Tooltip tooltipcreateTest = new Tooltip("Create a new Test");
+        Tooltip tooltipcreateTest = new Tooltip("string.create_test");
         createTestButton.setTooltip(tooltipcreateTest);
-        Tooltip tooltipbroadcastQuestion = new Tooltip("Synchronize selected Question or Test with students' devices");
+        Tooltip tooltipbroadcastQuestion = new Tooltip("string.sync");
         broadcastQuestionForStudentsButton.setTooltip(tooltipbroadcastQuestion);
-        Tooltip tooltipactivateQuestion = new Tooltip("Activate selected Question or Test on students' devices");
+        Tooltip tooltipactivateQuestion = new Tooltip("string.activate");
         activateQuestionForStudentsButton.setTooltip(tooltipactivateQuestion);
 
         //all questions tree (left panel)

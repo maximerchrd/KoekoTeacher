@@ -129,7 +129,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
 
     public void filterQuestionsWithSubject(Subject subject) {
         Vector<String> questionIds;
-        if (subject.get_subjectName().contentEquals("All subjects")) {
+        if (subject.get_subjectName().contentEquals("string.all_subjects")) {
             questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
         } else {
             questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());

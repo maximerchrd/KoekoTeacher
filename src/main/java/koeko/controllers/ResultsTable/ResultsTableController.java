@@ -56,9 +56,13 @@ public class ResultsTableController implements Initializable {
     @FXML private TableColumn<SingleResultsIndicatorsForTable, String> strong_obj_indicators;
     @FXML private TableColumn<SingleResultsIndicatorsForTable, String> weak_obj_indicators;
 
+    private ResourceBundle bundle;
 
     public void initialize(URL location, ResourceBundle resources) {
-        tableTypeCombobox.getItems().addAll("Raw Results Table", "Indicators Table");
+        String bundleName;
+        Locale locale;
+        bundle = resources;
+        tableTypeCombobox.getItems().addAll(bundle.getString("string.raw_results"), bundle.getString("string.indicators"));
         tableTypeCombobox.getSelectionModel().select(0);
 
         resultsTable.managedProperty().bind(resultsTable.visibleProperty());
@@ -154,7 +158,7 @@ public class ResultsTableController implements Initializable {
 
                 tableRows.get(i).setShort_perf_indicators(String.valueOf(Math.round(shortPresentAverage) - Math.round(shortPastAverage)));
             } else {
-                tableRows.get(i).setShort_perf_indicators("Not enough data to compute indicato");
+                tableRows.get(i).setShort_perf_indicators(bundle.getString("string.not_enough_data"));
             }
 
             if (longPresentAverageList.size() > 0 && longPastAverageList.size() > 0) {
@@ -168,7 +172,7 @@ public class ResultsTableController implements Initializable {
 
                 tableRows.get(i).setLong_perf_indicators(String.valueOf(Math.round(longPresentAverage) - Math.round(longPastAverage)));
             } else {
-                tableRows.get(i).setLong_perf_indicators("Not enough data to compute indicato");
+                tableRows.get(i).setLong_perf_indicators(bundle.getString("string.not_enough_data"));
             }
         }
     }
@@ -222,10 +226,10 @@ public class ResultsTableController implements Initializable {
             }
 
             if (weakObjectives.contentEquals("")) {
-                weakObjectives = "Not enough data to compute indicator";
+                weakObjectives = bundle.getString("string.not_enough_data");
             }
             if (strongObjectives.contentEquals("")) {
-                strongObjectives = "Not enough data to compute indicator";
+                strongObjectives = bundle.getString("Not enough data to compute indicator");
             }
 
             tableRows.get(k).setWeak_obj_indicators(weakObjectives);
@@ -234,7 +238,7 @@ public class ResultsTableController implements Initializable {
     }
 
     public void tableTypeChanged() {
-        if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals("Raw Results Table")) {
+        if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.raw_results"))) {
             tableIndicators.setVisible(false);
             resultsTable.setVisible(true);
         } else {
@@ -244,9 +248,9 @@ public class ResultsTableController implements Initializable {
     }
 
     public void getTable() {
-        if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals("Raw Results Table")) {
+        if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.raw_results"))) {
             fillTableRawResults();
-        } else if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals("Indicators Table")) {
+        } else if (tableTypeCombobox.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.indicators"))) {
             fillTableIndicators("");
         }
     }

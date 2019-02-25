@@ -13,12 +13,12 @@
                 <TableColumn fx:id="Name" prefWidth="120.0" text="%resultstable.name" />
                 <TableColumn fx:id="Date" prefWidth="90.0" text="%resultstable.date" />
                   <TableColumn fx:id="Question" prefWidth="180.0" text="%resultstable.question" />
-                  <TableColumn fx:id="Evaluation" prefWidth="75.0" text="Evaluation" />
-                  <TableColumn fx:id="StudentsAnswer" prefWidth="180.0" text="Student's answer" />
-                  <TableColumn fx:id="CorrectAnswer" prefWidth="120.0" text="Correct answer" />
-                  <TableColumn fx:id="IncorrectAnswer" prefWidth="120.0" text="Incorrect answer" />
-                  <TableColumn fx:id="Subject" prefWidth="120.0" text="Subjects" />
-                  <TableColumn fx:id="Objectives" prefWidth="150.0" text="Objectives" />
+                  <TableColumn fx:id="Evaluation" prefWidth="75.0" text="%resultstable.evaluation" />
+                  <TableColumn fx:id="StudentsAnswer" prefWidth="180.0" text="%resultstable.student_answer" />
+                  <TableColumn fx:id="CorrectAnswer" prefWidth="120.0" text="%resultstable.correct_answer" />
+                  <TableColumn fx:id="IncorrectAnswer" prefWidth="120.0" text="%resultstable.incorrect_answer" />
+                  <TableColumn fx:id="Subject" prefWidth="120.0" text="%resultstable.subjects" />
+                  <TableColumn fx:id="Objectives" prefWidth="150.0" text="%resultstable.objectives" />
               </columns>
             </TableView>
             <TableView fx:id="tableIndicators" VBox.vgrow="ALWAYS">
@@ -26,8 +26,8 @@
                 <TableColumn fx:id="name_indicators" prefWidth="120.0" text="%resultstable.name" />
                 <TableColumn fx:id="short_perf_indicators" prefWidth="200.0" text="%resultstable.shortterm" />
                   <TableColumn fx:id="long_perf_indicators" prefWidth="200.0" text="%resultstable.longterm" />
-                  <TableColumn fx:id="strong_obj_indicators" prefWidth="250.0" text="Strong Learning Objectives" />
-                  <TableColumn fx:id="weak_obj_indicators" prefWidth="250.0" text="Weak Learning Objectives" />
+                  <TableColumn fx:id="strong_obj_indicators" prefWidth="250.0" text="%resultstable.strong" />
+                  <TableColumn fx:id="weak_obj_indicators" prefWidth="250.0" text="%resultstable.weak" />
               </columns>
             </TableView>
          </children>

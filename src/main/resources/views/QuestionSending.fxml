@@ -42,9 +42,9 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Button layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#exportQuestions" prefHeight="27.0" prefWidth="143.0" text="Export questions" />
-                        <Button layoutX="29.0" layoutY="49.0" mnemonicParsing="false" onAction="#importQuestions" prefHeight="27.0" prefWidth="143.0" text="Import questions" />
-                        <Button layoutX="29.0" layoutY="84.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="143.0" text="Send Correction" />
+                        <Button layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#exportQuestions" prefHeight="27.0" prefWidth="143.0" text="%leftbar.export_questions" />
+                        <Button layoutX="29.0" layoutY="49.0" mnemonicParsing="false" onAction="#importQuestions" prefHeight="27.0" prefWidth="143.0" text="%leftbar.import_questions" />
+                        <Button layoutX="29.0" layoutY="84.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="143.0" text="%leftbar.send_correction" />
                      </children>
                   </AnchorPane>
             </content>
