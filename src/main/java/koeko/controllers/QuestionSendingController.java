@@ -47,6 +47,7 @@ import java.lang.*;
 import java.util.List;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static koeko.controllers.controllers_tools.ControllerUtils.openFXMLResource;
 
 /**
  * Created by maximerichard on 01.03.18.
@@ -585,19 +586,14 @@ public class QuestionSendingController extends Window implements Initializable {
 
         if (!NetworkCommunication.networkCommunicationSingleton.checkIfQuestionsOnDevices()) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/QuestionsNotReadyPopUp.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = openFXMLResource(fxmlLoader);
             QuestionsNotReadyPopUpController controller = fxmlLoader.getController();
             controller.initParameters(questionGeneric, students);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Send anyway?");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         } else {
             if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
@@ -645,19 +641,14 @@ public class QuestionSendingController extends Window implements Initializable {
 
     public void createQuestion() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateQuestion.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = openFXMLResource(fxmlLoader);
         CreateQuestionController controller = fxmlLoader.getController();
         controller.initVariables(genericQuestionsList, allQuestionsTree);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Create a New Question");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
@@ -772,12 +763,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = openFXMLResource(fxmlLoader);
         GenericPopUpController controller = fxmlLoader.getController();
         controller.initParameters(importDoneMessage);
 
@@ -785,7 +771,7 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Import");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
@@ -929,12 +915,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = openFXMLResource(fxmlLoader);
         GenericPopUpController controller = fxmlLoader.getController();
         if (exportOK) {
             controller.initParameters("Export Done!");
@@ -945,18 +926,13 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Export");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
     public void createTest() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateTest.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = openFXMLResource(fxmlLoader);
         CreateTestController controller = fxmlLoader.getController();
         ArrayList<String> testNames = new ArrayList<>();
         testsList = DbTableTest.getAllTests();
@@ -968,19 +944,14 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Create a New Test");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
     public void createGroup() {
         if (activeClass.length() > 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = openFXMLResource(fxmlLoader);
             CreateGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
             for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
@@ -991,7 +962,7 @@ public class QuestionSendingController extends Window implements Initializable {
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Create a New Group");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         }
     }
@@ -1032,19 +1003,14 @@ public class QuestionSendingController extends Window implements Initializable {
         //clean ready questions list or assign them to the new class
         if (Koeko.studentGroupsAndClass.get(0).getActiveIDs().size() > 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/AssignQuestionsToNewClassPopUp.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = openFXMLResource(fxmlLoader);
             AssignQuestionsToNewClassPopUpController controller = fxmlLoader.getController();
             controller.initParameters(activeClass);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Assign questions?");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         } else {
             //load questions from class
@@ -1063,12 +1029,7 @@ public class QuestionSendingController extends Window implements Initializable {
     public void editGroup() {
         if (activeClass.length() > 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditGroup.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = openFXMLResource(fxmlLoader);
             EditGroupController controller = fxmlLoader.getController();
             ArrayList<String> studentsList = new ArrayList<>();
             for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
@@ -1085,7 +1046,7 @@ public class QuestionSendingController extends Window implements Initializable {
                 stage.initModality(Modality.WINDOW_MODAL);
                 stage.initStyle(StageStyle.DECORATED);
                 stage.setTitle("Create a New Group");
-                stage.setScene(new Scene(root1));
+                stage.setScene(new Scene(parent));
                 stage.show();
             }
         }
@@ -1356,17 +1317,12 @@ public class QuestionSendingController extends Window implements Initializable {
         if (gameStage == null) {
             //open game controlling window
             FXMLLoader gameFxmlLoader = new FXMLLoader(getClass().getResource("/views/GameView.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = gameFxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = openFXMLResource(gameFxmlLoader);
             Stage gameStage = new Stage();
             gameStage.initModality(Modality.NONE);
             gameStage.initStyle(StageStyle.DECORATED);
             gameStage.setTitle("Game");
-            gameStage.setScene(new Scene(root1));
+            gameStage.setScene(new Scene(parent));
             gameStage.setAlwaysOnTop(true);
             gameStage.show();
         }

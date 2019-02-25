@@ -11,7 +11,7 @@
          <children>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label text="Name of the class:">
+                  <Label text="%createclass.name">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>
@@ -28,7 +28,7 @@
             </HBox>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label fx:id="classLevelLabel" text="Level of the class:">
+                  <Label fx:id="classLevelLabel" text="%createclass.level">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>
@@ -42,7 +42,7 @@
             </HBox>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label fx:id="classYearLabel" text="Year of the class:">
+                  <Label fx:id="classYearLabel" text="%createclass.year">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>
@@ -54,7 +54,7 @@
                   </TextField>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#saveClass" text="Create New Class">
+            <Button mnemonicParsing="false" onAction="#saveClass" text="%createclass.create">
                <VBox.margin>
                   <Insets left="110.0" top="10.0" />
                </VBox.margin>

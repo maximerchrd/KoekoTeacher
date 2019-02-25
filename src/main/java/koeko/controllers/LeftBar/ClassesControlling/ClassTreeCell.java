@@ -14,10 +14,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
 import koeko.controllers.CreateClassController;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.database_management.*;
 import koeko.students_management.Classroom;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class ClassTreeCell extends TreeCell<Classroom> {
     private double imageSize = 60;
@@ -93,12 +96,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
 
     private void editItem(ClassTreeCell treeItem) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditClass.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         EditClassController controller = fxmlLoader.<EditClassController>getController();
         controller.initializeParameters(treeItem);
         Stage stage = new Stage();
@@ -120,12 +118,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
 
     public void createClass(ClassTreeCell classroomClassTreeCell) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateClass.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         CreateClassController controller = fxmlLoader.<CreateClassController>getController();
         controller.initializeParameters(classroomClassTreeCell);
         Stage stage = new Stage();

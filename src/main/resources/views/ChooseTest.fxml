@@ -9,6 +9,6 @@
 <AnchorPane prefHeight="401.0" prefWidth="228.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.StudentsVsQuestions.ChooseTestController">
    <children>
       <ListView fx:id="testsList" layoutX="32.0" layoutY="14.0" prefHeight="313.0" prefWidth="200.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" />
-      <Button layoutX="42.0" layoutY="338.0" mnemonicParsing="false" onAction="#assignTest" text="Assign Test to Class" />
+      <Button layoutX="42.0" layoutY="338.0" mnemonicParsing="false" onAction="#assignTest" text="%choosetest.assign" />
    </children>
 </AnchorPane>

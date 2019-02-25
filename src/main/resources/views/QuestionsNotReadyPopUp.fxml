@@ -11,7 +11,7 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label fx:id="text" lineSpacing="10.0" prefHeight="100.0" prefWidth="334.0" text="Some questions might not be saved on all devices. Do you really want to try to activate the question now?">
+                  <Label fx:id="text" lineSpacing="10.0" prefHeight="100.0" prefWidth="334.0" text="%popup.not_ready">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -20,12 +20,12 @@
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#waitQuestions" text="Wait">
+                  <Button mnemonicParsing="false" onAction="#waitQuestions" text="%popup.wait">
                      <HBox.margin>
                         <Insets left="65.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" onAction="#sendAnyway" text="Send Anyway">
+                  <Button mnemonicParsing="false" onAction="#sendAnyway" text="%popup.send">
                      <HBox.margin>
                         <Insets left="65.0" />
                      </HBox.margin>

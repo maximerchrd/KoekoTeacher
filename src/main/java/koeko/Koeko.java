@@ -16,6 +16,7 @@ import koeko.controllers.LeftBar.LeftBarController;
 import koeko.controllers.QuestionSendingController;
 import koeko.controllers.StudentsVsQuestions.StudentsVsQuestionsTableController;
 import koeko.controllers.SubjectsBrowsing.QuestionBrowsingController;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.database_management.DBManager;
 import koeko.database_management.DbTableSettings;
 import koeko.database_management.DbUtils;
@@ -80,12 +81,7 @@ public class Koeko extends Application {
 
         if (firstAppLaunch) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/InstallAssistant.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);

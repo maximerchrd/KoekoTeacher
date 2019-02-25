@@ -25,6 +25,7 @@ import koeko.Networking.NetworkCommunication;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.GenericPopUpController;
 import koeko.controllers.LeftBar.ClassesControlling.ClassesTreeTasks;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.view.Homework;
 import koeko.controllers.LeftBar.HomeworkControlling.HomeworkListTasks;
 import koeko.controllers.StudentsVsQuestions.ChooseTestController;
@@ -213,12 +214,12 @@ public class LeftBarController extends Window implements Initializable {
             }
         }
         if (ipAddresses.size() == 1) {
-            Platform.runLater(() -> labelIP.setText(bundle.getString("label_ip") + ipAddresses.get(0)));
+            Platform.runLater(() -> labelIP.setText(bundle.getString("leftbar.label_ip") + ipAddresses.get(0)));
             if (Koeko.recordLogs) {
                 DbTableLogs.insertLog("IPs", ipAddresses.get(0));
             }
         } else if (ipAddresses.size() == 2) {
-            Platform.runLater(() -> labelIP.setText(bundle.getString("label_ip") + ipAddresses.get(0) +
+            Platform.runLater(() -> labelIP.setText(bundle.getString("leftbar.label_ip") + ipAddresses.get(0) +
                     "\nand " + ipAddresses.get(1)));
             if (Koeko.recordLogs) {
                 DbTableLogs.insertLog("IPs", ipAddresses.get(0) + "/" + ipAddresses.get(1));
@@ -295,37 +296,27 @@ public class LeftBarController extends Window implements Initializable {
 
     public void createSubject() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
         CreateSubjectController controller = fxmlLoader.getController();
 
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Create a New Subject");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
     public void editSubject() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
         EditSubjectController controller = fxmlLoader.getController();
         controller.initializeSubject(subjectsTree.getSelectionModel().getSelectedItem().getValue().get_subjectName(), subjectsTree);
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Edit the Subject");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
@@ -364,12 +355,7 @@ public class LeftBarController extends Window implements Initializable {
 
     public void promptGenericPopUp(String message, String title) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
         GenericPopUpController controller = fxmlLoader.getController();
         controller.initParameters(message);
 
@@ -377,7 +363,7 @@ public class LeftBarController extends Window implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle(title);
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 
@@ -424,19 +410,14 @@ public class LeftBarController extends Window implements Initializable {
     public void addNewStudentToClass() {
         if (chooseClassComboBox.getSelectionModel().getSelectedIndex() >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateStudent.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
             CreateStudentController controller = fxmlLoader.<CreateStudentController>getController();
             controller.initClass(chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Edit Evaluation");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         } else {
             promptGenericPopUp("No class is currently selected", "No Class");
@@ -584,19 +565,14 @@ public class LeftBarController extends Window implements Initializable {
     public void launchChooseTest() {
         if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/ChooseTest.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
             ChooseTestController controller = fxmlLoader.<ChooseTestController>getController();
             controller.initializeParameters(chooseTestCombo, chooseClassComboBox.getSelectionModel().getSelectedItem().toString());
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Assign a Certificative Test to the Class");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         }
     }
@@ -610,37 +586,27 @@ public class LeftBarController extends Window implements Initializable {
         String studentID = Koeko.studentGroupsAndClass.get(group).getStudents().get(tablePosition.getRow()).getStudentID();
         if (Long.valueOf(globalID) >= 0) {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditEvaluation.fxml"));
-            Parent root1 = null;
-            try {
-                root1 = fxmlLoader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
             EditEvaluationController controller = fxmlLoader.<EditEvaluationController>getController();
             controller.initializeVariable(globalID, studentID);
             Stage stage = new Stage();
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initStyle(StageStyle.DECORATED);
             stage.setTitle("Edit Evaluation");
-            stage.setScene(new Scene(root1));
+            stage.setScene(new Scene(parent));
             stage.show();
         }
     }
 
     public void createHomework() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateHomework.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent parent = ControllerUtils.openFXMLResource(fxmlLoader);
 
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
         stage.setTitle("Create a New Homework");
-        stage.setScene(new Scene(root1));
+        stage.setScene(new Scene(parent));
         stage.show();
     }
 

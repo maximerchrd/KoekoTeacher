@@ -8,6 +8,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.controllers.GenericPopUpController;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.database_management.*;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -279,12 +280,7 @@ public class ResultsTableController implements Initializable {
         writer.close();
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         GenericPopUpController controller = fxmlLoader.getController();
         controller.initParameters(exportDoneMessage);
 

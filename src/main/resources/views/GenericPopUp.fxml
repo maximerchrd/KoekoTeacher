@@ -13,7 +13,7 @@
       <VBox minWidth="200.0">
          <children>
             <Label fx:id="messageLabel" text="Text" />
-            <Button alignment="CENTER" mnemonicParsing="false" onAction="#closePopUp" text="OK" textAlignment="CENTER" wrapText="true">
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#closePopUp" text="%popup.ok" textAlignment="CENTER" wrapText="true">
                <VBox.margin>
                   <Insets bottom="10.0" left="100.0" right="100.0" top="20.0" />
                </VBox.margin>

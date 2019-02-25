@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.database_management.DbTableHomework;
 import koeko.database_management.DbTableRelationHomeworkStudent;
 import koeko.view.Homework;
@@ -102,12 +103,7 @@ public class HomeworkListCell extends ListCell<Homework> {
 
     private void editHomework(HomeworkListCell homeworkListCell) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditHomework.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         EditHomeworkController controller = fxmlLoader.getController();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(homeworkListCell.getItem().getDueDate(), formatter);

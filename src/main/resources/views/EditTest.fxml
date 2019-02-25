@@ -9,30 +9,30 @@
 
 <AnchorPane prefHeight="210.0" prefWidth="449.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.TestControlling.EditTestController">
    <children>
-      <Label layoutX="26.0" layoutY="72.0" text="Name of the Test:" />
+      <Label layoutX="26.0" layoutY="72.0" text="%createtest.name" />
       <TextField fx:id="testName" layoutX="153.0" layoutY="67.0" />
-      <Button layoutX="348.0" layoutY="67.0" mnemonicParsing="false" onAction="#saveTest" text="Save Test" />
-      <Button fx:id="addObjectiveButton" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="Add objective" />
+      <Button layoutX="348.0" layoutY="67.0" mnemonicParsing="false" onAction="#saveTest" text="%createtest.save" />
+      <Button fx:id="addObjectiveButton" layoutX="246.0" layoutY="348.0" mnemonicParsing="false" onAction="#addObjective" prefHeight="27.0" prefWidth="167.0" text="%createtest.add_objective" />
       <VBox fx:id="vBoxObjectives" layoutX="225.0" layoutY="388.0" prefHeight="172.0" prefWidth="210.0" />
       <Label fx:id="warningLabel" layoutX="28.0" layoutY="6.0" prefHeight="45.0" prefWidth="407.0" text="warningLabel">
          <font>
             <Font name="Arial Bold" size="14.0" />
          </font>
       </Label>
-      <CheckBox fx:id="sendMedia" layoutX="30.0" layoutY="170.0" mnemonicParsing="false" text="Send Media File To Students' devices" />
-      <TextField fx:id="mediaPath" layoutX="163.0" layoutY="130.0" text="none" />
-      <Button layoutX="28.0" layoutY="130.0" mnemonicParsing="false" onAction="#addMediaFile" text="Choose Media File " />
-      <CheckBox fx:id="medalsCheckbox" layoutX="28.0" layoutY="301.0" mnemonicParsing="false" onAction="#togglingMedals" text="Enable Medals" />
-      <Label layoutX="322.0" layoutY="235.0" text="Set timeto 0 for no time limit" />
-      <TextField fx:id="bronzeMedalTime" layoutX="233.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="Time" />
-      <TextField fx:id="bronzeMedalScore" layoutX="233.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="Score" />
-      <TextField fx:id="silverMedalTime" layoutX="141.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="Time" />
-      <TextField fx:id="silverMedalScore" layoutX="141.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="Score" />
-      <TextField fx:id="goldMedalScore" layoutX="41.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="Score" />
-      <TextField fx:id="goldMedalTime" layoutX="41.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="Time" />
-      <Label layoutX="233.0" layoutY="211.0" text="Bronze Medal" />
-      <Label layoutX="143.0" layoutY="211.0" text="Silver Medal" />
-      <Label layoutX="41.0" layoutY="211.0" text="Gold Medal" />
+      <CheckBox fx:id="sendMedia" layoutX="30.0" layoutY="170.0" mnemonicParsing="false" text="%createtest.send_media" />
+      <TextField fx:id="mediaPath" layoutX="163.0" layoutY="130.0" text="%createtest.none" />
+      <Button layoutX="28.0" layoutY="130.0" mnemonicParsing="false" onAction="#addMediaFile" text="%createtest.media" />
+      <CheckBox fx:id="medalsCheckbox" layoutX="28.0" layoutY="301.0" mnemonicParsing="false" onAction="#togglingMedals" text="%createtest.enable_medals" />
+      <Label layoutX="322.0" layoutY="235.0" text="%createtest.instruction" />
+      <TextField fx:id="bronzeMedalTime" layoutX="233.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.time" />
+      <TextField fx:id="bronzeMedalScore" layoutX="233.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.score" />
+      <TextField fx:id="silverMedalTime" layoutX="141.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.time" />
+      <TextField fx:id="silverMedalScore" layoutX="141.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.score" />
+      <TextField fx:id="goldMedalScore" layoutX="41.0" layoutY="266.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.score" />
+      <TextField fx:id="goldMedalTime" layoutX="41.0" layoutY="231.0" prefHeight="25.0" prefWidth="73.0" promptText="%createtest.time" />
+      <Label layoutX="233.0" layoutY="211.0" text="%createtest.bronze" />
+      <Label layoutX="143.0" layoutY="211.0" text="%createtest.silver" />
+      <Label layoutX="41.0" layoutY="211.0" text="%createtest.gold" />
       <ComboBox fx:id="testTypeCombobox" layoutX="22.0" layoutY="348.0" onAction="#changedTestType" prefHeight="27.0" prefWidth="210.0" />
    </children>
 </AnchorPane>

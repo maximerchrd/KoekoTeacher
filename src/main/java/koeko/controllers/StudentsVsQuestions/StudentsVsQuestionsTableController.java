@@ -10,6 +10,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
 import koeko.functionalTesting;
 import koeko.questions_management.QuestionGeneric;
@@ -147,12 +148,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         Integer groupIndex = Integer.valueOf(groupColumnIndex.split("/")[0]);
         Integer columnIndex = Integer.valueOf(groupColumnIndex.split("/")[1]);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/MCQStats.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         mcqStatsController = fxmlLoader.getController();
         mcqStatsController.initParameters(tableViewArrayList, groupIndex, columnIndex, groupColumnIndex.split("/")[3]);
         Stage stage = new Stage();

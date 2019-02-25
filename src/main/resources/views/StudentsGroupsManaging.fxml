@@ -12,11 +12,11 @@
             <TableView fx:id="groupsTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </content>
       </ScrollPane>
-      <Button layoutX="14.0" layoutY="29.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="161.0" text="Add New Group" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="20.0" />
-      <Button layoutX="14.0" layoutY="68.0" mnemonicParsing="false" onAction="#removeGroup" prefHeight="27.0" prefWidth="161.0" text="Remove Group" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="50.0" />
-      <ComboBox fx:id="chooseClass" layoutX="14.0" layoutY="95.0" prefHeight="27.0" prefWidth="161.0" promptText="Choose Class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="80.0" />
+      <Button layoutX="14.0" layoutY="29.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="161.0" text="%groupmanagement.add" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="20.0" />
+      <Button layoutX="14.0" layoutY="68.0" mnemonicParsing="false" onAction="#removeGroup" prefHeight="27.0" prefWidth="161.0" text="%groupmanagement.remove" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="50.0" />
+      <ComboBox fx:id="chooseClass" layoutX="14.0" layoutY="95.0" prefHeight="27.0" prefWidth="161.0" promptText="%groupmanagement.choose_class" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="80.0" />
       <ListView layoutX="14.0" layoutY="151.0" prefHeight="172.0" prefWidth="153.0" AnchorPane.bottomAnchor="55.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="145.0" />
-      <Button layoutX="30.0" layoutY="329.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="161.0" text="Add Student to Group" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="5.0" />
-      <ComboBox layoutX="1.0" layoutY="107.0" prefHeight="27.0" prefWidth="161.0" promptText="Choose Group" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="110.0" />
+      <Button layoutX="30.0" layoutY="329.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="161.0" text="%groupmanagement.add_student" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="5.0" />
+      <ComboBox layoutX="1.0" layoutY="107.0" prefHeight="27.0" prefWidth="161.0" promptText="%groupmanagement.choose_group" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="110.0" />
    </children>
 </AnchorPane>

@@ -11,7 +11,7 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label text="Current evaluation:">
+                  <Label text="%editevaluation.current">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin></Label>
@@ -24,7 +24,7 @@
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label text="Modified evaluation:">
+                  <Label text="%editevaluation.modified">
                      <HBox.margin>
                         <Insets left="20.0" top="5.0" />
                      </HBox.margin></Label>
@@ -35,7 +35,7 @@
                   </TextField>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#saveNewEvaluation" text="Save New Evaluation">
+            <Button mnemonicParsing="false" onAction="#saveNewEvaluation" text="%editevaluation.save">
                <VBox.margin>
                   <Insets left="100.0" />
                </VBox.margin>

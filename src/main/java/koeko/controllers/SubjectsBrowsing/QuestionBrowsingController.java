@@ -20,6 +20,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.controllers.GenericPopUpController;
+import koeko.controllers.controllers_tools.ControllerUtils;
 import koeko.database_management.*;
 import koeko.view.Subject;
 
@@ -289,12 +290,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     public void createSubject() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         CreateSubjectController controller = fxmlLoader.getController();
 
         Stage stage = new Stage();
@@ -307,12 +303,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     public void editSubject() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         EditSubjectController controller = fxmlLoader.getController();
         controller.initializeSubject(subjectsTree.getSelectionModel().getSelectedItem().getValue().get_subjectName(), subjectsTree);
         Stage stage = new Stage();
@@ -358,12 +349,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
     public void promptGenericPopUp(String message, String title) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         GenericPopUpController controller = fxmlLoader.getController();
         controller.initParameters(message);
 

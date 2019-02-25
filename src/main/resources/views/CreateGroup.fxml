@@ -9,9 +9,9 @@
 <AnchorPane prefHeight="344.0" prefWidth="374.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.CreateGroupController">
    <children>
       <VBox fx:id="createGroupVBox" layoutX="48.0" layoutY="93.0" prefHeight="201.0" prefWidth="280.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="93.0" />
-      <Label layoutX="36.0" layoutY="25.0" text="Name of the group:" />
-      <Button layoutX="121.0" layoutY="297.0" mnemonicParsing="false" onAction="#saveGroup" text="Create New Group" />
+      <Label layoutX="36.0" layoutY="25.0" text="%creategroup.name" />
+      <Button layoutX="121.0" layoutY="297.0" mnemonicParsing="false" onAction="#saveGroup" text="%creategroup.create" />
       <TextField fx:id="groupName" layoutX="165.0" layoutY="21.0" />
-      <Button layoutX="112.0" layoutY="66.0" mnemonicParsing="false" onAction="#addStudentToGroup" text="Add student to group" />
+      <Button layoutX="112.0" layoutY="66.0" mnemonicParsing="false" onAction="#addStudentToGroup" text="%creategroup.add" />
    </children>
 </AnchorPane>

@@ -8,8 +8,8 @@
 
 <AnchorPane prefHeight="95.0" prefWidth="462.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.AssignQuestionsToNewClassPopUpController">
    <children>
-      <Label fx:id="label" layoutX="11.0" layoutY="25.0" text="Do you want to assign the active questions to the new selected class?" />
-      <Button layoutX="237.0" layoutY="48.0" mnemonicParsing="false" onAction="#assignQuestions" text="Assign to class" />
-      <Button layoutX="98.0" layoutY="48.0" mnemonicParsing="false" onAction="#doNotAssign" text="Do not assign" />
+      <Label fx:id="label" layoutX="11.0" layoutY="25.0" text="%assignquestpopup.assign_questions" />
+      <Button layoutX="237.0" layoutY="48.0" mnemonicParsing="false" onAction="#assignQuestions" text="%assignquestpopup.assign" />
+      <Button layoutX="98.0" layoutY="48.0" mnemonicParsing="false" onAction="#doNotAssign" text="%assignquestpopup.not_assign" />
    </children>
 </AnchorPane>

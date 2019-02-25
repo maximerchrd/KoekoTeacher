@@ -14,14 +14,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import koeko.Koeko;
-import koeko.database_management.DbTableQuestionGeneric;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableRelationSubjectSubject;
-import koeko.database_management.DbTableSubject;
+import koeko.controllers.controllers_tools.ControllerUtils;
+import koeko.database_management.*;
 import koeko.questions_management.QuestionGeneric;
 import koeko.view.Subject;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 public class SubjectTreeCell extends TreeCell<Subject> {
@@ -98,12 +98,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
 
     private void editItem(Subject item) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
         EditSubjectController controller = fxmlLoader.getController();
         controller.initializeSubject(item.get_subjectName(), Koeko.leftBarController.subjectsTree);
         Stage stage = new Stage();
@@ -144,12 +139,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
 
     public void createSubject() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateSubject.fxml"));
-        Parent root1 = null;
-        try {
-            root1 = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
 
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);

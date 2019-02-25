@@ -17,24 +17,24 @@
                      <children>
                         <HBox prefHeight="42.0" prefWidth="200.0">
                            <children>
-                              <Label text="End Score:" />
+                              <Label text="%game.endscore" />
                               <TextField fx:id="endScoreTextView" prefHeight="27.0" prefWidth="95.0" />
                            </children>
                         </HBox>
-                        <Button mnemonicParsing="false" onAction="#addGame" text="Add Game" />
+                        <Button mnemonicParsing="false" onAction="#addGame" text="%game.add" />
                      </children>
                   </VBox>
                   <VBox prefHeight="200.0" prefWidth="200.0" spacing="5.0">
                      <children>
-                        <ComboBox fx:id="teamOnePlayer" prefWidth="150.0" promptText="Player" />
-                        <Button mnemonicParsing="false" onAction="#addPlayerToOne" text="Add player to team 1" />
-                        <Button mnemonicParsing="false" onAction="#addPlayerToTwo" text="Add player to team 2" />
+                        <ComboBox fx:id="teamOnePlayer" prefWidth="150.0" promptText="%game.player" />
+                        <Button mnemonicParsing="false" onAction="#addPlayerToOne" text="%game.to1" />
+                        <Button mnemonicParsing="false" onAction="#addPlayerToTwo" text="%game.to2" />
                      </children>
                   </VBox>
                   <VBox prefHeight="100.0" prefWidth="335.0" spacing="5.0">
                      <children>
-                        <ComboBox fx:id="gameType" prefHeight="27.0" prefWidth="305.0" promptText="Game Type" />
-                        <Button fx:id="startGameButton" mnemonicParsing="false" onAction="#startGame" text="Start Game(s)" />
+                        <ComboBox fx:id="gameType" prefHeight="27.0" prefWidth="305.0" promptText="%game.type" />
+                        <Button fx:id="startGameButton" mnemonicParsing="false" onAction="#startGame" text="%game.start" />
                      </children>
                   </VBox>
                </children>

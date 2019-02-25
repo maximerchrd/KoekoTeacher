@@ -11,7 +11,7 @@
          <children>
             <HBox prefHeight="55.0" prefWidth="200.0">
                <children>
-                  <Label text="Homework name:">
+                  <Label text="%createhomework.name">
                      <HBox.margin>
                         <Insets left="20.0" top="15.0" />
                      </HBox.margin>
@@ -36,7 +36,7 @@
                   <Insets left="70.0" />
                </VBox.margin>
             </ComboBox>
-            <Button mnemonicParsing="false" onAction="#saveHomework" text="Create New Homework">
+            <Button mnemonicParsing="false" onAction="#saveHomework" text="%createhomework.create">
                <VBox.margin>
                   <Insets left="110.0" top="10.0" />
                </VBox.margin>
