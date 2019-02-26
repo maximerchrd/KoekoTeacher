@@ -6,52 +6,24 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="QuestionSending" prefWidth="10000" style="-fx-background-color: #cccccc;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionSendingController">
-   <children>
-      <Button fx:id="activateQuestionForStudentsButton" layoutX="275.0" layoutY="432.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="55.0" prefWidth="90.0" styleClass="button-send" AnchorPane.bottomAnchor="10.0" />
-      <Button fx:id="broadcastQuestionForStudentsButton" layoutX="174.0" layoutY="432.0" mnemonicParsing="false" onAction="#broadcastQuestionForStudents" prefHeight="55.0" prefWidth="90.0" styleClass="button-sync" AnchorPane.bottomAnchor="10.0" />
-      <Button fx:id="createQuestionButton" layoutX="15.0" layoutY="432.0" mnemonicParsing="false" onAction="#createQuestion" prefHeight="55.0" prefWidth="70.0" styleClass="button-add-image" AnchorPane.bottomAnchor="10.0" />
-      <SplitPane dividerPositions="0.5" layoutX="83.0" layoutY="25.0" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="210.0" AnchorPane.topAnchor="15.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <TreeView fx:id="allQuestionsTree" layoutX="24.0" layoutY="-34.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children>
-            </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <ListView fx:id="readyQuestionsList" layoutX="20.0" layoutY="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
-      <Accordion fx:id="questionSendingAccordion" layoutX="681.0" layoutY="62.0" visible="false" AnchorPane.rightAnchor="5.0">
-        <panes>
-          <TitledPane animated="false" text="Manage Groups">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ComboBox fx:id="groupsCombobox" layoutX="8.0" layoutY="20.0" onAction="#loadQuestions" prefHeight="27.0" prefWidth="185.0" promptText="Choose a group" />
-                        <Button layoutX="8.0" layoutY="55.0" mnemonicParsing="false" onAction="#createGroup" prefHeight="27.0" prefWidth="185.0" text="Create group" />
-                        <Button layoutX="8.0" layoutY="90.0" mnemonicParsing="false" onAction="#editGroup" prefHeight="27.0" prefWidth="185.0" text="Edit group" />
-                        <Button layoutX="8.0" layoutY="124.0" mnemonicParsing="false" onAction="#deleteGroup" prefHeight="27.0" prefWidth="185.0" text="Delete group" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-          <TitledPane animated="false" text="Others">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Button layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#exportQuestions" prefHeight="27.0" prefWidth="143.0" text="%leftbar.export_questions" />
-                        <Button layoutX="29.0" layoutY="49.0" mnemonicParsing="false" onAction="#importQuestions" prefHeight="27.0" prefWidth="143.0" text="%leftbar.import_questions" />
-                        <Button layoutX="29.0" layoutY="84.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="143.0" text="%leftbar.send_correction" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-        </panes>
-      </Accordion>
-      <ComboBox fx:id="uiChoiceBox" layoutX="683.0" layoutY="14.0" onAction="#changeUI" prefHeight="27.0" prefWidth="202.0" AnchorPane.rightAnchor="5.0" />
-      <Button fx:id="createTestButton" layoutX="95.0" layoutY="432.0" mnemonicParsing="false" onAction="#createTest" prefHeight="55.0" prefWidth="70.0" styleClass="button-add-test" AnchorPane.bottomAnchor="10.0" />
-   </children>
+    <children>
+        <Button fx:id="activateQuestionForStudentsButton" layoutX="275.0" layoutY="432.0" mnemonicParsing="false" onAction="#activateQuestionForStudents" prefHeight="55.0" prefWidth="90.0" styleClass="button-send" AnchorPane.bottomAnchor="10.0" />
+        <Button fx:id="broadcastQuestionForStudentsButton" layoutX="174.0" layoutY="432.0" mnemonicParsing="false" onAction="#broadcastQuestionForStudents" prefHeight="55.0" prefWidth="90.0" styleClass="button-sync" AnchorPane.bottomAnchor="10.0" />
+        <Button fx:id="createQuestionButton" layoutX="15.0" layoutY="432.0" mnemonicParsing="false" onAction="#createQuestion" prefHeight="55.0" prefWidth="70.0" styleClass="button-add-image" AnchorPane.bottomAnchor="10.0" />
+        <Button fx:id="createTestButton" layoutX="95.0" layoutY="432.0" mnemonicParsing="false" onAction="#createTest" prefHeight="55.0" prefWidth="70.0" styleClass="button-add-test" AnchorPane.bottomAnchor="10.0" />
+        <SplitPane dividerPositions="0.5" layoutX="83.0" layoutY="25.0" AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <TreeView fx:id="allQuestionsTree" layoutX="24.0" layoutY="-34.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </children>
+                </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <ListView fx:id="readyQuestionsList" layoutX="20.0" layoutY="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </children>
 </AnchorPane>

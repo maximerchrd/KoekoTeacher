@@ -176,11 +176,8 @@ public class NetworkCommunication {
                     questionIdentifier.setPrefix(TransferPrefix.stateUpdate);
                     questionIdentifier.setIdentifier(QuestID);
                     questionIdentifier.setCorrectionMode(SettingsController.correctionMode);
-                    try {
-                        sendTransferableObjectWithoutId(questionIdentifier, student);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    sendTransferableObjectWithoutId(questionIdentifier, student);
+
 
                     //if Nearby activated (layers), try to prevent sending twice to same outputStream
                     if (NetworkCommunication.network_solution == 1 && !handledOutputStreams.contains(student.getOutputStream())) {
@@ -221,12 +218,12 @@ public class NetworkCommunication {
         ArrayList<SubjectTransferable> subjects = DbTableSubject.getSubjectsObjectsForQuestionID(questionId);
         for (SubjectTransferable subject : subjects) {
             subject.setPrefix(TransferPrefix.resource);
-            sendTransferableObjectWithId(subject, student, questionId);
+            sendTransferableObjectWithoutId(subject, student);
         }
         ArrayList<ObjectiveTransferable> objectives = DbTableLearningObjectives.getObjectiveObjectsForQuestionID(questionId);
         for (ObjectiveTransferable objective : objectives) {
             objective.setPrefix(TransferPrefix.resource);
-            sendTransferableObjectWithId(objective, student, questionId);
+            sendTransferableObjectWithoutId(objective, student);
         }
     }
 
@@ -247,13 +244,13 @@ public class NetworkCommunication {
         }
 
         writeToOutputStream(student, objectId, transferableObject.objectToByteArray());
+        System.out.println("adding object id: " + objectId);
         networkStateSingleton.getQuestionIdsToSend().add(objectId);
         sendOnlyId(student, objectId);
     }
 
-    public void sendTransferableObjectWithoutId(TransferableObject transferableObject, Student student) throws IOException {
+    public void sendTransferableObjectWithoutId(TransferableObject transferableObject, Student student) {
         for (String file : transferableObject.getFiles()) {
-            int intfileLength = 0;
             File imageFile = new File(FilesHandler.mediaDirectory + file);
             if (!file.equals("none") && imageFile.exists() && !imageFile.isDirectory()) {
                 sendMediaFile(imageFile, student);
@@ -628,11 +625,7 @@ public class NetworkCommunication {
                 syncedIds.getIds().add(id);
             }
 
-            try {
-                sendTransferableObjectWithoutId(syncedIds, student);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sendTransferableObjectWithoutId(syncedIds, student);
         }
 
         //send the active questions
@@ -682,11 +675,7 @@ public class NetworkCommunication {
         if (network_solution == 1) {
             SyncedIds syncedIds = new SyncedIds();
             syncedIds.getIds().add(id);
-            try {
-                sendTransferableObjectWithoutId(syncedIds, student);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sendTransferableObjectWithoutId(syncedIds, student);
         }
     }
 
@@ -699,28 +688,22 @@ public class NetworkCommunication {
     }
 
     public void activateGame(Integer gameType, Student student) {
-        try {
-            for (Game game : Koeko.activeGames) {
-                for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
-                    if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
-                        GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
-                        sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
-                    }
+        for (Game game : Koeko.activeGames) {
+            for (StudentCellView studentCellView : game.getTeamOne().getStudentCellViews()) {
+                if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
+                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 1);
+                    sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
                 }
             }
+        }
 
-            for (Game game : Koeko.activeGames) {
-                for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
-                    if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
-                        GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
-                        sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
-                    }
+        for (Game game : Koeko.activeGames) {
+            for (StudentCellView studentCellView : game.getTeamTwo().getStudentCellViews()) {
+                if (student  == null || studentCellView.getStudent().getUniqueDeviceID().contentEquals(student.getUniqueDeviceID())) {
+                    GameView gameView = new GameView(gameType, game.getEndScore(), 0, 2);
+                    sendTransferableObjectWithoutId(gameView, studentCellView.getStudent());
                 }
             }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

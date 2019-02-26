@@ -2,6 +2,7 @@ package koeko.controllers.LeftBar;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,6 +23,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import koeko.Koeko;
 import koeko.Networking.NetworkCommunication;
+import koeko.Tools.FilesHandler;
 import koeko.controllers.EditEvaluationController;
 import koeko.controllers.GenericPopUpController;
 import koeko.controllers.LeftBar.ClassesControlling.ClassesTreeTasks;
@@ -42,9 +44,14 @@ import koeko.students_management.Classroom;
 import koeko.students_management.Student;
 import koeko.view.Subject;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static koeko.controllers.controllers_tools.ControllerUtils.openFXMLResource;
 
 /**
  * Created by maximerichard on 13.03.18.
@@ -74,6 +81,8 @@ public class LeftBarController extends Window implements Initializable {
     public TreeItem<Classroom> rootClassSingleton;
 
     @FXML public ListView<Homework> homeworksList;
+
+    @FXML private ComboBox uiChoiceBox;
 
     private ResourceBundle bundle;
 
@@ -182,6 +191,13 @@ public class LeftBarController extends Window implements Initializable {
         });
 
         ClassesTreeTasks.populateClassesTree(classesTree, bundle.getString("string.all_classes"));
+
+        //setup UI choicebox
+        uiChoiceBox.setItems(FXCollections.observableArrayList(
+                bundle.getString("string.basic_commands"), bundle.getString("string.advanced_commands"))
+        );
+        int uiMode = DbTableSettings.getUIMode();
+        uiChoiceBox.getSelectionModel().select(uiMode);
 
         HomeworkListTasks.initHomeworkList(homeworksList);
 
@@ -626,6 +642,229 @@ public class LeftBarController extends Window implements Initializable {
         stage.show();
     }
 
+    public void sendCorrection() {
+        try {
+            NetworkCommunication.networkCommunicationSingleton.sendCorrection(Koeko.questionSendingControllerSingleton
+                    .readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void importQuestions() {
+        String importDoneMessage = "Import Done.\n";
+
+        List<String> input = readFile(FilesHandler.exportDirectory + "questions.csv");
+        input.remove(0);
+        for (int i = 0; i < input.size(); i++) {
+            input.set(i, input.get(i) + "END");
+            String[] question = input.get(i).split(";");
+
+            if (question.length >= 6) {
+                //insert subjects
+                String[] subjects = question[5].split("///");
+                for (int j = 0; j < subjects.length; j++) {
+                    try {
+                        DbTableSubject.addSubject(subjects[j]);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
+                //insert objectives
+                String[] objectives = question[6].split("///");
+                for (int j = 0; j < objectives.length; j++) {
+                    try {
+                        DbTableLearningObjectives.addObjective(objectives[j], 1);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
+                if (question[0].contentEquals("0")) {
+                    Koeko.questionSendingControllerSingleton.insertQuestionMultipleChoice(question);
+                } else {
+                    Koeko.questionSendingControllerSingleton.insertQuestionShortAnswer(question);
+                }
+
+            } else {
+                importDoneMessage += "problem importing following question (missing fields)\n";
+                System.out.println("problem importing following question (missing fields)");
+                for (String questionPart : question) {
+                    importDoneMessage += questionPart;
+                    System.out.println(questionPart);
+                }
+            }
+        }
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent parent = openFXMLResource(fxmlLoader);
+        GenericPopUpController controller = fxmlLoader.getController();
+        controller.initParameters(importDoneMessage);
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Import");
+        stage.setScene(new Scene(parent));
+        stage.show();
+    }
+
+    public void exportQuestions() {
+        Boolean exportOK = true;
+        File directory = new File("questions");
+        if (!directory.exists()) {
+            try {
+                Files.createDirectories(Paths.get("questions"));
+            } catch (IOException e) {
+                exportOK = false;
+                e.printStackTrace();
+            }
+        }
+        ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
+        try {
+            questionGenericArrayList = DbTableQuestionGeneric.getAllGenericQuestions();
+        } catch (Exception e) {
+            exportOK = false;
+            e.printStackTrace();
+        }
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(FilesHandler.exportDirectory + "questions.csv", "UTF-8");
+            writer.println("Questions Type (0 = question multiple choice, 1 = question short answer);Question text;Right Answers;Other Options;Picture;Subjects;Objectives");
+        } catch (FileNotFoundException e) {
+            exportOK = false;
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            exportOK = false;
+            e.printStackTrace();
+        }
+        for (int i = 0; i < questionGenericArrayList.size(); i++) {
+            if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 1) {
+                String question = "1;";
+                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionGenericArrayList.get(i).getGlobalID());
+
+                //copy image file to correct directory
+                if (questionShortAnswer.getIMAGE().length() > 0 && !questionShortAnswer.getIMAGE().contentEquals("none")) {
+                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
+                    File source = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
+                    File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
+                    try {
+                        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        exportOK = false;
+                    }
+                }
+
+                question += questionShortAnswer.getQUESTION().replace("\n"," ");
+                question += ";";
+                ArrayList<String> answers = questionShortAnswer.getANSWER();
+                for (int j = 0; j < answers.size(); j++) {
+                    question += answers.get(j) + "///";
+                }
+                question += ";;";       //because short answer questions don't have "other options" -> double ;;
+                question += questionShortAnswer.getIMAGE();
+                question += ";";
+                Vector<String> subjects = questionShortAnswer.getSubjects();
+                for (int j = 0; j < subjects.size(); j++) {
+                    question += subjects.get(j) + "///";
+                }
+                question += ";";
+                Vector<String> objectives = questionShortAnswer.getObjectives();
+                for (int j = 0; j < objectives.size(); j++) {
+                    question += objectives.get(j) + "///";
+                }
+                question += ";";
+                try {
+                    writer.println(question);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    exportOK = false;
+                }
+            } else if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 0) {
+                String question = "0;";
+                QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
+                try {
+                    questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionGenericArrayList.get(i).getGlobalID());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exportOK = false;
+                }
+
+                //copy image file to correct directory
+                if (questionMultipleChoice.getIMAGE().length() > 0 && !questionMultipleChoice.getIMAGE().contentEquals("none")) {
+                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
+                    File source = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+                    if (source.exists()) {
+                        File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
+                        try {
+                            Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.err.println("Exporting question: image not found");
+                        exportOK = false;
+                    }
+                }
+
+                question += questionMultipleChoice.getQUESTION().replace("\n"," ");;
+                question += ";";
+                Vector<String> answers = questionMultipleChoice.getCorrectAnswers();
+                for (int j = 0; j < answers.size(); j++) {
+                    question += answers.get(j) + "///";
+                }
+                question += ";";
+                Vector<String> incorrectOptions = questionMultipleChoice.getIncorrectAnswers();
+                for (int j = 0; j < incorrectOptions.size(); j++) {
+                    question += incorrectOptions.get(j) + "///";
+                }
+                question += ";";
+                question += questionMultipleChoice.getIMAGE();
+                question += ";";
+                Vector<String> subjects = questionMultipleChoice.getSubjects();
+                for (int j = 0; j < subjects.size(); j++) {
+                    question += subjects.get(j) + "///";
+                }
+                question += ";";
+                Vector<String> objectives = questionMultipleChoice.getObjectives();
+                for (int j = 0; j < objectives.size(); j++) {
+                    question += objectives.get(j) + "///";
+                }
+                question += ";";
+                try {
+                    writer.println(question);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    exportOK = false;
+                }
+            }
+
+        }
+        try {
+            writer.close();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            exportOK = false;
+        }
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
+        Parent parent = openFXMLResource(fxmlLoader);
+        GenericPopUpController controller = fxmlLoader.getController();
+        if (exportOK) {
+            controller.initParameters("Export Done!");
+        } else {
+            controller.initParameters("There was a problem during export :-(");
+        }
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.DECORATED);
+        stage.setTitle("Export");
+        stage.setScene(new Scene(parent));
+        stage.show();
+    }
+
     private void displayQuestionsCorrespondingToHomework() {
         if (DbTableHomework.checkIfNameAlreadyExists(homeworksList.getSelectionModel().getSelectedItem().getName())) {
             ArrayList<String> questionIds = DbTableRelationHomeworkQuestion.getQuestionIdsFromHomeworkName(homeworksList.getSelectionModel().getSelectedItem().getName());
@@ -644,6 +883,35 @@ public class LeftBarController extends Window implements Initializable {
                 Koeko.studentGroupsAndClass.get(0).getActiveIDs().add(questionId);
             }
             Koeko.questionSendingControllerSingleton.readyQuestionsList.refresh();
+        }
+    }
+
+    public void changeUI() {
+        if (uiChoiceBox.getSelectionModel().getSelectedIndex() == 0) {
+            browseSubjectsAccordion.setVisible(false);
+            editEvalButton.setVisible(false);
+            DbTableSettings.insertUIMode(0);
+        } else {
+            browseSubjectsAccordion.setVisible(true);
+            editEvalButton.setVisible(true);
+            DbTableSettings.insertUIMode(1);
+        }
+    }
+
+    private List<String> readFile(String filename) {
+        List<String> records = new ArrayList<String>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                records.add(line);
+            }
+            reader.close();
+            return records;
+        } catch (Exception e) {
+            System.err.format("Exception occurred trying to read '%s'.", filename);
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -22,6 +22,8 @@
                         <Insets left="5.0" top="5.0" />
                     </VBox.margin>
                 </Button>
+                <ComboBox fx:id="uiChoiceBox" layoutX="683.0" layoutY="14.0" onAction="#changeUI" prefHeight="27.0"
+                          prefWidth="202.0" AnchorPane.rightAnchor="5.0"/>
                 <Accordion fx:id="browseSubjectsAccordion" prefWidth="205.0" visible="false">
                     <panes>
                         <TitledPane animated="false" text="%leftbar.browse_subjects">
@@ -45,15 +47,15 @@
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0">
                                     <children>
-                              <VBox>
-                                 <children>
-                                              <ComboBox fx:id="chooseClassComboBox" onAction="#loadClass" prefHeight="27.0" prefWidth="193.0" promptText="%leftbar.choose_class" />
-                                              <Button mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="%leftbar.add_student" />
-                                              <Button mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="%leftbar.save_student" />
-                                              <Button mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="193.0" text="%leftbar.load_groups" />
-                                    <TreeView fx:id="classesTree" />
-                                 </children>
-                              </VBox>
+                                        <VBox>
+                                            <children>
+                                                <ComboBox fx:id="chooseClassComboBox" onAction="#loadClass" prefHeight="27.0" prefWidth="250.0" promptText="%leftbar.choose_class" />
+                                                <Button mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="250.0" text="%leftbar.add_student" />
+                                                <Button mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="250.0" text="%leftbar.save_student" />
+                                                <Button mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="250.0" text="%leftbar.load_groups" />
+                                                <TreeView fx:id="classesTree" />
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </AnchorPane>
                             </content>
@@ -62,30 +64,41 @@
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
-                                        <ComboBox fx:id="chooseTestCombo" layoutX="12.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="176.0" promptText="%leftbar.certificative_test" />
-                                        <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#sendObjectiveEvaluationToStudents" prefHeight="27.0" prefWidth="193.0" text="%leftbar.send_eval" />
-                                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="193.0" text="%leftbar.assign" />
+                                        <ComboBox fx:id="chooseTestCombo" layoutX="4.0" layoutY="23.0" onAction="#certificativeTestSelected" prefHeight="27.0" prefWidth="250.0" promptText="%leftbar.certificative_test" />
+                                        <Button layoutX="4.0" layoutY="56.0" mnemonicParsing="false" onAction="#sendObjectiveEvaluationToStudents" prefHeight="27.0" prefWidth="250.0" text="%leftbar.send_eval" />
+                                        <Button layoutX="4.0" layoutY="90.0" mnemonicParsing="false" onAction="#launchChooseTest" prefHeight="27.0" prefWidth="250.0" text="%leftbar.assign" />
                                     </children>
                                 </AnchorPane>
                             </content>
                         </TitledPane>
-                  <TitledPane animated="false" text="%leftbar.manage_homeworks">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0">
-                           <children>
-                              <VBox spacing="15.0">
-                                 <children>
-                                    <Button mnemonicParsing="false" onAction="#createHomework" prefHeight="27.0" prefWidth="193.0" text="%leftbar.create_homework" />
-                                    <ListView fx:id="homeworksList" />
-                                 </children>
-                                 <padding>
-                                    <Insets top="15.0" />
-                                 </padding>
-                              </VBox>
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </TitledPane>
+                        <TitledPane animated="false" text="%leftbar.manage_homeworks">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0">
+                                    <children>
+                                        <VBox spacing="15.0">
+                                            <children>
+                                                <Button mnemonicParsing="false" onAction="#createHomework" prefHeight="27.0" prefWidth="193.0" text="%leftbar.create_homework" />
+                                                <ListView fx:id="homeworksList" />
+                                            </children>
+                                            <padding>
+                                                <Insets top="15.0" />
+                                            </padding>
+                                        </VBox>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane animated="false" text="%leftbar.others">
+                            <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <Button layoutX="10.0" layoutY="14.0" mnemonicParsing="false" onAction="#exportQuestions" prefHeight="27.0" prefWidth="250.0" text="%leftbar.export_questions" />
+                                        <Button layoutX="10.0" layoutY="50.0" mnemonicParsing="false" onAction="#importQuestions" prefHeight="27.0" prefWidth="250.0" text="%leftbar.import_questions" />
+                                        <Button layoutX="10.0" layoutY="84.0" mnemonicParsing="false" onAction="#sendCorrection" prefHeight="27.0" prefWidth="250.0" text="%leftbar.send_correction" />
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </TitledPane>
                     </panes>
                     <VBox.margin>
                         <Insets left="5.0" top="20.0" />

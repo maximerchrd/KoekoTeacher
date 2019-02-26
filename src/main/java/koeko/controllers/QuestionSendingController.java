@@ -68,16 +68,16 @@ public class QuestionSendingController extends Window implements Initializable {
     public TreeItem<QuestionGeneric> editedTestItem = null;
     public Stage gameStage = null;
 
+    public String currentClass = null;
+    public String currentGroup = null;
+    public int currentGroupIndex = 0;
+
     @FXML
     public TreeView<QuestionGeneric> allQuestionsTree;
     @FXML
     public ListView<QuestionGeneric> readyQuestionsList;
     @FXML
     private ComboBox groupsCombobox;
-    @FXML
-    private ComboBox uiChoiceBox;
-    @FXML
-    private Accordion questionSendingAccordion;
     @FXML
     private Button createQuestionButton;
     @FXML
@@ -92,13 +92,6 @@ public class QuestionSendingController extends Window implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionSendingControllerSingleton = this;
         bundle = resources;
-
-        //setup UI choicebox
-        uiChoiceBox.setItems(FXCollections.observableArrayList(
-                bundle.getString("string.basic_commands"), bundle.getString("string.advanced_commands"))
-        );
-        int uiMode = DbTableSettings.getUIMode();
-        uiChoiceBox.getSelectionModel().select(uiMode);
 
         //set tooltips for buttons
         Tooltip tooltipcreateQuestion = new Tooltip(bundle.getString("string.create_question"));
@@ -535,14 +528,14 @@ public class QuestionSendingController extends Window implements Initializable {
     //BUTTONS
     public void broadcastQuestionForStudents() {
         QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-            DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(), String.valueOf(questionGeneric.getGlobalID()));
+        if (currentClass != null) {
+            DbTableRelationClassQuestion.addClassQuestionRelation(currentClass, String.valueOf(questionGeneric.getGlobalID()));
         }
         if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
-            sendQuestionToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), true, false);
+            sendQuestionToStudents(questionGeneric, currentGroupIndex, true, false);
         } else if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
             // send test infos and linked objectives
-            sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), allQuestionsTree.getSelectionModel().getSelectedItem());
+            sendTestToStudents(questionGeneric, currentGroupIndex, allQuestionsTree.getSelectionModel().getSelectedItem());
         } else {
             System.out.println("Trying to broadcast question or test but ID == 0.");
         }
@@ -557,8 +550,8 @@ public class QuestionSendingController extends Window implements Initializable {
     public void activateQuestionForStudents() {
         //START build the students vector
         String group = "";
-        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-            group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
+        if (currentClass != null) {
+            group = currentClass;
         }
         ArrayList<Student> students = new ArrayList<>();
         if (group.length() > 0) {
@@ -570,7 +563,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (students.size() == 0) {
             //if there is no class selected
             students = NetworkCommunication.networkCommunicationSingleton.aClass.getStudents();
-        } else if (groupsCombobox.getSelectionModel().getSelectedIndex() == 0) {
+        } else if (currentGroupIndex == 0) {
             //if a class (and not a group!) is selected, make sure that all students connected get the question
             Vector<Student> tableStudents = (Vector<Student>) NetworkCommunication.networkCommunicationSingleton.aClass.getStudents().clone();
             for (int i = 0; i < tableStudents.size(); i++) {
@@ -595,7 +588,7 @@ public class QuestionSendingController extends Window implements Initializable {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Send anyway?");
+            stage.setTitle(bundle.getString("string.send_anyway"));
             stage.setScene(new Scene(parent));
             stage.show();
         } else {
@@ -662,7 +655,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     questionCell.getItem().getGlobalID());
         }
 
-        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
+        Integer group = currentGroupIndex;
         if (group < 1) {
             group = 0;
         }
@@ -684,9 +677,9 @@ public class QuestionSendingController extends Window implements Initializable {
         }
 
         //remove question from database
-        if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
+        if (currentClass != null) {
             //remove question - class/group relation
-            DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+            DbTableRelationClassQuestion.removeClassQuestionRelation(currentClass,
                     String.valueOf(Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
         }
         if (index >= 0) {
@@ -702,236 +695,6 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void removeQuestion(int index) {
-        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
-        NetworkCommunication.networkCommunicationSingleton.removeQuestion(index);
-        DbTableRelationClassQuestion.removeClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
-                String.valueOf(Koeko.studentGroupsAndClass.get(group).getActiveIDs().get(index)));
-        Koeko.studentGroupsAndClass.get(group).getActiveIDs().remove(index);
-        readyQuestionsList.getItems().remove(index);
-    }
-
-    public void sendCorrection() {
-        try {
-            NetworkCommunication.networkCommunicationSingleton.sendCorrection(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void importQuestions() {
-        String importDoneMessage = "Import Done.\n";
-
-        List<String> input = readFile(FilesHandler.exportDirectory + "questions.csv");
-        input.remove(0);
-        for (int i = 0; i < input.size(); i++) {
-            input.set(i, input.get(i) + "END");
-            String[] question = input.get(i).split(";");
-
-            if (question.length >= 6) {
-                //insert subjects
-                String[] subjects = question[5].split("///");
-                for (int j = 0; j < subjects.length; j++) {
-                    try {
-                        DbTableSubject.addSubject(subjects[j]);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-
-                //insert objectives
-                String[] objectives = question[6].split("///");
-                for (int j = 0; j < objectives.length; j++) {
-                    try {
-                        DbTableLearningObjectives.addObjective(objectives[j], 1);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-
-                if (question[0].contentEquals("0")) {
-                    insertQuestionMultipleChoice(question);
-                } else {
-                    insertQuestionShortAnswer(question);
-                }
-
-            } else {
-                importDoneMessage += "problem importing following question (missing fields)\n";
-                System.out.println("problem importing following question (missing fields)");
-                for (String questionPart : question) {
-                    importDoneMessage += questionPart;
-                    System.out.println(questionPart);
-                }
-            }
-        }
-
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent parent = openFXMLResource(fxmlLoader);
-        GenericPopUpController controller = fxmlLoader.getController();
-        controller.initParameters(importDoneMessage);
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Import");
-        stage.setScene(new Scene(parent));
-        stage.show();
-    }
-
-    public void exportQuestions() {
-        Boolean exportOK = true;
-        File directory = new File("questions");
-        if (!directory.exists()) {
-            try {
-                Files.createDirectories(Paths.get("questions"));
-            } catch (IOException e) {
-                exportOK = false;
-                e.printStackTrace();
-            }
-        }
-        ArrayList<QuestionGeneric> questionGenericArrayList = new ArrayList<>();
-        try {
-            questionGenericArrayList = DbTableQuestionGeneric.getAllGenericQuestions();
-        } catch (Exception e) {
-            exportOK = false;
-            e.printStackTrace();
-        }
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(FilesHandler.exportDirectory + "questions.csv", "UTF-8");
-            writer.println("Questions Type (0 = question multiple choice, 1 = question short answer);Question text;Right Answers;Other Options;Picture;Subjects;Objectives");
-        } catch (FileNotFoundException e) {
-            exportOK = false;
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            exportOK = false;
-            e.printStackTrace();
-        }
-        for (int i = 0; i < questionGenericArrayList.size(); i++) {
-            if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 1) {
-                String question = "1;";
-                QuestionShortAnswer questionShortAnswer = DbTableQuestionShortAnswer.getShortAnswerQuestionWithId(questionGenericArrayList.get(i).getGlobalID());
-
-                //copy image file to correct directory
-                if (questionShortAnswer.getIMAGE().length() > 0 && !questionShortAnswer.getIMAGE().contentEquals("none")) {
-                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
-                    File source = new File(FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
-                    File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionShortAnswer.getIMAGE());
-                    try {
-                        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        exportOK = false;
-                    }
-                }
-
-                question += questionShortAnswer.getQUESTION().replace("\n"," ");
-                question += ";";
-                ArrayList<String> answers = questionShortAnswer.getANSWER();
-                for (int j = 0; j < answers.size(); j++) {
-                    question += answers.get(j) + "///";
-                }
-                question += ";;";       //because short answer questions don't have "other options" -> double ;;
-                question += questionShortAnswer.getIMAGE();
-                question += ";";
-                Vector<String> subjects = questionShortAnswer.getSubjects();
-                for (int j = 0; j < subjects.size(); j++) {
-                    question += subjects.get(j) + "///";
-                }
-                question += ";";
-                Vector<String> objectives = questionShortAnswer.getObjectives();
-                for (int j = 0; j < objectives.size(); j++) {
-                    question += objectives.get(j) + "///";
-                }
-                question += ";";
-                try {
-                    writer.println(question);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                    exportOK = false;
-                }
-            } else if (questionGenericArrayList.get(i).getIntTypeOfQuestion() == 0) {
-                String question = "0;";
-                QuestionMultipleChoice questionMultipleChoice = new QuestionMultipleChoice();
-                try {
-                    questionMultipleChoice = DbTableQuestionMultipleChoice.getMultipleChoiceQuestionWithID(questionGenericArrayList.get(i).getGlobalID());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    exportOK = false;
-                }
-
-                //copy image file to correct directory
-                if (questionMultipleChoice.getIMAGE().length() > 0 && !questionMultipleChoice.getIMAGE().contentEquals("none")) {
-                    exportOK = FilesHandler.createExportMediaDirIfNotExists();
-                    File source = new File(FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
-                    if (source.exists()) {
-                        File dest = new File(FilesHandler.exportDirectory + FilesHandler.mediaDirectory + questionMultipleChoice.getIMAGE());
-                        try {
-                            Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        System.err.println("Exporting question: image not found");
-                        exportOK = false;
-                    }
-                }
-
-                question += questionMultipleChoice.getQUESTION().replace("\n"," ");;
-                question += ";";
-                Vector<String> answers = questionMultipleChoice.getCorrectAnswers();
-                for (int j = 0; j < answers.size(); j++) {
-                    question += answers.get(j) + "///";
-                }
-                question += ";";
-                Vector<String> incorrectOptions = questionMultipleChoice.getIncorrectAnswers();
-                for (int j = 0; j < incorrectOptions.size(); j++) {
-                    question += incorrectOptions.get(j) + "///";
-                }
-                question += ";";
-                question += questionMultipleChoice.getIMAGE();
-                question += ";";
-                Vector<String> subjects = questionMultipleChoice.getSubjects();
-                for (int j = 0; j < subjects.size(); j++) {
-                    question += subjects.get(j) + "///";
-                }
-                question += ";";
-                Vector<String> objectives = questionMultipleChoice.getObjectives();
-                for (int j = 0; j < objectives.size(); j++) {
-                    question += objectives.get(j) + "///";
-                }
-                question += ";";
-                try {
-                    writer.println(question);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                    exportOK = false;
-                }
-            }
-
-        }
-        try {
-            writer.close();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            exportOK = false;
-        }
-
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/GenericPopUp.fxml"));
-        Parent parent = openFXMLResource(fxmlLoader);
-        GenericPopUpController controller = fxmlLoader.getController();
-        if (exportOK) {
-            controller.initParameters("Export Done!");
-        } else {
-            controller.initParameters("There was a problem during export :-(");
-        }
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Export");
-        stage.setScene(new Scene(parent));
-        stage.show();
-    }
 
     public void createTest() {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateTest.fxml"));
@@ -949,35 +712,6 @@ public class QuestionSendingController extends Window implements Initializable {
         stage.setTitle("Create a New Test");
         stage.setScene(new Scene(parent));
         stage.show();
-    }
-
-    public void createGroup() {
-        if (activeClass.length() > 0) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/CreateGroup.fxml"));
-            Parent parent = openFXMLResource(fxmlLoader);
-            CreateGroupController controller = fxmlLoader.getController();
-            ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
-                studentsList.add(singleStudent.getName());
-            }
-            controller.initParameters(activeClass, groupsCombobox, studentsList);
-            Stage stage = new Stage();
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Create a New Group");
-            stage.setScene(new Scene(parent));
-            stage.show();
-        }
-    }
-
-    public void deleteGroup() {
-        if (groupsCombobox.getSelectionModel().getSelectedItem() != null && groupsCombobox.getSelectionModel().getSelectedIndex() != 0) {
-            DbTableClasses.deleteGroup(groupsCombobox.getSelectionModel().getSelectedItem().toString());
-            int groupIndex = groupsCombobox.getSelectionModel().getSelectedIndex();
-            groupsCombobox.getItems().remove(groupIndex);
-            Koeko.studentGroupsAndClass.remove(groupIndex);
-            Koeko.studentsVsQuestionsTableControllerSingleton.removeGroup(groupIndex);
-        }
     }
 
     public void activeClassChanged(String argActiveClass) {
@@ -1029,37 +763,11 @@ public class QuestionSendingController extends Window implements Initializable {
         groupsCombobox.getSelectionModel().select(0);
     }
 
-    public void editGroup() {
-        if (activeClass.length() > 0) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/EditGroup.fxml"));
-            Parent parent = openFXMLResource(fxmlLoader);
-            EditGroupController controller = fxmlLoader.getController();
-            ArrayList<String> studentsList = new ArrayList<>();
-            for (Student singleStudent : Koeko.studentGroupsAndClass.get(0).getStudents()) {
-                studentsList.add(singleStudent.getName());
-            }
-            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-                ArrayList<Student> studentsInGroup = DbTableClasses.getStudentsInClass(groupsCombobox.getSelectionModel().getSelectedItem().toString());
-                ArrayList<String> studentNames = new ArrayList<>();
-                for (Student student : studentsInGroup) {
-                    studentNames.add(student.getName());
-                }
-                controller.initParameters(activeClass, groupsCombobox, studentsList, studentNames);
-                Stage stage = new Stage();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.initStyle(StageStyle.DECORATED);
-                stage.setTitle("Create a New Group");
-                stage.setScene(new Scene(parent));
-                stage.show();
-            }
-        }
-    }
-
     public void activateTestSynchroneousQuestions() {
         if (Long.valueOf(readyQuestionsList.getSelectionModel().getSelectedItem().getGlobalID()) < 0) {
             String group = "";
-            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-                group = groupsCombobox.getSelectionModel().getSelectedItem().toString();
+            if (currentClass != null) {
+                group = currentClass;
             }
             String testName = readyQuestionsList.getSelectionModel().getSelectedItem().getQuestion();
             ArrayList<Student> students = new ArrayList<>();
@@ -1080,24 +788,10 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    public void changeUI() {
-        if (uiChoiceBox.getSelectionModel().getSelectedIndex() == 0) {
-            questionSendingAccordion.setVisible(false);
-            Koeko.leftBarController.browseSubjectsAccordion.setVisible(false);
-            Koeko.leftBarController.editEvalButton.setVisible(false);
-            DbTableSettings.insertUIMode(0);
-        } else {
-            questionSendingAccordion.setVisible(true);
-            Koeko.leftBarController.browseSubjectsAccordion.setVisible(true);
-            Koeko.leftBarController.editEvalButton.setVisible(true);
-            DbTableSettings.insertUIMode(1);
-        }
-    }
-
     //OTHER METHODS
     public void loadQuestions() {
         readyQuestionsList.getItems().clear();
-        Integer group = groupsCombobox.getSelectionModel().getSelectedIndex();
+        Integer group = currentGroupIndex;
         if (group < 1) group = 0;
 
         ArrayList<String> questionIds = Koeko.studentGroupsAndClass.get(group).getActiveIDs();
@@ -1105,8 +799,8 @@ public class QuestionSendingController extends Window implements Initializable {
         //    deactivateQuestion(0);
         //}
         //Koeko.studentGroupsAndClass.get(group).getActiveIDs().clear();
-        if (Koeko.studentGroupsAndClass.get(group).getActiveIDs().size() == 0 && groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-            Koeko.studentGroupsAndClass.get(group).setActiveIDs(DbTableRelationClassQuestion.getQuestionsIDsForClass(groupsCombobox.getSelectionModel().getSelectedItem().toString()));
+        if (Koeko.studentGroupsAndClass.get(group).getActiveIDs().size() == 0 && currentClass != null) {
+            Koeko.studentGroupsAndClass.get(group).setActiveIDs(DbTableRelationClassQuestion.getQuestionsIDsForClass(currentClass));
         } else {
             System.out.println("no active id or groupsCombobox selectedItem is null");
         }
@@ -1215,7 +909,7 @@ public class QuestionSendingController extends Window implements Initializable {
                     QuestionGeneric questionGeneric = new QuestionGeneric();
                     questionGeneric.setQuestion(test.getTestName());
                     questionGeneric.setGlobalID(QuestionGeneric.changeIdSign(test.getIdTest()));
-                    sendTestToStudents(questionGeneric, groupsCombobox.getSelectionModel().getSelectedIndex(), allQuestionsTree.getSelectionModel().getSelectedItem());
+                    sendTestToStudents(questionGeneric, currentGroupIndex, allQuestionsTree.getSelectionModel().getSelectedItem());
                 }
             }
         }
@@ -1289,13 +983,13 @@ public class QuestionSendingController extends Window implements Initializable {
                 if (genericQuestionsList.get(i).getGlobalID().contentEquals(questionID)) {
                     found = true;
                     questionGeneric2 = genericQuestionsList.get(i);
-                    sendQuestionToStudents(questionGeneric2, groupsCombobox.getSelectionModel().getSelectedIndex(), true, true);
+                    sendQuestionToStudents(questionGeneric2, currentGroupIndex, true, true);
                 }
             }
 
             //add a relation in the database between the class/group and the question in case it's not yet here
-            if (groupsCombobox.getSelectionModel().getSelectedItem() != null) {
-                DbTableRelationClassQuestion.addClassQuestionRelation(groupsCombobox.getSelectionModel().getSelectedItem().toString(),
+            if (currentClass != null) {
+                DbTableRelationClassQuestion.addClassQuestionRelation(currentClass,
                         String.valueOf(questionID));
             }
         }
@@ -1369,7 +1063,7 @@ public class QuestionSendingController extends Window implements Initializable {
         });
     }
 
-    private void insertQuestionMultipleChoice(String[] question) {
+    public void insertQuestionMultipleChoice(String[] question) {
         Vector<String> options_vector = new Vector<String>();
         for (int i = 0; i < 10; i++) options_vector.add(" ");
         String[] rightAnswers = question[2].split("///");
@@ -1448,7 +1142,7 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    private void insertQuestionShortAnswer(String[] question) {
+    public void insertQuestionShortAnswer(String[] question) {
         QuestionShortAnswer new_questshortanswer = new QuestionShortAnswer();
         new_questshortanswer.setQUESTION(question[1]);
         if (question[4].length() > 0) {
@@ -1528,23 +1222,6 @@ public class QuestionSendingController extends Window implements Initializable {
         }
     }
 
-    private List<String> readFile(String filename) {
-        List<String> records = new ArrayList<String>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filename));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                records.add(line);
-            }
-            reader.close();
-            return records;
-        } catch (Exception e) {
-            System.err.format("Exception occurred trying to read '%s'.", filename);
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     static public <T> T[] concatenate(T[] a, T[] b) {
         int aLen = a.length;
         int bLen = b.length;
@@ -1563,7 +1240,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (actualSending) {
             NetworkCommunication.networkCommunicationSingleton.sendMultipleChoiceWithID(questionMultipleChoice.getID(), null);
         }
-        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
+        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionMultipleChoice.getQUESTION(), questionMultipleChoice.getID(), currentGroupIndex);
     }
 
     private void broadcastQuestionShortAnswer(QuestionShortAnswer questionShortAnswer, Boolean actualSending) {
@@ -1571,7 +1248,7 @@ public class QuestionSendingController extends Window implements Initializable {
         if (actualSending) {
             NetworkCommunication.networkCommunicationSingleton.sendShortAnswerQuestionWithID(questionShortAnswer.getID(), null);
         }
-        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), groupsCombobox.getSelectionModel().getSelectedIndex());
+        NetworkCommunication.networkCommunicationSingleton.addQuestion(questionShortAnswer.getQUESTION(), questionShortAnswer.getID(), currentGroupIndex);
     }
 
     private void popUpIfQuestionCollision() {
