@@ -787,7 +787,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                                 this.setStyle("-fx-text-fill: red;");
                                 item = item.replace("&red", "");
                             } else {
-                                this.setTextFill(Color.WHITE);
+                                this.setStyle("-fx-text-fill: white;");
                             }
                             setText(item);
                         }
@@ -828,7 +828,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             int indexStudent = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();
             SingleStudentAnswersLine singleStudentAnswersLine2 = tableViewArrayList.get(0).getItems().get(indexStudent);
             if (singleStudentAnswersLine2.getStatus().split("/").length > 1) {
-                singleStudentAnswersLine2.setStatus("connected /" + singleStudentAnswersLine2.getStatus().split("/")[1]);
+                singleStudentAnswersLine2.setStatus("connected /" + singleStudentAnswersLine2.getStatus().split("/")[1].replace("&red", ""));
             }
             tableViewArrayList.get(0).getItems().set(indexStudent, singleStudentAnswersLine2);
         });
