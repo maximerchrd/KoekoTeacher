@@ -45,7 +45,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
                 Button buttonEdit = new Button();
                 buttonEdit.setGraphic(editImage);
                 buttonEdit.setTooltip(
-                        new Tooltip("Edit subject")
+                        new Tooltip(bundle.getString("string.edit_subject"))
                 );
                 buttonEdit.setOnAction((event) -> {
                     editItem(item);
@@ -55,7 +55,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
                 Button buttonDelete = new Button();
                 buttonDelete.setGraphic(deleteImage);
                 buttonDelete.setTooltip(
-                        new Tooltip("Delete subject")
+                        new Tooltip(bundle.getString("string.delete_subject"))
                 );
                 buttonDelete.setOnAction((event) -> {
                     deleteItem(item, this);
@@ -69,7 +69,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
             Button buttonAddSubject = new Button();
             buttonAddSubject.setGraphic(qrImage);
             buttonAddSubject.setTooltip(
-                    new Tooltip("Filter questions according to subject")
+                    new Tooltip(bundle.getString("string.filter_from_subject"))
             );
             buttonAddSubject.setOnAction((event) -> {
                 filterQuestionsWithSubject(item);
@@ -79,7 +79,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
             Button buttonCreateSubject = new Button();
             buttonCreateSubject.setGraphic(linkImage);
             buttonCreateSubject.setTooltip(
-                    new Tooltip("Add child subject")
+                    new Tooltip(bundle.getString("string.add_child_subject"))
             );
             buttonCreateSubject.setOnAction((event) -> {
                 createSubject();
@@ -106,7 +106,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Edit the Subject");
+        stage.setTitle(bundle.getString("string.edit_subject"));
         stage.setScene(new Scene(root1));
         stage.show();
     }
@@ -122,7 +122,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(Koeko.leftBarController);
             VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().add(new Text("Sorry, it is not possible to delete a subject with sub-subject(s)."));
+            dialogVbox.getChildren().add(new Text(bundle.getString("string.impossible_delete_subject")));
             Scene dialogScene = new Scene(dialogVbox, 400, 40);
             dialog.setScene(dialogScene);
             dialog.show();
@@ -146,7 +146,7 @@ public class SubjectTreeCell extends TreeCell<Subject> {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Subject");
+        stage.setTitle(bundle.getString("string.create_subject"));
         stage.setScene(new Scene(root1));
         stage.show();
     }

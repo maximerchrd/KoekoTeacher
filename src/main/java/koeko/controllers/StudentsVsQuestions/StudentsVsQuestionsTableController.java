@@ -822,7 +822,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         //chooseClassComboBox.setItems(observableList);
 
         //setup contextmenu for right click on row
-        MenuItem menuItem = new MenuItem("Mark as Connected");
+        MenuItem menuItem = new MenuItem(bundle.getString("string.mark_connected"));
         contextMenu.getItems().add(menuItem);
         menuItem.setOnAction(event -> {
             int indexStudent = tableViewArrayList.get(0).getSelectionModel().getSelectedIndex();

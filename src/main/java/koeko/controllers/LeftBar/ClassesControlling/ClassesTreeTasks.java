@@ -14,12 +14,13 @@ import koeko.database_management.DbTableRelationSubjectSubject;
 import koeko.students_management.Classroom;
 
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 public class ClassesTreeTasks {
     static private Classroom draggedClassroom = null;
     static private TreeItem<Classroom> draggedItem = null;
 
-    static public void populateClassesTree(TreeView<Classroom> classroomTreeView, String allClasses) {
+    static public void populateClassesTree(TreeView<Classroom> classroomTreeView, String allClasses, ResourceBundle bundle) {
         Classroom classroom = new Classroom();
         classroom.setClassName(allClasses);
         Koeko.leftBarController.rootClassSingleton = new TreeItem<>(classroom);
@@ -35,7 +36,7 @@ public class ClassesTreeTasks {
         new Thread(loadSubjects).start();
         classroomTreeView.setRoot(Koeko.leftBarController.rootClassSingleton);
         classroomTreeView.setCellFactory(stringTreeView -> {
-            ClassTreeCell treeCell = new ClassTreeCell();
+            ClassTreeCell treeCell = new ClassTreeCell(bundle);
 
             treeCell.setOnDragDetected(mouseEvent -> {
                 draggedClassroom = treeCell.getTreeItem().getValue();

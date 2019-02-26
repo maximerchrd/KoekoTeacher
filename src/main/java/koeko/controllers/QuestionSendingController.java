@@ -527,23 +527,25 @@ public class QuestionSendingController extends Window implements Initializable {
 
     //BUTTONS
     public void broadcastQuestionForStudents() {
-        QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
-        if (currentClass != null) {
-            DbTableRelationClassQuestion.addClassQuestionRelation(currentClass, String.valueOf(questionGeneric.getGlobalID()));
-        }
-        if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
-            sendQuestionToStudents(questionGeneric, currentGroupIndex, true, false);
-        } else if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
-            // send test infos and linked objectives
-            sendTestToStudents(questionGeneric, currentGroupIndex, allQuestionsTree.getSelectionModel().getSelectedItem());
-        } else {
-            System.out.println("Trying to broadcast question or test but ID == 0.");
-        }
+        if (allQuestionsTree.getSelectionModel().getSelectedItem() != null) {
+            QuestionGeneric questionGeneric = allQuestionsTree.getSelectionModel().getSelectedItem().getValue();
+            if (currentClass != null) {
+                DbTableRelationClassQuestion.addClassQuestionRelation(currentClass, String.valueOf(questionGeneric.getGlobalID()));
+            }
+            if (Long.valueOf(questionGeneric.getGlobalID()) > 0) {
+                sendQuestionToStudents(questionGeneric, currentGroupIndex, true, false);
+            } else if (Long.valueOf(questionGeneric.getGlobalID()) < 0) {
+                // send test infos and linked objectives
+                sendTestToStudents(questionGeneric, currentGroupIndex, allQuestionsTree.getSelectionModel().getSelectedItem());
+            } else {
+                System.out.println("Trying to broadcast question or test but ID == 0.");
+            }
 
-        //add question to homework
-        if (Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedIndex() >= 0) {
-            DbTableRelationHomeworkQuestion.insertHomeworkQuestionRelation(Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedItem().getName(),
-                    questionGeneric.getGlobalID());
+            //add question to homework
+            if (Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedIndex() >= 0) {
+                DbTableRelationHomeworkQuestion.insertHomeworkQuestionRelation(Koeko.leftBarController.homeworksList.getSelectionModel().getSelectedItem().getName(),
+                        questionGeneric.getGlobalID());
+            }
         }
     }
 
@@ -643,7 +645,7 @@ public class QuestionSendingController extends Window implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Question");
+        stage.setTitle(bundle.getString("string.create_question"));
         stage.setScene(new Scene(parent));
         stage.show();
     }
@@ -709,7 +711,7 @@ public class QuestionSendingController extends Window implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Test");
+        stage.setTitle(bundle.getString("string.create_test"));
         stage.setScene(new Scene(parent));
         stage.show();
     }

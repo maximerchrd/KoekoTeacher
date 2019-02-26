@@ -190,7 +190,7 @@ public class LeftBarController extends Window implements Initializable {
             }
         });
 
-        ClassesTreeTasks.populateClassesTree(classesTree, bundle.getString("string.all_classes"));
+        ClassesTreeTasks.populateClassesTree(classesTree, bundle.getString("string.all_classes"), bundle);
 
         //setup UI choicebox
         uiChoiceBox.setItems(FXCollections.observableArrayList(
@@ -318,7 +318,7 @@ public class LeftBarController extends Window implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Subject");
+        stage.setTitle(bundle.getString("string.create_subject"));
         stage.setScene(new Scene(parent));
         stage.show();
     }
@@ -637,7 +637,7 @@ public class LeftBarController extends Window implements Initializable {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Homework");
+        stage.setTitle(bundle.getString("createhomework.create"));
         stage.setScene(new Scene(parent));
         stage.show();
     }

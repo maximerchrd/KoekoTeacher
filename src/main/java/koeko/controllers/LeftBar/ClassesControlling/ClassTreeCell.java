@@ -23,8 +23,11 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ClassTreeCell extends TreeCell<Classroom> {
-    private double imageSize = 60;
-    private double buttonSize = 30;
+    ResourceBundle bundle;
+
+    public ClassTreeCell(ResourceBundle bundle) {
+        this.bundle = bundle;
+    }
 
     @Override
     protected void updateItem(Classroom item, boolean empty) {
@@ -41,7 +44,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
                 Button buttonEdit = new Button();
                 buttonEdit.setGraphic(editImage);
                 buttonEdit.setTooltip(
-                        new Tooltip("Edit class / group")
+                        new Tooltip(bundle.getString("string.edit_class_group"))
                 );
                 buttonEdit.setOnAction((event) -> {
                     editItem(this);
@@ -51,7 +54,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
                 Button buttonDelete = new Button();
                 buttonDelete.setGraphic(deleteImage);
                 buttonDelete.setTooltip(
-                        new Tooltip("Delete class / group")
+                        new Tooltip(bundle.getString("string.delete_class_group"))
                 );
                 buttonDelete.setOnAction((event) -> {
                     deleteItem(item, this);
@@ -61,27 +64,27 @@ public class ClassTreeCell extends TreeCell<Classroom> {
 
             VBox buttonsBox2 = new VBox(3);
 
-            ImageView qrImage = new ImageView(new Image("/drawable/qrImage.png", buttonImageSize, buttonImageSize, true, true));
-            Button buttonAddSubject = new Button();
-            buttonAddSubject.setGraphic(qrImage);
-            buttonAddSubject.setTooltip(
-                    new Tooltip("Filter questions according to subject")
-            );
-            buttonAddSubject.setOnAction((event) -> {
-
-            });
+//            ImageView qrImage = new ImageView(new Image("/drawable/qrImage.png", buttonImageSize, buttonImageSize, true, true));
+//            Button buttonAddSubject = new Button();
+//            buttonAddSubject.setGraphic(qrImage);
+//            buttonAddSubject.setTooltip(
+//                    new Tooltip("Filter questions according to subject")
+//            );
+//            buttonAddSubject.setOnAction((event) -> {
+//
+//            });
 
             ImageView linkImage = new ImageView(new Image("/drawable/linkImage.png", buttonImageSize, buttonImageSize, true, true));
             Button buttonCreateSubject = new Button();
             buttonCreateSubject.setGraphic(linkImage);
             buttonCreateSubject.setTooltip(
-                    new Tooltip("Add class / group")
+                    new Tooltip(bundle.getString("string.add_class_group"))
             );
             buttonCreateSubject.setOnAction((event) -> {
                 createClass(this);
             });
 
-            buttonsBox2.getChildren().addAll(buttonAddSubject, buttonCreateSubject);
+            buttonsBox2.getChildren().addAll(buttonCreateSubject);
 
             ImageView image = new ImageView();
 
@@ -102,7 +105,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Edit Class");
+        stage.setTitle(bundle.getString("editclass.edit"));
         stage.setScene(new Scene(root1));
         stage.show();
     }
@@ -112,7 +115,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
             DbTableClasses.deleteGroup(classroom.getClassName());
             treeCell.getTreeItem().getParent().getChildren().remove(treeCell.getTreeItem());
         } else {
-            Koeko.leftBarController.promptGenericPopUp("You can't delete a class with sub-groups.", "Illegal operation");
+            Koeko.leftBarController.promptGenericPopUp(bundle.getString("string.impossible_delete_class"), bundle.getString("string.illegal_operation"));
         }
     }
 
@@ -124,7 +127,7 @@ public class ClassTreeCell extends TreeCell<Classroom> {
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Class");
+        stage.setTitle(bundle.getString("createclass.create"));
         stage.setScene(new Scene(root1));
         stage.show();
     }

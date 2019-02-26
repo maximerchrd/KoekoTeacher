@@ -85,7 +85,8 @@ public class Koeko extends Application {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle("Starting Assistant");
+            stage.setTitle(ResourceBundle.getBundle("bundles.LangBundle", new Locale(DbTableSettings.getLanguage()))
+                    .getString("string.starting_assistant"));
             stage.setScene(new Scene(root1));
             stage.show();
         }

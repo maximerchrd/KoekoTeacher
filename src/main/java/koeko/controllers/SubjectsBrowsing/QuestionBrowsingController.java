@@ -299,7 +299,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
         Stage stage = new Stage();
         stage.initModality(Modality.WINDOW_MODAL);
         stage.initStyle(StageStyle.DECORATED);
-        stage.setTitle("Create a New Subject");
+        stage.setTitle(bundle.getString("string.create_subject"));
         stage.setScene(new Scene(root1));
         stage.show();
     }
