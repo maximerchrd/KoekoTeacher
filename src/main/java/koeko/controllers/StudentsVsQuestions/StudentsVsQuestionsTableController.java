@@ -753,6 +753,15 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         tableViewArrayList = new ArrayList<>();
         studentIdToStatusReceptionMap = Collections.synchronizedMap(new LinkedHashMap<>());
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
+        studentsQuestionsTable.sortPolicyProperty().set(t -> {
+            Comparator<SingleStudentAnswersLine> comparator = (r1, r2)
+                    -> r1.getStudentObject().getStudentID() == "-1" ? 1 //CLASS at the bottom
+                    : r2.getStudentObject().getStudentID() == "-1" ? -1 //CLASS at the bottom
+                    : t.getComparator() == null ? 0 //no column sorted: don't change order
+                    : t.getComparator().compare(r1, r2); //columns are sorted: sort accordingly
+            FXCollections.sort(studentsQuestionsTable.getItems(), comparator);
+            return true;
+        });
         TableColumn<SingleStudentAnswersLine, Student> columnStudent = new TableColumn<>(bundle.getString("string.student"));
         columnStudent.setPrefWidth(180);
         columnStudent.setCellValueFactory( p -> new SimpleObjectProperty(p.getValue().getStudentObject()));
