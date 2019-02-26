@@ -229,7 +229,7 @@ public class ResultsTableController implements Initializable {
                 weakObjectives = bundle.getString("string.not_enough_data");
             }
             if (strongObjectives.contentEquals("")) {
-                strongObjectives = bundle.getString("Not enough data to compute indicator");
+                strongObjectives = bundle.getString("string.not_enough_data");
             }
 
             tableRows.get(k).setWeak_obj_indicators(weakObjectives);

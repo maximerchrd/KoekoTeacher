@@ -98,7 +98,7 @@ public class LeftBarController extends Window implements Initializable {
 
         //create rootSubjectSingleton
         Subject subject = new Subject();
-        subject.set_subjectName("string.all_subjects");
+        subject.set_subjectName(bundle.getString("string.all_subjects"));
         rootSubjectSingleton = new TreeItem<>(subject);
         rootSubjectSingleton.setExpanded(true);
         subjectsTree.setShowRoot(true);
@@ -345,7 +345,7 @@ public class LeftBarController extends Window implements Initializable {
     public void filterQuestionsWithSubject() {
         Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
         Vector<String> questionIds;
-        if (subject.get_subjectName().contentEquals("string.all_subjects")) {
+        if (subject.get_subjectName().contentEquals(bundle.getString("string.all_subjects"))) {
             questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
         } else {
             questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());
@@ -458,6 +458,25 @@ public class LeftBarController extends Window implements Initializable {
                     studentName.contentEquals(Koeko.studentGroupsAndClass.get(group).getStudents().get(studentIndex).getName())) {
                 Koeko.studentGroupsAndClass.get(group).getStudents().remove(studentIndex);
             }
+        }
+    }
+
+    public void removeStudentFromClass(String studentName, int index) {
+        Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).setPrefHeight(Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getPrefHeight() - cellHeight * 1.1);
+
+        if (chooseClassComboBox.getSelectionModel().getSelectedItem() != null) {
+            String className = chooseClassComboBox.getSelectionModel().getSelectedItem().toString();
+            try {
+                DbTableRelationClassStudent.removeStudentFromClass(studentName, className);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().remove(Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getItems().get(index));
+        Koeko.studentGroupsAndClass.get(0).getActiveEvaluations().remove(index);
+        if (Koeko.studentGroupsAndClass.get(0).getStudents().size() > index &&
+                studentName.contentEquals(Koeko.studentGroupsAndClass.get(0).getStudents().get(index).getName())) {
+            Koeko.studentGroupsAndClass.get(0).getStudents().remove(index);
         }
     }
 

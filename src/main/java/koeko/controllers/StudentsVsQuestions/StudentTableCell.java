@@ -1,38 +1,20 @@
 package koeko.controllers.StudentsVsQuestions;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import koeko.Koeko;
-import koeko.controllers.SubjectsBrowsing.EditSubjectController;
 import koeko.controllers.controllers_tools.SingleStudentAnswersLine;
-import koeko.database_management.DbTableQuestionGeneric;
-import koeko.database_management.DbTableRelationQuestionSubject;
-import koeko.database_management.DbTableRelationSubjectSubject;
-import koeko.database_management.DbTableSubject;
 import koeko.students_management.Student;
-import koeko.view.Subject;
-
-import java.io.IOException;
-import java.util.Vector;
 
 public class StudentTableCell extends TableCell<SingleStudentAnswersLine, Student> {
-
+    int buttonImageSize = 15;
     @Override
     protected void updateItem(Student item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty && item != null) {
+            HBox hBox = new HBox(10);
             if (Koeko.studentsVsQuestionsTableControllerSingleton.studentsCheckBoxes) {
                 CheckBox checkBox = new CheckBox();
                 checkBox.setSelected(item.getHomeworkChecked());
@@ -44,12 +26,26 @@ public class StudentTableCell extends TableCell<SingleStudentAnswersLine, Studen
                     }
                 });
 
-                setGraphic(checkBox);
+                hBox.getChildren().add(checkBox);
             }
+            if (!item.getStudentID().contentEquals("-1")) {
+                System.out.println(item.getName());
+                Button deleteButton = new Button();
+                deleteButton.setPrefSize(15, 15);
+                ImageView deleteImage = new ImageView(new Image("/drawable/deleteImage.png", buttonImageSize, buttonImageSize, true, false));
+                deleteButton.setGraphic(deleteImage);
+                deleteButton.setOnAction((event) -> deleteItem(item));
+                hBox.getChildren().add(deleteButton);
+            }
+            setGraphic(hBox);
             setText(item.getName());
         } else {
             setText(null);
             setGraphic(null);
         }
+    }
+
+    private void deleteItem(Student item) {
+        Koeko.leftBarController.removeStudentFromClass(item.getName(), this.getIndex());
     }
 }

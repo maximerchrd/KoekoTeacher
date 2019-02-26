@@ -50,7 +50,7 @@ import java.util.*;
  */
 public class StudentsVsQuestionsTableController extends Window implements Initializable {
     public Boolean studentsCheckBoxes = false;
-    private final Double cellHeight = 25.0;
+    private final Double cellHeight = 40.0;
     //private ArrayList<String> questions;
     //private ArrayList<Integer> questionsIDs;
     public ArrayList<TableView<SingleStudentAnswersLine>> tableViewArrayList;
@@ -64,6 +64,8 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
     //context menu for right click on row
     ContextMenu contextMenu = new ContextMenu();
+
+    private ResourceBundle bundle;
 
 
     public void addQuestion(String question, String ID, Integer group) {
@@ -565,19 +567,19 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
         //TableColumn groupName = new TableColumn<SingleStudentAnswersLine,String>(group);
         //studentsQuestionsTable.getColumns().add(groupName);
-        TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>("string.student");
+        TableColumn columnStudent = new TableColumn<SingleStudentAnswersLine,String>(bundle.getString("string.student"));
         columnStudent.setPrefWidth(180);
-        columnStudent.setCellValueFactory(new PropertyValueFactory<>("string.student"));
+        columnStudent.setCellValueFactory(new PropertyValueFactory<>(bundle.getString("string.student")));
         studentsQuestionsTable.getColumns().add(columnStudent);
 
-        TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("string.status");
+        TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>(bundle.getString("string.status"));
         columnStatus.setPrefWidth(100);
-        columnStatus.setCellValueFactory(new PropertyValueFactory<>("string.status"));
+        columnStatus.setCellValueFactory(new PropertyValueFactory<>(bundle.getString("string.status")));
         studentsQuestionsTable.getColumns().add(columnStatus);
 
-        TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("string.evaluation");
+        TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>(bundle.getString("string.evaluation"));
         columnEvaluation.setPrefWidth(100);
-        columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("string.evaluation"));
+        columnEvaluation.setCellValueFactory(new PropertyValueFactory<>(bundle.getString("string.evaluation")));
         studentsQuestionsTable.getColumns().add(columnEvaluation);
 
         //add summary linestudentsQuestionsTable.setFixedCellSize(cellHeight);
@@ -587,7 +589,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
         studentsQuestionsTable.setPrefHeight(cellHeight * 4);
         studentsQuestionsTable.getItems().add(singleStudentAnswersLine);
 
-        Label groupNameLabel = new Label("string.group" + group);
+        Label groupNameLabel = new Label(bundle.getString("string.group") + group);
         groupNameLabel.setStyle("-fx-padding: 20 0 0 0;");
         tableVBox.getChildren().add(groupNameLabel);
         tableVBox.getChildren().add(studentsQuestionsTable);
@@ -746,11 +748,12 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.studentsVsQuestionsTableControllerSingleton = this;
+        bundle = resources;
         //initialize table
         tableViewArrayList = new ArrayList<>();
         studentIdToStatusReceptionMap = Collections.synchronizedMap(new LinkedHashMap<>());
         TableView<SingleStudentAnswersLine> studentsQuestionsTable = new TableView<>();
-        TableColumn<SingleStudentAnswersLine, Student> columnStudent = new TableColumn<>("string.student");
+        TableColumn<SingleStudentAnswersLine, Student> columnStudent = new TableColumn<>(bundle.getString("string.student"));
         columnStudent.setPrefWidth(180);
         columnStudent.setCellValueFactory( p -> new SimpleObjectProperty(p.getValue().getStudentObject()));
         columnStudent.setCellFactory(param -> {
@@ -758,16 +761,15 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             return studentTableCell;
         } );
         studentsQuestionsTable.getColumns().add(columnStudent);
-        TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>("string.status");
+        TableColumn columnStatus = new TableColumn<SingleStudentAnswersLine,String>(bundle.getString("string.status"));
         columnStatus.setPrefWidth(180);
-        columnStatus.setCellValueFactory(new PropertyValueFactory<>("string.status"));
+        columnStatus.setCellValueFactory(new PropertyValueFactory<>(bundle.getString("string.status")));
         studentsQuestionsTable.getColumns().add(columnStatus);
 
         //set red color if student disconnected
         columnStatus.setCellFactory(new Callback<TableColumn, TableCell>() {
             public TableCell call(TableColumn param) {
                 return new TableCell<SingleStudentAnswersLine, String>() {
-
                     @Override
                     public void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
@@ -785,9 +787,9 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
             }
         });
 
-        TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>("string.evaluation");
+        TableColumn columnEvaluation = new TableColumn<SingleStudentAnswersLine,String>(bundle.getString("string.evaluation"));
         columnEvaluation.setPrefWidth(100);
-        columnEvaluation.setCellValueFactory(new PropertyValueFactory<>("string.evaluation"));
+        columnEvaluation.setCellValueFactory(new PropertyValueFactory<>(bundle.getString("string.evaluation")));
         studentsQuestionsTable.getColumns().add(columnEvaluation);
         studentsQuestionsTable.setFixedCellSize(cellHeight);
         studentsQuestionsTable.setPrefHeight(cellHeight * 3.5);
@@ -796,7 +798,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
 
         //add summary line
         Student classStudent = new Student();
-        classStudent.setName("string.class");
+        classStudent.setName(bundle.getString("string.class"));
         SingleStudentAnswersLine singleStudentAnswersLine = new SingleStudentAnswersLine(classStudent, "0", "0.0");
         tableViewArrayList.get(0).getItems().add(singleStudentAnswersLine);
 
