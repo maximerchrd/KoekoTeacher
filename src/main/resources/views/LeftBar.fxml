@@ -51,7 +51,6 @@
                                               <Button mnemonicParsing="false" onAction="#addNewStudentToClass" prefHeight="27.0" prefWidth="193.0" text="%leftbar.add_student" />
                                               <Button mnemonicParsing="false" onAction="#saveStudentsToClass" prefHeight="27.0" prefWidth="193.0" text="%leftbar.save_student" />
                                               <Button mnemonicParsing="false" onAction="#loadGroups" prefHeight="27.0" prefWidth="193.0" text="%leftbar.load_groups" />
-                                              <Button mnemonicParsing="false" onAction="#removeStudentFromClass" prefHeight="27.0" prefWidth="193.0" text="%leftbar.remove" />
                                     <TreeView fx:id="classesTree" />
                                  </children>
                               </VBox>

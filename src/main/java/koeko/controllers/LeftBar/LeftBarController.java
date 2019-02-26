@@ -112,7 +112,7 @@ public class LeftBarController extends Window implements Initializable {
         new Thread(loadSubjects).start();
         subjectsTree.setRoot(rootSubjectSingleton);
         subjectsTree.setCellFactory(stringTreeView -> {
-            SubjectTreeCell treeCell = new SubjectTreeCell();
+            SubjectTreeCell treeCell = new SubjectTreeCell(bundle);
 
             treeCell.setOnDragDetected(mouseEvent -> {
                 draggedSubject = treeCell.getTreeItem().getValue();
@@ -181,7 +181,7 @@ public class LeftBarController extends Window implements Initializable {
             }
         });
 
-        ClassesTreeTasks.populateClassesTree(classesTree);
+        ClassesTreeTasks.populateClassesTree(classesTree, bundle.getString("string.all_classes"));
 
         HomeworkListTasks.initHomeworkList(homeworksList);
 
@@ -434,9 +434,6 @@ public class LeftBarController extends Window implements Initializable {
         }
     }
 
-    public void removeStudentFromClass() {
-        removeStudentFromClass(0);
-    }
     public void removeStudentFromClass(Integer group) {
         if (!Koeko.studentsVsQuestionsTableControllerSingleton.tableViewArrayList.get(0).getSelectionModel().getSelectedItem().getStudentName().contentEquals("CLASS")) {
             //adapt table height

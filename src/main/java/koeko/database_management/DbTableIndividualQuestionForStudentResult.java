@@ -437,7 +437,7 @@ public class DbTableIndividualQuestionForStudentResult {
      * this option (second array)
      * IF THE QUESTION ID CORRESPONDS TO A SHRTAQ, RETURNS NULL
      */
-    static public ArrayList<ArrayList> getAnswersHistogramForQuestion(String questionID, String className) {
+    static public ArrayList<ArrayList> getAnswersHistogramForQuestion(String questionID, String className, String allClassesString) {
         ArrayList<ArrayList> arraysToReturn = new ArrayList<>();
         ArrayList<String> answers = new ArrayList<>();
         ArrayList<Integer> histogram = new ArrayList<>();
@@ -448,7 +448,7 @@ public class DbTableIndividualQuestionForStudentResult {
         //extract the students from the class if a class name is given
         ArrayList<Student> studentsFromClass;
         ArrayList<String> studentsFromClassID = new ArrayList<>();
-        if (!className.contentEquals("string.all_classes")) {
+        if (!className.contentEquals(allClassesString)) {
             studentsFromClass = DbTableClasses.getStudentsInClass(className);
             for (Student student : studentsFromClass) {
                 studentsFromClassID.add(student.getStudentID());
@@ -483,7 +483,7 @@ public class DbTableIndividualQuestionForStudentResult {
 
             //extract nb of hits from student answers
             for (int j = 0; j < studentAnswers.size(); j++) {
-                if (className.contentEquals("string.all_classes") || studentsFromClassID.contains(studentsID.get(j))) {
+                if (className.contentEquals(allClassesString) || studentsFromClassID.contains(studentsID.get(j))) {
                     String[] singleAnswers = studentAnswers.get(j).split("\\|\\|\\|");
                     for (int i = 0; i < singleAnswers.length; i++) {
                         int index = answers.indexOf(singleAnswers[i]);

@@ -49,8 +49,11 @@ public class QuestionBrowsingController extends Window implements Initializable 
     @FXML private TreeView<Subject> subjectsTree;
     @FXML public Accordion browseSubjectsAccordion;
 
+    private ResourceBundle bundle;
+
     public void initialize(URL location, ResourceBundle resources) {
         Koeko.questionBrowsingControllerSingleton = this;
+        bundle = resources;
         ipAddresses = new ArrayList<>();
 
         Task<Void> getIPTask = new Task<Void>() {
@@ -69,7 +72,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
 
         //create rootSubjectSingleton
         Subject subject = new Subject();
-        subject.set_subjectName("string.all_subjects");
+        subject.set_subjectName(bundle.getString("string.all_subjects"));
         rootSubjectSingleton = new TreeItem<>(subject);
         rootSubjectSingleton.setExpanded(true);
         subjectsTree.setShowRoot(true);
@@ -339,7 +342,7 @@ public class QuestionBrowsingController extends Window implements Initializable 
     public void filterQuestionsWithSubject() {
         Subject subject = subjectsTree.getSelectionModel().getSelectedItem().getValue();
         Vector<String> questionIds;
-        if (subject.get_subjectName().contentEquals("string.all_subjects")) {
+        if (subject.get_subjectName().contentEquals(bundle.getString("string.all_subjects"))) {
             questionIds = DbTableQuestionGeneric.getAllGenericQuestionsIds();
         } else {
             questionIds = DbTableRelationQuestionSubject.getQuestionsIdsForSubject(subject.get_subjectName());

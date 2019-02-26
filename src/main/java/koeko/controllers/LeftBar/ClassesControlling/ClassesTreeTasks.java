@@ -19,9 +19,9 @@ public class ClassesTreeTasks {
     static private Classroom draggedClassroom = null;
     static private TreeItem<Classroom> draggedItem = null;
 
-    static public void populateClassesTree(TreeView<Classroom> classroomTreeView) {
+    static public void populateClassesTree(TreeView<Classroom> classroomTreeView, String allClasses) {
         Classroom classroom = new Classroom();
-        classroom.setClassName("string.all_classes");
+        classroom.setClassName(allClasses);
         Koeko.leftBarController.rootClassSingleton = new TreeItem<>(classroom);
         Koeko.leftBarController.rootClassSingleton.setExpanded(true);
         classroomTreeView.setShowRoot(true);

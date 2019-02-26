@@ -60,7 +60,7 @@ public class DbTableIndividualQuestionForStudentResultTest {
 
     @Test
     public void testgetAnswersHistogramForQuestion() {
-        ArrayList<ArrayList> result = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "");
+        ArrayList<ArrayList> result = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "", "All Classes");
 
         //test first array
         ArrayList<String> options = new ArrayList<>();
@@ -85,7 +85,7 @@ public class DbTableIndividualQuestionForStudentResultTest {
         assertEquals(true, result.get(1).equals(values));
 
         //test with class
-        ArrayList<ArrayList> result2 = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "test indiv res table class");
+        ArrayList<ArrayList> result2 = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "test indiv res table class", "All Classes");
         ArrayList<Integer> values2 = new ArrayList<>();
         values2.add(1);
         values2.add(1);

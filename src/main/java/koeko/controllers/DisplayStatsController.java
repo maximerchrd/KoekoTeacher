@@ -43,9 +43,10 @@ public class DisplayStatsController implements Initializable {
     @FXML private ComboBox subject_filtering;
 
     DisplayStatsController displayStats_singleton;
-
+    ResourceBundle bundle;
 
     public void initialize(URL location, ResourceBundle resources) {
+        bundle = resources;
         //combobox with types of values to consider for the chart
         chart_type.getItems().addAll(chartType1, chartType2, chartType3);
         chart_type.getSelectionModel().select(chartType2);
@@ -114,7 +115,7 @@ public class DisplayStatsController implements Initializable {
             //combobox with classes
             time_step.getItems().removeAll(time_step.getItems());
             ArrayList<String> classes = (ArrayList<String>) DbTableClasses.getAllClasses();
-            classes.add(0, "string.all_classes");
+            classes.add(0, bundle.getString("string.all_classes"));
             time_step.getItems().addAll(classes);
             time_step.getSelectionModel().select(0);
 
@@ -173,7 +174,7 @@ public class DisplayStatsController implements Initializable {
             int treeindex = students_tree.getSelectionModel().getSelectedIndex();
             ArrayList<ArrayList> answersAndHistogram = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(
                     questionMultipleChoices.get(students_tree.getSelectionModel().getSelectedIndex()).getID(),
-                    time_step.getSelectionModel().getSelectedItem().toString());
+                    time_step.getSelectionModel().getSelectedItem().toString(), bundle.getString("string.all_classes"));
             ArrayList<String> answers = answersAndHistogram.get(0);
             ArrayList<Integer> histogram = answersAndHistogram.get(1);
             setupQuestionHistogram(answers, histogram, series1,
