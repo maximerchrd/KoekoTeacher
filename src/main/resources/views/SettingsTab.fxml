@@ -37,6 +37,16 @@
                   </ToggleButton>
                </children>
             </HBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="381.0" text="%settings.sound" />
+                  <ToggleButton fx:id="soundChangedButton" mnemonicParsing="false" onAction="#soundChanged" text="ToggleButton">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </ToggleButton>
+               </children>
+            </HBox>
             <Label text="%settings.web_syncing">
                <VBox.margin>
                   <Insets bottom="15.0" />

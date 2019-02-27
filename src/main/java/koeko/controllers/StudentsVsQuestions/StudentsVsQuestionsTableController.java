@@ -423,11 +423,13 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                 tableViewArrayList.get(group).getItems().set(indexStudent, singleStudentAnswersLine);
 
                 //play sound
-                String musicFile = "sounds/bell.mp3";
+                if (DbTableSettings.getSound() == 1) {
+                    String musicFile = "sounds/bell.mp3";
 
-                Media sound = new Media(new File(musicFile).toURI().toString());
-                MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                mediaPlayer.play();
+                    Media sound = new Media(new File(musicFile).toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
+                }
             }
         }
     }

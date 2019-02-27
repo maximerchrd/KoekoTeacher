@@ -39,6 +39,8 @@ public class SettingsController implements Initializable {
     @FXML
     private ToggleButton forceSyncButton;
     @FXML
+    private ToggleButton soundChangedButton;
+    @FXML
     private ComboBox languageCombobox;
     @FXML
     private TextField synchronizationKeyTextField;
@@ -70,6 +72,16 @@ public class SettingsController implements Initializable {
             forceSync = 0;
             DbTableSettings.insertForceSync(forceSync);
             forceSyncButton.setText("OFF");
+        }
+    }
+
+    public void soundChanged() {
+        if (soundChangedButton.isSelected()) {
+            DbTableSettings.insertSound(1);
+            soundChangedButton.setText("ON");
+        } else {
+            DbTableSettings.insertSound(0);
+            soundChangedButton.setText("OFF");
         }
     }
 
@@ -176,6 +188,13 @@ public class SettingsController implements Initializable {
         } else if (forceSync == 1) {
             forceSyncButton.setText("ON");
             forceSyncButton.setSelected(true);
+        }
+
+        if (DbTableSettings.getSound() == 0) {
+            soundChangedButton.setText("OFF");
+        } else if (DbTableSettings.getSound() == 1) {
+            soundChangedButton.setText("ON");
+            soundChangedButton.setSelected(true);
         }
 
         if (DbTableProfessor.getProfessor() == null) {

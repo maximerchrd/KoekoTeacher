@@ -21,6 +21,9 @@ public class DbTableSettings {
     static private String homeworkKey = "HomeworkKey";
     static private String lastSyncTime = "LastSyncTime";
     static private String language = "Language";
+    static private String sound = "Sound";
+
+    static private int currentSoundValue = -1;
 
     static public void createTableSettings(Connection connection) {
         try {
@@ -43,6 +46,7 @@ public class DbTableSettings {
             insertNewSetting(teacherNameKey, "No Name");
             insertNewSetting(lastSyncTime, "2018-01-01 01:01:01.000000000");
             insertNewSetting(language, "en");
+            insertNewSetting(sound, "1");
         }
     }
 
@@ -116,6 +120,13 @@ public class DbTableSettings {
         return getStringSetting(language);
     }
 
+    static public int getSound() {
+        if (currentSoundValue == -1) {
+            currentSoundValue = getIntegerSetting(sound);
+        }
+        return currentSoundValue;
+    }
+
     static public void insertNearbyMode(Integer nearbyMode) {
         String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey + "=?";
         DbUtils.updateWithTwoParam(sql, nearbyMode.toString(), nearbyModeKey);
@@ -153,5 +164,11 @@ public class DbTableSettings {
     public static void insertLanguage(String languageCode) {
         String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey +"=?";
         DbUtils.updateWithTwoParam(sql, languageCode, language);
+    }
+
+    public static void insertSound(Integer soundValue) {
+        currentSoundValue = soundValue;
+        String sql = "UPDATE settings SET " + settingValue + " = ? WHERE " + settingKey +"=?";
+        DbUtils.updateWithTwoParam(sql, soundValue.toString(), sound);
     }
 }
