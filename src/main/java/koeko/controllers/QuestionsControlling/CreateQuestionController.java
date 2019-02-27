@@ -62,6 +62,8 @@ public class CreateQuestionController implements Initializable {
     @FXML private TextField imagePath;
     @FXML private TextField timerTextView;
 
+    private ResourceBundle bundle;
+
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree) {
         genericQuestionsList = argGenericQuestionsList;
         allQuestionsTree = argAllQuestionsTree;
@@ -72,7 +74,7 @@ public class CreateQuestionController implements Initializable {
         TextField textField = new TextField("");
 
         CheckBox checkBox = new CheckBox();
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals("Question with Short Answer")) {
+        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.shrtaq"))) {
             checkBox.setVisible(false);
         }
         Button removeButton = new Button("X");
@@ -152,7 +154,7 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void comboAction() {
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals("Question with Short Answer")) {
+        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.shrtaq"))) {
             for (int i = 0; i < hBoxArrayList.size(); i++) {
                 hBoxArrayList.get(i).getChildren().get(0).setVisible(false);
             }
@@ -236,7 +238,7 @@ public class CreateQuestionController implements Initializable {
                 }
             }
 
-            if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
+            if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals(bundle.getString("string.shrtaq"))) {
                 questionType = 1;
                 questionShortAnswer.setQUESTION(questionText.getText());
                 if (imagePath.getText().length() > 0) {
@@ -257,7 +259,7 @@ public class CreateQuestionController implements Initializable {
                     }
                 }
                 questionShortAnswer.setANSWER(answerOptions);
-            } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question Multiple Choice")) {
+            } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals(bundle.getString("string.qmc"))) {
                 questionType = 0;
 
                 Vector<String> options_vector = new Vector<String>();
@@ -389,11 +391,12 @@ public class CreateQuestionController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        bundle = resources;
         subjectsComboBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
         hBoxArrayList = new ArrayList<>();
         ObservableList<String> options =
-                FXCollections.observableArrayList("Question Multiple Choice", "Question with Short Answer");
+                FXCollections.observableArrayList(bundle.getString("string.qmc"), bundle.getString("string.shrtaq"));
         typeOfQuestion.setItems(options);
         typeOfQuestion.getSelectionModel().selectFirst();
         hBoxArrayList.add(firstAnswer);

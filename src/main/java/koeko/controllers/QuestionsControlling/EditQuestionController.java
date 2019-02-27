@@ -66,6 +66,8 @@ public class EditQuestionController implements Initializable {
     @FXML private TextArea customCorrection;
     @FXML private TextField timerSeconds;
 
+    private ResourceBundle bundle;
+
     public void initVariables(List<QuestionGeneric> argGenericQuestionsList, TreeView<QuestionGeneric> argAllQuestionsTree,
                               QuestionGeneric questionGeneric, TreeItem treeItem, TreeView treeView) {
         genericQuestionsList = argGenericQuestionsList;
@@ -84,7 +86,7 @@ public class EditQuestionController implements Initializable {
         TextField textField = new TextField(option);
 
         CheckBox checkBox = new CheckBox();
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals("Question with Short Answer")) {
+        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.shrtaq"))) {
             checkBox.setVisible(false);
         }
         Button removeButton = new Button("X");
@@ -169,7 +171,7 @@ public class EditQuestionController implements Initializable {
     }
 
     public void comboAction() {
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals("Question with Short Answer")) {
+        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.shrtaq"))) {
             for (int i = 0; i < hBoxArrayList.size(); i++) {
                 hBoxArrayList.get(i).getChildren().get(0).setVisible(false);
             }
@@ -186,7 +188,8 @@ public class EditQuestionController implements Initializable {
 
             //fill the correction mode combobox
             ObservableList<String> correctionModes =
-                    FXCollections.observableArrayList("All or Nothing", "Proportion of Right Decisions", "Custom Correction");
+                    FXCollections.observableArrayList(bundle.getString("string.all_or_nothing"), bundle.getString("string.proportion"),
+                            bundle.getString("string.custom"));
             correctionComboBox.setItems(correctionModes);
             correctionComboBox.getSelectionModel().select(0);
         }
@@ -267,7 +270,7 @@ public class EditQuestionController implements Initializable {
         }
 
         //add question to database according to question type
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question with Short Answer")) {
+        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals(bundle.getString("string.shrtaq"))) {
             QuestionShortAnswer new_questshortanswer = new QuestionShortAnswer();
             new_questshortanswer.setQUESTION(questionText.getText().replace("'","''"));
             if (imagePath.getText().length() > 0) {
@@ -326,7 +329,7 @@ public class EditQuestionController implements Initializable {
                     e1.printStackTrace();
                 }
             }
-        } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals("Question Multiple Choice")) {
+        } else if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().equals(bundle.getString("string.qmc"))) {
             Vector<String> options_vector = new Vector<String>();
             for (int i = 0; i < 10; i++) options_vector.add(" ");
             for (int i = 0; i < 10 && i < hBoxArrayList.size() && !((TextField) hBoxArrayList.get(i).getChildren().get(1)).getText().contentEquals(" "); i++) {
@@ -439,7 +442,8 @@ public class EditQuestionController implements Initializable {
 
             //fill the correction mode combobox
             ObservableList<String> correctionModes =
-                    FXCollections.observableArrayList("All or Nothing", "Proportion of Right Decisions", "Custom Correction");
+                    FXCollections.observableArrayList(bundle.getString("string.all_or_nothing"), bundle.getString("string.proportion"),
+                            bundle.getString("string.custom"));
             correctionComboBox.setItems(correctionModes);
             String questionCorrectionMode = DbTableQuestionMultipleChoice.getCorrectionMode(questionMultipleChoice.getID());
             if (questionCorrectionMode.contentEquals("AllOrNothing") || questionCorrectionMode.contentEquals("")) {
@@ -484,11 +488,13 @@ public class EditQuestionController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        bundle = resources;
         subjectsComboBoxArrayList = new ArrayList<>();
         objectivesComboBoxArrayList = new ArrayList<>();
         hBoxArrayList = new ArrayList<>();
         ObservableList<String> options =
-                FXCollections.observableArrayList("Question Multiple Choice", "Question with Short Answer");
+                FXCollections.observableArrayList(bundle.getString("string.qmc"),
+                        bundle.getString("string.shrtaq"));
         typeOfQuestion.setItems(options);
         typeOfQuestion.getSelectionModel().selectFirst();
     }
