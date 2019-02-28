@@ -275,7 +275,10 @@ public class QuestionTreeCell  extends TreeCell<QuestionGeneric> {
             int fadeInTime = 500; //0.5 seconds
             int fadeOutTime= 500; //0.5 seconds
             Toast.makeText((Stage) button.getScene().getWindow(), toastMsg, toastMsgTime, fadeInTime, fadeOutTime);
+            ArrayList<String> questions = DbTableRelationQuestionQuestion.getQuestionsLinkedToTestId(item.getValue().getGlobalID());
+            Koeko.questionSendingControllerSingleton.questionsForTest = questions;
         }
+        Koeko.questionSendingControllerSingleton.allQuestionsTree.refresh();
     }
 
     private QuestionGeneric getParentTest(TreeItem<QuestionGeneric> node) {

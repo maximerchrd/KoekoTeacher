@@ -355,6 +355,10 @@ public class QuestionSendingController extends Window implements Initializable {
             DbTableRelationQuestionQuestion.addRelationQuestionQuestion(String.valueOf(questionBefore.getValue().getGlobalID()),
                     String.valueOf(questionToAdd.getGlobalID()), editedTestItem.getValue().getQuestion(),
                     editedTestItem.getValue().getGlobalID(), "");
+        } else {
+            DbTableRelationQuestionQuestion.addRelationQuestionQuestion("0",
+                    String.valueOf(Utilities.setPositiveIdSign(questionToAdd.getGlobalID())), editedTestItem.getValue().getQuestion(),
+                    editedTestItem.getValue().getGlobalID(), "");
         }
 
         //add the node to the tree
