@@ -27,26 +27,11 @@ public class DbTableRelationQuestionAnserOption {
      * @param questionID, option
      * @throws Exception
      */
-    static public void addRelationQuestionAnserOption(String questionID, String option) throws Exception {
-        Connection c = null;
-        Statement stmt = null;
-        stmt = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:learning_tracker.db");
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
-            String sql = "INSERT INTO question_answeroption_relation (ID_GLOBAL, ID_ANSWEROPTION_GLOBAL) " +
-                    "SELECT t1.ID_GLOBAL,t2.ID_ANSWEROPTION_GLOBAL FROM short_answer_questions t1, answer_options t2 " +
-                    "WHERE t1.ID_GLOBAL = '"+ questionID + "' " +
-                    "AND t2.OPTION='" + option + "';";
-            stmt.executeUpdate(sql);
-            stmt.close();
-            c.commit();
-            c.close();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            System.exit(0);
-        }
+    static public void addRelationQuestionAnserOption(String questionID, String option) {
+        String sql = "INSERT INTO question_answeroption_relation (ID_GLOBAL, ID_ANSWEROPTION_GLOBAL) " +
+                "SELECT t1.ID_GLOBAL,t2.ID_ANSWEROPTION_GLOBAL FROM short_answer_questions t1, answer_options t2 " +
+                "WHERE t1.ID_GLOBAL = ? " +
+                "AND t2.OPTION=?;";
+        DbUtils.updateWithTwoParam(sql, questionID, option);
     }
 }
