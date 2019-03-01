@@ -126,16 +126,18 @@ public class ReceptionProtocol {
         if (SettingsController.forceSync == 0) {
             ArrayList<String> resourceIds = getObjectMapper().readValue(residsBytes, ArrayList.class);
             for (String resId : resourceIds) {
-                if (resId.split(";").length > 1) {
-                    String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resId.split(";")[0]);
-                    String studentsHash = resId.split(";")[1];
-                    if (teachersHash != null && studentsHash != null && teachersHash.contentEquals(studentsHash)) {
+                if (!networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1()).contains(resId.split(";")[0])) {
+                    if (resId.split(";").length > 1) {
+                        String teachersHash = DbTableQuestionMultipleChoice.getResourceHashCode(resId.split(";")[0]);
+                        String studentsHash = resId.split(";")[1];
+                        if (teachersHash != null && studentsHash != null && teachersHash.contentEquals(studentsHash)) {
+                            networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1())
+                                    .add(resId.split(";")[0]);
+                        }
+                    } else {
                         networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1())
                                 .add(resId.split(";")[0]);
                     }
-                } else {
-                    networkState.getStudentsToSyncedIdsMap().get(transferable.getOptionalArgument1())
-                            .add(resId.split(";")[0]);
                 }
             }
         }

@@ -29,7 +29,6 @@ public class StudentTableCell extends TableCell<SingleStudentAnswersLine, Studen
                 hBox.getChildren().add(checkBox);
             }
             if (!item.getStudentID().contentEquals("-1")) {
-                System.out.println(item.getName());
                 Button deleteButton = new Button();
                 deleteButton.setPrefSize(15, 15);
                 ImageView deleteImage = new ImageView(new Image("/drawable/deleteImage.png", buttonImageSize, buttonImageSize, true, false));

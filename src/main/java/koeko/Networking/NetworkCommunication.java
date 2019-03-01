@@ -567,10 +567,10 @@ public class NetworkCommunication {
             }
 
             //for debug
-            System.out.println("Student device: " + entry.getKey());
-            for (String question : questions) {
-                System.out.println("question: " + question);
-            }
+            System.out.println("Student device: " + entry.getKey() + "; number of ids on device: " + questions.size());
+//            for (String question : questions) {
+//                System.out.println("question: " + question);
+//            }
         }
 
         return questionsOnDevices;
