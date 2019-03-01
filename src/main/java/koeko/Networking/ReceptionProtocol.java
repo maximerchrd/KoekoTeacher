@@ -20,6 +20,7 @@ import koeko.view.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -198,28 +199,30 @@ public class ReceptionProtocol {
         byte[] arrayToReadInto = new byte[expectedSize];
         int bytesReadAlready = 0;
         int totalBytesRead = 0;
+        Boolean ableToRead = true;
         do {
             try {
                 bytesReadAlready = inputStream.read(arrayToReadInto, totalBytesRead, expectedSize - totalBytesRead);
-                System.out.println("number of bytes read:" + Integer.toString(bytesReadAlready));
+                System.out.println("number of bytes read:" + bytesReadAlready);
             } catch (IOException e) {
+                ableToRead = false;
                 if (e.toString().contains("Socket closed")) {
                     System.out.println("Reading data stream: input stream was closed");
+                } else if (e.toString().contains("ETIMEDOUT")) {
+                    System.out.println("readDataIntoArray: SocketException: ETIMEDOUT, trying to reconnect");
+                    //prevent disconnection by signaling that we were trying to reconnect to the reading loop ??COPIED FROM ANDROID AND NO USE HERE??
+                    arrayToReadInto = "RECONNECTION".getBytes();
+                    bytesReadAlready = 0;
+                } else if (e.toString().contains("Connection reset")) {
+                    e.printStackTrace();
                 } else {
                     e.printStackTrace();
-                    if (e.toString().contains("ETIMEDOUT")) {
-                        System.out.println("readDataIntoArray: SocketException: ETIMEDOUT, trying to reconnect");
-                        //prevent disconnection by signaling that we were trying to reconnect to the reading loop
-                        arrayToReadInto = "RECONNECTION".getBytes();
-                        bytesReadAlready = 0;
-                    }
                 }
             }
             if (bytesReadAlready >= 0) {
                 totalBytesRead += bytesReadAlready;
             }
-        }
-        while (bytesReadAlready > 0);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on client side
+        } while (bytesReadAlready > 0 && ableToRead);    //shall be sizeRead > -1, because .read returns -1 when finished reading, but outstream not closed on client side
 
         return arrayToReadInto;
     }

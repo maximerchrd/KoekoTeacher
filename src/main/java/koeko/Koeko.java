@@ -91,10 +91,16 @@ public class Koeko extends Application {
             stage.show();
         }
 
-//        for (Long i = 0L; i < 9; i++) {
-//            functionalTesting.mainTesting(3, 22, 20, 10000L, 30);
-//            Thread.sleep(760000);
-//        }
+//        new Thread(() -> {
+//            for (Long i = 0L; i < 9; i++) {
+//                functionalTesting.mainTesting(3, 1, 3, 10000L, 1);
+//                try {
+//                    Thread.sleep(7000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
     }
 
     public static FXMLLoader loadView(Locale locale, Class currentClass) throws IOException {

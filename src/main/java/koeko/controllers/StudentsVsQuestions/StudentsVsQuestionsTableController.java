@@ -343,7 +343,7 @@ public class StudentsVsQuestionsTableController extends Window implements Initia
                     questionGeneric = QuestionGeneric.shrtaqToQuestionGeneric(questionShortAnswer);
                 }
 
-                Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric);
+                Platform.runLater(() -> Koeko.questionSendingControllerSingleton.readyQuestionsList.getItems().add(questionGeneric));
                 indexColumn = Koeko.studentGroupsAndClass.get(group).getActiveQuestionIDs().indexOf(questionId);
 
                 int nbColumnsAfter = nbColumnsBefore;

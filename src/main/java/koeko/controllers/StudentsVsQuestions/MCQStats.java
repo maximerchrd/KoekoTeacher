@@ -61,8 +61,12 @@ public class MCQStats  extends Window {
         for (int i = 0; i < nbAnswers.size(); i++) {
             nbAnswers.set(i, 0);
         }
-        answerLines.set(lineNumber, answers.split(";"));
-        Platform.runLater(() -> drawChart());
+        try {
+            answerLines.set(lineNumber, answers.split(";"));
+            Platform.runLater(() -> drawChart());
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     private void drawChart() {

@@ -402,7 +402,6 @@ public class NetworkCommunication {
                                 break;
                             default:
                                 System.err.println("Implement informing user that the app might need update");
-
                         }
                     } else {
                         System.out.println("Communication over?");
@@ -416,12 +415,14 @@ public class NetworkCommunication {
                         System.out.println("Other Socket exception");
                     }
                     bytesread = -1;
+                    ableToRead = false;
                 } catch (IOException e1) {
                     System.out.println("Some other IOException occured");
                     if (e1.toString().contains("Connection reset")) {
                         bytesread = -1;
                     }
                     e1.printStackTrace();
+                    ableToRead = false;
                 }
             }
             writer.close();
