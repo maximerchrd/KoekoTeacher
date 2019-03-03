@@ -291,7 +291,7 @@ public class Classroom {
     public Double updateAverageEvaluationForQuestion(Integer question, Integer student, Double evaluation) {
         Double averageEval= 0.0;
         Double numberEval = 0.0;
-        if (activeEvaluations.size() > student && activeEvaluations.get(student).size() > 0) {
+        if (activeEvaluations.size() > student && activeEvaluations.get(student).size() > question) {
             if (activeEvaluations.get(student).get(question) != null) {
                 activeEvaluations.get(student).set(question, evaluation);
             }
