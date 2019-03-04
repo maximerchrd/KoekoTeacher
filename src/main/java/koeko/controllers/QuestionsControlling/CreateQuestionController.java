@@ -2,7 +2,9 @@ package koeko.controllers.QuestionsControlling;
 
 
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
@@ -70,23 +72,7 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void addAnswerOption() {
-        HBox hBox = new HBox();
-        TextField textField = new TextField("");
-
-        CheckBox checkBox = new CheckBox();
-        if (typeOfQuestion.getSelectionModel().getSelectedItem().toString().contentEquals(bundle.getString("string.shrtaq"))) {
-            checkBox.setVisible(false);
-        }
-        Button removeButton = new Button("X");
-        removeButton.setOnAction(event -> {
-            hBoxArrayList.remove(hBox);
-            (( VBox)hBox.getParent()).getChildren().remove(hBox);
-        });
-        hBox.getChildren().add(checkBox);
-        hBox.getChildren().add(textField);
-        hBox.getChildren().add(removeButton);
-        vBox.getChildren().add(vBox.getChildren().size() - 2, hBox);
-        hBoxArrayList.add(hBox);
+        QuestionEditing.addAnswerOption("", typeOfQuestion, bundle, hBoxArrayList, vBox);
     }
 
     public void removeAnswerOption() {
@@ -95,62 +81,11 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void addSubject() {
-        Vector<String> subjectsVector = DbTableSubject.getAllSubjectsAsStrings();
-        String[] subjects = subjectsVector.toArray(new String[subjectsVector.size()]);;
-        ObservableList<String> options =
-                FXCollections.observableArrayList(subjects);
-        ComboBox comboBox = new ComboBox(options);
-        comboBox.setEditable(true);
-        subjectsComboBoxArrayList.add(comboBox);
-
-        HBox hBox = new HBox();
-        Button editButton = new Button();
-        ImageView editImage = new ImageView(new Image("/drawable/editImage.png", buttonImageSize, buttonImageSize, true, true));
-        editButton.setGraphic(editImage);
-        editButton.setOnAction(event -> {
-            if (comboBox.getSelectionModel().getSelectedItem() != null) {
-                QuestionEditing.promptEditSubject(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
-            }
-        });
-
-        Button removeButton = new Button("X");
-        removeButton.setOnAction(event -> {
-            subjectsComboBoxArrayList.remove(comboBox);
-            (( VBox)hBox.getParent()).getChildren().remove(hBox);
-        });
-        hBox.getChildren().addAll(comboBox, editButton, removeButton);
-        vBoxSubjects.getChildren().add(hBox);
-        TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
+        QuestionEditing.addSubject("", subjectsComboBoxArrayList, buttonImageSize, vBoxSubjects);
     }
 
     public void addObjective() {
-        Vector<String> objectivessVector = DbTableLearningObjectives.getAllObjectives();
-        String[] objectives = objectivessVector.toArray(new String[objectivessVector.size()]);;
-        ObservableList<String> options =
-                FXCollections.observableArrayList(objectives);
-        ComboBox comboBox = new ComboBox(options);
-        comboBox.setEditable(true);
-        objectivesComboBoxArrayList.add(comboBox);
-
-        HBox hBox = new HBox();
-
-        Button editButton = new Button();
-        ImageView editImage = new ImageView(new Image("/drawable/editImage.png", buttonImageSize, buttonImageSize, true, true));
-        editButton.setGraphic(editImage);
-        editButton.setOnAction(event -> {
-            if (comboBox.getSelectionModel().getSelectedItem() != null) {
-                QuestionEditing.promptEditObjective(comboBox.getSelectionModel().getSelectedItem().toString(), comboBox);
-            }
-        });
-
-        Button removeButton = new Button("X");
-        removeButton.setOnAction(event -> {
-            objectivesComboBoxArrayList.remove(comboBox);
-            (( VBox)hBox.getParent()).getChildren().remove(hBox);
-        });
-        hBox.getChildren().addAll(comboBox, editButton, removeButton);
-        vBoxObjectives.getChildren().add(hBox);
-        TextFields.bindAutoCompletion(comboBox.getEditor(), comboBox.getItems());
+        QuestionEditing.addObjective("", objectivesComboBoxArrayList, buttonImageSize, vBoxObjectives);
     }
 
     public void comboAction() {
@@ -166,49 +101,7 @@ public class CreateQuestionController implements Initializable {
     }
 
     public void addPicture() {
-        File theDir = new File(FilesHandler.mediaDirectoryNoSlash);
-        // if the directory does not exist, create it
-        if (!theDir.exists()) {
-            System.out.println("creating directory: " + theDir.getName());
-            boolean result = false;
-
-            try{
-                theDir.mkdir();
-                result = true;
-            }
-            catch(SecurityException se){
-                //handle it
-            }
-            if(result) {
-                System.out.println("DIR created");
-            }
-        }
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select image file");
-        Stage stage = (Stage) vBox.getScene().getWindow();
-        File source_file = fileChooser.showOpenDialog(stage);
-        File dest_file = new File(FilesHandler.mediaDirectory + source_file.getName());
-        File hashedFileName = new File(FilesHandler.mediaDirectory + source_file.getName());
-        try {
-            Files.copy(source_file.toPath(), dest_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = Files.readAllBytes(dest_file.toPath());
-            messageDigest.update(hashedBytes);
-            String encryptedString = DatatypeConverter.printHexBinary(messageDigest.digest());
-            if (encryptedString.length() > 14) {
-                encryptedString = encryptedString.substring(0, 14);
-            }
-            hashedFileName = new File(FilesHandler.mediaDirectory + encryptedString);
-            Files.move(dest_file.toPath(), hashedFileName.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        imagePath.setText(hashedFileName.getName());
-        imagePath.setEditable(false);
+        QuestionEditing.addPicture(vBox, imagePath);
     }
 
     public void saveQuestion() {
@@ -400,5 +293,6 @@ public class CreateQuestionController implements Initializable {
         typeOfQuestion.setItems(options);
         typeOfQuestion.getSelectionModel().selectFirst();
         hBoxArrayList.add(firstAnswer);
+        questionText.setWrapText(true);
     }
 }
