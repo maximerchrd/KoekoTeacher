@@ -5,13 +5,13 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionsControlling.CreateQuestionController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1050.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="koeko.controllers.QuestionsControlling.CreateQuestionController">
    <children>
       <HBox layoutX="221.0" layoutY="128.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
          <children>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane prefHeight="390.0" prefWidth="350.0">
                <children>
-                  <VBox fx:id="vBox" layoutX="59.0" layoutY="71.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox fx:id="vBox" layoutX="59.0" layoutY="71.0" prefHeight="200.0" prefWidth="150.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <ComboBox fx:id="typeOfQuestion" onAction="#comboAction" prefHeight="27.0" prefWidth="198.0" promptText="%createquestion.type" />
                         <Label text="%createquestion.question">
@@ -40,13 +40,16 @@
                                     <Insets top="5.0" />
                                  </HBox.margin>
                               </CheckBox>
-                              <TextField prefHeight="27.0" />
+                              <TextField prefHeight="27.0" HBox.hgrow="ALWAYS" />
                               <Button mnemonicParsing="false" onAction="#removeAnswerOption" text="X">
                                  <HBox.margin>
                                     <Insets left="5.0" />
                                  </HBox.margin>
                               </Button>
                            </children>
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding>
                         </HBox>
                         <HBox prefHeight="33.0" prefWidth="197.0">
                            <children>
@@ -67,9 +70,9 @@
                   </VBox>
                </children>
             </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane prefHeight="390.0" prefWidth="350.0">
                <children>
-                  <VBox fx:id="vBoxSubjects" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox fx:id="vBoxSubjects" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <HBox prefHeight="46.0" prefWidth="197.0">
                            <children>
@@ -86,9 +89,9 @@
                   </VBox>
                </children>
             </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane prefHeight="200.0" prefWidth="350.0">
                <children>
-                  <VBox fx:id="vBoxObjectives" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox fx:id="vBoxObjectives" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#addObjective" text="%createquestion.add_objective">
                            <VBox.margin>

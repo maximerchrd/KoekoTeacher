@@ -1,7 +1,6 @@
 package koeko.Networking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.javac.util.ArrayUtils;
 import javafx.application.Platform;
 import koeko.Koeko;
 import koeko.Networking.OtherTransferables.Answer;
@@ -20,7 +19,6 @@ import koeko.view.Result;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

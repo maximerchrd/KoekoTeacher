@@ -47,7 +47,7 @@
                   </ToggleButton>
                </children>
             </HBox>
-            <Label text="%settings.web_syncing">
+            <Label text="%settings.web_syncing" visible="false">
                <VBox.margin>
                   <Insets bottom="15.0" />
                </VBox.margin>
@@ -55,7 +55,7 @@
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
-            <HBox prefHeight="50.0" prefWidth="855.0">
+            <HBox prefHeight="50.0" prefWidth="855.0" visible="false">
                <children>
                   <Label prefWidth="160.0" text="User Name:" />
                   <TextField fx:id="teacherName" onAction="#setUserName" prefWidth="170.0">
@@ -65,7 +65,7 @@
                   </TextField>
                </children>
             </HBox>
-            <HBox prefHeight="50.0" prefWidth="200.0">
+            <HBox prefHeight="50.0" prefWidth="200.0" visible="false">
                <children>
                   <Label prefWidth="160.0" text="%settings.language2" />
                   <ComboBox fx:id="languageCombobox" onAction="#setLanguage" prefWidth="170.0" promptText="%settings.language">
@@ -75,7 +75,7 @@
                   </ComboBox>
                </children>
             </HBox>
-            <HBox prefHeight="50.0" prefWidth="200.0">
+            <HBox prefHeight="50.0" prefWidth="200.0" visible="false">
                <children>
                   <Label prefWidth="160.0" text="%settings.syncing_key" />
                   <TextField fx:id="synchronizationKeyTextField" prefWidth="170.0">
@@ -84,7 +84,7 @@
                      </HBox.margin></TextField>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox prefHeight="100.0" prefWidth="200.0" visible="false">
                <children>
                   <Button mnemonicParsing="false" onAction="#syncWithServer" text="%settings.synchronize" />
                   <Button mnemonicParsing="false" onAction="#resetAndSync" text="%settings.reset_synchronize">
@@ -94,7 +94,7 @@
                   </Button>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#requestHomeworkKey" text="%settings.request_key" />
+            <Button mnemonicParsing="false" onAction="#requestHomeworkKey" text="%settings.request_key" visible="false" />
          </children></VBox>
    </children>
 </AnchorPane>

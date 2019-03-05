@@ -432,7 +432,7 @@ public class DbTableIndividualQuestionForStudentResult {
      * Method that returns a histogram of the number of hits vs the answer options for a certain question
      *
      * @param questionID
-     * @param className  (set to "" if you want the result for all classes)
+     * @param className  (set to the correct 'All Classes' string if you want the result for all classes)
      * @return an array of 2 arrays containing the answer options (one array) and the number of students who chose
      * this option (second array)
      * IF THE QUESTION ID CORRESPONDS TO A SHRTAQ, RETURNS NULL

@@ -29,28 +29,28 @@ public class DbTableIndividualQuestionForStudentResultTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        DbTableStudents.addStudent("noaddress","Anatol");
-        DbTableStudents.addStudent("noaddress","Sophie");
-        DbTableStudents.addStudent("noaddress","Arthur");
-        DbTableStudents.addStudent("noaddress","Perceval");
-        DbTableStudents.addStudent("noaddress","Justin");
-        DbTableStudents.addStudent("noaddress","Artemis");
+        String anatol = DbTableStudents.addStudent("noaddress","Anatol");
+        String sophie = DbTableStudents.addStudent("noaddress","Sophie");
+        String arthur = DbTableStudents.addStudent("noaddress","Arthur");
+        String perceval = DbTableStudents.addStudent("noaddress","Perceval");
+        String justin = DbTableStudents.addStudent("noaddress","Justin");
+        String artemis = DbTableStudents.addStudent("noaddress","Artemis");
 
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Anatol",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,anatol,
                 "First Option (right)|||Second Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Anatol",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,anatol,
                 "Third Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Sophie",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,sophie,
                 "First Option (right)|||Second Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Arthur",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,arthur,
                 "First Option (right)|||Third Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Perceval",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,perceval,
                 "Fourth Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Justin",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,justin,
                 "Fifth Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Justin",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,justin,
                 "Seventh Option (wrong)","no type");
-        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,"Artemis",
+        DbTableIndividualQuestionForStudentResult.addIndividualQuestionForStudentResult(questionID,artemis,
                 "Seventh Option (wrong)","no type");
         DbTableClasses.addClass("test indiv res table class", "", "");
         DbTableRelationClassStudent.addClassStudentRelation("test indiv res table class", "Anatol");
@@ -60,7 +60,7 @@ public class DbTableIndividualQuestionForStudentResultTest {
 
     @Test
     public void testgetAnswersHistogramForQuestion() {
-        ArrayList<ArrayList> result = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "", "All Classes");
+        ArrayList<ArrayList> result = DbTableIndividualQuestionForStudentResult.getAnswersHistogramForQuestion(questionID, "All Classes", "All Classes");
 
         //test first array
         ArrayList<String> options = new ArrayList<>();

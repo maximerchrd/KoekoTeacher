@@ -22,8 +22,7 @@
                         <Insets left="5.0" top="5.0" />
                     </VBox.margin>
                 </Button>
-                <ComboBox fx:id="uiChoiceBox" layoutX="683.0" layoutY="14.0" onAction="#changeUI" prefHeight="27.0"
-                          prefWidth="202.0" AnchorPane.rightAnchor="5.0"/>
+                <ComboBox fx:id="uiChoiceBox" layoutX="683.0" layoutY="14.0" onAction="#changeUI" prefHeight="27.0" prefWidth="202.0" AnchorPane.rightAnchor="5.0" />
                 <Accordion fx:id="browseSubjectsAccordion" prefWidth="205.0" visible="false">
                     <panes>
                         <TitledPane animated="false" text="%leftbar.browse_subjects">
@@ -60,7 +59,7 @@
                                 </AnchorPane>
                             </content>
                         </TitledPane>
-                        <TitledPane animated="false" text="%leftbar.certificative_test">
+                        <TitledPane animated="false" text="%leftbar.certificative_test" visible="false">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
@@ -71,7 +70,7 @@
                                 </AnchorPane>
                             </content>
                         </TitledPane>
-                        <TitledPane animated="false" text="%leftbar.manage_homeworks">
+                        <TitledPane animated="false" text="%leftbar.manage_homeworks" visible="false">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0">
                                     <children>

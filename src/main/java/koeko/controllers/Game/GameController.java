@@ -1,8 +1,6 @@
 package koeko.controllers.Game;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -13,7 +11,6 @@ import koeko.Networking.NetworkCommunication;
 import koeko.questions_management.QuestionGeneric;
 import koeko.students_management.Student;
 import org.jetbrains.annotations.NotNull;
-import sun.nio.ch.Net;
 
 import java.io.IOException;
 import java.net.URL;

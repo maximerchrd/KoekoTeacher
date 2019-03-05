@@ -59,7 +59,7 @@ public class Koeko extends Application {
         dao.createDBIfNotExists();
         dao.createTablesIfNotExists();
 
-        mainStage.setTitle("Koeko");
+        mainStage.setTitle("Koeko - Beta 0.1");
 
         FXMLLoader loader = loadView(new Locale(DbTableSettings.getLanguage()), getClass());
 
@@ -79,23 +79,23 @@ public class Koeko extends Application {
             System.exit(0);
         });
 
-        if (firstAppLaunch) {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/InstallAssistant.fxml"));
-            Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initStyle(StageStyle.DECORATED);
-            stage.setTitle(ResourceBundle.getBundle("bundles.LangBundle", new Locale(DbTableSettings.getLanguage()))
-                    .getString("string.starting_assistant"));
-            stage.setScene(new Scene(root1));
-            stage.show();
-        }
+//        if (firstAppLaunch) {
+//            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/InstallAssistant.fxml"));
+//            Parent root1 = ControllerUtils.openFXMLResource(fxmlLoader);
+//            Stage stage = new Stage();
+//            stage.initModality(Modality.APPLICATION_MODAL);
+//            stage.initStyle(StageStyle.DECORATED);
+//            stage.setTitle(ResourceBundle.getBundle("bundles.LangBundle", new Locale(DbTableSettings.getLanguage()))
+//                    .getString("string.starting_assistant"));
+//            stage.setScene(new Scene(root1));
+//            stage.show();
+//        }
 
 //        new Thread(() -> {
 //            for (Long i = 0L; i < 9; i++) {
-//                functionalTesting.mainTesting(3, 1, 3, 10000L, 1);
+//                functionalTesting.mainTesting(3, 10, 18, 10000L, 1);
 //                try {
-//                    Thread.sleep(7000);
+//                    Thread.sleep(120000);
 //                } catch (InterruptedException e) {
 //                    e.printStackTrace();
 //                }
